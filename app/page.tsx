@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, Search } from "lucide-react";
+import { ArrowRight, Search, Zap, ShieldCheck, Globe } from "lucide-react";
 import dbConnect from "@/lib/db";
 import Listing from "@/models/Listing";
 import { ListingCard } from "@/components/ListingCard";
@@ -8,10 +8,10 @@ import { Input } from "@/components/ui/input";
 
 async function getRecentListings() {
   await dbConnect();
-  // Fetch 6 recent active listings
   const listings = await Listing.find({ status: "active" })
     .sort({ createdAt: -1 })
-    .limit(6)
+    .limit(8)
+    .populate("seller", "name image")
     .lean();
   return JSON.parse(JSON.stringify(listings));
 }
@@ -20,49 +20,83 @@ export default async function Home() {
   const recentListings = await getRecentListings();
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen bg-background">
       {/* Hero Section */}
-      <section className="relative px-4 py-20 md:py-32 bg-gradient-to-br from-primary/10 via-background to-background text-center overflow-hidden">
-        <div className="container mx-auto relative z-10">
-          <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight mb-6 bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/60">
-            Buy & Sell Locally, Securely.
-          </h1>
-          <p className="text-lg md:text-xl text-muted-foreground mb-10 max-w-2xl mx-auto">
-            Discover great deals, connect with your community, and trade with confidence on Trade Zone.
-          </p>
+      <section className="relative px-4 py-24 md:py-32 overflow-hidden">
+        {/* Background Gradients */}
+        <div className="absolute top-0 left-0 w-full h-full bg-background -z-20" />
+        <div className="absolute top-[-10%] right-[-5%] w-[500px] h-[500px] bg-primary/20 rounded-full blur-3xl -z-10 animate-pulse" />
+        <div className="absolute bottom-[-10%] left-[-5%] w-[600px] h-[600px] bg-purple-500/10 rounded-full blur-3xl -z-10" />
 
-          <div className="max-w-xl mx-auto flex gap-2">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-3 h-5 w-5 text-muted-foreground" />
-              <Input
-                placeholder="What are you looking for?"
-                className="pl-10 h-12 text-lg bg-background/80 backdrop-blur"
-              />
-            </div>
-            <Button size="lg" className="h-12 px-8">Search</Button>
+        <div className="container mx-auto relative z-10 text-center">
+          <div className="inline-flex items-center px-3 py-1 rounded-full border bg-background/50 backdrop-blur-sm text-sm font-medium mb-6 text-primary animate-in fade-in slide-in-from-bottom-4 duration-700">
+             <span className="flex h-2 w-2 rounded-full bg-primary mr-2"></span>
+             The #1 Marketplace for verified sellers
           </div>
           
-          <div className="mt-8 flex justify-center gap-4 text-sm text-muted-foreground">
-             <span>Popular:</span>
-             <Link href="/browse?q=iPhone" className="hover:text-primary underline underline-offset-4">iPhone</Link>
-             <Link href="/browse?q=Car" className="hover:text-primary underline underline-offset-4">Cars</Link>
-             <Link href="/browse?q=Furniture" className="hover:text-primary underline underline-offset-4">Furniture</Link>
+          <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight mb-8 leading-tight animate-in fade-in slide-in-from-bottom-6 duration-700 delay-100">
+            Buy & Sell <br className="hidden md:block"/>
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary via-purple-500 to-indigo-600">
+              Without Limits.
+            </span>
+          </h1>
+          
+          <p className="text-lg md:text-xl text-muted-foreground mb-10 max-w-2xl mx-auto animate-in fade-in slide-in-from-bottom-6 duration-700 delay-200">
+            Join the community of creators and collectors. Discover unique items, connect with verified sellers, and trade safely.
+          </p>
+
+          <div className="max-w-2xl mx-auto flex flex-col sm:flex-row gap-3 animate-in fade-in slide-in-from-bottom-6 duration-700 delay-300">
+            <div className="relative flex-1 group">
+              <Search className="absolute left-4 top-3.5 h-5 w-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
+              <Input
+                placeholder="Search for cars, phones, furniture..."
+                className="pl-12 h-12 text-lg rounded-full shadow-sm border-muted-foreground/20 focus-visible:ring-primary"
+              />
+            </div>
+            <Button size="lg" className="h-12 px-8 rounded-full text-base shadow-lg shadow-primary/25 bg-primary hover:bg-primary/90 transition-all hover:scale-105">
+              Search Now
+            </Button>
+          </div>
+          
+          <div className="mt-8 flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm text-muted-foreground animate-in fade-in zoom-in duration-1000 delay-500">
+             <span className="font-semibold text-foreground">Trending:</span>
+             {['iPhone 15', 'PlayStation 5', 'Vintage Camera', 'MacBook Pro'].map((term) => (
+                <Link key={term} href={`/browse?q=${term}`} className="hover:text-primary transition-colors border-b border-dashed border-muted-foreground/50 hover:border-primary">
+                  {term}
+                </Link>
+             ))}
           </div>
         </div>
-        
-        {/* Abstract Background Element */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-primary/5 rounded-full blur-3xl -z-10" />
       </section>
 
-      {/* Categories Section (Quick Links) */}
-      <section className="py-16 bg-muted/30">
+      {/* Categories Grid */}
+      <section className="py-20 bg-muted/30">
         <div className="container mx-auto px-4">
-           <h2 className="text-2xl font-bold mb-8 text-center">Browse by Category</h2>
-           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-              {['Electronics', 'Vehicles', 'Real Estate', 'Fashion', 'Home', 'Services'].map((cat) => (
-                <Link key={cat} href={`/browse?category=${cat}`}>
-                  <div className="bg-card hover:bg-card/80 transition-colors p-6 rounded-xl border text-center shadow-sm cursor-pointer">
-                     <span className="font-semibold">{cat}</span>
+           <div className="flex justify-between items-end mb-10">
+              <div>
+                <h2 className="text-3xl font-bold tracking-tight mb-2">Explore Categories</h2>
+                <p className="text-muted-foreground">Find exactly what you need.</p>
+              </div>
+              <Button variant="outline" asChild className="hidden md:flex">
+                <Link href="/categories">View All Categories</Link>
+              </Button>
+           </div>
+           
+           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+              {[
+                { name: 'Electronics', icon: '💻', color: 'bg-blue-500/10 text-blue-600' },
+                { name: 'Vehicles', icon: '🚗', color: 'bg-orange-500/10 text-orange-600' },
+                { name: 'Real Estate', icon: '🏠', color: 'bg-green-500/10 text-green-600' },
+                { name: 'Fashion', icon: '👕', color: 'bg-pink-500/10 text-pink-600' },
+                { name: 'Home', icon: '🛋️', color: 'bg-amber-500/10 text-amber-600' },
+                { name: 'Services', icon: '🔧', color: 'bg-purple-500/10 text-purple-600' }
+              ].map((cat) => (
+                <Link key={cat.name} href={`/browse?category=${cat.name}`} className="group">
+                  <div className="h-full bg-card hover:bg-background border border-transparent hover:border-border transition-all p-6 rounded-2xl shadow-sm hover:shadow-md text-center group-hover:-translate-y-1 duration-300">
+                     <div className={`w-12 h-12 mx-auto mb-4 rounded-full flex items-center justify-center text-2xl ${cat.color} group-hover:scale-110 transition-transform`}>
+                        {cat.icon}
+                     </div>
+                     <span className="font-semibold text-foreground/80 group-hover:text-foreground">{cat.name}</span>
                   </div>
                 </Link>
               ))}
@@ -70,19 +104,15 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* Featured/Recent Listings */}
-      <section className="py-16 container mx-auto px-4">
-        <div className="flex items-center justify-between mb-8">
-          <h2 className="text-2xl font-bold">Fresh Recommendations</h2>
-          <Button variant="ghost" asChild>
-            <Link href="/browse">
-              View All <ArrowRight className="ml-2 h-4 w-4" />
-            </Link>
-          </Button>
+      {/* Featured Listings */}
+      <section className="py-24 container mx-auto px-4">
+        <div className="text-center mb-16 space-y-2">
+           <h2 className="text-4xl font-bold tracking-tight">Fresh on the Market</h2>
+           <p className="text-muted-foreground max-w-lg mx-auto">Don't miss out on the latest listings added by our community today.</p>
         </div>
         
         {recentListings.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
             {recentListings.map((listing: any) => (
               <ListingCard
                 key={listing._id}
@@ -98,25 +128,52 @@ export default async function Home() {
             ))}
           </div>
         ) : (
-           <div className="text-center py-12 border-2 border-dashed rounded-lg">
-             <p className="text-muted-foreground">No active listings at the moment. Be the first to post!</p>
-             <Button className="mt-4" asChild>
+           <div className="flex flex-col items-center justify-center py-20 border-2 border-dashed border-muted rounded-3xl bg-muted/10">
+             <div className="bg-background p-4 rounded-full shadow-sm mb-4">
+                <Search className="h-8 w-8 text-muted-foreground" />
+             </div>
+             <p className="text-lg font-medium">No active listings yet</p>
+             <p className="text-muted-foreground mb-6">Be the first to create a listing!</p>
+             <Button size="lg" asChild>
                <Link href="/listings/create">Post an Ad</Link>
              </Button>
            </div>
         )}
+        
+        <div className="mt-16 text-center">
+           <Button variant="outline" size="lg" className="rounded-full px-8 border-primary/20 hover:border-primary/50" asChild>
+             <Link href="/browse">View All Listings</Link>
+           </Button>
+        </div>
       </section>
       
-      {/* CTA Section */}
-      <section className="py-20 bg-primary/5">
-        <div className="container mx-auto px-4 text-center">
-           <h2 className="text-3xl font-bold mb-4">Ready to declutter?</h2>
-           <p className="text-muted-foreground mb-8 max-w-xl mx-auto">
-             Join thousands of sellers turning their unused items into cash. It's safe, fast, and free to sell locally.
-           </p>
-           <Button size="lg" className="text-lg px-8 py-6" asChild>
-              <Link href="/listings/create">Start Selling</Link>
-           </Button>
+      {/* Features / Trust Section */}
+      <section className="py-24 bg-primary text-primary-foreground relative overflow-hidden">
+        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 brightness-100 contrast-150 mix-blend-overlay"></div>
+        <div className="container mx-auto px-4 relative z-10">
+           <div className="grid md:grid-cols-3 gap-12 text-center md:text-left">
+              <div className="space-y-4">
+                 <div className="w-12 h-12 bg-white/20 backdrop-blur rounded-2xl flex items-center justify-center mb-4 text-white">
+                    <Zap className="h-6 w-6" />
+                 </div>
+                 <h3 className="text-xl font-bold">Fast & Easy</h3>
+                 <p className="text-primary-foreground/80 leading-relaxed">List your items in seconds and connect with buyers instantly. No complicated forms or hidden fees.</p>
+              </div>
+              <div className="space-y-4">
+                 <div className="w-12 h-12 bg-white/20 backdrop-blur rounded-2xl flex items-center justify-center mb-4 text-white">
+                    <ShieldCheck className="h-6 w-6" />
+                 </div>
+                 <h3 className="text-xl font-bold">Secure Transactions</h3>
+                 <p className="text-primary-foreground/80 leading-relaxed">Our verified user system and safety guidelines ensure you can trade with confidence and peace of mind.</p>
+              </div>
+              <div className="space-y-4">
+                 <div className="w-12 h-12 bg-white/20 backdrop-blur rounded-2xl flex items-center justify-center mb-4 text-white">
+                    <Globe className="h-6 w-6" />
+                 </div>
+                 <h3 className="text-xl font-bold">Local Community</h3>
+                 <p className="text-primary-foreground/80 leading-relaxed">Support your local economy by buying from neighbors. Reduce waste and find hidden gems nearby.</p>
+              </div>
+           </div>
         </div>
       </section>
     </div>
