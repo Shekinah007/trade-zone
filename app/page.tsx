@@ -82,14 +82,12 @@ export default async function Home() {
               </Button>
            </div>
            
-           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
               {[
-                { name: 'Electronics', icon: '💻', color: 'bg-blue-500/10 text-blue-600' },
+                { name: 'Laptops and Computers', icon: '💻', color: 'bg-pink-500/10 text-pink-600' },
+                { name: 'Mobile Phones and Tablets', icon: '🏠', color: 'bg-green-500/10 text-green-600' },
+                { name: 'Electronics and Appliances', icon: '📺', color: 'bg-blue-500/10 text-blue-600' },
                 { name: 'Vehicles', icon: '🚗', color: 'bg-orange-500/10 text-orange-600' },
-                { name: 'Real Estate', icon: '🏠', color: 'bg-green-500/10 text-green-600' },
-                { name: 'Fashion', icon: '👕', color: 'bg-pink-500/10 text-pink-600' },
-                { name: 'Home', icon: '🛋️', color: 'bg-amber-500/10 text-amber-600' },
-                { name: 'Services', icon: '🔧', color: 'bg-purple-500/10 text-purple-600' }
               ].map((cat) => (
                 <Link key={cat.name} href={`/browse?category=${cat.name}`} className="group">
                   <div className="h-full bg-card hover:bg-background border border-transparent hover:border-border transition-all p-6 rounded-2xl shadow-sm hover:shadow-md text-center group-hover:-translate-y-1 duration-300">
