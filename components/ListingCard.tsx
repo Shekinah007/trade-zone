@@ -1,3 +1,5 @@
+"use client"
+
 import Link from "next/link";
 import { formatDistanceToNow } from "date-fns";
 import { Heart, MapPin, Tag } from "lucide-react";

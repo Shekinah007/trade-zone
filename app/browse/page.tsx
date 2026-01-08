@@ -1,3 +1,5 @@
+// ""use client"
+
 import { Suspense } from "react";
 import dbConnect from "@/lib/db";
 import Listing from "@/models/Listing";
