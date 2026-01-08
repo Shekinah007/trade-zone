@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { useForm } from "react-hook-form";
@@ -44,16 +44,7 @@ const formSchema = z.object({
   country: z.string().min(2, "Country is required"),
 });
 
-const CATEGORIES = [
-  "Electronics",
-  "Vehicles",
-  "Real Estate",
-  "Fashion",
-  "Home & Garden",
-  "Sports",
-  "Services",
-  "Other",
-];
+
 
 export default function CreateListingPage() {
   const router = useRouter();
@@ -61,6 +52,20 @@ export default function CreateListingPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [images, setImages] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);
+  const [categories, setCategories] = useState<any[]>([]);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const res = await fetch("/api/categories");
+        const data = await res.json();
+        setCategories(data);
+      } catch (error) {
+        toast.error("Failed to load categories");
+      }
+    };
+    fetchCategories();
+  }, []);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -177,9 +182,9 @@ export default function CreateListingPage() {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {CATEGORIES.map((cat) => (
-                          <SelectItem key={cat} value={cat}>
-                            {cat}
+                        {categories.map((cat) => (
+                          <SelectItem key={cat._id} value={cat.name}>
+                            {cat.name}
                           </SelectItem>
                         ))}
                       </SelectContent>

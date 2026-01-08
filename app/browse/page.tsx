@@ -37,12 +37,22 @@ async function getListings(searchParams: { [key: string]: string | string[] | un
   return JSON.parse(JSON.stringify(listings));
 }
 
+import Category from "@/models/Category";
+import Link from "next/link"; // Ensure Link is imported
+
+async function getCategories() {
+  await dbConnect();
+  const categories = await Category.find().sort({ name: 1 }).lean();
+  return JSON.parse(JSON.stringify(categories));
+}
+
 export default async function BrowsePage({
   searchParams,
 }: {
   searchParams: { [key: string]: string | string[] | undefined };
 }) {
   const listings = await getListings(searchParams);
+  const categories = await getCategories();
 
   return (
     <div className="container mx-auto py-8 px-4">
@@ -50,10 +60,24 @@ export default async function BrowsePage({
         {/* Filters Sidebar (Simple version) */}
         <aside className="w-full md:w-64 space-y-6">
            <div className="space-y-4">
-              <h2 className="font-semibold text-lg">Filters</h2>
-              {/* Add Filter Components here (Categories, Price Range, Condition) */}
-              <div className="p-4 border rounded-lg bg-card">
-                  <p className="text-sm text-muted-foreground">Filters coming soon...</p>
+              <h2 className="font-semibold text-lg">Categories</h2>
+              <div className="flex flex-col gap-2">
+                 <Button variant={!searchParams.category ? "secondary" : "ghost"} asChild className="justify-start">
+                    <Link href="/browse">All Categories</Link>
+                 </Button>
+                 {categories.map((cat: any) => (
+                    <Button 
+                      key={cat._id} 
+                      variant={searchParams.category === cat.name ? "secondary" : "ghost"} 
+                      asChild 
+                      className="justify-start"
+                    >
+                      <Link href={`/browse?category=${cat.name}`}>
+                         <span className="mr-2">{cat.icon}</span>
+                         {cat.name}
+                      </Link>
+                    </Button>
+                 ))}
               </div>
            </div>
         </aside>

@@ -16,8 +16,17 @@ async function getRecentListings() {
   return JSON.parse(JSON.stringify(listings));
 }
 
+import Category from "@/models/Category";
+
+async function getCategories() {
+  await dbConnect();
+  const categories = await Category.find().sort({ name: 1 }).lean();
+  return JSON.parse(JSON.stringify(categories));
+}
+
 export default async function Home() {
   const recentListings = await getRecentListings();
+  const categories = await getCategories();
 
   return (
     <div className="flex flex-col min-h-screen bg-background">
@@ -83,16 +92,11 @@ export default async function Home() {
            </div>
            
            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-              {[
-                { name: 'Laptops and Computers', icon: '💻', color: 'bg-pink-500/10 text-pink-600' },
-                { name: 'Mobile Phones and Tablets', icon: '🏠', color: 'bg-green-500/10 text-green-600' },
-                { name: 'Electronics and Appliances', icon: '📺', color: 'bg-blue-500/10 text-blue-600' },
-                { name: 'Vehicles', icon: '🚗', color: 'bg-orange-500/10 text-orange-600' },
-              ].map((cat) => (
-                <Link key={cat.name} href={`/browse?category=${cat.name}`} className="group">
+              {categories.map((cat: any) => (
+                <Link key={cat._id} href={`/browse?category=${cat.name}`} className="group">
                   <div className="h-full bg-card hover:bg-background border border-transparent hover:border-border transition-all p-6 rounded-2xl shadow-sm hover:shadow-md text-center group-hover:-translate-y-1 duration-300">
-                     <div className={`w-12 h-12 mx-auto mb-4 rounded-full flex items-center justify-center text-2xl ${cat.color} group-hover:scale-110 transition-transform`}>
-                        {cat.icon}
+                     <div className={`w-12 h-12 mx-auto mb-4 rounded-full flex items-center justify-center text-2xl bg-primary/10 text-primary group-hover:scale-110 transition-transform`}>
+                        {cat.icon || '📦'}
                      </div>
                      <span className="font-semibold text-foreground/80 group-hover:text-foreground">{cat.name}</span>
                   </div>
