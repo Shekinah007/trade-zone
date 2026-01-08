@@ -46,7 +46,6 @@ export async function POST(req: Request) {
   try {
     await dbConnect();
     const formData = await req.formData();
-    console.log("FormData:", formData);
     
     const title = formData.get("title") as string;
     const description = formData.get("description") as string;
@@ -56,6 +55,8 @@ export async function POST(req: Request) {
     const city = formData.get("city") as string;
     const state = formData.get("state") as string;
     const country = formData.get("country") as string;
+    const uniqueIdentifier = formData.get("uniqueIdentifier") as string;
+
     
     const imageFiles = formData.getAll("images") as File[];
     const imageUrls: string[] = [];
@@ -87,12 +88,14 @@ export async function POST(req: Request) {
       category,
       condition,
       location: { city, state, country },
+      uniqueIdentifier,
       images: imageUrls,
       seller: session.user.id,
       status: "active",
       featured: false,
       views: 0
     });
+
 
     return NextResponse.json(newListing, { status: 201 });
   } catch (error: any) {

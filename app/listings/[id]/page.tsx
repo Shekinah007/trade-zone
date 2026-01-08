@@ -111,9 +111,17 @@ export default async function ListingPage({ params }: { params: { id: string } }
                     <span className="ml-2">{formatDistanceToNow(new Date(listing.createdAt), { addSuffix: true })}</span>
                  </div>
                   <div>
-                    <span className="font-semibold text-muted-foreground">Views:</span>
-                    <span className="ml-2">{listing.views}</span>
-                 </div>
+                     <span className="font-semibold text-muted-foreground">Views:</span>
+                     <span className="ml-2">{listing.views}</span>
+                  </div>
+                  {listing.uniqueIdentifier && (
+                    <div className="col-span-2 border-t pt-2 mt-2">
+                       <span className="font-semibold text-muted-foreground block mb-1">Serial / Unique ID:</span>
+                       <code className="bg-muted px-2 py-1 rounded text-xs font-mono select-all">
+                         {listing.uniqueIdentifier}
+                       </code>
+                    </div>
+                  )}
                </div>
              </CardContent>
           </Card>

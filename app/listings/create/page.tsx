@@ -42,6 +42,7 @@ const formSchema = z.object({
   city: z.string().min(2, "City is required"),
   state: z.string().optional(),
   country: z.string().min(2, "Country is required"),
+  uniqueIdentifier: z.string().min(1, "Serial Number / Unique Identifier is required"),
 });
 
 
@@ -78,6 +79,7 @@ export default function CreateListingPage() {
       city: "",
       state: "",
       country: "",
+      uniqueIdentifier: "",
     },
   });
 
@@ -189,6 +191,23 @@ export default function CreateListingPage() {
                         ))}
                       </SelectContent>
                     </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="uniqueIdentifier"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Unique Identifier (Serial Number, VIN, IMEI, etc.)</FormLabel>
+                    <FormControl>
+                      <Input placeholder="e.g. SN123456789" {...field} />
+                    </FormControl>
+                    <FormDescription>
+                      This identifier helps track and verify unique items.
+                    </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
