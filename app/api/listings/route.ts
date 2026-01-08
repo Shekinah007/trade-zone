@@ -46,6 +46,7 @@ export async function POST(req: Request) {
   try {
     await dbConnect();
     const formData = await req.formData();
+    console.log("FormData:", formData);
     
     const title = formData.get("title") as string;
     const description = formData.get("description") as string;
