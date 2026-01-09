@@ -19,22 +19,41 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { ListingActions, ReportButton } from "@/components/ListingActions";
+import { SellerRating } from "@/components/SellerRating";
+
+import Transaction from "@/models/Transaction";
+import "@/models/User"; // Ensure User model is registered
 
 async function getListing(id: string) {
   try {
     await dbConnect();
+    // Validate ID format
+    // if (!id.match(/^[0-9a-fA-F]{24}$/)) return null;
+
     const listing = await Listing.findById(id).populate("seller").populate("category").lean();
     if (!listing) return null;
-    return JSON.parse(JSON.stringify(listing));
+
+    // Fetch History
+    const history = await Transaction.find({ listing: id })
+      .populate("buyer", "name image")
+      .sort({ createdAt: -1 })
+      .lean();
+
+    return { 
+      ...JSON.parse(JSON.stringify(listing)), 
+      history: JSON.parse(JSON.stringify(history)) 
+    };
   } catch (error) {
-    console.error(error);
+    console.error("Error fetching listing:", error);
     return null;
   }
 }
 
 export default async function ListingPage({ params }: { params: { id: string } }) {
-  const listing = await getListing(params.id);
-
+  const { id } = await params;
+  const listing = await getListing(id);
+  
   if (!listing) {
     notFound();
   }
@@ -43,6 +62,7 @@ export default async function ListingPage({ params }: { params: { id: string } }
     style: "currency",
     currency: "USD",
   }).format(listing.price);
+
 
   return (
     <div className="container mx-auto py-8 px-4">
@@ -145,19 +165,13 @@ export default async function ListingPage({ params }: { params: { id: string } }
                </div>
 
               <div className="space-y-3">
-                <Button className="w-full" size="lg">
-                  <MessageCircle className="mr-2 h-4 w-4" />
-                  Contact Seller
-                </Button>
-                <div className="flex gap-3">
-                   <Button variant="outline" className="flex-1">
-                     <Heart className="mr-2 h-4 w-4" />
-                     Save
-                   </Button>
-                   <Button variant="outline" size="icon">
-                     <Share2 className="h-4 w-4" />
-                   </Button>
-                </div>
+                <ListingActions 
+                  listingId={listing._id} 
+                  sellerId={listing.seller?._id} 
+                  listingTitle={listing.title} 
+                  price={listing.price}
+                  history={listing.history}
+                />
               </div>
             </CardContent>
           </Card>
@@ -182,11 +196,13 @@ export default async function ListingPage({ params }: { params: { id: string } }
                    <ShieldCheck className="h-4 w-4 mr-2 text-green-600" />
                    <span>Verified Email</span>
                 </div>
+
+                <div className="pt-2 border-t mt-2">
+                   <SellerRating sellerId={listing.seller?._id} />
+                </div>
                 
-                 <Button variant="ghost" className="w-full text-muted-foreground h-auto p-0 hover:text-destructive justify-start">
-                   <Flag className="h-4 w-4 mr-2" />
-                   Report this listing
-                 </Button>
+                
+                 <ReportButton listingId={listing._id} />
              </CardContent>
           </Card>
 
