@@ -24,7 +24,6 @@ export default async function DashboardPage() {
 
    //  const { data: session } = useSession();
 
-  console.log("Session", session)
 
   if (!session) {
     redirect("/auth/signin?callbackUrl=/dashboard");
@@ -33,6 +32,7 @@ export default async function DashboardPage() {
   const listings = await getUserListings(session.user.id);
   const activeListings = listings.filter((l: any) => l.status === "active");
   const soldListings = listings.filter((l: any) => l.status === "sold");
+
 
   return (
     <div className="container mx-auto py-10 px-4">

@@ -12,7 +12,7 @@ export async function POST(req: Request) {
 
   try {
     const body = await req.json();
-    const { reportedItem, itemType, reason, description } = body;
+    const { reportedItem, itemType, description } = body;
 
     await dbConnect();
 
@@ -20,7 +20,6 @@ export async function POST(req: Request) {
       reporter: session.user.id,
       reportedItem,
       itemType,
-      reason,
       description,
       status: "pending",
     });

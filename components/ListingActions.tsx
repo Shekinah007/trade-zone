@@ -20,6 +20,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { ReviewModal } from "@/components/ReviewModal";
 import { formatDistanceToNow } from "date-fns";
 import { History, ShoppingCart } from "lucide-react";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 
 interface ListingActionsProps {
   listingId: string;
@@ -226,7 +228,44 @@ export function ListingActions({ listingId, sellerId, listingTitle, price, histo
 // Separate component for the Report Trigger to place it correctly in layout if needed,
 // but for simplicity, let's export a ReportButton too
 export function ReportButton({ listingId }: { listingId: string }) {
+    const { data: session } = useSession();
+
     const [open, setOpen] = useState(false);
+    const [report, setReport] = useState("")
+    const [isSubmitting, setIsSubmitting] = useState(false)
+
+
+    const handleSubmit = async () => {
+      if (!report) {
+        toast.error("Field must not be empty")
+        return
+      }
+
+      try {
+        const res = await fetch("/api/reports", {
+          method: "POST",
+          headers: {"Content-Type": "application/json"},
+          body: JSON.stringify({
+            itemType: "listing",
+            description: report,
+            status: "pending",
+            reportedItem: listingId,
+          })
+        })
+        if (res.ok) {
+          toast.success("Report submitted")
+          setOpen(false)
+          setReport("")
+        } else {
+          toast.error("Failed to report")
+        }
+      } catch (error) {
+        console.log(error)
+        toast.error("Failed to report listing")
+      } finally {
+        setIsSubmitting(false)
+      }
+    }
     
     return (
         <Dialog open={open} onOpenChange={setOpen}>
@@ -243,13 +282,18 @@ export function ReportButton({ listingId }: { listingId: string }) {
                         Please describe why you are reporting this listing. Our team will review it shortly.
                     </DialogDescription>
                 </DialogHeader>
-                <Textarea placeholder="Reason for reporting..." className="min-h-[100px]" />
+                <Textarea 
+                value={report}
+                onChange={(e) => setReport(e.target.value)}
+                placeholder="Reason for reporting..." className="min-h-[100px]" />
                 <DialogFooter>
                     <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
-                    <Button variant="destructive" onClick={() => {
+                    {/* <Button variant="destructive" onClick={() => {
                         toast.success("Report submitted");
                         setOpen(false);
-                    }}>Submit Report</Button>
+                    }}> */}
+                      <Button onClick={handleSubmit} disabled={isSubmitting}>
+                      Submit Report</Button>
                 </DialogFooter>
             </DialogContent>
         </Dialog>
