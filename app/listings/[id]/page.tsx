@@ -182,16 +182,16 @@ export default async function ListingPage({ params }: { params: { id: string } }
                <CardTitle className="text-lg">Seller Information</CardTitle>
              </CardHeader>
              <CardContent className="space-y-4">
-                <div className="flex items-center space-x-4">
-                  <Avatar className="h-12 w-12">
+                <Link href={`/store/${listing.seller?._id}`} className="flex items-center space-x-4 hover:bg-muted/50 p-2 rounded-lg transition-colors group">
+                  <Avatar className="h-12 w-12 group-hover:ring-2 ring-primary/20 transition-all">
                      <AvatarImage src={listing.seller?.image} />
                      <AvatarFallback>{listing.seller?.name?.charAt(0) || "U"}</AvatarFallback>
                   </Avatar>
                   <div>
-                    <p className="font-medium">{listing.seller?.name || "Unknown User"}</p>
+                    <p className="font-medium group-hover:text-primary transition-colors">{listing.seller?.name || "Unknown User"}</p>
                     <p className="text-xs text-muted-foreground">Member since {new Date(listing.seller?.createdAt).getFullYear()}</p>
                   </div>
-                </div>
+                </Link>
                 
                 <div className="flex items-center text-sm text-muted-foreground">
                    <ShieldCheck className="h-4 w-4 mr-2 text-green-600" />

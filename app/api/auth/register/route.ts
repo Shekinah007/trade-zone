@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import dbConnect from "@/lib/db";
 import User from "@/models/User";
+import Business from "@/models/Business";
 import * as z from "zod";
 
 const registerSchema = z.object({
@@ -31,6 +32,13 @@ export async function POST(req: Request) {
       name,
       email,
       password: hashedPassword,
+    });
+
+    // Create a default business for the user
+    await Business.create({
+      owner: user._id,
+      name: user.name, // Default to user's name
+      email: user.email,
     });
 
     // Remove password from response
