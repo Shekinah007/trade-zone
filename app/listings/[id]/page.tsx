@@ -171,6 +171,7 @@ export default async function ListingPage({ params }: { params: { id: string } }
                   listingTitle={listing.title} 
                   price={listing.price}
                   history={listing.history}
+                  status={listing.status}
                 />
               </div>
             </CardContent>
