@@ -70,32 +70,32 @@ export function ListingActions({ listingId, sellerId, listingTitle, price, histo
   };
 
   const handleBuyNow = async () => {
-      if (status === "unauthenticated") {
-        router.push("/auth/signin");
-        return;
-      }
+    if (status === "unauthenticated") {
+      router.push("/auth/signin");
+      return;
+    }
 
-      if (confirm(`Confirm purchase for $${price}?`)) {
-          try {
-             // Here we would integrate Stripe/Payment Gateway
-             // For this task, we record the transaction directly
-             const res = await fetch("/api/transactions", {
-                 method: "POST",
-                 headers: { "Content-Type": "application/json" },
-                 body: JSON.stringify({ listingId, price })
-             });
-             
-             if (res.ok) {
-                 toast.success("Purchase recorded!");
-                 router.refresh();
-             } else {
-                 const err = await res.json();
-                 toast.error(err.message || "Purchase failed");
-             }
-          } catch(error) {
-              toast.error("Failed to process purchase");
-          }
+    if (confirm(`Confirm purchase for $${price}?`)) {
+      try {
+        // Here we would integrate Stripe/Payment Gateway
+        // For this task, we record the transaction directly
+        const res = await fetch("/api/transactions", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ listingId, price })
+        });
+
+        if (res.ok) {
+          toast.success("Purchase recorded!");
+          router.refresh();
+        } else {
+          const err = await res.json();
+          toast.error(err.message || "Purchase failed");
+        }
+      } catch (error) {
+        toast.error("Failed to process purchase");
       }
+    }
   };
 
   const handleMarkAsSold = async () => {
@@ -109,7 +109,7 @@ export function ListingActions({ listingId, sellerId, listingTitle, price, histo
       // Actually, standard FormData fetching for a single field is easy.
       const formData = new FormData();
       formData.append("status", "sold");
-      
+
       // We must append other required fields if the model demands them on save?
       // Mongoose updates on `findById` then `save` only updates changed fields if we modify the object properties. 
       // BUT my PUT handler does `listing.title = ...`. 
@@ -117,109 +117,116 @@ export function ListingActions({ listingId, sellerId, listingTitle, price, histo
       // CAUTION: The PUT handler I wrote grabs `formData.get("title")` and assigns it.
       // If I only send status, other fields will be set to `null` ("null" string) or empty string depending on formData behavior.
       // This is a DESTRUCTIVE bug in my PUT handler implementation if I don't send everything.
-      
+
       // FIX PLAN: I should modify the PUT handler to only update fields that are present in FormData.
       // OR, I fetch the listing here (client side) or pass all data to this component? Passing all data is heavy.
       // BETTER: Update the API route to be partial-update friendly.
-      
+
       // I will pause this update and FIX the API route first to allow partial updates.
       // This is critical.
-      
+
     } catch (error) {
-       toast.error("Failed to update status");
+      toast.error("Failed to update status");
     } finally {
-        setIsLoading(false);
+      setIsLoading(false);
     }
   };
-  
+
   // I will return the existing component code for now, but with the isSeller checks, 
   // but I realize I need to fix the API route first.
   // So I will abort this specific tool call or render a placeholder that doesn't break, 
   // then fix API, then come back.
-  
+
   // Actually, I can just implement the UI here and leave the function empty or with a TODO, 
   // then fix API, then fix function.
   // But simpler to Fix API immediately. 
-  
+
   // Let's output the logic assuming API will be fixed to support partial updates.
 
   return (
     <>
       <div className="space-y-3">
         {isSold && (
-            <div className="bg-destructive/10 text-destructive text-center p-3 rounded-md font-bold border border-destructive/20">
-                SOLD
-            </div>
+          <div className="bg-destructive/10 text-destructive text-center p-3 rounded-md font-bold border border-destructive/20">
+            SOLD
+          </div>
         )}
 
         {isSeller ? (
-            <>
-                <Button className="w-full" size="lg" variant="outline" onClick={() => router.push(`/listings/${listingId}/edit`)} disabled={isSold}>
-                    Edit Listing
-                </Button>
-                 {!isSold && (
-                    <Button className="w-full" size="lg" variant="secondary" onClick={handleMarkAsSold} disabled={isLoading}>
-                        Mark as Sold
-                    </Button>
-                )}
-            </>
+          <>
+            <Button className="w-full" size="lg" variant="outline" onClick={() => router.push(`/listings/${listingId}/edit`)} disabled={isSold}>
+              Edit Listing
+            </Button>
+            {!isSold && (
+              <Button className="w-full" size="lg" variant="secondary" onClick={handleMarkAsSold} disabled={isLoading}>
+                Mark as Sold
+              </Button>
+            )}
+          </>
         ) : (
-            !isSold && (
-                <>
-                    <Button size="lg" onClick={handleBuyNow} className="w-full bg-green-600 hover:bg-green-700 text-white">
-                        <ShoppingCart className="mr-2 h-4 w-4" />
-                        Buy Now
-                    </Button>
+          !isSold && (
+            <>
+              <Button size="lg" onClick={handleBuyNow} className="w-full bg-green-600 hover:bg-green-700 text-white">
+                <ShoppingCart className="mr-2 h-4 w-4" />
+                Buy Now
+              </Button>
 
-                    <Button className="w-full" size="lg" variant="secondary" onClick={handleContactSeller} disabled={isLoading}>
-                        <MessageCircle className="mr-2 h-4 w-4" />
-                        {isLoading ? "Connecting..." : "Contact Seller"}
-                    </Button>
-                </>
-            )
+              <Button className="w-full" size="lg" variant="secondary" onClick={handleContactSeller} disabled={isLoading}>
+                <MessageCircle className="mr-2 h-4 w-4" />
+                {isLoading ? "Connecting..." : "Contact Seller"}
+              </Button>
+            </>
+          )
         )}
 
-        <div className="flex gap-3">
-          <Button variant="outline" className="flex-1">
-            <Heart className="mr-2 h-4 w-4" />
-            Save
-          </Button>
-          <Button variant="outline" size="icon">
-            <Share2 className="h-4 w-4" />
-          </Button>
-        </div>
-        
-        <ReviewModal listingId={listingId} sellerId={sellerId} />
-      </div>
-      
-       {/* ... History ... */}
-       {history.length > 0 && (
-           <div className="mt-6 pt-6 border-t">
-               <h3 className="font-semibold flex items-center mb-4">
-                   <History className="h-4 w-4 mr-2" />
-                   Item History
-               </h3>
-               <div className="space-y-4">
-                   {history.map((tx: any) => (
-                       <div key={tx._id} className="flex items-center text-sm border p-3 rounded-lg bg-muted/20">
-                           <div className="flex-1">
-                               <p className="font-medium">Purchased by {tx.buyer?.name || "User"}</p>
-                               <p className="text-xs text-muted-foreground">
-                                   {formatDistanceToNow(new Date(tx.createdAt), { addSuffix: true })}
-                               </p>
-                           </div>
-                           <div className="font-bold text-green-600">
-                               ${tx.price}
-                           </div>
-                       </div>
-                   ))}
-               </div>
-           </div>
-       )}
 
-       {/* ... Dialogs ... */}
-        <Dialog open={isReportOpen} onOpenChange={setIsReportOpen}>
-           {/* ... */}
+
+        {
+          !isSeller && (
+            <>
+              <div className="flex gap-3">
+                <Button variant="outline" className="flex-1">
+                  <Heart className="mr-2 h-4 w-4" />
+                  Save
+                </Button>
+                <Button variant="outline" size="icon">
+                  <Share2 className="h-4 w-4" />
+                </Button>
+              </div>
+              <ReviewModal listingId={listingId} sellerId={sellerId} />
+            </>
+          )
+        }
+      </div>
+
+      {/* ... History ... */}
+      {history.length > 0 && (
+        <div className="mt-6 pt-6 border-t">
+          <h3 className="font-semibold flex items-center mb-4">
+            <History className="h-4 w-4 mr-2" />
+            Item History
+          </h3>
+          <div className="space-y-4">
+            {history.map((tx: any) => (
+              <div key={tx._id} className="flex items-center text-sm border p-3 rounded-lg bg-muted/20">
+                <div className="flex-1">
+                  <p className="font-medium">Purchased by {tx.buyer?.name || "User"}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {formatDistanceToNow(new Date(tx.createdAt), { addSuffix: true })}
+                  </p>
+                </div>
+                <div className="font-bold text-green-600">
+                  ${tx.price}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* ... Dialogs ... */}
+      <Dialog open={isReportOpen} onOpenChange={setIsReportOpen}>
+        {/* ... */}
       </Dialog>
     </>
   );
@@ -228,74 +235,74 @@ export function ListingActions({ listingId, sellerId, listingTitle, price, histo
 // Separate component for the Report Trigger to place it correctly in layout if needed,
 // but for simplicity, let's export a ReportButton too
 export function ReportButton({ listingId }: { listingId: string }) {
-    const { data: session } = useSession();
+  const { data: session } = useSession();
 
-    const [open, setOpen] = useState(false);
-    const [report, setReport] = useState("")
-    const [isSubmitting, setIsSubmitting] = useState(false)
+  const [open, setOpen] = useState(false);
+  const [report, setReport] = useState("")
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
 
-    const handleSubmit = async () => {
-      if (!report) {
-        toast.error("Field must not be empty")
-        return
-      }
-
-      try {
-        const res = await fetch("/api/reports", {
-          method: "POST",
-          headers: {"Content-Type": "application/json"},
-          body: JSON.stringify({
-            itemType: "listing",
-            description: report,
-            status: "pending",
-            reportedItem: listingId,
-          })
-        })
-        if (res.ok) {
-          toast.success("Report submitted")
-          setOpen(false)
-          setReport("")
-        } else {
-          toast.error("Failed to report")
-        }
-      } catch (error) {
-        console.log(error)
-        toast.error("Failed to report listing")
-      } finally {
-        setIsSubmitting(false)
-      }
+  const handleSubmit = async () => {
+    if (!report) {
+      toast.error("Field must not be empty")
+      return
     }
-    
-    return (
-        <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
-                <Button variant="ghost" className="w-full text-muted-foreground h-auto p-0 hover:text-destructive justify-start">
-                   <Flag className="h-4 w-4 mr-2" />
-                   Report this listing
-                 </Button>
-            </DialogTrigger>
-            <DialogContent>
-                <DialogHeader>
-                    <DialogTitle>Report Listing</DialogTitle>
-                    <DialogDescription>
-                        Please describe why you are reporting this listing. Our team will review it shortly.
-                    </DialogDescription>
-                </DialogHeader>
-                <Textarea 
-                value={report}
-                onChange={(e) => setReport(e.target.value)}
-                placeholder="Reason for reporting..." className="min-h-[100px]" />
-                <DialogFooter>
-                    <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
-                    {/* <Button variant="destructive" onClick={() => {
+
+    try {
+      const res = await fetch("/api/reports", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          itemType: "listing",
+          description: report,
+          status: "pending",
+          reportedItem: listingId,
+        })
+      })
+      if (res.ok) {
+        toast.success("Report submitted")
+        setOpen(false)
+        setReport("")
+      } else {
+        toast.error("Failed to report")
+      }
+    } catch (error) {
+      console.log(error)
+      toast.error("Failed to report listing")
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button variant="ghost" className="w-full text-muted-foreground h-auto p-0 hover:text-destructive justify-start">
+          <Flag className="h-4 w-4 mr-2" />
+          Report this listing
+        </Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Report Listing</DialogTitle>
+          <DialogDescription>
+            Please describe why you are reporting this listing. Our team will review it shortly.
+          </DialogDescription>
+        </DialogHeader>
+        <Textarea
+          value={report}
+          onChange={(e) => setReport(e.target.value)}
+          placeholder="Reason for reporting..." className="min-h-[100px]" />
+        <DialogFooter>
+          <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
+          {/* <Button variant="destructive" onClick={() => {
                         toast.success("Report submitted");
                         setOpen(false);
                     }}> */}
-                      <Button onClick={handleSubmit} disabled={isSubmitting}>
-                      Submit Report</Button>
-                </DialogFooter>
-            </DialogContent>
-        </Dialog>
-    )
+          <Button onClick={handleSubmit} disabled={isSubmitting}>
+            Submit Report</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  )
 }

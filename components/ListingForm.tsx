@@ -58,10 +58,10 @@ export function ListingForm({ initialData, categories }: ListingFormProps) {
   // If it's a File object (not directly in preview string array but implied), we ignore for now,
   // we rely on `images` state for NEW files.
   // However, we need to know which EXISTING images were kept.
-  
+
   // Actually, to properly handle edits with image deletion:
   // We need to send the list of 'kept' image URLs + new files.
-  
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema) as any,
     defaultValues: {
@@ -90,50 +90,50 @@ export function ListingForm({ initialData, categories }: ListingFormProps) {
   const removeImage = (index: number) => {
     // We need to differentiate between removing an existing image and a newly added one.
     // 'previews' contains both URLs (existing) and Blob URLs (new).
-    
+
     // If we simply remove by index from 'previews', visual is correct.
     // But we need to sync 'images' (new files) and efficient backend update.
-    
+
     // Let's figure out if the removed index corresponds to an existing image or a new file.
     // We know 'initialData.images' count.
-    
+
     const existingCount = initialData?.images?.length || 0;
     // Wait, this logic is tricky if we don't track them separately. 
     // Let's just remove from previews. 
     // And when submitting, we filter previews: if starts with 'blob:', it's new (in `images`), else it's existing.
     // Actually `images` state only holds NEW files. matching index is hard.
-    
+
     // Improved logic:
     // Store `visibleImages` as objects { type: 'url' | 'file', url: string, file?: File }
-    
+
     // For now, to stick to the plan without overcomplicating in one step, let's try a simpler approach if possible.
     // But mixed image sources is common headache.
-    
+
     // New strategy:
     // `previews` is the source of truth for what to show.
     // We also need to know which *files* correspond to which preview if it is a new file.
-    
+
     // Let's just restart `images` state to be clear.
     // We won't use `images` state for submission directly. 
     // We will use `previews` to determine what to keep (existing URLs).
     // And we need a way to map new blob URLs back to Files.
-    
+
     // Let's use a ref or just strictly map them? 
     // Simplest: `files` array that matches `previews` length? No, existing images don't have Files.
-    
+
     // Let's go with:
     // `existingImages` = string[] (urls)
     // `newFiles` = File[]
-    
+
     // When removing, we need to know which one we removed.
     // Let's store objects in `previews`: { url: string, file?: File, isNew: boolean }
-    
+
     // But `ListingForm` refactor is the goal.
     // I will implement the object strategy for robust handling.
-    
+
     // Refactoring...
   };
-  
+
   // Re-implementation of image state for Edit support
   const [imageItems, setImageItems] = useState<{ url: string; file?: File; isNew: boolean }[]>(
     initialData?.images?.map((url: string) => ({ url, isNew: false })) || []
@@ -167,11 +167,11 @@ export function ListingForm({ initialData, categories }: ListingFormProps) {
       Object.entries(values).forEach(([key, value]) => {
         formData.append(key, value.toString());
       });
-      
+
       // Append existing images that are kept
       const existingImages = imageItems.filter(item => !item.isNew).map(item => item.url);
       existingImages.forEach(url => formData.append("existingImages", url));
-      
+
       // Append new files
       const newFiles = imageItems.filter(item => item.isNew).map(item => item.file);
       newFiles.forEach((file) => {
@@ -205,7 +205,7 @@ export function ListingForm({ initialData, categories }: ListingFormProps) {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit as any)} className="space-y-6">
-        
+
         <FormField
           control={form.control as any}
           name="title"
@@ -263,12 +263,12 @@ export function ListingForm({ initialData, categories }: ListingFormProps) {
         />
 
         <div className="grid grid-cols-2 gap-4">
-            <FormField
+          <FormField
             control={form.control as any}
             name="price"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Price ($)</FormLabel>
+                <FormLabel>Price (₦)</FormLabel>
                 <FormControl>
                   <Input type="number" min="0" step="0.01" {...field} />
                 </FormControl>
@@ -353,7 +353,7 @@ export function ListingForm({ initialData, categories }: ListingFormProps) {
         </div>
 
         <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
-            <FormField
+          <FormField
             control={form.control as any}
             name="city"
             render={({ field }) => (
@@ -366,7 +366,7 @@ export function ListingForm({ initialData, categories }: ListingFormProps) {
               </FormItem>
             )}
           />
-            <FormField
+          <FormField
             control={form.control as any}
             name="state"
             render={({ field }) => (
@@ -379,7 +379,7 @@ export function ListingForm({ initialData, categories }: ListingFormProps) {
               </FormItem>
             )}
           />
-            <FormField
+          <FormField
             control={form.control as any}
             name="country"
             render={({ field }) => (

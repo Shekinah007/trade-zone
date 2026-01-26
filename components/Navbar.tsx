@@ -23,6 +23,8 @@ export default function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
+  console.log("Session: ", session)
+
   // Handle scroll effect for glassmorphism
   useEffect(() => {
     const handleScroll = () => {
@@ -33,23 +35,23 @@ export default function Navbar() {
   }, []);
 
   return (
-    <header 
+    <header
       className={cn(
         "sticky top-0 z-50 w-full transition-all duration-300",
-        scrolled 
-          ? "border-b bg-background/80 backdrop-blur-md shadow-sm" 
+        scrolled
+          ? "border-b bg-background/80 backdrop-blur-md shadow-sm"
           : "bg-transparent border-transparent"
       )}
     >
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         {/* Logo */}
         <Link href="/" className="flex items-center space-x-2 group">
-           <div className="bg-primary/10 p-2 rounded-xl group-hover:bg-primary/20 transition-colors">
-              <ShoppingBag className="h-6 w-6 text-primary" />
-           </div>
-           <span className="text-xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-primary to-purple-600">
-             Trade Zone
-           </span>
+          <div className="bg-primary/10 p-2 rounded-xl group-hover:bg-primary/20 transition-colors">
+            <ShoppingBag className="h-6 w-6 text-primary" />
+          </div>
+          <span className="text-xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-primary to-purple-600">
+            Trade Zone
+          </span>
         </Link>
 
         {/* Desktop Navigation */}
@@ -77,11 +79,22 @@ export default function Navbar() {
         {/* Right Side Actions */}
         <div className="flex items-center space-x-4">
           <Button asChild variant="default" size="sm" className="hidden md:flex rounded-full px-6 shadow-md hover:shadow-lg transition-all bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90 border-0">
-             <Link href="/listings/create">
-               <PlusCircle className="mr-2 h-4 w-4" />
-               Post Ad
-             </Link>
+            <Link href="/listings/create">
+              <PlusCircle className="h-4 w-4" />
+              Post Ad
+            </Link>
           </Button>
+
+          {
+            session ? session.user.role === "admin" ? (
+              <Button asChild variant="default" size="sm" className="hidden md:flex rounded-full px-6 shadow-md hover:shadow-lg transition-all bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90 border-0">
+                <Link href="/admin">
+                  <LayoutDashboard className="h-4 w-4" />
+                  Admin Panel
+                </Link>
+              </Button>
+            ) : null : null
+          }
 
           {session ? (
             <DropdownMenu>
@@ -155,25 +168,25 @@ export default function Navbar() {
                     Import/Sell Item
                   </Link>
                 </nav>
-                 <div className="border-t pt-6">
+                <div className="border-t pt-6">
                   {session ? (
                     <div className="flex flex-col space-y-3">
                       <div className="flex items-center gap-3 mb-2">
-                         <Avatar>
-                            <AvatarImage src={session.user?.image || ""} />
-                            <AvatarFallback>{session.user?.name?.charAt(0)}</AvatarFallback>
-                         </Avatar>
-                         <div>
-                            <p className="font-medium">{session.user?.name}</p>
-                            <p className="text-xs text-muted-foreground">{session.user?.email}</p>
-                         </div>
+                        <Avatar>
+                          <AvatarImage src={session.user?.image || ""} />
+                          <AvatarFallback>{session.user?.name?.charAt(0)}</AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <p className="font-medium">{session.user?.name}</p>
+                          <p className="text-xs text-muted-foreground">{session.user?.email}</p>
+                        </div>
                       </div>
-                       <Button asChild variant="outline" className="w-full justify-start" onClick={() => setIsMobileMenuOpen(false)}>
-                          <Link href="/dashboard"><LayoutDashboard className="mr-2 h-4 w-4"/> Dashboard</Link>
-                       </Button>
-                       <Button variant="destructive" className="w-full justify-start" onClick={() => signOut()}>
-                          <LogOut className="mr-2 h-4 w-4" /> Log out
-                       </Button>
+                      <Button asChild variant="outline" className="w-full justify-start" onClick={() => setIsMobileMenuOpen(false)}>
+                        <Link href="/dashboard"><LayoutDashboard className="mr-2 h-4 w-4" /> Dashboard</Link>
+                      </Button>
+                      <Button variant="destructive" className="w-full justify-start" onClick={() => signOut()}>
+                        <LogOut className="mr-2 h-4 w-4" /> Log out
+                      </Button>
                     </div>
                   ) : (
                     <div className="flex flex-col space-y-3">
@@ -185,7 +198,7 @@ export default function Navbar() {
                       </Button>
                     </div>
                   )}
-                 </div>
+                </div>
               </div>
             </SheetContent>
           </Sheet>

@@ -40,9 +40,9 @@ async function getListing(id: string) {
       .sort({ createdAt: -1 })
       .lean();
 
-    return { 
-      ...JSON.parse(JSON.stringify(listing)), 
-      history: JSON.parse(JSON.stringify(history)) 
+    return {
+      ...JSON.parse(JSON.stringify(listing)),
+      history: JSON.parse(JSON.stringify(history))
     };
   } catch (error) {
     console.error("Error fetching listing:", error);
@@ -53,14 +53,14 @@ async function getListing(id: string) {
 export default async function ListingPage({ params }: { params: { id: string } }) {
   const { id } = await params;
   const listing = await getListing(id);
-  
+
   if (!listing) {
     notFound();
   }
 
   const formattedPrice = new Intl.NumberFormat("en-US", {
     style: "currency",
-    currency: "USD",
+    currency: "NGN",
   }).format(listing.price);
 
 
@@ -70,7 +70,7 @@ export default async function ListingPage({ params }: { params: { id: string } }
         {/* Left Column: Images */}
         <div className="lg:col-span-2 space-y-6">
           <Card className="overflow-hidden border-none shadow-none bg-transparent">
-             <Carousel className="w-full">
+            <Carousel className="w-full">
               <CarouselContent>
                 {listing.images && listing.images.length > 0 ? (
                   listing.images.map((img: string, index: number) => (
@@ -85,11 +85,11 @@ export default async function ListingPage({ params }: { params: { id: string } }
                     </CarouselItem>
                   ))
                 ) : (
-                   <CarouselItem>
-                      <div className="relative aspect-video w-full overflow-hidden rounded-lg bg-muted flex items-center justify-center">
-                        <span className="text-muted-foreground">No images available</span>
-                      </div>
-                    </CarouselItem>
+                  <CarouselItem>
+                    <div className="relative aspect-video w-full overflow-hidden rounded-lg bg-muted flex items-center justify-center">
+                      <span className="text-muted-foreground">No images available</span>
+                    </div>
+                  </CarouselItem>
                 )}
               </CarouselContent>
               {listing.images && listing.images.length > 1 && (
@@ -111,39 +111,39 @@ export default async function ListingPage({ params }: { params: { id: string } }
               </p>
             </CardContent>
           </Card>
-          
+
           <Card>
-             <CardHeader>
+            <CardHeader>
               <CardTitle>Details</CardTitle>
             </CardHeader>
-             <CardContent>
-               <div className="grid grid-cols-2 gap-4 text-sm">
-                 <div>
-                   <span className="font-semibold text-muted-foreground">Condition:</span>
-                   <span className="ml-2">{listing.condition}</span>
-                 </div>
-                  <div>
-                   <span className="font-semibold text-muted-foreground">Category:</span>
-                   <span className="ml-2">{listing.category?.name || "Uncategorized"}</span>
-                 </div>
-                 <div>
-                    <span className="font-semibold text-muted-foreground">Posted:</span>
-                    <span className="ml-2">{formatDistanceToNow(new Date(listing.createdAt), { addSuffix: true })}</span>
-                 </div>
-                  <div>
-                     <span className="font-semibold text-muted-foreground">Views:</span>
-                     <span className="ml-2">{listing.views}</span>
+            <CardContent>
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <span className="font-semibold text-muted-foreground">Condition:</span>
+                  <span className="ml-2">{listing.condition}</span>
+                </div>
+                <div>
+                  <span className="font-semibold text-muted-foreground">Category:</span>
+                  <span className="ml-2">{listing.category?.name || "Uncategorized"}</span>
+                </div>
+                <div>
+                  <span className="font-semibold text-muted-foreground">Posted:</span>
+                  <span className="ml-2">{formatDistanceToNow(new Date(listing.createdAt), { addSuffix: true })}</span>
+                </div>
+                <div>
+                  <span className="font-semibold text-muted-foreground">Views:</span>
+                  <span className="ml-2">{listing.views}</span>
+                </div>
+                {listing.uniqueIdentifier && (
+                  <div className="col-span-2 border-t pt-2 mt-2">
+                    <span className="font-semibold text-muted-foreground block mb-1">Serial / Unique ID:</span>
+                    <code className="bg-muted px-2 py-1 rounded text-xs font-mono select-all">
+                      {listing.uniqueIdentifier}
+                    </code>
                   </div>
-                  {listing.uniqueIdentifier && (
-                    <div className="col-span-2 border-t pt-2 mt-2">
-                       <span className="font-semibold text-muted-foreground block mb-1">Serial / Unique ID:</span>
-                       <code className="bg-muted px-2 py-1 rounded text-xs font-mono select-all">
-                         {listing.uniqueIdentifier}
-                       </code>
-                    </div>
-                  )}
-               </div>
-             </CardContent>
+                )}
+              </div>
+            </CardContent>
           </Card>
         </div>
 
@@ -153,22 +153,22 @@ export default async function ListingPage({ params }: { params: { id: string } }
             <CardContent className="p-6 space-y-6">
               <div>
                 <h1 className="text-2xl font-bold leading-tight mb-2">{listing.title}</h1>
-                 <div className="flex items-center justify-between">
-                    <span className="text-3xl font-bold text-primary">{formattedPrice}</span>
-                    <Badge variant="outline">{listing.condition}</Badge>
-                 </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-3xl font-bold text-primary">{formattedPrice}</span>
+                  <Badge variant="outline">{listing.condition}</Badge>
+                </div>
               </div>
 
-               <div className="flex items-center text-muted-foreground text-sm">
-                  <MapPin className="h-4 w-4 mr-1" />
-                  {listing.location?.city}, {listing.location?.country}
-               </div>
+              <div className="flex items-center text-muted-foreground text-sm">
+                <MapPin className="h-4 w-4 mr-1" />
+                {listing.location?.city}, {listing.location?.country}
+              </div>
 
               <div className="space-y-3">
-                <ListingActions 
-                  listingId={listing._id} 
-                  sellerId={listing.seller?._id} 
-                  listingTitle={listing.title} 
+                <ListingActions
+                  listingId={listing._id}
+                  sellerId={listing.seller?._id}
+                  listingTitle={listing.title}
                   price={listing.price}
                   history={listing.history}
                   status={listing.status}
@@ -178,48 +178,48 @@ export default async function ListingPage({ params }: { params: { id: string } }
           </Card>
 
           <Card>
-             <CardHeader className="pb-3">
-               <CardTitle className="text-lg">Seller Information</CardTitle>
-             </CardHeader>
-             <CardContent className="space-y-4">
-                <Link href={`/store/${listing.seller?._id}`} className="flex items-center space-x-4 hover:bg-muted/50 p-2 rounded-lg transition-colors group">
-                  <Avatar className="h-12 w-12 group-hover:ring-2 ring-primary/20 transition-all">
-                     <AvatarImage src={listing.seller?.image} />
-                     <AvatarFallback>{listing.seller?.name?.charAt(0) || "U"}</AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <p className="font-medium group-hover:text-primary transition-colors">{listing.seller?.name || "Unknown User"}</p>
-                    <p className="text-xs text-muted-foreground">Member since {new Date(listing.seller?.createdAt).getFullYear()}</p>
-                  </div>
-                </Link>
-                
-                <div className="flex items-center text-sm text-muted-foreground">
-                   <ShieldCheck className="h-4 w-4 mr-2 text-green-600" />
-                   <span>Verified Email</span>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-lg">Seller Information</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <Link href={`/store/${listing.seller?._id}`} className="flex items-center space-x-4 hover:bg-muted/50 p-2 rounded-lg transition-colors group">
+                <Avatar className="h-12 w-12 group-hover:ring-2 ring-primary/20 transition-all">
+                  <AvatarImage src={listing.seller?.image} />
+                  <AvatarFallback>{listing.seller?.name?.charAt(0) || "U"}</AvatarFallback>
+                </Avatar>
+                <div>
+                  <p className="font-medium group-hover:text-primary transition-colors">{listing.seller?.name || "Unknown User"}</p>
+                  <p className="text-xs text-muted-foreground">Member since {new Date(listing.seller?.createdAt).getFullYear()}</p>
                 </div>
+              </Link>
 
-                <div className="pt-2 border-t mt-2">
-                   <SellerRating sellerId={listing.seller?._id} />
-                </div>
-                
-                
-                 <ReportButton listingId={listing._id} />
-             </CardContent>
+              <div className="flex items-center text-sm text-muted-foreground">
+                <ShieldCheck className="h-4 w-4 mr-2 text-green-600" />
+                <span>Verified Email</span>
+              </div>
+
+              <div className="pt-2 border-t mt-2">
+                <SellerRating sellerId={listing.seller?._id} />
+              </div>
+
+
+              <ReportButton listingId={listing._id} />
+            </CardContent>
           </Card>
 
           <Card className="bg-muted/30">
-             <CardContent className="p-4">
-                <h3 className="font-semibold mb-2 flex items-center">
-                   <ShieldCheck className="h-4 w-4 mr-2" />
-                   Safety Tips
-                </h3>
-                <ul className="text-xs text-muted-foreground list-disc list-inside space-y-1">
-                   <li>Meet in a safe, public place</li>
-                   <li>Check the item before buying</li>
-                   <li>Pay only after collecting the item</li>
-                   <li>Avoid sharing financial info</li>
-                </ul>
-             </CardContent>
+            <CardContent className="p-4">
+              <h3 className="font-semibold mb-2 flex items-center">
+                <ShieldCheck className="h-4 w-4 mr-2" />
+                Safety Tips
+              </h3>
+              <ul className="text-xs text-muted-foreground list-disc list-inside space-y-1">
+                <li>Meet in a safe, public place</li>
+                <li>Check the item before buying</li>
+                <li>Pay only after collecting the item</li>
+                <li>Avoid sharing financial info</li>
+              </ul>
+            </CardContent>
           </Card>
         </div>
       </div>
