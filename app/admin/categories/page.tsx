@@ -379,8 +379,8 @@ export default function AdminCategoriesPage() {
     <div className="space-y-8">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-3xl font-bold tracking-tight">Categories</h2>
-          <p className="text-muted-foreground text-sm mt-1">
+          <h2 className="text-xl font-bold tracking-tight">Categories</h2>
+          <p className="text-muted-foreground text-xs">
             {topLevel.length} categories · {subcategories.length} subcategories
           </p>
         </div>
@@ -397,7 +397,7 @@ export default function AdminCategoriesPage() {
         >
           <DialogTrigger asChild>
             <Button onClick={() => openCreateDialog()}>
-              <Plus className="mr-2 h-4 w-4" /> Add Category
+              <Plus className="h-4 w-4" /> Add Category
             </Button>
           </DialogTrigger>
 
@@ -477,7 +477,73 @@ export default function AdminCategoriesPage() {
       </div>
 
       {/* Top-level categories with their subcategories */}
-      <div className="rounded-xl border bg-card overflow-hidden">
+      {/* Mobile: Card layout */}
+      <div className="space-y-3 md:hidden">
+        {topLevel.length === 0 && (
+          <div className="text-center py-12 border-2 border-dashed rounded-2xl text-muted-foreground">
+            No categories found. Add one to get started.
+          </div>
+        )}
+        {topLevel.map((category) => {
+          const children = subcategories.filter((s) => s.parent === category._id);
+          return (
+            <Fragment key={category._id}>
+              {/* Parent card */}
+              <div className="rounded-xl border bg-muted/10 p-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <span className="text-2xl">{category.icon || "📦"}</span>
+                    <div>
+                      <p className="font-semibold">{category.name}</p>
+                      <p className="text-xs text-muted-foreground">{category.slug}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Button variant="ghost" size="sm" className="text-xs text-primary h-7 px-2" onClick={() => openCreateDialog(category._id)}>
+                      <Plus className="h-3 w-3 mr-1" /> Sub
+                    </Button>
+                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEditDialog(category)}>
+                      <Pencil className="h-4 w-4" />
+                    </Button>
+                    <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => handleDelete(category._id)}>
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Subcategory chips under parent */}
+                {children.length > 0 && (
+                  <div className="mt-3 pl-2 border-l-2 border-primary/20 space-y-2">
+                    {children.map((sub) => (
+                      <div key={sub._id} className="flex items-center justify-between bg-background rounded-lg px-3 py-2">
+                        <div className="flex items-center gap-2">
+                          <span className="text-muted-foreground text-xs">↳</span>
+                          <span className="text-lg">{sub.icon || "📦"}</span>
+                          <div>
+                            <p className="text-sm font-medium">{sub.name}</p>
+                            <p className="text-xs text-muted-foreground">{sub.slug}</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => openEditDialog(sub)}>
+                            <Pencil className="h-3 w-3" />
+                          </Button>
+                          <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => handleDelete(sub._id)}>
+                            <Trash2 className="h-3 w-3" />
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </Fragment>
+          );
+        })}
+      </div>
+
+      {/* Desktop: Table layout */}
+      <div className="hidden md:block rounded-xl border bg-card overflow-hidden">
         <Table>
           <TableHeader>
             <TableRow className="bg-muted/50">
@@ -488,7 +554,6 @@ export default function AdminCategoriesPage() {
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
-
           <TableBody>
             {topLevel.length === 0 && (
               <TableRow>
@@ -497,74 +562,38 @@ export default function AdminCategoriesPage() {
                 </TableCell>
               </TableRow>
             )}
-
             {topLevel.map((category) => {
               const children = subcategories.filter((s) => s.parent === category._id);
               return (
                 <Fragment key={category._id}>
-                  {/* Parent row */}
                   <TableRow className="font-medium bg-muted/10">
                     <TableCell className="text-xl">{category.icon}</TableCell>
                     <TableCell className="font-semibold">{category.name}</TableCell>
                     <TableCell className="text-muted-foreground text-sm">{category.slug}</TableCell>
-                    <TableCell>
-                      <Badge variant="secondary">Category</Badge>
-                    </TableCell>
+                    <TableCell><Badge variant="secondary">Category</Badge></TableCell>
                     <TableCell className="text-right space-x-1">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="text-xs text-primary h-7 px-2"
-                        onClick={() => openCreateDialog(category._id)}
-                      >
+                      <Button variant="ghost" size="sm" className="text-xs text-primary h-7 px-2" onClick={() => openCreateDialog(category._id)}>
                         <Plus className="h-3 w-3 mr-1" /> Sub
                       </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8"
-                        onClick={() => openEditDialog(category)}
-                      >
+                      <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEditDialog(category)}>
                         <Pencil className="h-4 w-4" />
                       </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8 text-destructive hover:text-destructive"
-                        onClick={() => handleDelete(category._id)}
-                      >
+                      <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive" onClick={() => handleDelete(category._id)}>
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     </TableCell>
                   </TableRow>
-
-                  {/* Subcategory rows */}
                   {children.map((sub) => (
                     <TableRow key={sub._id} className="bg-background">
-                      <TableCell className="text-lg pl-8">
-                        <span className="text-muted-foreground mr-1">↳</span>
-                        {sub.icon}
-                      </TableCell>
+                      <TableCell className="text-lg pl-8"><span className="text-muted-foreground mr-1">↳</span>{sub.icon}</TableCell>
                       <TableCell className="pl-8 text-sm text-foreground/80">{sub.name}</TableCell>
                       <TableCell className="text-muted-foreground text-sm">{sub.slug}</TableCell>
-                      <TableCell>
-                        <Badge variant="outline" className="text-xs">Subcategory</Badge>
-                      </TableCell>
+                      <TableCell><Badge variant="outline" className="text-xs">Subcategory</Badge></TableCell>
                       <TableCell className="text-right space-x-1">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8"
-                          onClick={() => openEditDialog(sub)}
-                        >
+                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEditDialog(sub)}>
                           <Pencil className="h-4 w-4" />
                         </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8 text-destructive hover:text-destructive"
-                          onClick={() => handleDelete(sub._id)}
-                        >
+                        <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive" onClick={() => handleDelete(sub._id)}>
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       </TableCell>

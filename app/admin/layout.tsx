@@ -24,56 +24,13 @@ export default async function AdminLayout({
       {/* Sidebar */}
       <aside className="hidden w-64 border-r bg-background lg:block">
         <div className="flex h-full flex-col">
-          <div className="flex h-16 items-center border-b px-6">
+          {/* <div className="flex h-16 items-center border-b px-6">
             <Link href="/" className="flex items-center gap-2 font-bold text-lg text-primary">
               <ShoppingBag className="h-6 w-6" />
               <span>Admin Panel</span>
             </Link>
-          </div>
-          {/* <div className="flex-1 px-4 py-6 space-y-4">
-            <div className="space-y-1">
-              <Button variant="ghost" asChild className="w-full justify-start">
-                <Link href="/admin">
-                  <LayoutDashboard className="mr-2 h-4 w-4" />
-                  Overview
-                </Link>
-              </Button>
-              <Button variant="ghost" asChild className="w-full justify-start">
-                <Link href="/admin/users">
-                  <Users className="mr-2 h-4 w-4" />
-                  Users
-                </Link>
-              </Button>
-              <Button variant="ghost" asChild className="w-full justify-start">
-                <Link href="/admin/listings">
-                  <ShoppingBag className="mr-2 h-4 w-4" />
-                  Listings
-                </Link>
-              </Button>
-              <Button variant="ghost" asChild className="w-full justify-start">
-                <Link href="/admin/categories">
-                  <Grid className="mr-2 h-4 w-4" />
-                  Categories
-                </Link>
-              </Button>
-              <Button variant="ghost" asChild className="w-full justify-start">
-                <Link href="/admin/reports">
-                  <AlertTriangle className="mr-2 h-4 w-4" />
-                  Reports
-                </Link>
-              </Button>
-            </div>
-
-            <div className="pt-4 border-t">
-              <h4 className="mb-2 px-2 text-xs font-semibold text-muted-foreground">Settings</h4>
-              <Button variant="ghost" asChild className="w-full justify-start">
-                <Link href="/admin/settings">
-                  <Settings className="mr-2 h-4 w-4" />
-                  General
-                </Link>
-              </Button>
-            </div>
           </div> */}
+          
 
            <div className="flex-1 px-3 py-6 overflow-y-auto">
           <AdminSidebarLinks />
