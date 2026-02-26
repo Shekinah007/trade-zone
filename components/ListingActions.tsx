@@ -31,6 +31,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { SaveButton } from "./SavedButton";
 
 interface ListingActionsProps {
   listingId: string;
@@ -176,15 +177,7 @@ export function ListingActions({ listingId, sellerId, listingTitle, price, histo
         ) : (
           !isSold && (
             <>
-              {/* <Button size="lg" onClick={handleBuyNow} className="w-full bg-green-600 hover:bg-green-700 text-white">
-                <ShoppingCart className="mr-2 h-4 w-4" />
-                Buy Now
-              </Button> */}
-
-              {/* <Button className="w-full" size="lg" variant="secondary" onClick={handleContactSeller} disabled={isLoading}>
-                <MessageCircle className="mr-2 h-4 w-4" />
-                {isLoading ? "Connecting..." : "Contact Seller"}
-              </Button> */}
+            
               <DropdownMenu>
   <DropdownMenuTrigger asChild>
     <Button className="w-full" size="lg" variant="secondary" disabled={isLoading}>
@@ -273,15 +266,13 @@ export function ListingActions({ listingId, sellerId, listingTitle, price, histo
         {
           !isSeller && (
             <>
-              <div className="flex gap-3">
-                <Button variant="outline" className="flex-1">
-                  <Heart className="mr-2 h-4 w-4" />
-                  Save
-                </Button>
-                <Button variant="outline" size="icon">
-                  <Share2 className="h-4 w-4" />
-                </Button>
-              </div>
+          <div className="flex gap-3">
+                      
+  <SaveButton listingId={listingId} />
+  <Button variant="outline" size="icon">
+    <Share2 className="h-4 w-4" />
+  </Button>
+</div>
               <ReviewModal listingId={listingId} sellerId={sellerId} />
             </>
           )
