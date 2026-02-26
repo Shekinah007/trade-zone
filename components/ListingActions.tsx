@@ -32,6 +32,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { SaveButton } from "./SavedButton";
+import { ShareButton } from "./ShareButton";
 
 interface ListingActionsProps {
   listingId: string;
@@ -269,9 +270,7 @@ export function ListingActions({ listingId, sellerId, listingTitle, price, histo
           <div className="flex gap-3">
                       
   <SaveButton listingId={listingId} />
-  <Button variant="outline" size="icon">
-    <Share2 className="h-4 w-4" />
-  </Button>
+  <ShareButton title={listingTitle} price={price.toLocaleString()} />
 </div>
               <ReviewModal listingId={listingId} sellerId={sellerId} />
             </>
