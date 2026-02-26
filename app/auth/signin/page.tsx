@@ -50,6 +50,7 @@ export default function SignInPage() {
       })
 
       if (res?.error) {
+        console.log(res.error)
         toast.error("Invalid credentials")
       } else {
         toast.success("Signed in successfully")

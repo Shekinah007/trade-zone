@@ -1,41 +1,90 @@
-import dbConnect from "@/lib/db";
-import User from "@/models/User";
+"use client";
+
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
+  Table, TableBody, TableCell, TableHead,
+  TableHeader, TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { MoreHorizontal } from "lucide-react";
+import { MoreHorizontal, Loader2, Eye, ShieldOff, ShieldAlert } from "lucide-react";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuTrigger,
+  DropdownMenu, DropdownMenuContent, DropdownMenuItem,
+  DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel,
+  AlertDialogContent, AlertDialogDescription,
+  AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { toast } from "sonner";
 
-async function getUsers() {
-  await dbConnect();
-  const users = await User.find().sort({ createdAt: -1 }).lean();
-  return JSON.parse(JSON.stringify(users));
-}
+type StatusAction = "suspended" | "banned" | "active" | null;
 
-export default async function UsersPage() {
-  const users = await getUsers();
+export default function UsersPage() {
+  const router = useRouter();
+  const [users, setUsers] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [actionTarget, setActionTarget] = useState<{ user: any; status: StatusAction }>({
+    user: null, status: null,
+  });
+
+  useEffect(() => {
+    fetch("/api/admin/users")
+      .then((r) => r.json())
+      .then((data) => { setUsers(data); setLoading(false); });
+  }, []);
+
+  const handleStatusChange = async () => {
+    const { user, status } = actionTarget;
+    if (!user || !status) return;
+    try {
+      const res = await fetch(`/api/admin/users/${user._id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status }),
+      });
+      if (!res.ok) throw new Error();
+      setUsers((prev) =>
+        prev.map((u) => u._id === user._id ? { ...u, status } : u)
+      );
+      toast.success(`User ${status === "active" ? "reactivated" : status}`);
+    } catch {
+      toast.error("Action failed. Please try again.");
+    } finally {
+      setActionTarget({ user: null, status: null });
+    }
+  };
+
+  const statusBadge = (status: string) => {
+    if (status === "active") return <Badge variant="default" className="bg-green-500 hover:bg-green-500">Active</Badge>;
+    if (status === "suspended") return <Badge variant="secondary">Suspended</Badge>;
+    return <Badge variant="destructive">Banned</Badge>;
+  };
+
+  const actionLabel = () => {
+    if (actionTarget.status === "banned") return { title: "Ban User", desc: "This will permanently ban the user from the platform.", btn: "Ban User", cls: "bg-destructive text-destructive-foreground hover:bg-destructive/90" };
+    if (actionTarget.status === "suspended") return { title: "Suspend User", desc: "This will temporarily suspend the user's account.", btn: "Suspend", cls: "" };
+    return { title: "Reactivate User", desc: "This will restore the user's access to the platform.", btn: "Reactivate", cls: "bg-green-500 hover:bg-green-600 text-white" };
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <Loader2 className="animate-spin h-6 w-6 text-muted-foreground" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-3xl font-bold tracking-tight">Users</h2>
-          <p className="text-muted-foreground">Manage user accounts and permissions.</p>
-        </div>
+      <div>
+        <h2 className="text-3xl font-bold tracking-tight">Users</h2>
+        <p className="text-muted-foreground">
+          Manage user accounts and permissions · {users.length} total
+        </p>
       </div>
 
       {/* Mobile: Card layout */}
@@ -68,19 +117,31 @@ export default async function UsersPage() {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                   <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                  <DropdownMenuItem>View details</DropdownMenuItem>
-                  <DropdownMenuItem className="text-destructive">Ban user</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => router.push(`/admin/users/${user._id}`)}>
+                    <Eye className="mr-2 h-4 w-4" /> View Details
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  {user.status === "active" ? (
+                    <>
+                      <DropdownMenuItem onClick={() => setActionTarget({ user, status: "suspended" })}>
+                        <ShieldOff className="mr-2 h-4 w-4 text-yellow-500" /> Suspend
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => setActionTarget({ user, status: "banned" })} className="text-destructive">
+                        <ShieldAlert className="mr-2 h-4 w-4" /> Ban User
+                      </DropdownMenuItem>
+                    </>
+                  ) : (
+                    <DropdownMenuItem onClick={() => setActionTarget({ user, status: "active" })}>
+                      Reactivate User
+                    </DropdownMenuItem>
+                  )}
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
-
             <div className="mt-3 flex items-center gap-2 flex-wrap">
-              <Badge variant={user.role === "admin" ? "default" : "secondary"}>
-                {user.role}
-              </Badge>
-              <Badge variant="outline" className="capitalize text-xs">
-                {user.provider}
-              </Badge>
+              <Badge variant={user.role === "admin" ? "default" : "secondary"}>{user.role}</Badge>
+              <Badge variant="outline" className="capitalize text-xs">{user.provider}</Badge>
+              {statusBadge(user.status)}
               <span className="text-xs text-muted-foreground ml-auto">
                 Joined {new Date(user.createdAt).toLocaleDateString()}
               </span>
@@ -97,6 +158,7 @@ export default async function UsersPage() {
               <TableHead>User</TableHead>
               <TableHead>Role</TableHead>
               <TableHead>Provider</TableHead>
+              <TableHead>Status</TableHead>
               <TableHead>Joined</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
@@ -104,7 +166,7 @@ export default async function UsersPage() {
           <TableBody>
             {users.length === 0 && (
               <TableRow>
-                <TableCell colSpan={5} className="h-24 text-center text-muted-foreground">
+                <TableCell colSpan={6} className="h-24 text-center text-muted-foreground">
                   No users found.
                 </TableCell>
               </TableRow>
@@ -124,24 +186,38 @@ export default async function UsersPage() {
                   </div>
                 </TableCell>
                 <TableCell>
-                  <Badge variant={user.role === "admin" ? "default" : "secondary"}>
-                    {user.role}
-                  </Badge>
+                  <Badge variant={user.role === "admin" ? "default" : "secondary"}>{user.role}</Badge>
                 </TableCell>
                 <TableCell className="capitalize">{user.provider}</TableCell>
+                <TableCell>{statusBadge(user.status)}</TableCell>
                 <TableCell>{new Date(user.createdAt).toLocaleDateString()}</TableCell>
                 <TableCell className="text-right">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="ghost" className="h-8 w-8 p-0">
-                        <span className="sr-only">Open menu</span>
                         <MoreHorizontal className="h-4 w-4" />
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                       <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                      <DropdownMenuItem>View details</DropdownMenuItem>
-                      <DropdownMenuItem className="text-destructive">Ban user</DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => router.push(`/admin/users/${user._id}`)}>
+                        <Eye className="mr-2 h-4 w-4" /> View Details
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      {user.status === "active" ? (
+                        <>
+                          <DropdownMenuItem onClick={() => setActionTarget({ user, status: "suspended" })}>
+                            <ShieldOff className="mr-2 h-4 w-4 text-yellow-500" /> Suspend
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => setActionTarget({ user, status: "banned" })} className="text-destructive focus:text-destructive">
+                            <ShieldAlert className="mr-2 h-4 w-4" /> Ban User
+                          </DropdownMenuItem>
+                        </>
+                      ) : (
+                        <DropdownMenuItem onClick={() => setActionTarget({ user, status: "active" })}>
+                          Reactivate User
+                        </DropdownMenuItem>
+                      )}
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </TableCell>
@@ -150,6 +226,31 @@ export default async function UsersPage() {
           </TableBody>
         </Table>
       </div>
+
+      {/* Confirm dialog */}
+      <AlertDialog
+        open={!!actionTarget.status}
+        onOpenChange={(open) => !open && setActionTarget({ user: null, status: null })}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{actionLabel().title}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {actionLabel().desc}{" "}
+              <span className="font-semibold text-foreground">
+                {actionTarget.user?.name}
+              </span>{" "}
+              ({actionTarget.user?.email})
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleStatusChange} className={actionLabel().cls}>
+              {actionLabel().btn}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
