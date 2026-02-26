@@ -237,7 +237,7 @@
 
 "use client";
 
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -318,7 +318,7 @@ export default function AdminCategoriesPage() {
       const payload = {
         name: values.name,
         icon: values.icon,
-        parent: values.parent || undefined,
+        parent: values.parent === "none" || !values.parent ? undefined : values.parent,
       };
 
       if (editingCategory) {
@@ -357,14 +357,14 @@ export default function AdminCategoriesPage() {
     form.reset({
       name: category.name,
       icon: category.icon || "",
-      parent: category.parent || "",
+      parent: category.parent || "none",
     });
     setIsDialogOpen(true);
   };
 
   const openCreateDialog = (parentId?: string) => {
     setEditingCategory(null);
-    form.reset({ name: "", icon: "", parent: parentId || "" });
+    form.reset({ name: "", icon: "", parent: parentId || "none" });
     setIsDialogOpen(true);
   };
 
@@ -454,7 +454,7 @@ export default function AdminCategoriesPage() {
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="">None (top-level)</SelectItem>
+                          <SelectItem value="none">None (top-level)</SelectItem>
                           {topLevel.map((cat) => (
                             <SelectItem key={cat._id} value={cat._id}>
                               {cat.icon} {cat.name}
@@ -501,9 +501,9 @@ export default function AdminCategoriesPage() {
             {topLevel.map((category) => {
               const children = subcategories.filter((s) => s.parent === category._id);
               return (
-                <div key={category._id}>
+                <Fragment key={category._id}>
                   {/* Parent row */}
-                  <TableRow key={category._id} className="font-medium bg-muted/10">
+                  <TableRow className="font-medium bg-muted/10">
                     <TableCell className="text-xl">{category.icon}</TableCell>
                     <TableCell className="font-semibold">{category.name}</TableCell>
                     <TableCell className="text-muted-foreground text-sm">{category.slug}</TableCell>
@@ -570,7 +570,7 @@ export default function AdminCategoriesPage() {
                       </TableCell>
                     </TableRow>
                   ))}
-                </div>
+                </Fragment>
               );
             })}
           </TableBody>

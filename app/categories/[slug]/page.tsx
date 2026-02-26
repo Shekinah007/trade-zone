@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, Tag } from "lucide-react";
+import { ArrowLeft, ChevronRight, Tag } from "lucide-react";
 import dbConnect from "@/lib/db";
 import Category from "@/models/Category";
 import Listing from "@/models/Listing";
@@ -11,6 +11,11 @@ async function getCategoryData(slug: string) {
 
   const category = await Category.findOne({ slug }).lean() as any;
   if (!category) return null;
+
+                       
+  const parent = category.parent
+    ? await Category.findById(category.parent).lean()
+    : null;
 
   const [subcategories, featuredListings, totalCount] = await Promise.all([
     // Subcategories with their listing counts
@@ -31,7 +36,7 @@ async function getCategoryData(slug: string) {
     Listing.countDocuments({ category: category._id, status: "active" }),
   ]);
 
-  return JSON.parse(JSON.stringify({ category, subcategories, featuredListings, totalCount }));
+  return JSON.parse(JSON.stringify({ category, subcategories, featuredListings, totalCount, parent}));
 }
 
 export default async function CategoryPage({ params }: { params: Promise<{ slug: string }> })                    
@@ -41,12 +46,12 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
   const data = await getCategoryData(slug)
   if (!data) notFound();
 
-  const { category, subcategories, featuredListings, totalCount } = data;
+  const { category, subcategories, featuredListings, totalCount, parent } = data;
 
   return (
     <div className="min-h-screen bg-background">
       {/* Hero */}
-      <section className="relative py-16 overflow-hidden border-b">
+      {/* <section className="relative py-16 overflow-hidden border-b">
         <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-primary/10 rounded-full blur-3xl -z-10" />
         <div className="container mx-auto px-4">
           <Link href="/categories" className="inline-flex items-center text-sm text-muted-foreground hover:text-primary transition-colors mb-6">
@@ -69,7 +74,63 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
             </div>
           </div>
         </div>
-      </section>
+      </section> */}
+
+      <section className="relative py-16 overflow-hidden border-b">
+  <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-primary/10 rounded-full blur-3xl -z-10" />
+  <div className="container mx-auto px-4">
+
+    {/* Breadcrumbs */}
+    <nav className="flex items-center gap-1.5 text-sm text-muted-foreground mb-6 flex-wrap">
+      <Link href="/" className="hover:text-primary transition-colors">
+        Home
+      </Link>
+      <ChevronRight className="h-3.5 w-3.5 shrink-0" />
+      <Link href="/categories" className="hover:text-primary transition-colors">
+        Categories
+      </Link>
+
+      {parent && (
+        <>
+          <ChevronRight className="h-3.5 w-3.5 shrink-0" />
+          <Link
+            href={`/categories/${parent.slug}`}
+            className="hover:text-primary transition-colors"
+          >
+            {parent.icon && <span className="mr-1">{parent.icon}</span>}
+            {parent.name}
+          </Link>
+        </>
+      )}
+
+      <ChevronRight className="h-3.5 w-3.5 shrink-0" />
+      <span className="text-foreground font-medium">
+        {category.icon && <span className="mr-1">{category.icon}</span>}
+        {category.name}
+      </span>
+    </nav>
+
+    {/* Category header */}
+    <div className="flex items-center gap-5">
+      <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-4xl bg-primary/10 shadow-sm shrink-0">
+        {category.icon || "📦"}
+      </div>
+      <div>
+        <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight mb-1">
+          {category.name}
+        </h1>
+        <p className="text-muted-foreground">
+          {totalCount.toLocaleString()} active listing{totalCount !== 1 ? "s" : ""}
+          {subcategories.length > 0 && ` · ${subcategories.length} subcategor${subcategories.length !== 1 ? "ies" : "y"}`}
+          {parent && (
+            <span> · in <Link href={`/categories/${parent.slug}`} className="text-primary hover:underline">{parent.name}</Link></span>
+          )}
+        </p>
+      </div>
+    </div>
+
+  </div>
+</section>
 
       <div className="container mx-auto px-4 py-12 space-y-16">
 
