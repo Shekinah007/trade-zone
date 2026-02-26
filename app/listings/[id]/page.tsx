@@ -24,6 +24,7 @@ import { SellerRating } from "@/components/SellerRating";
 import Transaction from "@/models/Transaction";
 import "@/models/User"; // Ensure User model is registered
 import Business from "@/models/Business";
+import { ViewTracker } from "@/components/ViewTracker";
 
 async function getListing(id: string) {
   try {
@@ -136,6 +137,7 @@ export default async function ListingPage({ params }: { params: { id: string } }
                 <div>
                   <span className="font-semibold text-muted-foreground">Views:</span>
                   <span className="ml-2">{listing.views}</span>
+                  <ViewTracker listingId={listing._id} />
                 </div>
                 {listing.uniqueIdentifier && (
                   <div className="col-span-2 border-t pt-2 mt-2">
