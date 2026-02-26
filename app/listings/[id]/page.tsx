@@ -1,8 +1,7 @@
 import { notFound } from "next/navigation";
-import Image from "next/image";
 import Link from "next/link";
 import { formatDistanceToNow } from "date-fns";
-import { MessageCircle, Heart, MapPin, Share2, ShieldCheck, Flag, Calendar } from "lucide-react";
+import { MapPin, Share2, ShieldCheck, Flag, Calendar } from "lucide-react";
 import dbConnect from "@/lib/db";
 import Listing from "@/models/Listing";
 import "@/models/User"; // Ensure User model is registered
@@ -24,6 +23,7 @@ import { SellerRating } from "@/components/SellerRating";
 
 import Transaction from "@/models/Transaction";
 import "@/models/User"; // Ensure User model is registered
+import Business from "@/models/Business";
 
 async function getListing(id: string) {
   try {
@@ -34,6 +34,8 @@ async function getListing(id: string) {
     const listing = await Listing.findById(id).populate("seller").populate("category").lean();
     if (!listing) return null;
 
+    const business = await Business.findOne({ owner: listing.seller?._id }).lean();
+
     // Fetch History
     const history = await Transaction.find({ listing: id })
       .populate("buyer", "name image")
@@ -42,7 +44,8 @@ async function getListing(id: string) {
 
     return {
       ...JSON.parse(JSON.stringify(listing)),
-      history: JSON.parse(JSON.stringify(history))
+      history: JSON.parse(JSON.stringify(history)),
+      business: JSON.parse(JSON.stringify(business)),
     };
   } catch (error) {
     console.error("Error fetching listing:", error);
@@ -172,13 +175,14 @@ export default async function ListingPage({ params }: { params: { id: string } }
                   price={listing.price}
                   history={listing.history}
                   status={listing.status}
+                  sellerPhone={listing.business?.phone || ""}
                 />
               </div>
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader className="pb-3">
+          <Card className="gap-1">
+            <CardHeader className="">
               <CardTitle className="text-lg">Seller Information</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
