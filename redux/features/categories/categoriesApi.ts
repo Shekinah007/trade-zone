@@ -5,6 +5,7 @@ export interface Category {
     name: string;
     slug: string;
     icon?: string;
+    parent?: string;
 }
 
 export const categoriesApi = createApi({
@@ -19,7 +20,7 @@ export const categoriesApi = createApi({
             providesTags: ["Category"],
         }),
 
-        createCategory: builder.mutation<void, { name: string; icon?: string }>({
+        createCategory: builder.mutation<void, { name: string; icon?: string; parent?: string }>({
             query: (body) => ({
                 url: "/categories",
                 method: "POST",
@@ -30,7 +31,7 @@ export const categoriesApi = createApi({
 
         updateCategory: builder.mutation<
             void,
-            { id: string; name: string; icon?: string }
+            { id: string; name: string; icon?: string; parent?: string }
         >({
             query: ({ id, ...body }) => ({
                 url: `/categories/${id}`,
