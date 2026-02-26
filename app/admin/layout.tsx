@@ -5,6 +5,8 @@ import { authOptions } from "@/lib/auth";
 import { LayoutDashboard, Users, ShoppingBag, AlertTriangle, Settings, LogOut, Grid } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import AdminSidebarLinks from "@/components/AdminSidbarLinks";
+import AdminMobileNav from "@/components/AdminMobileNav";
 
 export default async function AdminLayout({
   children,
@@ -25,10 +27,10 @@ export default async function AdminLayout({
           <div className="flex h-16 items-center border-b px-6">
             <Link href="/" className="flex items-center gap-2 font-bold text-lg text-primary">
               <ShoppingBag className="h-6 w-6" />
-              <span>Trade Zone Admin</span>
+              <span>Admin Panel</span>
             </Link>
           </div>
-          <div className="flex-1 px-4 py-6 space-y-4">
+          {/* <div className="flex-1 px-4 py-6 space-y-4">
             <div className="space-y-1">
               <Button variant="ghost" asChild className="w-full justify-start">
                 <Link href="/admin">
@@ -71,7 +73,11 @@ export default async function AdminLayout({
                 </Link>
               </Button>
             </div>
-          </div>
+          </div> */}
+
+           <div className="flex-1 px-3 py-6 overflow-y-auto">
+          <AdminSidebarLinks />
+        </div>
           <div className="border-t p-4">
             <div className="flex items-center gap-4 mb-4">
               <Avatar>
@@ -90,6 +96,8 @@ export default async function AdminLayout({
       {/* Main Content */}
       <div className="flex-1 flex flex-col">
         <main className="flex-1 p-6 md:p-8">
+          <AdminMobileNav user={session.user} />
+
           {children}
         </main>
       </div>

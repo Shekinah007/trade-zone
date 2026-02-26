@@ -50,33 +50,9 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Hero */}
-      {/* <section className="relative py-16 overflow-hidden border-b">
-        <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-primary/10 rounded-full blur-3xl -z-10" />
-        <div className="container mx-auto px-4">
-          <Link href="/categories" className="inline-flex items-center text-sm text-muted-foreground hover:text-primary transition-colors mb-6">
-            <ArrowLeft className="h-4 w-4 mr-1" />
-            All Categories
-          </Link>
+     
 
-          <div className="flex items-center gap-5">
-            <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-4xl bg-primary/10 shadow-sm shrink-0">
-              {category.icon || "📦"}
-            </div>
-            <div>
-              <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight mb-1">
-                {category.name}
-              </h1>
-              <p className="text-muted-foreground">
-                {totalCount.toLocaleString()} active listing{totalCount !== 1 ? "s" : ""}
-                {subcategories.length > 0 && ` · ${subcategories.length} subcategories`}
-              </p>
-            </div>
-          </div>
-        </div>
-      </section> */}
-
-      <section className="relative py-16 overflow-hidden border-b">
+      <section className="relative py-4 overflow-hidden border-b">
   <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-primary/10 rounded-full blur-3xl -z-10" />
   <div className="container mx-auto px-4">
 
@@ -112,11 +88,11 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
 
     {/* Category header */}
     <div className="flex items-center gap-5">
-      <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-4xl bg-primary/10 shadow-sm shrink-0">
+      <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-3xl bg-primary/10 shadow-sm shrink-0">
         {category.icon || "📦"}
       </div>
       <div>
-        <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight mb-1">
+        <h1 className="text-2xl md:text-2xl font-extrabold tracking-tight mb-1">
           {category.name}
         </h1>
         <p className="text-muted-foreground">
@@ -128,11 +104,10 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
         </p>
       </div>
     </div>
-
   </div>
 </section>
 
-      <div className="container mx-auto px-4 py-12 space-y-16">
+      <div className="container mx-auto px-4 py-4 space-y-16">
 
         {/* Subcategories */}
         {subcategories.length > 0 && (
@@ -144,7 +119,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
               {subcategories.map((sub: any) => (
                 <Link key={sub._id} href={`/categories/${sub.slug}`} className="group">
-                  <div className="bg-card hover:bg-background border border-transparent hover:border-primary/20 transition-all p-4 rounded-xl text-center group-hover:-translate-y-0.5 duration-200 shadow-sm hover:shadow-md">
+                  <div className="bg-card hover:bg-background border border-transparent hover:border-primary/20 transition-all p-2 rounded-xl text-center group-hover:-translate-y-0.5 duration-200 shadow-sm hover:shadow-md">
                     <div className="text-2xl mb-2 group-hover:scale-110 transition-transform inline-block">
                       {sub.icon || "📦"}
                     </div>

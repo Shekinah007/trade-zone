@@ -47,7 +47,7 @@ const handleSearch = (e: React.FormEvent) => {
   return (
     <header
       className={cn(
-        "sticky top-0 z-50 w-full transition-all duration-300",
+        "sticky top-0 z-50 w-full transition-all duration-300 shadow",
         scrolled
           ? "border-b bg-background/80 backdrop-blur-md shadow-sm"
           : "bg-transparent border-transparent"
@@ -97,6 +97,9 @@ const handleSearch = (e: React.FormEvent) => {
     />
   </div>
 </form>
+
+
+          
 
         {/* Right Side Actions */}
         <div className="flex items-center space-x-4">
@@ -224,6 +227,7 @@ const handleSearch = (e: React.FormEvent) => {
           ))}
         </nav>
       </div>
+   
 
       {/* Post Ad CTA */}
       <Button
@@ -267,6 +271,17 @@ const handleSearch = (e: React.FormEvent) => {
               Dashboard
             </Link>
           </Button>
+
+             {
+            session ? session.user.role === "admin" ? (
+              <Button asChild variant="default" size="sm" className="rounded-full px-6 justify-start shadow-md hover:shadow-lg transition-all bg-gradient-to-r from-purple-600 to-primary hover:from-primary/90 hover:to-purple-600/90 border-0">
+                <Link href="/admin">
+                  <LayoutDashboard className="mr-3 h-4 w-4" />
+                  Admin Panel
+                </Link>
+              </Button>
+            ) : null : null
+          }
 
           <Button
             variant="ghost"
