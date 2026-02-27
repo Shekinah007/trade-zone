@@ -32,6 +32,7 @@ export async function POST(req: Request) {
       name,
       email,
       password: hashedPassword,
+      status: "pending", 
     });
 
     // Create a default business for the user

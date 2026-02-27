@@ -4,9 +4,11 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   LayoutDashboard, Users, ShoppingBag,
-  AlertTriangle, Settings, Grid
+  AlertTriangle, Settings, Grid,
+  UserCheck
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useEffect, useState } from "react";
 
 const navItems = [
   { href: "/admin", label: "Overview", icon: LayoutDashboard },
@@ -14,6 +16,7 @@ const navItems = [
   { href: "/admin/listings", label: "Listings", icon: ShoppingBag },
   { href: "/admin/categories", label: "Categories", icon: Grid },
   { href: "/admin/reports", label: "Reports", icon: AlertTriangle },
+{ href: "/admin/registrations", label: "Registrations", icon: UserCheck },
 ];
 
 const settingsItems = [
@@ -22,6 +25,14 @@ const settingsItems = [
 
 export default function AdminSidebarLinks() {
   const pathname = usePathname();
+   const [pendingCount, setPendingCount] = useState(0);
+
+  useEffect(() => {
+    fetch("/api/admin/registrations")
+      .then((r) => r.json())
+      .then((data) => setPendingCount(Array.isArray(data) ? data.length : 0))
+      .catch(() => {});
+  }, []);
 
   return (
     <div className="space-y-6">
@@ -69,6 +80,25 @@ export default function AdminSidebarLinks() {
           );
         })}
       </div>
+                           
+                      
+  <Link
+          href="/admin/registrations"
+          className={cn(
+            "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all",
+            pathname === "/admin/registrations"
+              ? "bg-primary text-primary-foreground shadow-sm"
+              : "text-foreground/70 hover:text-foreground hover:bg-muted"
+          )}
+        >
+          <UserCheck className="h-4 w-4 shrink-0" />
+          Registrations
+          {pendingCount > 0 && (
+            <span className="ml-auto bg-destructive text-destructive-foreground text-xs font-bold px-1.5 py-0.5 rounded-full">
+              {pendingCount}
+            </span>
+          )}
+        </Link>
     </div>
   );
 }

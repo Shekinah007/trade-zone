@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { Loader2 } from "lucide-react";
+import { Clock, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -37,6 +37,21 @@ export default function CreateListingPage() {
     router.push("/auth/signin?callbackUrl=/listings/create");
     return null;
   }
+
+
+if (session?.user?.status === 'pending') {
+  return (
+    <div className="container mx-auto px-4 py-20 text-center max-w-md">
+      <div className="p-4 rounded-full bg-yellow-500/10 w-fit mx-auto mb-4">
+        <Clock className="h-10 w-10 text-yellow-500" />
+      </div>
+      <h1 className="text-2xl font-bold mb-2">Approval Pending</h1>
+      <p className="text-muted-foreground">
+        Your account is currently under review. You'll be able to post listings once an admin approves your account.
+      </p>
+    </div>
+  );
+}
 
   return (
     <div className="container mx-auto py-10 px-4 max-w-3xl">

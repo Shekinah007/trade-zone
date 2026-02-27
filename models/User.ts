@@ -10,7 +10,7 @@ export interface IUser extends Document {
   provider: 'credentials' | 'google' | 'facebook';
   createdAt: Date;
   updatedAt: Date;
-  status: 'pending'|'active' | 'suspended' | 'banned';
+  status: 'pending' | 'active' | 'suspended' | 'banned';
 }
 
 const UserSchema = new Schema<IUser>(

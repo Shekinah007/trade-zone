@@ -5,7 +5,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   LayoutDashboard, Users, ShoppingBag, AlertTriangle,
-  Settings, Menu, Grid, X
+  Settings, Menu, Grid, X,
+  UserCheck
 } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
@@ -19,6 +20,8 @@ const navItems = [
   { href: "/admin/categories", label: "Categories", icon: Grid },
   { href: "/admin/reports", label: "Reports", icon: AlertTriangle },
   { href: "/admin/settings", label: "Settings", icon: Settings },
+  { href: "/admin/registrations", label: "Registrations", icon: UserCheck },
+
 ];
 
 interface Props {

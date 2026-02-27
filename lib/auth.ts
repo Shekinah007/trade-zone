@@ -35,12 +35,13 @@ export const authOptions: NextAuthOptions = {
                     return null;
                 }
 
-                if (user.status === 'pending') {
-  throw new Error('Your account is pending approval by an administrator.');
-}
+//                 if (user.status === 'pending') {
+//   throw new Error('Your account is pending approval by an administrator.');
+// }
 if (user.status === 'banned' || user.status === 'suspended') {
-  throw new Error('Your account has been suspended.');
+  throw new Error(`Your account has been ${user.status}.`);
 }
+
                 
                 const isMatch = await bcrypt.compare(credentials.password, user.password as string);
                 
@@ -54,6 +55,7 @@ if (user.status === 'banned' || user.status === 'suspended') {
                     email: user.email,
                     image: user.image,
                     role: user.role,
+                    status: user.status
                 };
             },
         }),
@@ -63,12 +65,14 @@ if (user.status === 'banned' || user.status === 'suspended') {
             if (token && session.user) {
                 session.user.id = token.sub;
                 session.user.role = token.role as string;
+                 session.user.status = token.status as string;
             }
             return session;
         },
         async jwt({ token, user }) {
             if (user) {
                 token.role = user.role;
+                token.status = user.status;
             }
             return token;
         },
