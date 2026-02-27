@@ -31,7 +31,7 @@ export default async function Home() {
   return (
     <div className="flex flex-col min-h-screen bg-background">
       {/* Hero Section */}
-      <section className="relative px-4 py-24 md:py-18 overflow-hidden">
+      <section className="relative px-4 py-10 md:py-18 overflow-hidden">
         {/* Background Gradients */}
         <div className="absolute top-0 left-0 w-full h-full bg-background -z-20" />
         <div className="absolute top-[-10%] right-[-5%] w-[500px] h-[500px] bg-primary/20 rounded-full blur-3xl -z-10 animate-pulse" />
@@ -54,25 +54,13 @@ export default async function Home() {
             Join the community of creators and collectors. Discover unique items, connect with verified sellers, and trade safely.
           </p>
 
-          {/* <div className="max-w-2xl mx-auto flex flex-col sm:flex-row gap-3 animate-in fade-in slide-in-from-bottom-6 duration-700 delay-300">
-            <div className="relative flex-1 group">
-              <Search className="absolute left-4 top-3.5 h-5 w-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
-              <Input
-                placeholder="Search for cars, phones, furniture..."
-                className="pl-12 h-12 text-lg rounded-full shadow-sm border-muted-foreground/20 focus-visible:ring-primary"
-              />
-            </div>
-            <Button size="lg" className="h-12 px-8 rounded-full text-base shadow-lg shadow-primary/25 bg-primary hover:bg-primary/90 transition-all hover:scale-105">
-              Search Now
-            </Button>
-          </div> */}
 
                                 
   <div className="animate-in fade-in slide-in-from-bottom-6 duration-700 delay-300">
        <HomeSearchBar />
      </div>
 
-          <div className="mt-8 flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm text-muted-foreground animate-in fade-in zoom-in duration-1000 delay-500">
+          <div className="mt-0 flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm text-muted-foreground animate-in fade-in zoom-in duration-1000 delay-500">
             <span className="font-semibold text-foreground">Trending:</span>
             {['iPhone 15', 'PlayStation 5', 'Vintage Camera', 'MacBook Pro'].map((term) => (
               <Link key={term} href={`/browse?q=${term}`} className="hover:text-primary transition-colors border-b border-dashed border-muted-foreground/50 hover:border-primary">
