@@ -4,8 +4,10 @@ import { authOptions } from "@/lib/auth";
 import dbConnect from "@/lib/db";
 import Category from "@/models/Category";
 
-export async function PUT(req: Request, { params }: { params: { id: string } }) {
-  const { id } = await params;
+export async function PUT(req: Request, 
+  context: { params: Promise<{ id: string }> }
+) {
+  const { id } = await context.params;
   const session = await getServerSession(authOptions);
 
   if (!session || session.user.role !== "admin") {
