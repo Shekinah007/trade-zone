@@ -20,7 +20,7 @@ export function HomeSearchBar() {
   };
 
   return (
-    <form onSubmit={handleSearch} className="max-w-2xl mx-auto flex flex-col sm:flex-row gap-3">
+    <form onSubmit={handleSearch} className="md:max-w-2xl mx-auto flex flex-col sm:flex-row gap-3">
       <div className="relative flex-1 group">
         <Search className="absolute left-4 top-3.5 h-5 w-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
         <Input
@@ -33,7 +33,7 @@ export function HomeSearchBar() {
       <Button
         type="submit"
         size="lg"
-        className="h-12 px-8 rounded-full text-base shadow-lg shadow-primary/25 bg-primary hover:bg-primary/90 transition-all hover:scale-105"
+        className="h-12 px-8 rounded-full w-1/2 md:w-[180px] mx-auto text-base shadow-lg shadow-primary/25 bg-primary hover:bg-primary/90 transition-all hover:scale-105"
       >
         Search Now
       </Button>

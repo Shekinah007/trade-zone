@@ -13,7 +13,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { useSession } from "next-auth/react";
 
-async function getUserListings(userId: string) {
+async function getUserListings(userId: string | undefined) {
   await dbConnect();
   const listings = await Listing.find({ seller: userId }).sort({ createdAt: -1 }).lean();
   return JSON.parse(JSON.stringify(listings));
@@ -44,7 +44,7 @@ export default async function DashboardPage() {
              <CardHeader className="text-center">
                 <div className="mx-auto mb-4">
                   <Avatar className="h-24 w-24">
-                     <AvatarImage src={session.user.image} />
+                     <AvatarImage src={session.user.image || ""} />
                      <AvatarFallback>{session.user.name?.charAt(0)}</AvatarFallback>
                   </Avatar>
                 </div>

@@ -17,7 +17,7 @@ export default async function SecurityPage() {
   const session = await getServerSession(authOptions);
   if (!session) redirect("/auth/signin?callbackUrl=/settings/security");
 
-  const provider = await getUserProvider(session.user.id);
+  const provider = await getUserProvider(session.user.id || "");
   const isOAuth = provider !== "credentials";
 
   return (

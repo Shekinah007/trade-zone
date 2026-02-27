@@ -7,17 +7,18 @@ import Conversation from "@/models/Conversation";
 
 export async function GET(
   req: Request,
-  { params }: { params: { id: string } }
+    context: { params: Promise<{ id: string }> }
 ) {
   const session = await getServerSession(authOptions);
   if (!session) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
+  const {id} = await context.params;
 
   try {
     await dbConnect();
     
-    const messages = await Message.find({ conversation: params.id })
+    const messages = await Message.find({ conversation: id })
       .populate("sender", "name image")
       .sort({ createdAt: 1 });
 
@@ -29,12 +30,15 @@ export async function GET(
 
 export async function POST(
   req: Request,
-  { params }: { params: { id: string } }
+    context: { params: Promise<{ id: string }> }
+
 ) {
   const session = await getServerSession(authOptions);
   if (!session) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
+
+  const {id} = await context.params;
 
   try {
     await dbConnect();
@@ -42,15 +46,15 @@ export async function POST(
     const { content } = body;
 
     const newMessage = await Message.create({
-      conversation: params.id,
+      conversation: id,
       sender: session.user.id,
       content,
     });
 
-    await Conversation.findByIdAndUpdate(params.id, {
+    await Conversation.findByIdAndUpdate(id, {
         lastMessage: content,
         lastMessageAt: new Date(),
-        $inc: { [`unreadCount.${session.user.id === params.id ? 'other' : 'unknown'}`]: 1 } // Simplified logic, ideally identify other participant
+        $inc: { [`unreadCount.${session.user.id === id ? 'other' : 'unknown'}`]: 1 } // Simplified logic, ideally identify other participant
     });
 
     return NextResponse.json(newMessage);

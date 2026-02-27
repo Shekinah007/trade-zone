@@ -6,13 +6,14 @@ import User from "@/models/User";
 
 export async function PATCH(
   req: Request,
-  { params }: { params: Promise<{ id: string }> }
+   context: { params: Promise<{ id: string }> }
+
 ) {
   const session = await getServerSession(authOptions);
   if (!session || session.user.role !== "admin")
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
 
-  const { id } = await params;
+  const { id } = await context.params;
   const { action } = await req.json(); // "approve" | "reject"
 
   await dbConnect();

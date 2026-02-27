@@ -5,11 +5,12 @@ import User from "@/models/User";
 
 export async function GET(
   req: Request,
-  { params }: { params: { id: string } }
+    context: { params: Promise<{ id: string }> }
+
 ) {
   try {
     await dbConnect();
-    const {id} =  await params
+    const {id} =  await context.params
     
     const stats = await Review.aggregate([
       { $match: { reviewee: id } }, // Match strictly by string ID if stored that way, or ObjectId if casted. Mongoose aggregate usually needs ObjectId if stored as such.

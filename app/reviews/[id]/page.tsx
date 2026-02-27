@@ -121,7 +121,7 @@ export default async function SellerReviewsPage({
               <Separator orientation="vertical" className="h-24" />
               {/* Breakdown bars */}
               <div className="flex-1 space-y-2">
-                {breakdown.map(({ star, count, percent }) => (
+                {breakdown.map(({ star, count, percent }: any) => (
                   <div key={star} className="flex items-center gap-2 text-sm">
                     <span className="w-3 text-muted-foreground">{star}</span>
                     <Star className="h-3 w-3 fill-yellow-400 text-yellow-400 shrink-0" />
@@ -143,7 +143,7 @@ export default async function SellerReviewsPage({
             <Card>
               <CardContent className="p-5 text-center">
                 <p className="text-3xl font-bold text-green-500">
-                  {breakdown.find((b) => b.star === 5)?.count ?? 0}
+                  {breakdown.find((b: any) => b.star === 5)?.count ?? 0}
                 </p>
                 <p className="text-xs text-muted-foreground mt-1">5-Star Reviews</p>
               </CardContent>
@@ -153,8 +153,8 @@ export default async function SellerReviewsPage({
                 <p className="text-3xl font-bold">
                   {totalReviews > 0
                     ? `${Math.round(
-                        ((breakdown.find((b) => b.star >= 4)?.count ?? 0) +
-                          (breakdown.find((b) => b.star === 5)?.count ?? 0)) /
+                        ((breakdown.find((b: any) => b.star >= 4)?.count ?? 0) +
+                          (breakdown.find((b: any) => b.star === 5)?.count ?? 0)) /
                           totalReviews *
                           100
                       )}%`

@@ -8,10 +8,11 @@ import { join } from "path";
 
 export async function GET(
   req: Request,
-  { params }: { params: { id: string } }
+    context: { params: Promise<{ id: string }> }
+
 ) {
   try {
-    const { id } = await params;
+    const { id } = await context.params;
     await dbConnect();
     const listing = await Listing.findById(id)
       .populate("seller", "name image email createdAt")
@@ -33,7 +34,8 @@ export async function GET(
 
 export async function PUT(
   req: Request,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
+
 ) {
   const session = await getServerSession(authOptions);
   if (!session) {
@@ -41,7 +43,7 @@ export async function PUT(
   }
 
   try {
-    const { id } = await params;
+    const { id } = await context.params;
     await dbConnect();
     const listing = await Listing.findById(id);
 
@@ -122,16 +124,18 @@ export async function PUT(
 
 export async function DELETE(
   req: Request,
-  { params }: { params: { id: string } }
+    context: { params: Promise<{ id: string }> }
+
 ) {
   const session = await getServerSession(authOptions);
   if (!session) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
 
+  const { id } = await context.params;
   try {
     await dbConnect();
-    const listing = await Listing.findById(params.id);
+    const listing = await Listing.findById(id);
 
     if (!listing) {
       return NextResponse.json({ message: "Listing not found" }, { status: 404 });
@@ -141,7 +145,7 @@ export async function DELETE(
       return NextResponse.json({ message: "Forbidden" }, { status: 403 });
     }
 
-    await Listing.findByIdAndDelete(params.id);
+    await Listing.findByIdAndDelete(id);
 
     return NextResponse.json({ message: "Listing deleted successfully" });
   } catch (error) {

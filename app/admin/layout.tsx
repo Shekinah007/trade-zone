@@ -38,7 +38,7 @@ export default async function AdminLayout({
           <div className="border-t p-4">
             <div className="flex items-center gap-4 mb-4">
               <Avatar>
-                <AvatarImage src={session.user.image} />
+                <AvatarImage src={session?.user?.image || ""} />
                 <AvatarFallback>AD</AvatarFallback>
               </Avatar>
               <div className="text-sm">

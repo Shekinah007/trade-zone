@@ -44,7 +44,7 @@ export async function PUT(req: Request) {
 
     if (!validatedFields.success) {
       return NextResponse.json(
-        { message: "Invalid data", errors: validatedFields.error.errors },
+        { message: "Invalid data", errors: validatedFields.error.message },
         { status: 400 }
       );
     }

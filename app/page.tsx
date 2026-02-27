@@ -43,14 +43,14 @@ export default async function Home() {
             The #1 Marketplace for verified sellers
           </div>
 
-          <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight mb-8 leading-tight animate-in fade-in slide-in-from-bottom-6 duration-700 delay-100">
+          <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight mb-5 leading-tight animate-in fade-in slide-in-from-bottom-6 duration-700 delay-100">
             Buy & Sell <br className="hidden md:block" />
             <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary via-purple-500 to-indigo-600">
               Without Limits.
             </span>
           </h1>
 
-          <p className="text-lg md:text-xl text-muted-foreground mb-10 max-w-2xl mx-auto animate-in fade-in slide-in-from-bottom-6 duration-700 delay-200">
+          <p className="text-lg md:text-xl text-muted-foreground mb-5 max-w-2xl mx-auto animate-in fade-in slide-in-from-bottom-6 duration-700 delay-200">
             Join the community of creators and collectors. Discover unique items, connect with verified sellers, and trade safely.
           </p>
 
@@ -60,7 +60,7 @@ export default async function Home() {
        <HomeSearchBar />
      </div>
 
-          <div className="mt-0 flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm text-muted-foreground animate-in fade-in zoom-in duration-1000 delay-500">
+          <div className="mt-5 flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm text-muted-foreground animate-in fade-in zoom-in duration-1000 delay-500">
             <span className="font-semibold text-foreground">Trending:</span>
             {['iPhone 15', 'PlayStation 5', 'Vintage Camera', 'MacBook Pro'].map((term) => (
               <Link key={term} href={`/browse?q=${term}`} className="hover:text-primary transition-colors border-b border-dashed border-muted-foreground/50 hover:border-primary">
