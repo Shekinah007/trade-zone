@@ -271,8 +271,13 @@ export function ListingActions({ listingId, sellerId, listingTitle, price, histo
                       
   <SaveButton listingId={listingId} />
   <ShareButton title={listingTitle} price={price.toLocaleString()} />
+  
 </div>
+{status === "authenticated" && <ReportButton listingId={listingId} />}
+{status === "authenticated" && 
               <ReviewModal listingId={listingId} sellerId={sellerId} />
+
+}
             </>
           )
         }

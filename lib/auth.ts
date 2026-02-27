@@ -34,6 +34,13 @@ export const authOptions: NextAuthOptions = {
                 if (!user) {
                     return null;
                 }
+
+                if (user.status === 'pending') {
+  throw new Error('Your account is pending approval by an administrator.');
+}
+if (user.status === 'banned' || user.status === 'suspended') {
+  throw new Error('Your account has been suspended.');
+}
                 
                 const isMatch = await bcrypt.compare(credentials.password, user.password as string);
                 

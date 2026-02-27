@@ -10,7 +10,7 @@ export interface IUser extends Document {
   provider: 'credentials' | 'google' | 'facebook';
   createdAt: Date;
   updatedAt: Date;
-  status: 'active' | 'suspended' | 'banned';
+  status: 'pending'|'active' | 'suspended' | 'banned';
 }
 
 const UserSchema = new Schema<IUser>(
@@ -26,7 +26,7 @@ const UserSchema = new Schema<IUser>(
       default: 'buyer',
     },
     provider: { type: String, default: 'credentials' },
-    status: {type: String, enum: ['active', 'suspended', 'banned'], default: 'active' },
+    status: {type: String, enum: ['pending', 'active', 'suspended', 'banned'], default: 'pending' },
   },
   { timestamps: true }
 );

@@ -27,6 +27,8 @@ export default function CreateListingPage() {
     fetchCategories();
   }, []);
 
+  console.log(categories);
+
   if (status === "loading") {
     return <div className="flex justify-center p-8"><Loader2 className="animate-spin" /></div>;
   }

@@ -1,15 +1,13 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { formatDistanceToNow } from "date-fns";
-import { MapPin, Share2, ShieldCheck, Flag, Calendar } from "lucide-react";
+import { MapPin, Share2, ShieldCheck, Flag, Calendar, Eye } from "lucide-react";
 import dbConnect from "@/lib/db";
 import Listing from "@/models/Listing";
 import "@/models/User"; // Ensure User model is registered
 import "@/models/Category";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import {
   Carousel,
   CarouselContent,
@@ -134,9 +132,9 @@ export default async function ListingPage({ params }: { params: { id: string } }
                   <span className="font-semibold text-muted-foreground">Posted:</span>
                   <span className="ml-2">{formatDistanceToNow(new Date(listing.createdAt), { addSuffix: true })}</span>
                 </div>
-                <div>
-                  <span className="font-semibold text-muted-foreground">Views:</span>
-                  <span className="ml-2">{listing.views}</span>
+                <div className="flex flex-row gap-2 items-center text-muted-foreground">
+                  <Eye className="h-4 w-4" />
+                  <span className="font-semibold">{listing.views} views</span>
                   <ViewTracker listingId={listing._id} />
                 </div>
                 {listing.uniqueIdentifier && (
