@@ -16,7 +16,7 @@ const navItems = [
   { href: "/admin/listings", label: "Listings", icon: ShoppingBag },
   { href: "/admin/categories", label: "Categories", icon: Grid },
   { href: "/admin/reports", label: "Reports", icon: AlertTriangle },
-{ href: "/admin/registrations", label: "Registrations", icon: UserCheck },
+// { href: "/admin/registrations", label: "Registrations", icon: UserCheck },
 ];
 
 const settingsItems = [
@@ -55,6 +55,23 @@ export default function AdminSidebarLinks() {
             </Link>
           );
         })}
+          <Link
+          href="/admin/registrations"
+          className={cn(
+            "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all",
+            pathname === "/admin/registrations"
+              ? "bg-primary text-primary-foreground shadow-sm"
+              : "text-foreground/70 hover:text-foreground hover:bg-muted"
+          )}
+        >
+          <UserCheck className="h-4 w-4 shrink-0" />
+          Registrations
+          {pendingCount > 0 && (
+            <span className="ml-auto text-white bg-destructive text-destructive-foreground text-xs font-bold px-1.5 py-0.5 rounded-full">
+              {pendingCount}
+            </span>
+          )}
+        </Link>
       </div>
 
       <div className="border-t pt-4">
@@ -82,23 +99,7 @@ export default function AdminSidebarLinks() {
       </div>
                            
                       
-  <Link
-          href="/admin/registrations"
-          className={cn(
-            "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all",
-            pathname === "/admin/registrations"
-              ? "bg-primary text-primary-foreground shadow-sm"
-              : "text-foreground/70 hover:text-foreground hover:bg-muted"
-          )}
-        >
-          <UserCheck className="h-4 w-4 shrink-0" />
-          Registrations
-          {pendingCount > 0 && (
-            <span className="ml-auto bg-destructive text-destructive-foreground text-xs font-bold px-1.5 py-0.5 rounded-full">
-              {pendingCount}
-            </span>
-          )}
-        </Link>
+
     </div>
   );
 }

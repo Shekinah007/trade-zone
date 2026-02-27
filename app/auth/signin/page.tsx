@@ -50,8 +50,7 @@ export default function SignInPage() {
       })
 
       if (res?.error) {
-        console.log(res.error)
-        toast.error("Invalid credentials")
+        toast.error(res?.error || "Invalid credentials")
       } else {
         toast.success("Signed in successfully")
         router.push("/dashboard")

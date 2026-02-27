@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -19,9 +19,6 @@ const navItems = [
   { href: "/admin/listings", label: "Listings", icon: ShoppingBag },
   { href: "/admin/categories", label: "Categories", icon: Grid },
   { href: "/admin/reports", label: "Reports", icon: AlertTriangle },
-  { href: "/admin/settings", label: "Settings", icon: Settings },
-  { href: "/admin/registrations", label: "Registrations", icon: UserCheck },
-
 ];
 
 interface Props {
@@ -31,6 +28,15 @@ interface Props {
 export default function AdminMobileNav({ user }: Props) {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
+
+  const [pendingCount, setPendingCount] = useState(0);
+  
+    useEffect(() => {
+      fetch("/api/admin/registrations")
+        .then((r) => r.json())
+        .then((data) => setPendingCount(Array.isArray(data) ? data.length : 0))
+        .catch(() => {});
+    }, []);
 
   return (
     <header className="lg:hidden sticky top-0 z-50 flex items-center justify-between h-0 px-4 bg-background">
@@ -74,6 +80,24 @@ export default function AdminMobileNav({ user }: Props) {
                 </Link>
               );
             })}
+            <Link
+                    href="/admin/registrations"
+                    className={cn(
+                      "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all",
+                      pathname === "/admin/registrations"
+                        ? "bg-primary text-primary-foreground shadow-sm"
+                        : "text-foreground/70 hover:text-foreground hover:bg-muted"
+                    )}
+                  >
+                    <UserCheck className="h-4 w-4 shrink-0" />
+                    Registrations
+                    {pendingCount > 0 && (
+                      <span className="ml-auto text-white bg-destructive text-destructive-foreground text-xs font-bold px-1.5 py-0.5 rounded-full">
+                        {pendingCount}
+                      </span>
+                    )}
+                  </Link>
+
           </nav>
 
           {/* User Footer */}
@@ -91,6 +115,10 @@ export default function AdminMobileNav({ user }: Props) {
               </div>
             </div>
           </div>
+
+                                
+            
+
 
         </SheetContent>
       </Sheet>
