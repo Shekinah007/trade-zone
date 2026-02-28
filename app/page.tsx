@@ -5,6 +5,8 @@ import Listing from "@/models/Listing";
 import { ListingCard } from "@/components/ListingCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import Category from "@/models/Category";
+import { HomeSearchBar } from "@/components/HomeSearchBar";
 
 async function getRecentListings() {
   await dbConnect();
@@ -15,8 +17,6 @@ async function getRecentListings() {
   return JSON.parse(JSON.stringify(listings));
 }
 
-import Category from "@/models/Category";
-import { HomeSearchBar } from "@/components/HomeSearchBar";
 
 async function getCategories() {
   await dbConnect();
@@ -27,6 +27,9 @@ async function getCategories() {
 export default async function Home() {
   const recentListings = await getRecentListings();
   const categories = await getCategories();
+
+  console.log("Recent Listings:", recentListings);
+  console.log("Categories:", categories);
 
   return (
     <div className="flex flex-col min-h-screen bg-background">
