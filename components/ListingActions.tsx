@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
-import {  Heart, Share2, Flag, AlertTriangle } from "lucide-react";
+import {  Heart, Share2, Flag, AlertTriangle, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import {
@@ -23,6 +23,12 @@ import { History, ShoppingCart } from "lucide-react";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { Phone, MessageCircle, PhoneCall } from "lucide-react";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel,
+  AlertDialogContent, AlertDialogDescription,
+  AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -49,6 +55,7 @@ export function ListingActions({ listingId, sellerId, listingTitle, price, histo
   const [isLoading, setIsLoading] = useState(false);
   const [isReportOpen, setIsReportOpen] = useState(false);
   const [reportReason, setReportReason] = useState("");
+  const [showSoldDialog, setShowSoldDialog] = useState(false);
 
   const isSeller = session?.user?.id === sellerId;
   const isSold = listingStatus === 'sold';
@@ -111,38 +118,30 @@ export function ListingActions({ listingId, sellerId, listingTitle, price, histo
   };
 
   const handleMarkAsSold = async () => {
-    if (!confirm("Are you sure you want to mark this item as sold? This cannot be undone.")) return;
+  setIsLoading(true);
+  try {
+    const formData = new FormData();
+    formData.append("status", "sold");
 
-    setIsLoading(true);
-    try {
-      // Use the newly added PUT endpoint. 
-      // We send FormData because that's what the endpoint expects now (consistent with create/edit).
-      // Or we can try JSON if the endpoint supports it, but I wrote it to expect FormData.
-      // Actually, standard FormData fetching for a single field is easy.
-      const formData = new FormData();
-      formData.append("status", "sold");
+    const res = await fetch(`/api/listings/${listingId}`, {
+      method: "PUT",
+      body: formData,
+    });
 
-      // We must append other required fields if the model demands them on save?
-      // Mongoose updates on `findById` then `save` only updates changed fields if we modify the object properties. 
-      // BUT my PUT handler does `listing.title = ...`. 
-      // Oh, my PUT handler expects ALL fields to be present or it might overwrite them with null/undefined!
-      // CAUTION: The PUT handler I wrote grabs `formData.get("title")` and assigns it.
-      // If I only send status, other fields will be set to `null` ("null" string) or empty string depending on formData behavior.
-      // This is a DESTRUCTIVE bug in my PUT handler implementation if I don't send everything.
-
-      // FIX PLAN: I should modify the PUT handler to only update fields that are present in FormData.
-      // OR, I fetch the listing here (client side) or pass all data to this component? Passing all data is heavy.
-      // BETTER: Update the API route to be partial-update friendly.
-
-      // I will pause this update and FIX the API route first to allow partial updates.
-      // This is critical.
-
-    } catch (error) {
-      toast.error("Failed to update status");
-    } finally {
-      setIsLoading(false);
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.message || "Failed to update status");
     }
-  };
+
+    toast.success("Listing marked as sold!");
+    router.refresh();
+  } catch (error: any) {
+    toast.error(error.message || "Something went wrong");
+  } finally {
+    setIsLoading(false);
+    setShowSoldDialog(false);
+  }
+};
 
   // I will return the existing component code for now, but with the isSeller checks, 
   // but I realize I need to fix the API route first.
@@ -170,7 +169,9 @@ export function ListingActions({ listingId, sellerId, listingTitle, price, histo
               Edit Listing
             </Button>
             {!isSold && (
-              <Button className="w-full" size="lg" variant="secondary" onClick={handleMarkAsSold} disabled={isLoading}>
+              <Button className="w-full" size="lg" variant="secondary" 
+             onClick={() => setShowSoldDialog(true)} disabled={isLoading} 
+              >
                 Mark as Sold
               </Button>
             )}
@@ -312,6 +313,27 @@ export function ListingActions({ listingId, sellerId, listingTitle, price, histo
       <Dialog open={isReportOpen} onOpenChange={setIsReportOpen}>
         {/* ... */}
       </Dialog>
+      <AlertDialog open={showSoldDialog} onOpenChange={setShowSoldDialog}>
+  <AlertDialogContent>
+    <AlertDialogHeader>
+      <AlertDialogTitle>Mark as Sold?</AlertDialogTitle>
+      <AlertDialogDescription>
+        This will mark your listing as sold and hide it from active listings. This action cannot be undone.
+      </AlertDialogDescription>
+    </AlertDialogHeader>
+    <AlertDialogFooter>
+      <AlertDialogCancel>Cancel</AlertDialogCancel>
+      <AlertDialogAction
+        onClick={handleMarkAsSold}
+        disabled={isLoading}
+        className="bg-green-500 hover:bg-green-600 text-white"
+      >
+        {isLoading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+        Yes, Mark as Sold
+      </AlertDialogAction>
+    </AlertDialogFooter>
+  </AlertDialogContent>
+</AlertDialog>
     </>
   );
 }

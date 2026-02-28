@@ -28,8 +28,8 @@ export default async function Home() {
   const recentListings = await getRecentListings();
   const categories = await getCategories();
 
-  console.log("Recent Listings:", recentListings);
-  console.log("Categories:", categories);
+  // console.log("Recent Listings:", recentListings);
+  // console.log("Categories:", categories);
 
   return (
     <div className="flex flex-col min-h-screen bg-background">
