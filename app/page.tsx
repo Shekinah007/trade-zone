@@ -62,7 +62,7 @@ export default async function Home() {
 
           <div className="mt-5 flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm text-muted-foreground animate-in fade-in zoom-in duration-1000 delay-500">
             <span className="font-semibold text-foreground">Trending:</span>
-            {['iPhone 15', 'PlayStation 5', 'Vintage Camera', 'MacBook Pro'].map((term) => (
+            {['iPhone 15', 'HP Elitebook', 'MacBook Pro'].map((term) => (
               <Link key={term} href={`/browse?q=${term}`} className="hover:text-primary transition-colors border-b border-dashed border-muted-foreground/50 hover:border-primary">
                 {term}
               </Link>
