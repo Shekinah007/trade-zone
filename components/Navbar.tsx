@@ -231,17 +231,17 @@ export default function Navbar() {
             </SheetTrigger>
             <SheetContent side="right" className="w-[300px] p-0 flex flex-col">
               {/* Header */}
-              <div className="flex items-center space-x-2 p-5 border-b">
+              {/* <div className="flex items-center space-x-2 p-5 border-b">
                 <div className="bg-primary/10 p-2 rounded-xl">
                   <ShoppingBag className="h-5 w-5 text-primary" />
                 </div>
                 <span className="text-lg font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-purple-600">
                   Trade Zone
                 </span>
-              </div>
+              </div> */}
 
               {/* Body */}
-              <div className="flex flex-col flex-1 overflow-y-auto p-5 space-y-6">
+              <div className="flex flex-col flex-1 overflow-y-auto p-5 py-10 space-y-6">
                 {/* Search — only mounted after delay */}
                 {menuVisible && (
                   <form
@@ -285,18 +285,6 @@ export default function Navbar() {
                     ))}
                   </nav>
                 </div>
-
-                {/* Post Ad */}
-                <Button
-                  asChild
-                  className="w-full rounded-full bg-gradient-to-r from-primary to-purple-600 hover:opacity-90 shadow-md"
-                  onClick={closeMobileMenu}
-                >
-                  <Link href="/listings/create">
-                    <PlusCircle className="mr-2 h-4 w-4" />
-                    Post an Ad
-                  </Link>
-                </Button>
               </div>
 
               {/* Footer */}
@@ -356,7 +344,17 @@ export default function Navbar() {
                         </Link>
                       </Button>
                     )}
-
+                    {/* Post Ad */}
+                    <Button
+                      asChild
+                      className="w-full justify-start rounded-full bg-gradient-to-r from-primary to-purple-600 hover:opacity-90 shadow-md"
+                      onClick={closeMobileMenu}
+                    >
+                      <Link href="/listings/create">
+                        <PlusCircle className="mr-2 h-4 w-4" />
+                        Post an Ad
+                      </Link>
+                    </Button>
                     <Button
                       variant="ghost"
                       className="w-full justify-start rounded-xl text-destructive hover:text-destructive hover:bg-destructive/10"
