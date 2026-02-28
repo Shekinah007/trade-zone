@@ -6,7 +6,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Loader2, Plus, Pencil, Trash2, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
-
 import {
   AlertDialog,
   AlertDialogAction,
@@ -46,6 +45,7 @@ import {
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -59,6 +59,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
+import { EmojiInput } from "@/components/admin/EmojiInput";
+
+
+
 
 const categorySchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -93,7 +97,10 @@ export default function AdminCategoriesPage() {
       const payload = {
         name: values.name,
         icon: values.icon,
-        parent: values.parent === "none" || !values.parent ? undefined : values.parent,
+        parent:
+          values.parent === "none" || !values.parent
+            ? undefined
+            : values.parent,
       };
 
       if (editingCategory) {
@@ -112,25 +119,25 @@ export default function AdminCategoriesPage() {
     }
   };
 
-const confirmDelete = (category: Category) => {
-  const hasChildren = subcategories.some((s) => s.parent === category._id);
-  if (hasChildren) {
-    toast.error("Delete subcategories first before deleting this category.");
-    return;
-  }
-  setDeleteTarget(category);
-};
+  const confirmDelete = (category: Category) => {
+    const hasChildren = subcategories.some((s) => s.parent === category._id);
+    if (hasChildren) {
+      toast.error("Delete subcategories first before deleting this category.");
+      return;
+    }
+    setDeleteTarget(category);
+  };
 
-const handleDelete = async () => {
-  if (!deleteTarget) return;
-  try {
-    await deleteCategory(deleteTarget._id).unwrap();
-    toast.success("Category deleted");
-    setDeleteTarget(null);
-  } catch (error: any) {
-    toast.error(error?.data?.message || "Delete failed");
-  }
-};
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
+    try {
+      await deleteCategory(deleteTarget._id).unwrap();
+      toast.success("Category deleted");
+      setDeleteTarget(null);
+    } catch (error: any) {
+      toast.error(error?.data?.message || "Delete failed");
+    }
+  };
   const openEditDialog = (category: Category) => {
     setEditingCategory(category);
     form.reset({
@@ -188,7 +195,10 @@ const handleDelete = async () => {
             </DialogHeader>
 
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="space-y-4"
+              >
                 <FormField
                   control={form.control}
                   name="name"
@@ -208,10 +218,16 @@ const handleDelete = async () => {
                   name="icon"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Icon (Emoji)</FormLabel>
+                      <FormLabel>Icon</FormLabel>
                       <FormControl>
-                        <Input placeholder="💻" {...field} />
+                        <EmojiInput
+                          value={field.value || ""}
+                          onChange={field.onChange}
+                        />
                       </FormControl>
+                      <FormDescription className="text-xs">
+                        Click the button to pick an emoji, or type one directly
+                      </FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -264,7 +280,9 @@ const handleDelete = async () => {
           </div>
         )}
         {topLevel.map((category) => {
-          const children = subcategories.filter((s) => s.parent === category._id);
+          const children = subcategories.filter(
+            (s) => s.parent === category._id,
+          );
           return (
             <Fragment key={category._id}>
               {/* Parent card */}
@@ -274,17 +292,34 @@ const handleDelete = async () => {
                     <span className="text-2xl">{category.icon || "📦"}</span>
                     <div>
                       <p className="font-semibold">{category.name}</p>
-                      <p className="text-xs text-muted-foreground">{category.slug}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {category.slug}
+                      </p>
                     </div>
                   </div>
                   <div className="flex items-center gap-1">
-                    <Button variant="ghost" size="sm" className="text-xs text-primary h-7 px-2" onClick={() => openCreateDialog(category._id)}>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="text-xs text-primary h-7 px-2"
+                      onClick={() => openCreateDialog(category._id)}
+                    >
                       <Plus className="h-3 w-3 mr-1" /> Sub
                     </Button>
-                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEditDialog(category)}>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8"
+                      onClick={() => openEditDialog(category)}
+                    >
                       <Pencil className="h-4 w-4" />
                     </Button>
-                    <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => confirmDelete(category)}>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 text-destructive"
+                      onClick={() => confirmDelete(category)}
+                    >
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>
@@ -294,20 +329,37 @@ const handleDelete = async () => {
                 {children.length > 0 && (
                   <div className="mt-3 pl-2 border-l-2 border-primary/20 space-y-2">
                     {children.map((sub) => (
-                      <div key={sub._id} className="flex items-center justify-between bg-background rounded-lg px-3 py-2">
+                      <div
+                        key={sub._id}
+                        className="flex items-center justify-between bg-background rounded-lg px-3 py-2"
+                      >
                         <div className="flex items-center gap-2">
-                          <span className="text-muted-foreground text-xs">↳</span>
+                          <span className="text-muted-foreground text-xs">
+                            ↳
+                          </span>
                           <span className="text-lg">{sub.icon || "📦"}</span>
                           <div>
                             <p className="text-sm font-medium">{sub.name}</p>
-                            <p className="text-xs text-muted-foreground">{sub.slug}</p>
+                            <p className="text-xs text-muted-foreground">
+                              {sub.slug}
+                            </p>
                           </div>
                         </div>
                         <div className="flex items-center gap-1">
-                          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => openEditDialog(sub)}>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-7 w-7"
+                            onClick={() => openEditDialog(sub)}
+                          >
                             <Pencil className="h-3 w-3" />
                           </Button>
-                          <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => confirmDelete(sub)}>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-7 w-7 text-destructive"
+                            onClick={() => confirmDelete(sub)}
+                          >
                             <Trash2 className="h-3 w-3" />
                           </Button>
                         </div>
@@ -336,43 +388,90 @@ const handleDelete = async () => {
           <TableBody>
             {topLevel.length === 0 && (
               <TableRow>
-                <TableCell colSpan={5} className="h-24 text-center text-muted-foreground">
+                <TableCell
+                  colSpan={5}
+                  className="h-24 text-center text-muted-foreground"
+                >
                   No categories found. Add one to get started.
                 </TableCell>
               </TableRow>
             )}
             {topLevel.map((category) => {
-              const children = subcategories.filter((s) => s.parent === category._id);
+              const children = subcategories.filter(
+                (s) => s.parent === category._id,
+              );
               return (
                 <Fragment key={category._id}>
                   <TableRow className="font-medium bg-muted/10">
                     <TableCell className="text-xl">{category.icon}</TableCell>
-                    <TableCell className="font-semibold">{category.name}</TableCell>
-                    <TableCell className="text-muted-foreground text-sm">{category.slug}</TableCell>
-                    <TableCell><Badge variant="secondary">Category</Badge></TableCell>
+                    <TableCell className="font-semibold">
+                      {category.name}
+                    </TableCell>
+                    <TableCell className="text-muted-foreground text-sm">
+                      {category.slug}
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="secondary">Category</Badge>
+                    </TableCell>
                     <TableCell className="text-right space-x-1">
-                      <Button variant="ghost" size="sm" className="text-xs text-primary h-7 px-2" onClick={() => openCreateDialog(category._id)}>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="text-xs text-primary h-7 px-2"
+                        onClick={() => openCreateDialog(category._id)}
+                      >
                         <Plus className="h-3 w-3 mr-1" /> Sub
                       </Button>
-                      <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEditDialog(category)}>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8"
+                        onClick={() => openEditDialog(category)}
+                      >
                         <Pencil className="h-4 w-4" />
                       </Button>
-                      <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive" onClick={() => confirmDelete(category)}>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-destructive hover:text-destructive"
+                        onClick={() => confirmDelete(category)}
+                      >
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     </TableCell>
                   </TableRow>
                   {children.map((sub) => (
                     <TableRow key={sub._id} className="bg-background">
-                      <TableCell className="text-lg pl-8"><span className="text-muted-foreground mr-1">↳</span>{sub.icon}</TableCell>
-                      <TableCell className="pl-8 text-sm text-foreground/80">{sub.name}</TableCell>
-                      <TableCell className="text-muted-foreground text-sm">{sub.slug}</TableCell>
-                      <TableCell><Badge variant="outline" className="text-xs">Subcategory</Badge></TableCell>
+                      <TableCell className="text-lg pl-8">
+                        <span className="text-muted-foreground mr-1">↳</span>
+                        {sub.icon}
+                      </TableCell>
+                      <TableCell className="pl-8 text-sm text-foreground/80">
+                        {sub.name}
+                      </TableCell>
+                      <TableCell className="text-muted-foreground text-sm">
+                        {sub.slug}
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant="outline" className="text-xs">
+                          Subcategory
+                        </Badge>
+                      </TableCell>
                       <TableCell className="text-right space-x-1">
-                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEditDialog(sub)}>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8"
+                          onClick={() => openEditDialog(sub)}
+                        >
                           <Pencil className="h-4 w-4" />
                         </Button>
-                        <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive" onClick={() => confirmDelete(sub)}>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 text-destructive hover:text-destructive"
+                          onClick={() => confirmDelete(sub)}
+                        >
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       </TableCell>
@@ -384,29 +483,32 @@ const handleDelete = async () => {
           </TableBody>
         </Table>
       </div>
-      <AlertDialog open={!!deleteTarget} onOpenChange={(open) => !open && setDeleteTarget(null)}>
-  <AlertDialogContent>
-    <AlertDialogHeader>
-      <AlertDialogTitle>Delete Category</AlertDialogTitle>
-      <AlertDialogDescription>
-        Are you sure you want to delete{" "}
-        <span className="font-semibold text-foreground">
-          {deleteTarget?.icon} {deleteTarget?.name}
-        </span>
-        ? This action cannot be undone.
-      </AlertDialogDescription>
-    </AlertDialogHeader>
-    <AlertDialogFooter>
-      <AlertDialogCancel>Cancel</AlertDialogCancel>
-      <AlertDialogAction
-        onClick={handleDelete}
-        className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+      <AlertDialog
+        open={!!deleteTarget}
+        onOpenChange={(open) => !open && setDeleteTarget(null)}
       >
-        Delete
-      </AlertDialogAction>
-    </AlertDialogFooter>
-  </AlertDialogContent>
-</AlertDialog>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Category</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete{" "}
+              <span className="font-semibold text-foreground">
+                {deleteTarget?.icon} {deleteTarget?.name}
+              </span>
+              ? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDelete}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

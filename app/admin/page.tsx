@@ -23,6 +23,8 @@ async function getDashboardData() {
   const now = new Date();
   const sixMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 5, 1);
 
+  const pendingApprovals = await User.countDocuments({ status: "pending" });
+
   // Build monthly buckets for the last 6 months
   const monthlyUsers = await User.aggregate([
     { $match: { createdAt: { $gte: sixMonthsAgo } } },
@@ -105,7 +107,7 @@ async function getDashboardData() {
     chartData, statusData,
     recentListings: JSON.parse(JSON.stringify(recentListings)),
     recentUsers: JSON.parse(JSON.stringify(recentUsers)),
-    recentReports: JSON.parse(JSON.stringify(recentReports)),
+    recentReports: JSON.parse(JSON.stringify(recentReports)), pendingApprovals
   };
 }
 
@@ -140,12 +142,12 @@ export default async function AdminDashboard() {
       bg: "bg-purple-500/10",
     },
     {
-      label: "Transactions",
-      value: data.totalTransactions,
-      sub: `${data.soldListings} sold`,
-      icon: TrendingUp,
-      href: null,
-      color: "text-green-500",
+      label: "Pending Approvals",
+      value: data.pendingApprovals,
+      sub: `Users awaiting approval`,
+      icon: UserCheck,
+      href: "/admin/registrations",
+      color: "text-yellow-500",
       bg: "bg-green-500/10",
     },
     {
