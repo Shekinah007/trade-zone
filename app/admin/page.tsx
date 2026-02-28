@@ -8,8 +8,13 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { formatDistanceToNow } from "date-fns";
 import {
-  Users, ShoppingBag, AlertTriangle, TrendingUp,
-  ArrowRight, UserCheck, Package,
+  Users,
+  ShoppingBag,
+  AlertTriangle,
+  TrendingUp,
+  ArrowRight,
+  UserCheck,
+  Package,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -28,35 +33,41 @@ async function getDashboardData() {
   // Build monthly buckets for the last 6 months
   const monthlyUsers = await User.aggregate([
     { $match: { createdAt: { $gte: sixMonthsAgo } } },
-    { $group: {
-      _id: { year: { $year: "$createdAt" }, month: { $month: "$createdAt" } },
-      count: { $sum: 1 }
-    }},
-    { $sort: { "_id.year": 1, "_id.month": 1 } }
+    {
+      $group: {
+        _id: { year: { $year: "$createdAt" }, month: { $month: "$createdAt" } },
+        count: { $sum: 1 },
+      },
+    },
+    { $sort: { "_id.year": 1, "_id.month": 1 } },
   ]);
 
   const monthlyListings = await Listing.aggregate([
     { $match: { createdAt: { $gte: sixMonthsAgo } } },
-    { $group: {
-      _id: { year: { $year: "$createdAt" }, month: { $month: "$createdAt" } },
-      count: { $sum: 1 }
-    }},
-    { $sort: { "_id.year": 1, "_id.month": 1 } }
+    {
+      $group: {
+        _id: { year: { $year: "$createdAt" }, month: { $month: "$createdAt" } },
+        count: { $sum: 1 },
+      },
+    },
+    { $sort: { "_id.year": 1, "_id.month": 1 } },
   ]);
 
   const monthlyTransactions = await Transaction.aggregate([
     { $match: { createdAt: { $gte: sixMonthsAgo } } },
-    { $group: {
-      _id: { year: { $year: "$createdAt" }, month: { $month: "$createdAt" } },
-      count: { $sum: 1 },
-      revenue: { $sum: "$price" }
-    }},
-    { $sort: { "_id.year": 1, "_id.month": 1 } }
+    {
+      $group: {
+        _id: { year: { $year: "$createdAt" }, month: { $month: "$createdAt" } },
+        count: { $sum: 1 },
+        revenue: { $sum: "$price" },
+      },
+    },
+    { $sort: { "_id.year": 1, "_id.month": 1 } },
   ]);
 
   // Listing status breakdown
   const listingStatusBreakdown = await Listing.aggregate([
-    { $group: { _id: "$status", count: { $sum: 1 } } }
+    { $group: { _id: "$status", count: { $sum: 1 } } },
   ]);
 
   // Fill in all 6 months (even empty ones)
@@ -71,21 +82,40 @@ async function getDashboardData() {
 
   const chartData = months.map(({ label, year, month }) => ({
     month: label,
-    users: monthlyUsers.find(u => u._id.year === year && u._id.month === month)?.count || 0,
-    listings: monthlyListings.find(l => l._id.year === year && l._id.month === month)?.count || 0,
-    transactions: monthlyTransactions.find(t => t._id.year === year && t._id.month === month)?.count || 0,
-    revenue: monthlyTransactions.find(t => t._id.year === year && t._id.month === month)?.revenue || 0,
+    users:
+      monthlyUsers.find((u) => u._id.year === year && u._id.month === month)
+        ?.count || 0,
+    listings:
+      monthlyListings.find((l) => l._id.year === year && l._id.month === month)
+        ?.count || 0,
+    transactions:
+      monthlyTransactions.find(
+        (t) => t._id.year === year && t._id.month === month,
+      )?.count || 0,
+    revenue:
+      monthlyTransactions.find(
+        (t) => t._id.year === year && t._id.month === month,
+      )?.revenue || 0,
   }));
 
-  const statusData = ["active", "sold", "expired", "inactive"].map(status => ({
-    name: status,
-    value: listingStatusBreakdown.find(s => s._id === status)?.count || 0,
-  }));
+  const statusData = ["active", "sold", "expired", "inactive"].map(
+    (status) => ({
+      name: status,
+      value: listingStatusBreakdown.find((s) => s._id === status)?.count || 0,
+    }),
+  );
 
   const [
-    userCount, pendingUsers, listingCount,
-    activeListings, soldListings, pendingReports,
-    totalTransactions, recentListings, recentUsers, recentReports,
+    userCount,
+    pendingUsers,
+    listingCount,
+    activeListings,
+    soldListings,
+    pendingReports,
+    totalTransactions,
+    recentListings,
+    recentUsers,
+    recentReports,
   ] = await Promise.all([
     User.countDocuments(),
     User.countDocuments({ status: "pending" }),
@@ -94,20 +124,34 @@ async function getDashboardData() {
     Listing.countDocuments({ status: "sold" }),
     Report.countDocuments({ status: "pending" }),
     Transaction.countDocuments(),
-    Listing.find().sort({ createdAt: -1 }).limit(5)
-      .populate("seller", "name image").populate("category", "name").lean(),
+    Listing.find()
+      .sort({ createdAt: -1 })
+      .limit(5)
+      .populate("seller", "name image")
+      .populate("category", "name")
+      .lean(),
     User.find().sort({ createdAt: -1 }).limit(5).lean(),
-    Report.find({ status: "pending" }).sort({ createdAt: -1 }).limit(4)
-      .populate("reporter", "name image").lean(),
+    Report.find({ status: "pending" })
+      .sort({ createdAt: -1 })
+      .limit(4)
+      .populate("reporter", "name image")
+      .lean(),
   ]);
 
   return {
-    userCount, pendingUsers, listingCount, activeListings,
-    soldListings, pendingReports, totalTransactions,
-    chartData, statusData,
+    userCount,
+    pendingUsers,
+    listingCount,
+    activeListings,
+    soldListings,
+    pendingReports,
+    totalTransactions,
+    chartData,
+    statusData,
     recentListings: JSON.parse(JSON.stringify(recentListings)),
     recentUsers: JSON.parse(JSON.stringify(recentUsers)),
-    recentReports: JSON.parse(JSON.stringify(recentReports)), pendingApprovals
+    recentReports: JSON.parse(JSON.stringify(recentReports)),
+    pendingApprovals,
   };
 }
 
@@ -156,7 +200,8 @@ export default async function AdminDashboard() {
       sub: "Need review",
       icon: AlertTriangle,
       href: "/admin/reports",
-      color: data.pendingReports > 0 ? "text-destructive" : "text-muted-foreground",
+      color:
+        data.pendingReports > 0 ? "text-destructive" : "text-muted-foreground",
       bg: data.pendingReports > 0 ? "bg-destructive/10" : "bg-muted",
     },
   ];
@@ -181,36 +226,49 @@ export default async function AdminDashboard() {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {stats.map(({ label, value, sub, icon: Icon, href, color, bg }) => {
           const card = (
-            <div className={`rounded-xl border bg-card p-4 flex items-center gap-3 hover:shadow-sm transition-shadow ${href ? "cursor-pointer" : ""}`}>
+            <div
+              className={`rounded-xl border bg-card p-4 flex items-center gap-3 hover:shadow-sm transition-shadow ${href ? "cursor-pointer" : ""}`}
+            >
               <div className={`p-2 rounded-lg shrink-0 ${bg}`}>
                 <Icon className={`h-4 w-4 ${color}`} />
               </div>
               <div className="min-w-0">
-                <p className="text-xs text-muted-foreground truncate">{label}</p>
+                <p className="text-xs text-muted-foreground truncate">
+                  {label}
+                </p>
                 <p className="text-xl font-bold leading-tight">{value}</p>
-                <p className="text-[10px] text-muted-foreground">{sub}</p>
+                <p className="text-[10px] text-muted-foreground truncate">
+                  {sub}
+                </p>
               </div>
             </div>
           );
-          return href
-            ? <Link key={label} href={href}>{card}</Link>
-            : <div key={label}>{card}</div>;
+          return href ? (
+            <Link key={label} href={href}>
+              {card}
+            </Link>
+          ) : (
+            <div key={label}>{card}</div>
+          );
         })}
       </div>
 
       {/* Pending approval banner */}
       {data.pendingUsers > 0 && (
         <Link href="/admin/registrations">
-          <div className="flex items-center justify-between p-3.5 rounded-xl bg-yellow-500/10 border border-yellow-500/20 hover:bg-yellow-500/15 transition-colors">
+          <div className="flex items-center mb-4 justify-between p-3.5 rounded-xl bg-yellow-500/10 border border-yellow-500/20 hover:bg-yellow-500/15 transition-colors">
             <div className="flex items-center gap-3">
               <div className="p-2 rounded-lg bg-yellow-500/20">
                 <UserCheck className="h-4 w-4 text-yellow-600" />
               </div>
               <div>
                 <p className="font-semibold text-sm">
-                  {data.pendingUsers} user{data.pendingUsers !== 1 ? "s" : ""} awaiting approval
+                  {data.pendingUsers} user{data.pendingUsers !== 1 ? "s" : ""}{" "}
+                  awaiting approval
                 </p>
-                <p className="text-xs text-muted-foreground">Review registration requests</p>
+                <p className="text-xs text-muted-foreground">
+                  Review registration requests
+                </p>
               </div>
             </div>
             <ArrowRight className="h-4 w-4 text-yellow-600 shrink-0" />
@@ -222,13 +280,18 @@ export default async function AdminDashboard() {
       <AdminCharts chartData={data.chartData} statusData={data.statusData} />
 
       {/* Bottom grid */}
-      <div className="grid gap-4 lg:grid-cols-5">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-5">
         {/* Recent Listings */}
         <Card className="lg:col-span-3">
           <CardHeader className="flex flex-row items-center justify-between py-3 px-5">
-            <CardTitle className="text-sm font-semibold">Recent Listings</CardTitle>
+            <CardTitle className="text-sm font-semibold">
+              Recent Listings
+            </CardTitle>
             <Button variant="ghost" size="sm" asChild>
-              <Link href="/admin/listings" className="text-xs text-muted-foreground">
+              <Link
+                href="/admin/listings"
+                className="text-xs text-muted-foreground"
+              >
                 View all <ArrowRight className="h-3 w-3 ml-1" />
               </Link>
             </Button>
@@ -241,22 +304,38 @@ export default async function AdminDashboard() {
                 className="flex items-center gap-3 px-5 py-2.5 hover:bg-muted/40 transition-colors"
               >
                 <div className="h-9 w-9 rounded-lg overflow-hidden bg-muted shrink-0">
-                  {listing.images?.[0]
-                    ? <img src={listing.images[0]} alt={listing.title} className="h-full w-full object-cover" />
-                    : <div className="h-full w-full flex items-center justify-center"><Package className="h-3.5 w-3.5 text-muted-foreground" /></div>
-                  }
+                  {listing.images?.[0] ? (
+                    <img
+                      src={listing.images[0]}
+                      alt={listing.title}
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    <div className="h-full w-full flex items-center justify-center">
+                      <Package className="h-3.5 w-3.5 text-muted-foreground" />
+                    </div>
+                  )}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="font-medium text-sm truncate">{listing.title}</p>
+                  <p className="font-medium text-sm truncate">
+                    {listing.title}
+                  </p>
                   <p className="text-xs text-muted-foreground truncate">
-                    {listing.seller?.name} · {formatDistanceToNow(new Date(listing.createdAt), { addSuffix: true })}
+                    {listing.seller?.name} ·{" "}
+                    {formatDistanceToNow(new Date(listing.createdAt), {
+                      addSuffix: true,
+                    })}
                   </p>
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
-                  <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium capitalize ${listingStatusColor[listing.status] || ""}`}>
+                  <span
+                    className={`text-[10px] px-2 py-0.5 rounded-full font-medium capitalize ${listingStatusColor[listing.status] || ""}`}
+                  >
                     {listing.status}
                   </span>
-                  <span className="text-sm font-bold text-primary">₦{listing.price?.toLocaleString()}</span>
+                  <span className="text-sm font-bold text-primary">
+                    ₦{listing.price?.toLocaleString()}
+                  </span>
                 </div>
               </Link>
             ))}
@@ -270,7 +349,10 @@ export default async function AdminDashboard() {
             <CardHeader className="flex flex-row items-center justify-between py-3 px-5">
               <CardTitle className="text-sm font-semibold">New Users</CardTitle>
               <Button variant="ghost" size="sm" asChild>
-                <Link href="/admin/users" className="text-xs text-muted-foreground">
+                <Link
+                  href="/admin/users"
+                  className="text-xs text-muted-foreground"
+                >
                   View all <ArrowRight className="h-3 w-3 ml-1" />
                 </Link>
               </Button>
@@ -290,13 +372,17 @@ export default async function AdminDashboard() {
                   </Avatar>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium truncate">{user.name}</p>
-                    <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+                    <p className="text-xs text-muted-foreground truncate">
+                      {user.email}
+                    </p>
                   </div>
-                  <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium shrink-0 ${
-                    user.status === "pending"
-                      ? "bg-yellow-500/10 text-yellow-600"
-                      : "bg-green-500/10 text-green-600"
-                  }`}>
+                  <span
+                    className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium shrink-0 ${
+                      user.status === "pending"
+                        ? "bg-yellow-500/10 text-yellow-600"
+                        : "bg-green-500/10 text-green-600"
+                    }`}
+                  >
                     {user.status}
                   </span>
                 </Link>
@@ -313,27 +399,43 @@ export default async function AdminDashboard() {
                   Pending Reports
                 </CardTitle>
                 <Button variant="ghost" size="sm" asChild>
-                  <Link href="/admin/reports" className="text-xs text-muted-foreground">
+                  <Link
+                    href="/admin/reports"
+                    className="text-xs text-muted-foreground"
+                  >
                     View all <ArrowRight className="h-3 w-3 ml-1" />
                   </Link>
                 </Button>
               </CardHeader>
               <CardContent className="p-0 pb-3">
                 {data.recentReports.map((report: any) => (
-                  <div key={report._id} className="flex items-center gap-3 px-5 py-2">
+                  <div
+                    key={report._id}
+                    className="flex items-center gap-3 px-5 py-2"
+                  >
                     <div className="p-1.5 rounded-lg bg-destructive/10 shrink-0">
                       <AlertTriangle className="h-3 w-3 text-destructive" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium capitalize truncate">{report.reason || report.itemType}</p>
+                      <p className="text-sm font-medium capitalize truncate">
+                        {report.reason || report.itemType}
+                      </p>
                       <p className="text-xs text-muted-foreground truncate">
-                        {report.reporter?.name} · {formatDistanceToNow(new Date(report.createdAt), { addSuffix: true })}
+                        {report.reporter?.name} ·{" "}
+                        {formatDistanceToNow(new Date(report.createdAt), {
+                          addSuffix: true,
+                        })}
                       </p>
                     </div>
                   </div>
                 ))}
                 <div className="px-5 pt-2">
-                  <Button size="sm" variant="outline" className="w-full text-xs text-destructive border-destructive/20 hover:bg-destructive/10" asChild>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="w-full text-xs text-destructive border-destructive/20 hover:bg-destructive/10"
+                    asChild
+                  >
                     <Link href="/admin/reports">Review All</Link>
                   </Button>
                 </div>
