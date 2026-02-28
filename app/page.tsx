@@ -17,7 +17,6 @@ async function getRecentListings() {
   return JSON.parse(JSON.stringify(listings));
 }
 
-
 async function getCategories() {
   await dbConnect();
   const categories = await Category.find().sort({ name: 1 }).lean();
@@ -54,19 +53,22 @@ export default async function Home() {
           </h1>
 
           <p className="text-lg md:text-xl text-muted-foreground mb-5 max-w-2xl mx-auto animate-in fade-in slide-in-from-bottom-6 duration-700 delay-200">
-            Join the community of creators and collectors. Discover unique items, connect with verified sellers, and trade safely.
+            Join the community of creators and collectors. Discover unique
+            items, connect with verified sellers, and trade safely.
           </p>
 
-
-                                
-  <div className="animate-in fade-in slide-in-from-bottom-6 duration-700 delay-300">
-       <HomeSearchBar />
-     </div>
+          <div className="animate-in fade-in slide-in-from-bottom-6 duration-700 delay-300">
+            <HomeSearchBar />
+          </div>
 
           <div className="mt-5 flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm text-muted-foreground animate-in fade-in zoom-in duration-1000 delay-500">
             <span className="font-semibold text-foreground">Trending:</span>
-            {['iPhone 15', 'HP Elitebook', 'MacBook Pro'].map((term) => (
-              <Link key={term} href={`/browse?q=${term}`} className="hover:text-primary transition-colors border-b border-dashed border-muted-foreground/50 hover:border-primary">
+            {["iPhone 15", "HP Elitebook", "MacBook Pro"].map((term) => (
+              <Link
+                key={term}
+                href={`/browse?q=${term}`}
+                className="hover:text-primary transition-colors border-b border-dashed border-muted-foreground/50 hover:border-primary"
+              >
                 {term}
               </Link>
             ))}
@@ -77,24 +79,36 @@ export default async function Home() {
       {/* Categories Grid */}
       <section className="py-20 bg-muted/30">
         <div className="container mx-auto px-4">
-          <div className="flex justify-between items-end mb-10">
+          <div className="flex flex-col md:flex-row gap-2 justify-between items-start md:items-end mb-10">
             <div>
-              <h2 className="text-3xl font-bold tracking-tight mb-2">Explore Categories</h2>
-              <p className="text-muted-foreground">Find exactly what you need.</p>
+              <h2 className="text-3xl font-bold tracking-tight mb-2">
+                Explore Categories
+              </h2>
+              <p className="text-muted-foreground">
+                Find exactly what you need.
+              </p>
             </div>
-            <Button variant="outline" asChild className="hidden md:flex">
+            <Button variant="outline" asChild className="md:flex ">
               <Link href="/categories">View All Categories</Link>
             </Button>
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {categories.map((cat: any) => (
-              <Link key={cat._id} href={`/browse?category=${cat.name}`} className="group">
+              <Link
+                key={cat._id}
+                href={`/categories/${cat.slug}`}
+                className="group"
+              >
                 <div className="h-full bg-card hover:bg-background border border-transparent hover:border-border transition-all p-6 rounded-2xl shadow-sm hover:shadow-md text-center group-hover:-translate-y-1 duration-300">
-                  <div className={`w-12 h-12 mx-auto mb-4 rounded-full flex items-center justify-center text-2xl bg-primary/10 text-primary group-hover:scale-110 transition-transform`}>
-                    {cat.icon || '📦'}
+                  <div
+                    className={`w-12 h-12 mx-auto mb-4 rounded-full flex items-center justify-center text-2xl bg-primary/10 text-primary group-hover:scale-110 transition-transform`}
+                  >
+                    {cat.icon || "📦"}
                   </div>
-                  <span className="font-semibold text-foreground/80 group-hover:text-foreground">{cat.name}</span>
+                  <span className="font-semibold text-foreground/80 group-hover:text-foreground">
+                    {cat.name}
+                  </span>
                 </div>
               </Link>
             ))}
@@ -105,8 +119,12 @@ export default async function Home() {
       {/* Featured Listings */}
       <section className="py-24 container mx-auto px-4">
         <div className="text-center mb-16 space-y-2">
-          <h2 className="text-4xl font-bold tracking-tight">Fresh on the Market</h2>
-          <p className="text-muted-foreground max-w-lg mx-auto">Don't miss out on the latest listings added by our community today.</p>
+          <h2 className="text-4xl font-bold tracking-tight">
+            Fresh on the Market
+          </h2>
+          <p className="text-muted-foreground max-w-lg mx-auto">
+            Don't miss out on the latest listings added by our community today.
+          </p>
         </div>
 
         {recentListings.length > 0 ? (
@@ -131,7 +149,9 @@ export default async function Home() {
               <Search className="h-8 w-8 text-muted-foreground" />
             </div>
             <p className="text-lg font-medium">No active listings yet</p>
-            <p className="text-muted-foreground mb-6">Be the first to create a listing!</p>
+            <p className="text-muted-foreground mb-6">
+              Be the first to create a listing!
+            </p>
             <Button size="lg" asChild>
               <Link href="/listings/create">Post an Ad</Link>
             </Button>
@@ -139,7 +159,12 @@ export default async function Home() {
         )}
 
         <div className="mt-16 text-center">
-          <Button variant="outline" size="lg" className="rounded-full px-8 border-primary/20 hover:border-primary/50" asChild>
+          <Button
+            variant="outline"
+            size="lg"
+            className="rounded-full px-8 border-primary/20 hover:border-primary/50"
+            asChild
+          >
             <Link href="/browse">View All Listings</Link>
           </Button>
         </div>
@@ -155,21 +180,30 @@ export default async function Home() {
                 <Zap className="h-6 w-6" />
               </div>
               <h3 className="text-xl font-bold">Fast & Easy</h3>
-              <p className="text-primary-foreground/80 leading-relaxed">List your items in seconds and connect with buyers instantly. No complicated forms or hidden fees.</p>
+              <p className="text-primary-foreground/80 leading-relaxed">
+                List your items in seconds and connect with buyers instantly. No
+                complicated forms or hidden fees.
+              </p>
             </div>
             <div className="space-y-4">
               <div className="w-12 h-12 bg-white/20 backdrop-blur rounded-2xl flex items-center justify-center mb-4 text-white">
                 <ShieldCheck className="h-6 w-6" />
               </div>
               <h3 className="text-xl font-bold">Secure Transactions</h3>
-              <p className="text-primary-foreground/80 leading-relaxed">Our verified user system and safety guidelines ensure you can trade with confidence and peace of mind.</p>
+              <p className="text-primary-foreground/80 leading-relaxed">
+                Our verified user system and safety guidelines ensure you can
+                trade with confidence and peace of mind.
+              </p>
             </div>
             <div className="space-y-4">
               <div className="w-12 h-12 bg-white/20 backdrop-blur rounded-2xl flex items-center justify-center mb-4 text-white">
                 <Globe className="h-6 w-6" />
               </div>
               <h3 className="text-xl font-bold">Local Community</h3>
-              <p className="text-primary-foreground/80 leading-relaxed">Support your local economy by buying from neighbors. Reduce waste and find hidden gems nearby.</p>
+              <p className="text-primary-foreground/80 leading-relaxed">
+                Support your local economy by buying from neighbors. Reduce
+                waste and find hidden gems nearby.
+              </p>
             </div>
           </div>
         </div>
