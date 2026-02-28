@@ -181,26 +181,37 @@ export const authOptions: NextAuthOptions = {
 
         // Sync business from external API if not already done
         const existingBusiness = await Business.findOne({ owner: dbUser._id });
-        // if (!existingBusiness) {
-        //   const externalData = await fetchExternalBusiness(user.email!);
-        //   if (externalData) {
-        //     await Business.create({
-        //       owner: dbUser._id,
-        //       name: externalData.businessName || dbUser.name,
-        //       description: externalData.description,
-        //       phone: externalData.phone,
-        //       email: externalData.email,
-        //       address: externalData.address,
-        //       type: externalData.type,
-        //       image: externalData.logo,
-        //       categories: externalData.categories || [],
-        //       socials: externalData.socials || [],
-        //       bankDetails: externalData.bankDetails || [],
-        //       certifications: externalData.certifications || [],
-        //       businessHours: externalData.businessHours,
-        //     });
-        //   }
-        // }
+        if (!existingBusiness) {
+          const externalData: any = await fetch(
+            `${process.env.ACD_API}/users/${user.email}`,
+          );
+          const { data } = await externalData.json();
+          console.log("ACD Response Data:", data);
+          if (data.business) {
+            await Business.create({
+              owner: dbUser._id,
+              name: data.business.businessName || dbUser.name,
+              description: data.business.description,
+              phone: data.business.phone,
+              email: data.business.email,
+              address: data.business.address,
+              type: data.business.type,
+              image: data.business.logo,
+              categories: data.business.categories || [],
+              socials: data.business.socials || [],
+              bankDetails: data.business.bankDetails || [],
+              certifications: data.business.certifications || [],
+              businessHours: data.business.businessHours,
+            });
+          } else {
+            // if no returned from ACD API, create a default business for the user
+            await Business.create({
+              owner: dbUser._id,
+              name: dbUser.name,
+              email: dbUser.email,
+            });
+          }
+        }
 
         // Pass db values back onto the user object so jwt callback can read them
         user.id = dbUser._id.toString();
