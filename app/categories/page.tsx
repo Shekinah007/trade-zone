@@ -29,7 +29,7 @@ export default async function CategoriesPage() {
   return (
     <div className="min-h-screen bg-background">
       {/* Hero */}
-      <section className="relative py-20 overflow-hidden">
+      <section className="relative py-4 md:py-10 overflow-hidden">
         <div className="absolute top-[-10%] right-[-5%] w-[400px] h-[400px] bg-primary/15 rounded-full blur-3xl -z-10" />
         <div className="absolute bottom-[-10%] left-[-5%] w-[500px] h-[500px] bg-purple-500/10 rounded-full blur-3xl -z-10" />
 
@@ -52,7 +52,7 @@ export default async function CategoriesPage() {
       </section>
 
       {/* Stats bar */}
-      <div className="container mx-auto px-4 mb-5">
+      <div className="container mx-auto px-4 mb-8 md:mb-10">
         <div className="flex items-center justify-center gap-8 py-4 px-6 rounded-2xl bg-muted/30 border w-fit mx-auto text-sm text-muted-foreground">
           <span>
             <strong className="text-foreground">{categories.length}</strong>{" "}
@@ -71,7 +71,7 @@ export default async function CategoriesPage() {
       </div>
 
       {/* Grid */}
-      <section className="container mx-auto px-4 pb-24">
+      <section className="container mx-auto px-4">
         {categories.length === 0 ? (
           <div className="text-center py-20 border-2 border-dashed rounded-3xl">
             <Grid3X3 className="h-10 w-10 mx-auto text-muted-foreground mb-4" />
@@ -85,10 +85,10 @@ export default async function CategoriesPage() {
                 href={`/categories/${cat.slug}`}
                 className="group"
               >
-                <div className="relative h-full bg-card hover:bg-background border border-transparent hover:border-primary/20 transition-all p-6 rounded-2xl shadow-sm hover:shadow-lg text-center group-hover:-translate-y-1 duration-300 overflow-hidden">
+                <div className="relative h-full bg-card hover:bg-background border border-transparent hover:border-primary/20 transition-all p-4 rounded-2xl shadow-sm hover:shadow-lg text-center group-hover:-translate-y-1 duration-300 overflow-hidden">
                   <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl" />
 
-                  <div className="relative w-14 h-14 mx-auto mb-4 rounded-2xl flex items-center justify-center text-3xl bg-primary/10 group-hover:bg-primary/20 group-hover:scale-110 transition-all duration-300 shadow-sm">
+                  <div className="relative w-8 h-8 mx-auto mb-4 rounded-2xl flex items-center justify-center text-3xl bg-primary/10 group-hover:bg-primary/20 group-hover:scale-110 transition-all duration-300 shadow-sm">
                     {cat.icon || "📦"}
                   </div>
 
@@ -115,7 +115,7 @@ export default async function CategoriesPage() {
         )}
 
         {/* CTA */}
-        <div className="mt-16 text-center p-12 rounded-3xl bg-gradient-to-br from-primary/5 via-purple-500/5 to-indigo-500/5 border border-primary/10">
+        <div className="mt-10 text-center p-12 rounded-3xl bg-gradient-to-br from-primary/5 via-purple-500/5 to-indigo-500/5 border border-primary/10">
           <h2 className="text-2xl font-bold mb-2">Can't find what you need?</h2>
           <p className="text-muted-foreground mb-6">
             Browse all active listings or post your own ad for free.
