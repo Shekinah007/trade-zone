@@ -10,7 +10,6 @@ import {
   LayoutDashboard,
   ShoppingBag,
   Menu,
-  Sparkles,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -31,8 +30,8 @@ import { useRouter } from "next/navigation";
 export default function Navbar() {
   const { data: session } = useSession();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [menuVisible, setMenuVisible] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-
   const [searchQuery, setSearchQuery] = useState("");
   const router = useRouter();
 
@@ -42,11 +41,24 @@ export default function Navbar() {
     router.push(q ? `/browse?q=${encodeURIComponent(q)}` : "/browse");
   };
 
-  // Handle scroll effect for glassmorphism
+  // Delay input mount to prevent auto-focus when sheet opens
+  const openMobileMenu = (open: boolean) => {
+    if (open) {
+      setIsMobileMenuOpen(true);
+      setTimeout(() => setMenuVisible(true), 50);
+    } else {
+      setMenuVisible(false);
+      setIsMobileMenuOpen(false);
+    }
+  };
+
+  const closeMobileMenu = () => {
+    setMenuVisible(false);
+    setIsMobileMenuOpen(false);
+  };
+
   useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 20);
-    };
+    const handleScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
@@ -54,7 +66,7 @@ export default function Navbar() {
   return (
     <header
       className={cn(
-        "sticky top-0 z-50 w-full transition-all duration-300 shadow",
+        "sticky top-0 z-50 w-full transition-all duration-300",
         scrolled
           ? "border-b bg-background/80 backdrop-blur-md shadow-sm"
           : "bg-transparent border-transparent",
@@ -62,7 +74,7 @@ export default function Navbar() {
     >
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         {/* Logo */}
-        <Link href="/" className="flex items-center space-x-2 group">
+        <Link href="/" className="flex items-center space-x-2 group shrink-0">
           <div className="bg-primary/10 p-2 rounded-xl group-hover:bg-primary/20 transition-colors">
             <ShoppingBag className="h-6 w-6 text-primary" />
           </div>
@@ -71,7 +83,7 @@ export default function Navbar() {
           </span>
         </Link>
 
-        {/* Desktop Navigation */}
+        {/* Desktop Nav */}
         <nav className="hidden md:flex items-center space-x-8 text-sm font-medium">
           <Link
             href="/browse"
@@ -87,17 +99,7 @@ export default function Navbar() {
           </Link>
         </nav>
 
-        {/* Search Bar (Desktop) */}
-        {/* <div className="hidden md:flex flex-1 items-center justify-center max-w-md px-8">
-          <div className="relative w-full group">
-            <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
-            <Input
-              type="search"
-              placeholder="Search for anything..."
-              className="w-full pl-10 bg-muted/50 border-transparent focus:bg-background focus:border-primary/50 transition-all rounded-full"
-            />
-          </div>
-        </div> */}
+        {/* Desktop Search */}
         <form
           onSubmit={handleSearch}
           className="hidden md:flex flex-1 items-center justify-center max-w-md px-8"
@@ -114,8 +116,8 @@ export default function Navbar() {
           </div>
         </form>
 
-        {/* Right Side Actions */}
-        <div className="flex items-center space-x-4">
+        {/* Right Actions */}
+        <div className="flex items-center space-x-3">
           <Button
             asChild
             variant="default"
@@ -128,21 +130,19 @@ export default function Navbar() {
             </Link>
           </Button>
 
-          {session ? (
-            session.user.role === "admin" ? (
-              <Button
-                asChild
-                variant="default"
-                size="sm"
-                className="hidden md:flex rounded-full px-6 shadow-md hover:shadow-lg transition-all bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90 border-0"
-              >
-                <Link href="/admin">
-                  <LayoutDashboard className="h-4 w-4" />
-                  Admin Panel
-                </Link>
-              </Button>
-            ) : null
-          ) : null}
+          {session?.user?.role === "admin" && (
+            <Button
+              asChild
+              variant="default"
+              size="sm"
+              className="hidden md:flex rounded-full px-6 shadow-md hover:shadow-lg transition-all bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90 border-0"
+            >
+              <Link href="/admin">
+                <LayoutDashboard className="h-4 w-4" />
+                Admin Panel
+              </Link>
+            </Button>
+          )}
 
           {session ? (
             <DropdownMenu>
@@ -176,14 +176,12 @@ export default function Navbar() {
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
                   <Link href="/dashboard" className="cursor-pointer">
-                    <LayoutDashboard className="mr-2 h-4 w-4" />
-                    Dashboard
+                    <LayoutDashboard className="mr-2 h-4 w-4" /> Dashboard
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                   <Link href="/settings" className="cursor-pointer">
-                    <User className="mr-2 h-4 w-4" />
-                    Profile
+                    <User className="mr-2 h-4 w-4" /> Profile
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
@@ -191,18 +189,17 @@ export default function Navbar() {
                   onClick={() => signOut({ callbackUrl: "/" })}
                   className="cursor-pointer text-destructive focus:text-destructive"
                 >
-                  <LogOut className="mr-2 h-4 w-4" />
-                  Log out
+                  <LogOut className="mr-2 h-4 w-4" /> Log out
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
-            <div className="flex items-center space-x-2">
+            <div className="hidden md:flex items-center space-x-2">
               <Button
                 asChild
                 variant="ghost"
                 size="sm"
-                className="hidden md:flex hover:bg-primary/5 hover:text-primary"
+                className="hover:bg-primary/5 hover:text-primary"
               >
                 <Link href="/auth/signin">Sign In</Link>
               </Button>
@@ -210,7 +207,7 @@ export default function Navbar() {
                 asChild
                 size="sm"
                 variant="secondary"
-                className="hidden md:flex rounded-full"
+                className="rounded-full"
               >
                 <Link href="/auth/signup">Sign Up</Link>
               </Button>
@@ -218,7 +215,7 @@ export default function Navbar() {
           )}
 
           {/* Mobile Menu */}
-          <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
+          <Sheet open={isMobileMenuOpen} onOpenChange={openMobileMenu}>
             <SheetTrigger asChild>
               <Button variant="ghost" size="icon" className="md:hidden">
                 <Menu className="h-5 w-5" />
@@ -236,29 +233,31 @@ export default function Navbar() {
                 </span>
               </div>
 
-              {/* Scrollable Body */}
+              {/* Body */}
               <div className="flex flex-col flex-1 overflow-y-auto p-5 space-y-6">
-                {/* Search */}
-                <form
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    setIsMobileMenuOpen(false);
-                    handleSearch(e);
-                  }}
-                >
-                  <div className="relative group">
-                    <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
-                    <Input
-                      type="search"
-                      placeholder="Search for anything..."
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      className="pl-10 bg-muted/50 border-transparent focus:bg-background focus:border-primary/50 rounded-full transition-all"
-                    />
-                  </div>
-                </form>
+                {/* Search — only mounted after delay */}
+                {menuVisible && (
+                  <form
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      closeMobileMenu();
+                      handleSearch(e);
+                    }}
+                  >
+                    <div className="relative group">
+                      <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
+                      <Input
+                        type="search"
+                        placeholder="Search for anything..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="pl-10 bg-muted/50 border-transparent focus:bg-background focus:border-primary/50 rounded-full transition-all"
+                      />
+                    </div>
+                  </form>
+                )}
 
-                {/* Navigation */}
+                {/* Nav links */}
                 <div>
                   <p className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-3">
                     Menu
@@ -271,7 +270,7 @@ export default function Navbar() {
                       <Link
                         key={href}
                         href={href}
-                        onClick={() => setIsMobileMenuOpen(false)}
+                        onClick={closeMobileMenu}
                         className="flex items-center px-3 py-2.5 rounded-xl text-sm font-medium text-foreground/80 hover:text-primary hover:bg-primary/5 transition-all"
                       >
                         {label}
@@ -280,11 +279,11 @@ export default function Navbar() {
                   </nav>
                 </div>
 
-                {/* Post Ad CTA */}
+                {/* Post Ad */}
                 <Button
                   asChild
                   className="w-full rounded-full bg-gradient-to-r from-primary to-purple-600 hover:opacity-90 shadow-md"
-                  onClick={() => setIsMobileMenuOpen(false)}
+                  onClick={closeMobileMenu}
                 >
                   <Link href="/listings/create">
                     <PlusCircle className="mr-2 h-4 w-4" />
@@ -293,11 +292,10 @@ export default function Navbar() {
                 </Button>
               </div>
 
-              {/* Footer / User Section */}
+              {/* Footer */}
               <div className="p-5 border-t bg-muted/20">
                 {session ? (
                   <div className="flex flex-col space-y-3">
-                    {/* User info */}
                     <div className="flex items-center gap-3 p-3 rounded-xl bg-background border">
                       <Avatar className="h-10 w-10 ring-2 ring-primary/20">
                         <AvatarImage src={session.user?.image || ""} />
@@ -319,37 +317,34 @@ export default function Navbar() {
                       asChild
                       variant="outline"
                       className="w-full justify-start rounded-xl"
-                      onClick={() => setIsMobileMenuOpen(false)}
+                      onClick={closeMobileMenu}
                     >
                       <Link href="/dashboard">
-                        <LayoutDashboard className="mr-2 h-4 w-4" />
-                        Dashboard
+                        <LayoutDashboard className="mr-2 h-4 w-4" /> Dashboard
                       </Link>
                     </Button>
 
-                    {session ? (
-                      session.user.role === "admin" ? (
-                        <Button
-                          asChild
-                          variant="default"
-                          size="sm"
-                          className="rounded-full px-6 justify-start shadow-md hover:shadow-lg transition-all bg-gradient-to-r from-purple-600 to-primary hover:from-primary/90 hover:to-purple-600/90 border-0"
-                        >
-                          <Link href="/admin">
-                            <LayoutDashboard className="mr-3 h-4 w-4" />
-                            Admin Panel
-                          </Link>
-                        </Button>
-                      ) : null
-                    ) : null}
+                    {session.user.role === "admin" && (
+                      <Button
+                        asChild
+                        variant="default"
+                        size="sm"
+                        className="w-full justify-start rounded-xl bg-gradient-to-r from-purple-600 to-primary border-0"
+                        onClick={closeMobileMenu}
+                      >
+                        <Link href="/admin">
+                          <LayoutDashboard className="mr-2 h-4 w-4" /> Admin
+                          Panel
+                        </Link>
+                      </Button>
+                    )}
 
                     <Button
                       variant="ghost"
                       className="w-full justify-start rounded-xl text-destructive hover:text-destructive hover:bg-destructive/10"
-                      onClick={() => signOut()}
+                      onClick={() => signOut({ callbackUrl: "/" })}
                     >
-                      <LogOut className="mr-2 h-4 w-4" />
-                      Log out
+                      <LogOut className="mr-2 h-4 w-4" /> Log out
                     </Button>
                   </div>
                 ) : (
@@ -361,14 +356,14 @@ export default function Navbar() {
                       asChild
                       variant="outline"
                       className="w-full rounded-full"
-                      onClick={() => setIsMobileMenuOpen(false)}
+                      onClick={closeMobileMenu}
                     >
                       <Link href="/auth/signin">Sign In</Link>
                     </Button>
                     <Button
                       asChild
                       className="w-full rounded-full bg-gradient-to-r from-primary to-purple-600 hover:opacity-90"
-                      onClick={() => setIsMobileMenuOpen(false)}
+                      onClick={closeMobileMenu}
                     >
                       <Link href="/auth/signup">Get Started Free</Link>
                     </Button>

@@ -22,6 +22,11 @@ export default function Footer() {
             <h3 className="mb-4 text-sm font-semibold">Platform</h3>
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li>
+                <Link href="/about" className="hover:text-foreground">
+                  About Us
+                </Link>
+              </li>
+              <li>
                 <Link href="/browse" className="hover:text-foreground">
                   Browse Listings
                 </Link>
