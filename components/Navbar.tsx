@@ -10,6 +10,7 @@ import {
   LayoutDashboard,
   ShoppingBag,
   Menu,
+  Heart,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -20,6 +21,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -180,6 +182,11 @@ export default function Navbar() {
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
+                  <Link href="/saved" className="cursor-pointer">
+                    <Heart className="mr-2 h-4 w-4" /> Saved Listings
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
                   <Link href="/settings" className="cursor-pointer">
                     <User className="mr-2 h-4 w-4" /> Profile
                   </Link>
@@ -321,6 +328,17 @@ export default function Navbar() {
                     >
                       <Link href="/dashboard">
                         <LayoutDashboard className="mr-2 h-4 w-4" /> Dashboard
+                      </Link>
+                    </Button>
+
+                    <Button
+                      asChild
+                      variant="outline"
+                      className="w-full justify-start rounded-xl text-pink-500 border-pink-500/20 hover:bg-pink-500/10 hover:text-pink-500"
+                      onClick={closeMobileMenu}
+                    >
+                      <Link href="/saved">
+                        <Heart className="mr-2 h-4 w-4" /> Saved Listings
                       </Link>
                     </Button>
 

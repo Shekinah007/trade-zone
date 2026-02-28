@@ -6,7 +6,9 @@ import Listing from "@/models/Listing";
 
 export async function getCategoriesWithCounts() {
   await dbConnect();
-  const categories = await Category.find({ parent: null }).sort({ name: 1 }).lean();
+  const categories = await Category.find({ parent: null })
+    .sort({ name: 1 })
+    .lean();
 
   const categoriesWithCounts = await Promise.all(
     categories.map(async (cat: any) => {
@@ -15,12 +17,11 @@ export async function getCategoriesWithCounts() {
         Category.countDocuments({ parent: cat._id }),
       ]);
       return { ...cat, count, subcategoryCount };
-    })
+    }),
   );
 
   return JSON.parse(JSON.stringify(categoriesWithCounts));
 }
-
 
 export default async function CategoriesPage() {
   const categories = await getCategoriesWithCounts();
@@ -44,17 +45,28 @@ export default async function CategoriesPage() {
             </span>
           </h1>
           <p className="text-muted-foreground text-lg max-w-xl mx-auto">
-            Explore thousands of listings across all categories. Find exactly what you're looking for.
+            Explore thousands of listings across all categories. Find exactly
+            what you're looking for.
           </p>
         </div>
       </section>
 
       {/* Stats bar */}
-      <div className="container mx-auto px-4 mb-10">
+      <div className="container mx-auto px-4 mb-5">
         <div className="flex items-center justify-center gap-8 py-4 px-6 rounded-2xl bg-muted/30 border w-fit mx-auto text-sm text-muted-foreground">
-          <span><strong className="text-foreground">{categories.length}</strong> Categories</span>
+          <span>
+            <strong className="text-foreground">{categories.length}</strong>{" "}
+            Categories
+          </span>
           <span className="w-px h-4 bg-border" />
-          <span><strong className="text-foreground">{categories.reduce((a: number, c: any) => a + c.count, 0).toLocaleString()}</strong> Active Listings</span>
+          <span>
+            <strong className="text-foreground">
+              {categories
+                .reduce((a: number, c: any) => a + c.count, 0)
+                .toLocaleString()}
+            </strong>{" "}
+            Active Listings
+          </span>
         </div>
       </div>
 
@@ -68,7 +80,11 @@ export default async function CategoriesPage() {
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
             {categories.map((cat: any) => (
-              <Link key={cat._id} href={`/categories/${cat.slug}`} className="group">
+              <Link
+                key={cat._id}
+                href={`/categories/${cat.slug}`}
+                className="group"
+              >
                 <div className="relative h-full bg-card hover:bg-background border border-transparent hover:border-primary/20 transition-all p-6 rounded-2xl shadow-sm hover:shadow-lg text-center group-hover:-translate-y-1 duration-300 overflow-hidden">
                   <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl" />
 
@@ -81,12 +97,15 @@ export default async function CategoriesPage() {
                   </p>
 
                   <p className="relative text-xs text-muted-foreground">
-                    {cat.count === 0 ? "No listings" : `${cat.count.toLocaleString()} listing${cat.count !== 1 ? "s" : ""}`}
+                    {cat.count === 0
+                      ? "No listings"
+                      : `${cat.count.toLocaleString()} listing${cat.count !== 1 ? "s" : ""}`}
                   </p>
 
                   {cat.subcategoryCount > 0 && (
                     <p className="relative text-xs text-primary/70 mt-1">
-                      {cat.subcategoryCount} subcategorie{cat.subcategoryCount !== 1 ? "s" : ""}
+                      {cat.subcategoryCount} subcategorie
+                      {cat.subcategoryCount !== 1 ? "s" : ""}
                     </p>
                   )}
                 </div>
@@ -98,12 +117,20 @@ export default async function CategoriesPage() {
         {/* CTA */}
         <div className="mt-16 text-center p-12 rounded-3xl bg-gradient-to-br from-primary/5 via-purple-500/5 to-indigo-500/5 border border-primary/10">
           <h2 className="text-2xl font-bold mb-2">Can't find what you need?</h2>
-          <p className="text-muted-foreground mb-6">Browse all active listings or post your own ad for free.</p>
+          <p className="text-muted-foreground mb-6">
+            Browse all active listings or post your own ad for free.
+          </p>
           <div className="flex gap-3 justify-center flex-wrap">
-            <Link href="/browse" className="inline-flex items-center px-6 py-2.5 rounded-full bg-primary text-primary-foreground font-medium hover:bg-primary/90 transition-all hover:scale-105 shadow-md shadow-primary/25">
+            <Link
+              href="/browse"
+              className="inline-flex items-center px-6 py-2.5 rounded-full bg-primary text-primary-foreground font-medium hover:bg-primary/90 transition-all hover:scale-105 shadow-md shadow-primary/25"
+            >
               Browse All Listings
             </Link>
-            <Link href="/listings/create" className="inline-flex items-center px-6 py-2.5 rounded-full border border-primary/20 hover:border-primary/50 font-medium hover:text-primary transition-all">
+            <Link
+              href="/listings/create"
+              className="inline-flex items-center px-6 py-2.5 rounded-full border border-primary/20 hover:border-primary/50 font-medium hover:text-primary transition-all"
+            >
               Post an Ad
             </Link>
           </div>
