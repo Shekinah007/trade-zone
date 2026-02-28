@@ -55,6 +55,7 @@ export async function POST(req: Request) {
         bankDetails: data.business.bankDetails || [],
         certifications: data.business.certifications || [],
         businessHours: data.business.businessHours,
+        qrCode: data.business.qrCode,
       });
     } else {
       // If no business data is returned from ACD API, create a default business for the user

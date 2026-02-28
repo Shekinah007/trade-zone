@@ -202,6 +202,7 @@ export const authOptions: NextAuthOptions = {
               bankDetails: data.business.bankDetails || [],
               certifications: data.business.certifications || [],
               businessHours: data.business.businessHours,
+              qrCode: data.business.qrCode,
             });
           } else {
             // if no returned from ACD API, create a default business for the user
