@@ -42,24 +42,32 @@ const schema = z.object({
 
 const faqs = [
   {
+    q: "How do I register a property on FindMasters?",
+    a: "Sign in to your account, go to the Registry section and click 'Register a Property'. Fill in the item details, serial/IMEI/chassis number, and submit. Your property will be registered immediately under your account.",
+  },
+  {
+    q: "Can anyone search the registry?",
+    a: "Yes — the basic registry search is public. Anyone can enter an IMEI, serial number, or chassis number to check whether an item is registered or flagged as missing. Full owner details are visible only to signed-in members.",
+  },
+  {
     q: "How do I create a listing?",
     a: "After your account is approved, go to 'Post an Ad' from the navigation menu. Fill in your item details, upload photos, and submit.",
   },
   {
     q: "How long does account approval take?",
-    a: "Account approvals are typically processed within 24–48 hours. You'll be able to browse the platform while you wait.",
+    a: "Account approvals are typically processed within 24–48 hours. You can browse the platform and search the registry while you wait.",
+  },
+  {
+    q: "How do I transfer ownership after selling a registered item?",
+    a: "Go to your Dashboard → My Properties, open the item, and click 'Transfer Ownership'. Enter the buyer's FindMasters email along with optional sale details (date, price, location). The ownership record will be updated immediately.",
   },
   {
     q: "How do I report a suspicious listing?",
-    a: "On any listing page, scroll down and click 'Report this listing'. Provide a description and our team will review it promptly.",
+    a: "On any listing page, scroll down and click 'Report this listing'. If the item appears stolen or matches a missing registry entry, also contact the Nigerian Police Force.",
   },
   {
     q: "Is my personal information safe?",
-    a: "Yes. We do not sell your data to third parties. Read our Privacy Policy for full details on how we handle your information.",
-  },
-  {
-    q: "How do I contact a seller?",
-    a: "On a listing page, click 'Contact Seller' to chat in-app, send a WhatsApp message, or call directly if the seller has added a phone number.",
+    a: "Yes. We do not sell your data to third parties. Owner details are only shared with registered FindMasters members. Read our Privacy Policy for full details.",
   },
 ];
 
@@ -92,8 +100,8 @@ export default function ContactPage() {
             Contact Us
           </h1>
           <p className="text-muted-foreground">
-            Have a question, concern, or feedback? Reach out to the TradeZone
-            team and we'll respond as soon as possible.
+            Have a question, concern, or feedback? Reach out to the FindMasters
+            team and we&apos;ll respond as soon as possible.
           </p>
         </div>
       </section>
@@ -108,15 +116,39 @@ export default function ContactPage() {
                 {[
                   {
                     icon: Mail,
-                    label: "Email",
-                    value: "support@tradezone.ng",
-                    href: "mailto:support@tradezone.ng",
+                    label: "General",
+                    value: "info@findmaster.org",
+                    href: "mailto:info@findmaster.org",
+                  },
+                  {
+                    icon: Mail,
+                    label: "Support",
+                    value: "support@findmaster.org",
+                    href: "mailto:support@findmaster.org",
+                  },
+                  {
+                    icon: Mail,
+                    label: "Technical",
+                    value: "technical@findmaster.org",
+                    href: "mailto:technical@findmaster.org",
                   },
                   {
                     icon: Phone,
-                    label: "Phone",
-                    value: "+234 800 000 0000",
-                    href: "tel:+2348000000000",
+                    label: "Head Office (Lagos)",
+                    value: "+234 902 491 3958",
+                    href: "tel:+2349024913958",
+                  },
+                  {
+                    icon: Phone,
+                    label: "Partner Branch (Apapa)",
+                    value: "+234 803 719 7609",
+                    href: "tel:+2348037197609",
+                  },
+                  {
+                    icon: Phone,
+                    label: "South-South (Benin City)",
+                    value: "+234 803 585 6196",
+                    href: "tel:+2348035856196",
                   },
                 ].map(({ icon: Icon, label, value, href }) => (
                   <a

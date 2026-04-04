@@ -8,7 +8,7 @@ import {
   User,
   LogOut,
   LayoutDashboard,
-  ShoppingBag,
+  Shield,
   Menu,
   Heart,
 } from "lucide-react";
@@ -78,15 +78,15 @@ export default function Navbar() {
         {/* Logo */}
         <Link href="/" className="flex items-center space-x-2 group shrink-0">
           <div className="bg-primary/10 p-2 rounded-xl group-hover:bg-primary/20 transition-colors">
-            <ShoppingBag className="h-6 w-6 text-primary" />
+            <Shield className="h-6 w-6 text-primary" />
           </div>
-          <span className="text-xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-primary to-purple-600">
-            Trade Zone
+          <span className="text-xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-primary to-blue-600">
+            FindMasters
           </span>
         </Link>
 
         {/* Desktop Nav */}
-        <nav className="hidden md:flex items-center space-x-8 text-sm font-medium">
+        <nav className="hidden md:flex items-center space-x-6 text-sm font-medium">
           <Link
             href="/browse"
             className="transition-colors hover:text-primary text-foreground/80"
@@ -98,6 +98,13 @@ export default function Navbar() {
             className="transition-colors hover:text-primary text-foreground/80"
           >
             Categories
+          </Link>
+          <Link
+            href="/registry"
+            className="transition-colors hover:text-primary text-foreground/80 flex items-center gap-1"
+          >
+            <Shield className="h-3.5 w-3.5" />
+            Registry
           </Link>
         </nav>
 
@@ -122,9 +129,20 @@ export default function Navbar() {
         <div className="flex items-center space-x-3">
           <Button
             asChild
+            variant="outline"
+            size="sm"
+            className="hidden md:flex rounded-full px-5 border-primary/30 hover:border-primary/60 text-primary hover:bg-primary/5"
+          >
+            <Link href="/registry/register">
+              <Shield className="h-4 w-4" />
+              Register Item
+            </Link>
+          </Button>
+          <Button
+            asChild
             variant="default"
             size="sm"
-            className="hidden md:flex rounded-full px-6 shadow-md hover:shadow-lg transition-all bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90 border-0"
+            className="hidden md:flex rounded-full px-6 shadow-md hover:shadow-lg transition-all bg-gradient-to-r from-primary to-blue-600 hover:opacity-90 border-0"
           >
             <Link href="/listings/create">
               <PlusCircle className="h-4 w-4" />
@@ -137,7 +155,7 @@ export default function Navbar() {
               asChild
               variant="default"
               size="sm"
-              className="hidden md:flex rounded-full px-6 shadow-md hover:shadow-lg transition-all bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90 border-0"
+              className="hidden md:flex rounded-full px-6 shadow-md hover:shadow-lg transition-all bg-gradient-to-r from-primary to-blue-600 hover:opacity-90 border-0"
             >
               <Link href="/admin">
                 <LayoutDashboard className="h-4 w-4" />
@@ -273,6 +291,8 @@ export default function Navbar() {
                     {[
                       { href: "/browse", label: "Browse Listings" },
                       { href: "/categories", label: "Categories" },
+                      { href: "/registry", label: "Property Registry" },
+                      { href: "/registry/search", label: "Search Registry" },
                     ].map(({ href, label }) => (
                       <Link
                         key={href}

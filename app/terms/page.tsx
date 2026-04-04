@@ -3,47 +3,63 @@ import Link from "next/link";
 const sections = [
   {
     title: "1. Acceptance of Terms",
-    content: `By accessing or using TradeZone, you agree to be bound by these Terms and Conditions. If you do not agree with any part of these terms, you may not use our platform. These terms apply to all users, including buyers, sellers, and visitors.`,
+    content: `By accessing or using FindMasters, you agree to be bound by these Terms and Conditions. If you do not agree with any part of these terms, you may not use our platform. These terms apply to all users, including buyers, sellers, property owners, and visitors.`,
   },
   {
     title: "2. Eligibility",
-    content: `You must be at least 18 years of age to use TradeZone. By using this platform, you confirm that you meet this requirement and have the legal capacity to enter into binding agreements under Nigerian law.`,
+    content: `You must be at least 18 years of age to use FindMasters. By using this platform, you confirm that you meet this requirement and have the legal capacity to enter into binding agreements under Nigerian law.`,
   },
   {
     title: "3. Account Registration & Approval",
     content: `All accounts are subject to admin approval before sellers can post listings. You are responsible for maintaining the confidentiality of your account credentials. You agree to provide accurate and up-to-date information during registration and to notify us immediately of any unauthorized use of your account.`,
   },
   {
-    title: "4. Listings & Content",
-    content: `Sellers are solely responsible for the accuracy, legality, and quality of their listings. You agree not to post listings for prohibited items including but not limited to: stolen goods, counterfeit products, weapons, drugs, or any item whose sale is prohibited under Nigerian law. TradeZone reserves the right to remove any listing at its sole discretion.`,
+    title: "4. Property Registry — Registration",
+    content: `Members may register property items (phones, laptops, vehicles, generators, and any item with a serial, IMEI, or chassis number) under their account. By registering a property, you confirm that you are the lawful owner of that item. Falsely registering property you do not own is a violation of these terms and may be reported to law enforcement.`,
   },
   {
-    title: "5. Transactions",
-    content: `TradeZone facilitates communication between buyers and sellers but is not a party to any transaction. We do not guarantee the quality, safety, legality, or availability of listed items. All transactions are conducted at your own risk. We strongly recommend following our Safety Tips before completing any purchase.`,
+    title: "5. Property Registry — Prohibited Conduct",
+    content: `You must NOT purchase, possess, or facilitate the sale of any item marked as "Missing" or "Stolen" in the FindMasters registry. If you encounter a seller offering an item that is flagged in the registry, you are obligated to report this to the police and to FindMasters immediately. Any missing item traced to you as a buyer or intermediary will be subject to law enforcement action as permissible under Nigerian law.`,
   },
   {
-    title: "6. Prohibited Conduct",
-    content: `You agree not to: use the platform for fraudulent or deceptive purposes; harass, threaten, or abuse other users; attempt to hack, scrape, or disrupt platform services; create multiple accounts to circumvent bans or suspensions; or engage in any activity that violates applicable Nigerian laws and regulations.`,
+    title: "6. Ownership Transfers",
+    content: `When selling a registered property, the current owner must initiate an ownership transfer through the FindMasters platform prior to or at the time of sale. Failure to transfer ownership may result in the new owner being unable to prove legitimate ownership. FindMasters maintains a full, immutable record of all ownership transfers including date, price, and location.`,
   },
   {
-    title: "7. Intellectual Property",
-    content: `All content on TradeZone including logos, design, and code is the property of TradeZone and is protected by applicable intellectual property laws. You may not reproduce, distribute, or create derivative works without our express written permission.`,
+    title: "7. Listings & Marketplace Content",
+    content: `Sellers are solely responsible for the accuracy, legality, and quality of their listings. You agree not to post listings for prohibited items including but not limited to: stolen goods, counterfeit products, weapons, drugs, or any item whose sale is prohibited under Nigerian law. FindMasters reserves the right to remove any listing at its sole discretion.`,
   },
   {
-    title: "8. Limitation of Liability",
-    content: `TradeZone shall not be liable for any indirect, incidental, special, or consequential damages arising from your use of the platform, including losses resulting from transactions between users. Our total liability to you for any claim shall not exceed the fees you have paid to TradeZone in the 12 months preceding the claim.`,
+    title: "8. Transactions",
+    content: `FindMasters facilitates communication between buyers and sellers but is not a party to any transaction. We do not guarantee the quality, safety, legality, or availability of listed items. All transactions are conducted at your own risk. We strongly recommend verifying any item in the FindMasters registry and following our Safety Tips before completing any purchase.`,
   },
   {
-    title: "9. Termination",
+    title: "9. Reporting & Police Cooperation",
+    content: `FindMasters is committed to cooperating fully with Nigerian law enforcement on matters related to stolen property, fraud, or illegal transactions. We may share user information with law enforcement where legally required. Users are encouraged to report suspicious activity both to FindMasters and to the Nigerian Police Force.`,
+  },
+  {
+    title: "10. Prohibited Conduct",
+    content: `You agree not to: use the platform for fraudulent or deceptive purposes; harass, threaten, or abuse other users; attempt to hack, scrape, or disrupt platform services; create multiple accounts to circumvent bans or suspensions; register property you do not own; or engage in any activity that violates applicable Nigerian laws and regulations.`,
+  },
+  {
+    title: "11. Intellectual Property",
+    content: `All content on FindMasters including logos, design, and code is the property of FindMasters and is protected by applicable intellectual property laws. You may not reproduce, distribute, or create derivative works without our express written permission.`,
+  },
+  {
+    title: "12. Limitation of Liability",
+    content: `FindMasters shall not be liable for any indirect, incidental, special, or consequential damages arising from your use of the platform, including losses resulting from transactions between users or theft of unregistered property. Our total liability to you for any claim shall not exceed the fees you have paid to FindMasters in the 12 months preceding the claim.`,
+  },
+  {
+    title: "13. Termination",
     content: `We reserve the right to suspend or terminate your account at any time for violation of these terms or for any conduct we deem harmful to the platform or its users. You may also delete your account at any time by contacting our support team.`,
   },
   {
-    title: "10. Governing Law",
-    content: `These Terms and Conditions are governed by the laws of the Federal Republic of Nigeria. Any disputes arising from the use of TradeZone shall be subject to the exclusive jurisdiction of the courts of Nigeria.`,
+    title: "14. Governing Law",
+    content: `These Terms and Conditions are governed by the laws of the Federal Republic of Nigeria. Any disputes arising from the use of FindMasters shall be subject to the exclusive jurisdiction of the courts of Nigeria.`,
   },
   {
-    title: "11. Changes to Terms",
-    content: `TradeZone reserves the right to update these terms at any time. Continued use of the platform after changes are posted constitutes your acceptance of the revised terms. We encourage you to review this page periodically.`,
+    title: "15. Changes to Terms",
+    content: `FindMasters reserves the right to update these terms at any time. Continued use of the platform after changes are posted constitutes your acceptance of the revised terms. We encourage you to review this page periodically.`,
   },
 ];
 
@@ -53,15 +69,15 @@ export default function TermsPage() {
       <section className="border-b bg-muted/20 py-14">
         <div className="container mx-auto px-4 max-w-3xl text-center">
           <h1 className="text-4xl font-extrabold tracking-tight mb-3">
-            Terms & Conditions
+            Terms &amp; Conditions
           </h1>
           <p className="text-muted-foreground text-sm">
             Last updated:{" "}
             {new Date().toLocaleDateString("en-NG", { dateStyle: "long" })}
           </p>
           <p className="text-muted-foreground mt-3 max-w-xl mx-auto">
-            Please read these terms carefully before using TradeZone. By using
-            our platform, you agree to these terms.
+            Please read these terms carefully before using FindMasters. By using
+            our platform, you agree to these terms in full.
           </p>
         </div>
       </section>
@@ -78,7 +94,28 @@ export default function TermsPage() {
           ))}
         </div>
 
-        <div className="mt-12 p-5 rounded-2xl bg-muted/40 border text-sm text-muted-foreground">
+        {/* FindMaster-specific callout */}
+        <div className="mt-10 p-5 rounded-2xl bg-red-500/10 border border-red-500/20 text-sm space-y-2">
+          <p className="font-bold text-red-600 dark:text-red-400">
+            ⚠️ Important Registry Notice
+          </p>
+          <ul className="list-disc pl-5 space-y-1 text-muted-foreground">
+            <li>
+              You must <strong>not</strong> buy any item marked as missing in
+              the FindMasters registry — this could be a result of theft.
+            </li>
+            <li>
+              You must report to the police any suspicious transaction involving
+              registered items.
+            </li>
+            <li>
+              If any missing item is traced to you, the law will take effect
+              under applicable Nigerian statutes.
+            </li>
+          </ul>
+        </div>
+
+        <div className="mt-8 p-5 rounded-2xl bg-muted/40 border text-sm text-muted-foreground">
           If you have questions about these terms, please{" "}
           <Link
             href="/contact"
