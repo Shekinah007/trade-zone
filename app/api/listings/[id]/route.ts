@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import dbConnect from "@/lib/db";
 import Listing from "@/models/Listing";
+import Property from "@/models/Property";
 import { v2 as cloudinary } from 'cloudinary';
 
 cloudinary.config({
@@ -70,6 +71,12 @@ export async function PUT(
     if (formData.has("condition")) listing.condition = formData.get("condition") as string;
     if (formData.has("uniqueIdentifier")) listing.uniqueIdentifier = formData.get("uniqueIdentifier") as string;
     
+    // brand & model — read from formData first so we can send them to the property later
+    const newBrand = formData.has("brand") ? (formData.get("brand") as string) || undefined : undefined;
+    const newModel = formData.has("model") ? (formData.get("model") as string) || undefined : undefined;
+    if (newBrand) listing.brand = newBrand;
+    if (newModel) (listing as any).model = newModel;
+
     // Location update
     if (formData.has("city") || formData.has("country")) {
          listing.location = {
@@ -118,6 +125,32 @@ export async function PUT(
     }
 
     await listing.save();
+
+    // ── Sync relevant fields to the linked Property record ───────────────────
+    if (listing.propertyId) {
+      const propertyUpdate: Record<string, any> = {};
+
+      if (newBrand) propertyUpdate.brand = newBrand;
+      if (newModel) propertyUpdate.model = newModel;
+
+      // uniqueIdentifier on the listing maps to serialNumber on the property
+      if (formData.has("uniqueIdentifier") && formData.get("uniqueIdentifier")) {
+        propertyUpdate.serialNumber = listing.uniqueIdentifier;
+      }
+
+      // Keep property images in sync with the listing
+      if (hasImageUpdates) {
+        propertyUpdate.images = listing.images;
+      }
+
+      if (Object.keys(propertyUpdate).length > 0) {
+        await Property.findByIdAndUpdate(
+          listing.propertyId,
+          { $set: propertyUpdate },
+          { new: true }
+        );
+      }
+    }
 
     return NextResponse.json(listing);
 
