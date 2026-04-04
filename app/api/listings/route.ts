@@ -5,6 +5,9 @@ import dbConnect from "@/lib/db";
 import Listing from "@/models/Listing";
 import { v2 as cloudinary } from 'cloudinary';
 
+import Property from "@/models/Property";
+import Category from "@/models/Category";
+
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
@@ -56,6 +59,8 @@ export async function POST(req: Request) {
     const state = formData.get("state") as string;
     const country = formData.get("country") as string;
     const uniqueIdentifier = formData.get("uniqueIdentifier") as string;
+    const brand = formData.get("brand") as string;
+    const model = formData.get("model") as string;
 
     
     const imageFiles = formData.getAll("images") as File[];
@@ -81,6 +86,46 @@ export async function POST(req: Request) {
        }
     }
 
+    let propertyId = null;
+
+    if (uniqueIdentifier) {
+      const existingProperty = await Property.findOne({
+        $or: [
+          { serialNumber: uniqueIdentifier },
+          { imei: uniqueIdentifier },
+          { chassisNumber: uniqueIdentifier },
+        ]
+      });
+
+      if (!existingProperty) {
+        // Try to auto-create property
+        const categoryDoc = await Category.findById(category).lean();
+        const catName = categoryDoc?.name?.toLowerCase() || "";
+        
+        let itemType = 'other';
+        if (catName.includes('phone') || catName.includes('mobile')) itemType = 'phone';
+        else if (catName.includes('laptop') || catName.includes('mac')) itemType = 'laptop';
+        else if (catName.includes('tablet') || catName.includes('ipad')) itemType = 'tablet';
+        else if (catName.includes('car') || catName.includes('vehicle')) itemType = 'vehicle';
+        else if (catName.includes('motorcycle') || catName.includes('bike')) itemType = 'motorcycle';
+        else if (catName.includes('generator')) itemType = 'generator';
+        else if (catName.includes('electronic')) itemType = 'electronics';
+
+        const newProperty = await Property.create({
+          owner: session.user.id,
+          itemType,
+          brand: brand || 'Unknown',
+          model: model || title, // Fallback to title if model is not selected
+          serialNumber: uniqueIdentifier, 
+          images: imageUrls,
+          status: 'registered'
+        });
+        propertyId = newProperty._id;
+      } else {
+        propertyId = existingProperty._id;
+      }
+    }
+
     const newListing = await Listing.create({
       title,
       description,
@@ -89,6 +134,9 @@ export async function POST(req: Request) {
       condition,
       location: { city, state, country },
       uniqueIdentifier,
+      brand,
+      model,
+      propertyId,
       images: imageUrls,
       seller: session.user.id,
       status: "active",

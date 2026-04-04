@@ -1,11 +1,12 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { formatDistanceToNow } from "date-fns";
-import { MapPin, Share2, ShieldCheck, Flag, Calendar, Eye } from "lucide-react";
+import { MapPin, Share2, ShieldCheck, Flag, Calendar, Eye, Shield, ExternalLink } from "lucide-react";
 import dbConnect from "@/lib/db";
 import Listing from "@/models/Listing";
 import "@/models/User"; // Ensure User model is registered
 import "@/models/Category";
+import "@/models/Property"; // Ensure Property model is registered
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -30,7 +31,11 @@ async function getListing(id: string) {
     // Validate ID format
     // if (!id.match(/^[0-9a-fA-F]{24}$/)) return null;
 
-    const listing = await Listing.findById(id).populate("seller").populate("category").lean();
+    const listing = await Listing.findById(id)
+      .populate("seller")
+      .populate("category")
+      .populate("propertyId", "brand model itemType status serialNumber imei chassisNumber color yearOfPurchase images")
+      .lean();
     if (!listing) return null;
 
     const business = await Business.findOne({ owner: listing.seller?._id }).lean();
@@ -148,6 +153,65 @@ export default async function ListingPage({ params }: { params: { id: string } }
               </div>
             </CardContent>
           </Card>
+
+          {/* Registry Record Card */}
+          {listing.propertyId && (
+            <Card className="border border-emerald-500/20 bg-emerald-500/5">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base flex items-center gap-2 text-emerald-700 dark:text-emerald-400">
+                  <Shield className="h-4 w-4" />
+                  Registered Property
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 gap-3 text-sm mb-4">
+                  {listing.propertyId.brand && (
+                    <div>
+                      <span className="font-semibold text-muted-foreground block text-xs mb-0.5">Brand</span>
+                      <span>{listing.propertyId.brand}</span>
+                    </div>
+                  )}
+                  {listing.propertyId.model && (
+                    <div>
+                      <span className="font-semibold text-muted-foreground block text-xs mb-0.5">Model</span>
+                      <span>{listing.propertyId.model}</span>
+                    </div>
+                  )}
+                  {listing.propertyId.color && (
+                    <div>
+                      <span className="font-semibold text-muted-foreground block text-xs mb-0.5">Color</span>
+                      <span>{listing.propertyId.color}</span>
+                    </div>
+                  )}
+                  {listing.propertyId.yearOfPurchase && (
+                    <div>
+                      <span className="font-semibold text-muted-foreground block text-xs mb-0.5">Year</span>
+                      <span>{listing.propertyId.yearOfPurchase}</span>
+                    </div>
+                  )}
+                  <div className="col-span-2">
+                    <span className="font-semibold text-muted-foreground block text-xs mb-0.5">Registry Status</span>
+                    <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium ${
+                      listing.propertyId.status === 'registered' ? 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400' :
+                      listing.propertyId.status === 'missing' ? 'bg-red-500/10 text-red-700 dark:text-red-400' :
+                      listing.propertyId.status === 'found' ? 'bg-blue-500/10 text-blue-700 dark:text-blue-400' :
+                      'bg-muted text-muted-foreground'
+                    }`}>
+                      <span className="w-1.5 h-1.5 rounded-full bg-current" />
+                      {listing.propertyId.status.charAt(0).toUpperCase() + listing.propertyId.status.slice(1)}
+                    </span>
+                  </div>
+                </div>
+                <Link
+                  href={`/registry/${listing.propertyId._id}`}
+                  className="inline-flex items-center gap-1.5 text-xs font-medium text-emerald-700 dark:text-emerald-400 hover:underline"
+                >
+                  <ExternalLink className="h-3.5 w-3.5" />
+                  View Full Registry Record
+                </Link>
+              </CardContent>
+            </Card>
+          )}
         </div>
 
         {/* Right Column: Price, Seller, Actions */}

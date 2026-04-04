@@ -14,6 +14,9 @@ import {
   Car,
   Laptop,
   Cpu,
+  ImagePlus,
+  Upload,
+  X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -55,6 +58,27 @@ export default function RegisterPropertyPage() {
     chassisNumber: "",
     description: "",
   });
+
+  const [imageItems, setImageItems] = useState<{ url: string; file?: File }[]>([]);
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      const files = Array.from(e.target.files);
+      if (imageItems.length + files.length > 5) {
+        toast.error("Maximum 5 images allowed");
+        return;
+      }
+      const newItems = files.map((file) => ({
+        url: URL.createObjectURL(file),
+        file,
+      }));
+      setImageItems((prev) => [...prev, ...newItems]);
+    }
+  };
+
+  const removeImageItem = (index: number) => {
+    setImageItems((prev) => prev.filter((_, i) => i !== index));
+  };
 
   if (status === "loading") {
     return (
@@ -102,19 +126,23 @@ export default function RegisterPropertyPage() {
 
     setSubmitting(true);
     try {
+      const formData = new FormData();
+      Object.entries(form).forEach(([key, value]) => {
+        if (value) {
+          formData.append(key, value);
+        }
+      });
+      imageItems.forEach((item) => {
+        if (item.file) {
+          formData.append("images", item.file);
+        }
+      });
+
       const res = await fetch("/api/registry", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...form,
-          yearOfPurchase: form.yearOfPurchase
-            ? Number(form.yearOfPurchase)
-            : undefined,
-          serialNumber: form.serialNumber || undefined,
-          imei: form.imei || undefined,
-          chassisNumber: form.chassisNumber || undefined,
-        }),
+        body: formData,
       });
+
       const data = await res.json();
       if (!res.ok) {
         toast.error(data.error || "Failed to register property.");
@@ -285,6 +313,58 @@ export default function RegisterPropertyPage() {
                   onChange={(e) => set("chassisNumber", e.target.value)}
                   className="font-mono"
                 />
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Photos */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base flex items-center gap-2">
+                <ImagePlus className="h-4 w-4" /> Photos
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center justify-between mb-2">
+                <Label>Property Images</Label>
+                <span className="text-xs text-muted-foreground">{imageItems.length}/5</span>
+              </div>
+              <div className="grid grid-cols-3 sm:grid-cols-5 gap-3">
+                {imageItems.map((item, index) => (
+                  <div
+                    key={index}
+                    className="relative aspect-square rounded-xl overflow-hidden border bg-muted group"
+                  >
+                    <img
+                      src={item.url}
+                      alt="Preview"
+                      className="h-full w-full object-cover"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removeImageItem(index)}
+                      className="absolute top-1 right-1 rounded-full bg-black/60 text-white p-1 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-destructive"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </div>
+                ))}
+
+                {imageItems.length < 5 && (
+                  <label className="flex aspect-square cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-muted-foreground/20 bg-muted/30 hover:bg-muted/50 hover:border-primary/30 transition-all group">
+                    <Upload className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
+                    <span className="mt-1.5 text-xs text-muted-foreground group-hover:text-primary">
+                      Add Photo
+                    </span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      className="hidden"
+                      onChange={handleImageChange}
+                    />
+                  </label>
+                )}
               </div>
             </CardContent>
           </Card>

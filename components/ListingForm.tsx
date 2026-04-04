@@ -436,6 +436,8 @@ const formSchema = z.object({
   state: z.string().optional(),
   country: z.string().min(2, "Country is required"),
   uniqueIdentifier: z.string().min(1, "Serial Number / Unique Identifier is required"),
+  brand: z.string().optional(),
+  model: z.string().optional(),
 });
 
 interface ListingFormProps {
@@ -480,6 +482,8 @@ export function ListingForm({ initialData, categories }: ListingFormProps) {
       state: initialData?.location?.state || "",
       country: initialData?.location?.country || "",
       uniqueIdentifier: initialData?.uniqueIdentifier || "",
+      brand: initialData?.brand || "",
+      model: initialData?.model || "",
     },
   });
 
@@ -641,6 +645,35 @@ export function ListingForm({ initialData, categories }: ListingFormProps) {
                 </FormItem>
               )}
             />
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <FormField
+                control={form.control as any}
+                name="brand"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Brand (Optional)</FormLabel>
+                    <FormControl>
+                      <Input placeholder="e.g. Apple, Toyota" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control as any}
+                name="model"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Model (Optional)</FormLabel>
+                    <FormControl>
+                      <Input placeholder="e.g. iPhone 14 Pro" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
           </div>
         </div>
 
