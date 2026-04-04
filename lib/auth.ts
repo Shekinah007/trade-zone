@@ -154,7 +154,6 @@ export const authOptions: NextAuthOptions = {
 
       try {
         await dbConnect();
-
         let dbUser = await User.findOne({ email: user.email });
 
         if (!dbUser) {
@@ -167,6 +166,7 @@ export const authOptions: NextAuthOptions = {
             role: "buyer",
             status: "pending",
           });
+          
         } else {
           // Existing user — block if banned/suspended
           if (dbUser.status === "banned" || dbUser.status === "suspended") {
@@ -215,34 +215,46 @@ export const authOptions: NextAuthOptions = {
         }
 
         // Pass db values back onto the user object so jwt callback can read them
-        user.id = dbUser._id.toString();
-        user.role = dbUser.role;
-        user.status = dbUser.status;
+      
       } catch (err) {
         console.error("OAuth signIn error:", err);
         // Don't block sign-in for non-auth errors
+      } finally {
+        // pass user id to the token
+        await dbConnect();
+        let foundUser = await User.findOne({ email: user.email });
+        user.id = foundUser?._id.toString();
+        user.role = foundUser?.role;
+        user.status = foundUser?.status;
+        user.userId = foundUser?._id.toString();
       }
 
       return true;
     },
 
+      async jwt({ token, user }) {
+    
+      if (user) {
+        token.id = user.id;
+        token.sub = user.id;
+        token.role = user.role;
+        token.status = user.status;
+  
+      }
+      return token;
+    },
+
     async session({ session, token }) {
       if (token && session.user) {
-        session.user.id = token.sub;
+        session.user.id = token.id as string;
+
         session.user.role = token.role as string;
         session.user.status = token.status as string;
       }
       return session;
     },
 
-    async jwt({ token, user }) {
-      if (user) {
-        token.sub = user.id;
-        token.role = user.role;
-        token.status = user.status;
-      }
-      return token;
-    },
+  
   },
 
   pages: {

@@ -54,6 +54,7 @@ export async function GET(req: NextRequest) {
 // POST /api/registry — register a new property (auth required)
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
+  console.log("SessionDetails",session);
   if (!session?.user?.id) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
