@@ -10,7 +10,7 @@ export interface ITransferRecord {
   transferredAt: Date;
 }
 
-export interface IProperty extends Document {
+export interface IProperty {
   owner: mongoose.Types.ObjectId;
   itemType:
     | 'phone'

@@ -20,6 +20,7 @@ import { Button } from "@/components/ui/button";
 import Category from "@/models/Category";
 import { HomeSearchBar } from "@/components/HomeSearchBar";
 import { RegistrySearchBar } from "@/components/RegistrySearchBar";
+import { FloatingPaths } from "@/components/ui/background-paths";
 
 async function getRecentListings() {
   await dbConnect();
@@ -44,9 +45,13 @@ export default async function Home() {
     <div className="flex flex-col min-h-screen bg-background">
       {/* Hero Section */}
       <section className="relative px-4 py-14 md:py-20 overflow-hidden">
-        <div className="absolute top-0 left-0 w-full h-full bg-background -z-20" />
-        <div className="absolute top-[-10%] right-[-5%] w-[500px] h-[500px] bg-primary/20 rounded-full blur-3xl -z-10 animate-pulse" />
-        <div className="absolute bottom-[-10%] left-[-5%] w-[600px] h-[600px] bg-blue-500/10 rounded-full blur-3xl -z-10" />
+        {/* Animated background paths */}
+        <div className="absolute inset-0 z-10">
+          <FloatingPaths position={1} />
+          <FloatingPaths position={-1} />
+        </div>
+        {/* Subtle gradient overlay so text stays readable */}
+        <div className="absolute inset-0 -z-10 bg-gradient-to-b from-background/60 via-background/40 to-background/80 pointer-events-none" />
 
         <div className="container mx-auto relative z-10 text-center">
           <div className="inline-flex items-center px-3 py-1 rounded-full border bg-background/50 backdrop-blur-sm text-sm font-medium mb-6 text-primary animate-in fade-in slide-in-from-bottom-4 duration-700">
