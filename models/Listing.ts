@@ -1,6 +1,6 @@
 import mongoose, { Schema, Document, Model } from 'mongoose';
 
-export interface IListing extends Document {
+export interface IListing {
   title: string;
   description: string;
   price: number;

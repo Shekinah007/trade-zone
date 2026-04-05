@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import {
   LayoutDashboard, Users, ShoppingBag, AlertTriangle,
   Settings, Menu, Grid, X,
-  UserCheck
+  UserCheck, Shield
 } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
@@ -19,6 +19,7 @@ const navItems = [
   { href: "/admin/listings", label: "Listings", icon: ShoppingBag },
   { href: "/admin/categories", label: "Categories", icon: Grid },
   { href: "/admin/reports", label: "Reports", icon: AlertTriangle },
+  { href: "/admin/properties", label: "Property Registry", icon: Shield },
 ];
 
 interface Props {

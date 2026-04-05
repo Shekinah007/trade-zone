@@ -86,7 +86,7 @@ export async function POST(req: Request) {
        }
     }
 
-    let propertyId = null;
+    let propertyId = undefined;
 
     if (uniqueIdentifier) {
       const existingProperty = await Property.findOne({
