@@ -213,11 +213,9 @@ export default function PropertyDetailPage() {
             </Link>
           </Button>
         )}
-        <Button variant="ghost" asChild>
-          <Link href="/dashboard">
+        <Button variant="ghost" onClick={() => router.back()}>
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Dashboard
-          </Link>
         </Button>
       </div>
     );
@@ -231,11 +229,9 @@ export default function PropertyDetailPage() {
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-6 md:py-10 max-w-7xl">
         {/* Back Button */}
-        <Button variant="ghost" size="sm" className="mb-6 -ml-2" asChild>
-          <Link href="/dashboard">
+               <Button variant="ghost" onClick={() => router.back()}>
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Dashboard
-          </Link>
         </Button>
 
         <div className="grid lg:grid-cols-2 gap-8">
@@ -541,7 +537,7 @@ export default function PropertyDetailPage() {
                       <div className="space-y-4 mt-2">
                         <div className="space-y-1.5">
                           <Label>
-                            Recipient&apos;s FindMasters Email *
+                            Recipient&apos;s FindMaster Email *
                           </Label>
                           <Input
                             placeholder="buyer@email.com"

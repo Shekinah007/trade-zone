@@ -8,8 +8,8 @@ import Footer from "@/components/Footer";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "FindMasters — Secure Your Property & Trade Safely",
-  description: "Register, track and verify ownership of devices, vehicles and gadgets. Buy and sell securely on FindMasters — Nigeria's #1 property security marketplace.",
+  title: "FindMaster — Secure Your Property & Trade Safely",
+  description: "Register, track and verify ownership of devices, vehicles and gadgets. Buy and sell securely on FindMaster — Nigeria's #1 property security marketplace.",
 };
 
 export default function RootLayout({

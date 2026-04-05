@@ -36,7 +36,7 @@ const values = [
     icon: Users,
     color: "bg-indigo-500/10 text-indigo-500",
     title: "Community First",
-    desc: "FindMasters is built for real people — buyers, sellers, and victims of theft who want a safer planet to live and trade.",
+    desc: "FindMaster is built for real people — buyers, sellers, and victims of theft who want a safer planet to live and trade.",
   },
   {
     icon: Globe,
@@ -48,7 +48,7 @@ const values = [
     icon: AlertTriangle,
     color: "bg-red-500/10 text-red-500",
     title: "Crime Reduction",
-    desc: "Thieves can't easily sell registered items. Every property registered on FindMasters makes Nigeria safer for everyone.",
+    desc: "Thieves can't easily sell registered items. Every property registered on FindMaster makes Nigeria safer for everyone.",
   },
   {
     icon: Star,
@@ -87,7 +87,7 @@ export default function AboutPage() {
             in Nigeria
           </h1>
           <p className="text-muted-foreground text-lg leading-relaxed max-w-2xl mx-auto">
-            FindMasters was founded with a dual mission: to make buying and
+            FindMaster was founded with a dual mission: to make buying and
             selling goods safe, simple, and accessible — and to give every
             Nigerian a way to register, protect, and verify ownership of their
             property.
@@ -121,7 +121,7 @@ export default function AboutPage() {
             </h2>
             <p className="text-muted-foreground leading-relaxed mb-4">
               Too many Nigerians have been burned by stolen phones, cars, and
-              gadgets sold without disclosure. We built FindMasters because we
+              gadgets sold without disclosure. We built FindMaster because we
               believe ownership verification should be free, simple, and
               available to every Nigerian.
             </p>
@@ -197,7 +197,7 @@ export default function AboutPage() {
       <section className="py-16 container mx-auto px-4 max-w-5xl">
         <div className="text-center mb-12">
           <p className="text-xs font-semibold text-primary uppercase tracking-widest mb-3">
-            The People Behind FindMasters
+            The People Behind FindMaster
           </p>
           <h2 className="text-3xl font-bold tracking-tight">Meet the Team</h2>
         </div>
@@ -230,7 +230,7 @@ export default function AboutPage() {
           </h2>
           <p className="text-muted-foreground mb-8">
             Join thousands of buyers, sellers, and property owners already on
-            FindMasters. It&apos;s free to sign up.
+            FindMaster. It&apos;s free to sign up.
           </p>
           <div className="flex flex-wrap justify-center gap-3">
             <Link

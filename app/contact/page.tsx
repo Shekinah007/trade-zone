@@ -42,7 +42,7 @@ const schema = z.object({
 
 const faqs = [
   {
-    q: "How do I register a property on FindMasters?",
+    q: "How do I register a property on FindMaster?",
     a: "Sign in to your account, go to the Registry section and click 'Register a Property'. Fill in the item details, serial/IMEI/chassis number, and submit. Your property will be registered immediately under your account.",
   },
   {
@@ -59,7 +59,7 @@ const faqs = [
   },
   {
     q: "How do I transfer ownership after selling a registered item?",
-    a: "Go to your Dashboard → My Properties, open the item, and click 'Transfer Ownership'. Enter the buyer's FindMasters email along with optional sale details (date, price, location). The ownership record will be updated immediately.",
+    a: "Go to your Dashboard → My Properties, open the item, and click 'Transfer Ownership'. Enter the buyer's FindMaster email along with optional sale details (date, price, location). The ownership record will be updated immediately.",
   },
   {
     q: "How do I report a suspicious listing?",
@@ -67,7 +67,7 @@ const faqs = [
   },
   {
     q: "Is my personal information safe?",
-    a: "Yes. We do not sell your data to third parties. Owner details are only shared with registered FindMasters members. Read our Privacy Policy for full details.",
+    a: "Yes. We do not sell your data to third parties. Owner details are only shared with registered FindMaster members. Read our Privacy Policy for full details.",
   },
 ];
 
@@ -100,7 +100,7 @@ export default function ContactPage() {
             Contact Us
           </h1>
           <p className="text-muted-foreground">
-            Have a question, concern, or feedback? Reach out to the FindMasters
+            Have a question, concern, or feedback? Reach out to the FindMaster
             team and we&apos;ll respond as soon as possible.
           </p>
         </div>

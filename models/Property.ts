@@ -92,10 +92,10 @@ const PropertySchema = new Schema<IProperty>(
 );
 
 // Index for fast lookup by identifiers
-PropertySchema.index({ serialNumber: 1 });
-PropertySchema.index({ imei: 1 });
-PropertySchema.index({ chassisNumber: 1 });
-PropertySchema.index({ owner: 1 });
+// PropertySchema.index({ serialNumber: 1 });
+// PropertySchema.index({ imei: 1 });
+// PropertySchema.index({ chassisNumber: 1 });
+// PropertySchema.index({ owner: 1 });
 
 const Property: Model<IProperty> =
   mongoose.models?.Property ||

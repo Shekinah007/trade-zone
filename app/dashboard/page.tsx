@@ -42,7 +42,30 @@ export default async function DashboardPage() {
 
 
   return (
-    <div className="container mx-auto py-10 px-4">
+    <div className="container mx-auto py-10 px-4 min-h-screen">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+  <Card className="p-4">
+    <p className="text-xs text-muted-foreground">Active Listings</p>
+    <h2 className="text-2xl font-bold">{activeListings.length}</h2>
+  </Card>
+
+  <Card className="p-4">
+    <p className="text-xs text-muted-foreground">Sold</p>
+    <h2 className="text-2xl font-bold">{soldListings.length}</h2>
+  </Card>
+
+  <Card className="p-4">
+    <p className="text-xs text-muted-foreground">Registered Items</p>
+    <h2 className="text-2xl font-bold">{properties.length}</h2>
+  </Card>
+
+  <Card className="p-4 border-red-500/30">
+    <p className="text-xs text-muted-foreground">Missing</p>
+    <h2 className="text-2xl font-bold text-red-600">
+      {properties.filter((p: any) => p.status === "missing").length}
+    </h2>
+  </Card>
+</div>
       <div className="grid grid-cols-1 md:grid-cols-[250px_1fr] gap-8">
         
         {/* Sidebar / User Info */}
@@ -70,6 +93,31 @@ export default async function DashboardPage() {
              </CardContent>
           </Card>
         </div>
+
+        {/* <Card className="sticky top-6 overflow-hidden h-[250px]">
+  <div className="h-20 bg-gradient-to-r from-primary to-blue-600" />
+
+  <CardContent className="text-center -mt-10">
+    <Avatar className="h-20 w-20 mx-auto border-4 border-background">
+      <AvatarImage src={session.user.image || ""} />
+      <AvatarFallback>
+        {session.user.name?.charAt(0)}
+      </AvatarFallback>
+    </Avatar>
+
+    <h2 className="mt-3 font-semibold">{session.user.name}</h2>
+    <p className="text-xs text-muted-foreground">{session.user.email}</p>
+
+    <div className="mt-4 space-y-2">
+      <Button variant="outline" className="w-full" asChild>
+        <Link href="/settings">
+          <Settings className="mr-2 h-4 w-4" />
+          Settings
+        </Link>
+      </Button>
+    </div>
+  </CardContent>
+</Card> */}
 
         {/* Main Content */}
         <div className="space-y-6">
@@ -172,24 +220,69 @@ export default async function DashboardPage() {
                          transferred: "bg-purple-500/10 text-purple-600 border-purple-500/20",
                        };
                        return (
-                         <Link key={p._id} href={`/registry/${p._id}`}>
-                           <Card className="hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 border hover:border-primary/30 cursor-pointer">
-                             <CardContent className="pt-5 pb-4 space-y-2">
-                               <div className="flex items-center justify-between">
-                                 <p className="font-semibold capitalize text-sm">{p.brand} {p.model}</p>
-                                 <Badge variant="outline" className={`text-xs ${statusColors[p.status] || ""} border`}>
-                                   {p.status}
-                                 </Badge>
-                               </div>
-                               <p className="text-xs text-muted-foreground capitalize">{p.itemType}</p>
-                               {(p.imei || p.serialNumber || p.chassisNumber) && (
-                                 <p className="text-xs font-mono text-muted-foreground truncate">
-                                   {p.imei || p.serialNumber || p.chassisNumber}
-                                 </p>
-                               )}
-                             </CardContent>
-                           </Card>
-                         </Link>
+                       <Link key={p._id} href={`/registry/${p._id}`}>
+  <Card className="group overflow-hidden rounded-2xl border bg-card hover:shadow-lg hover:-translate-y-1 transition-all duration-300 cursor-pointer">
+    
+    {/* Image */}
+    <div className="relative h-40 w-full bg-muted">
+      {p.images?.[0] ? (
+        <img
+          src={p.images[0]}
+          alt={`${p.brand} ${p.model}`}
+          className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300"
+        />
+      ) : (
+        <div className="flex items-center justify-center h-full text-muted-foreground text-xs">
+          No Image
+        </div>
+      )}
+
+      {/* Status badge overlay */}
+      <div className="absolute top-2 right-2">
+        <Badge
+          className={`text-[10px] px-2 py-0.5 border ${
+            statusColors[p.status] || ""
+          }`}
+        >
+          {p.status.toUpperCase()}
+        </Badge>
+      </div>
+    </div>
+
+    <CardContent className="p-4 space-y-3">
+      
+      {/* Title */}
+      <div className="space-y-1">
+        <h3 className="font-semibold text-sm leading-tight capitalize">
+          {p.brand} {p.model}
+        </h3>
+        <p className="text-xs text-muted-foreground capitalize">
+          {p.itemType}
+        </p>
+      </div>
+
+      {/* Meta info */}
+      <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted-foreground">
+        {p.color && <span>🎨 {p.color}</span>}
+        {p.yearOfPurchase && <span>📅 {p.yearOfPurchase}</span>}
+      </div>
+
+      {/* Identifier */}
+      {(p.imei || p.serialNumber || p.chassisNumber) && (
+        <div className="text-xs font-mono bg-muted/40 px-2 py-1 rounded-md truncate">
+          {p.imei || p.serialNumber || p.chassisNumber}
+        </div>
+      )}
+
+      {/* Alert for missing */}
+      {p.status === "missing" && (
+        <div className="text-[11px] font-semibold text-red-600 bg-red-500/10 border border-red-500/20 px-2 py-1 rounded-md">
+          ⚠ DO NOT PURCHASE
+        </div>
+      )}
+    </CardContent>
+  </Card>
+</Link>
                        );
                      })}
                    </div>

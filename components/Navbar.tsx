@@ -81,7 +81,7 @@ export default function Navbar() {
             <Shield className="h-6 w-6 text-primary" />
           </div>
           <span className="text-xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-primary to-blue-600">
-            FindMasters
+            FindMaster
           </span>
         </Link>
 

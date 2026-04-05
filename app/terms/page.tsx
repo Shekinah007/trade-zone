@@ -3,11 +3,11 @@ import Link from "next/link";
 const sections = [
   {
     title: "1. Acceptance of Terms",
-    content: `By accessing or using FindMasters, you agree to be bound by these Terms and Conditions. If you do not agree with any part of these terms, you may not use our platform. These terms apply to all users, including buyers, sellers, property owners, and visitors.`,
+    content: `By accessing or using FindMaster, you agree to be bound by these Terms and Conditions. If you do not agree with any part of these terms, you may not use our platform. These terms apply to all users, including buyers, sellers, property owners, and visitors.`,
   },
   {
     title: "2. Eligibility",
-    content: `You must be at least 18 years of age to use FindMasters. By using this platform, you confirm that you meet this requirement and have the legal capacity to enter into binding agreements under Nigerian law.`,
+    content: `You must be at least 18 years of age to use FindMaster. By using this platform, you confirm that you meet this requirement and have the legal capacity to enter into binding agreements under Nigerian law.`,
   },
   {
     title: "3. Account Registration & Approval",
@@ -19,23 +19,23 @@ const sections = [
   },
   {
     title: "5. Property Registry — Prohibited Conduct",
-    content: `You must NOT purchase, possess, or facilitate the sale of any item marked as "Missing" or "Stolen" in the FindMasters registry. If you encounter a seller offering an item that is flagged in the registry, you are obligated to report this to the police and to FindMasters immediately. Any missing item traced to you as a buyer or intermediary will be subject to law enforcement action as permissible under Nigerian law.`,
+    content: `You must NOT purchase, possess, or facilitate the sale of any item marked as "Missing" or "Stolen" in the FindMaster registry. If you encounter a seller offering an item that is flagged in the registry, you are obligated to report this to the police and to FindMaster immediately. Any missing item traced to you as a buyer or intermediary will be subject to law enforcement action as permissible under Nigerian law.`,
   },
   {
     title: "6. Ownership Transfers",
-    content: `When selling a registered property, the current owner must initiate an ownership transfer through the FindMasters platform prior to or at the time of sale. Failure to transfer ownership may result in the new owner being unable to prove legitimate ownership. FindMasters maintains a full, immutable record of all ownership transfers including date, price, and location.`,
+    content: `When selling a registered property, the current owner must initiate an ownership transfer through the FindMaster platform prior to or at the time of sale. Failure to transfer ownership may result in the new owner being unable to prove legitimate ownership. FindMaster maintains a full, immutable record of all ownership transfers including date, price, and location.`,
   },
   {
     title: "7. Listings & Marketplace Content",
-    content: `Sellers are solely responsible for the accuracy, legality, and quality of their listings. You agree not to post listings for prohibited items including but not limited to: stolen goods, counterfeit products, weapons, drugs, or any item whose sale is prohibited under Nigerian law. FindMasters reserves the right to remove any listing at its sole discretion.`,
+    content: `Sellers are solely responsible for the accuracy, legality, and quality of their listings. You agree not to post listings for prohibited items including but not limited to: stolen goods, counterfeit products, weapons, drugs, or any item whose sale is prohibited under Nigerian law. FindMaster reserves the right to remove any listing at its sole discretion.`,
   },
   {
     title: "8. Transactions",
-    content: `FindMasters facilitates communication between buyers and sellers but is not a party to any transaction. We do not guarantee the quality, safety, legality, or availability of listed items. All transactions are conducted at your own risk. We strongly recommend verifying any item in the FindMasters registry and following our Safety Tips before completing any purchase.`,
+    content: `FindMaster facilitates communication between buyers and sellers but is not a party to any transaction. We do not guarantee the quality, safety, legality, or availability of listed items. All transactions are conducted at your own risk. We strongly recommend verifying any item in the FindMaster registry and following our Safety Tips before completing any purchase.`,
   },
   {
     title: "9. Reporting & Police Cooperation",
-    content: `FindMasters is committed to cooperating fully with Nigerian law enforcement on matters related to stolen property, fraud, or illegal transactions. We may share user information with law enforcement where legally required. Users are encouraged to report suspicious activity both to FindMasters and to the Nigerian Police Force.`,
+    content: `FindMaster is committed to cooperating fully with Nigerian law enforcement on matters related to stolen property, fraud, or illegal transactions. We may share user information with law enforcement where legally required. Users are encouraged to report suspicious activity both to FindMaster and to the Nigerian Police Force.`,
   },
   {
     title: "10. Prohibited Conduct",
@@ -43,11 +43,11 @@ const sections = [
   },
   {
     title: "11. Intellectual Property",
-    content: `All content on FindMasters including logos, design, and code is the property of FindMasters and is protected by applicable intellectual property laws. You may not reproduce, distribute, or create derivative works without our express written permission.`,
+    content: `All content on FindMaster including logos, design, and code is the property of FindMaster and is protected by applicable intellectual property laws. You may not reproduce, distribute, or create derivative works without our express written permission.`,
   },
   {
     title: "12. Limitation of Liability",
-    content: `FindMasters shall not be liable for any indirect, incidental, special, or consequential damages arising from your use of the platform, including losses resulting from transactions between users or theft of unregistered property. Our total liability to you for any claim shall not exceed the fees you have paid to FindMasters in the 12 months preceding the claim.`,
+    content: `FindMaster shall not be liable for any indirect, incidental, special, or consequential damages arising from your use of the platform, including losses resulting from transactions between users or theft of unregistered property. Our total liability to you for any claim shall not exceed the fees you have paid to FindMaster in the 12 months preceding the claim.`,
   },
   {
     title: "13. Termination",
@@ -55,11 +55,11 @@ const sections = [
   },
   {
     title: "14. Governing Law",
-    content: `These Terms and Conditions are governed by the laws of the Federal Republic of Nigeria. Any disputes arising from the use of FindMasters shall be subject to the exclusive jurisdiction of the courts of Nigeria.`,
+    content: `These Terms and Conditions are governed by the laws of the Federal Republic of Nigeria. Any disputes arising from the use of FindMaster shall be subject to the exclusive jurisdiction of the courts of Nigeria.`,
   },
   {
     title: "15. Changes to Terms",
-    content: `FindMasters reserves the right to update these terms at any time. Continued use of the platform after changes are posted constitutes your acceptance of the revised terms. We encourage you to review this page periodically.`,
+    content: `FindMaster reserves the right to update these terms at any time. Continued use of the platform after changes are posted constitutes your acceptance of the revised terms. We encourage you to review this page periodically.`,
   },
 ];
 
@@ -76,7 +76,7 @@ export default function TermsPage() {
             {new Date().toLocaleDateString("en-NG", { dateStyle: "long" })}
           </p>
           <p className="text-muted-foreground mt-3 max-w-xl mx-auto">
-            Please read these terms carefully before using FindMasters. By using
+            Please read these terms carefully before using FindMaster. By using
             our platform, you agree to these terms in full.
           </p>
         </div>
@@ -102,7 +102,7 @@ export default function TermsPage() {
           <ul className="list-disc pl-5 space-y-1 text-muted-foreground">
             <li>
               You must <strong>not</strong> buy any item marked as missing in
-              the FindMasters registry — this could be a result of theft.
+              the FindMaster registry — this could be a result of theft.
             </li>
             <li>
               You must report to the police any suspicious transaction involving

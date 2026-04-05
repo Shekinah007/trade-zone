@@ -4,7 +4,7 @@ import { Shield, Mail, Phone, MapPin } from "lucide-react";
 const offices = [
   {
     name: "Head Office",
-    address: "FindMasters House, Lekki, Lagos State, Nigeria",
+    address: "FindMaster House, Lekki, Lagos State, Nigeria",
     phone: "+234 902 491 3958",
   },
   {
@@ -29,7 +29,7 @@ export default function Footer() {
             <Link href="/" className="flex items-center space-x-2">
               <Shield className="h-6 w-6 text-primary" />
               <span className="text-xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-primary to-blue-600">
-                FindMasters
+                FindMaster
               </span>
             </Link>
             <p className="text-sm text-muted-foreground max-w-xs leading-relaxed">
@@ -171,7 +171,7 @@ export default function Footer() {
 
         <div className="mt-8 border-t pt-6 flex flex-col md:flex-row justify-between items-center gap-2 text-sm text-muted-foreground">
           <p>
-            &copy; {new Date().getFullYear()} FindMasters. All rights reserved.
+            &copy; {new Date().getFullYear()} FindMaster. All rights reserved.
           </p>
           <p className="text-xs">
             Securing property. Empowering trust.{" "}

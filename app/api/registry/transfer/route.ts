@@ -44,7 +44,7 @@ export async function POST(req: NextRequest) {
   const newOwner = await User.findOne({ email: toEmail });
   if (!newOwner) {
     return NextResponse.json(
-      { error: 'No FindMasters account found with that email address.' },
+      { error: 'No FindMaster account found with that email address.' },
       { status: 404 }
     );
   }

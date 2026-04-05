@@ -96,7 +96,7 @@ export default function RegisterPropertyPage() {
         </div>
         <h1 className="text-2xl font-bold">Sign In Required</h1>
         <p className="text-muted-foreground max-w-sm">
-          You need to be signed in to register a property on FindMasters.
+          You need to be signed in to register a property on FindMaster.
         </p>
         <Button asChild className="rounded-full">
           <Link href="/auth/signin?callbackUrl=/registry/register">
@@ -168,7 +168,7 @@ export default function RegisterPropertyPage() {
             Register a Property
           </h1>
           <p className="text-muted-foreground">
-            Add your item to the FindMasters registry. This creates a permanent
+            Add your item to the FindMaster registry. This creates a permanent
             record of ownership under your account.
           </p>
         </div>

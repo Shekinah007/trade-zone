@@ -125,7 +125,7 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* How FindMasters Works */}
+      {/* How FindMaster Works */}
       <section className="py-20 border-y bg-muted/20">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
@@ -136,7 +136,7 @@ export default async function Home() {
               Two Platforms. One Mission.
             </h2>
             <p className="text-muted-foreground mt-3 max-w-xl mx-auto">
-              FindMasters combines a thriving marketplace with a powerful
+              FindMaster combines a thriving marketplace with a powerful
               property security registry to protect buyers and sellers alike.
             </p>
           </div>

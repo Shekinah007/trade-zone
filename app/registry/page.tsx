@@ -20,7 +20,7 @@ const steps = [
     icon: ClipboardList,
     step: "01",
     title: "Sign Up & Set Up Profile",
-    desc: "Create your FindMasters account and set up your profile with your personal details.",
+    desc: "Create your FindMaster account and set up your profile with your personal details.",
   },
   {
     icon: Shield,
@@ -89,9 +89,9 @@ const features = [
 ];
 
 export const metadata = {
-  title: "Property Registry — FindMasters",
+  title: "Property Registry — FindMaster",
   description:
-    "Register and secure your devices, vehicles, and gadgets. Search the FindMasters registry to verify ownership before you buy.",
+    "Register and secure your devices, vehicles, and gadgets. Search the FindMaster registry to verify ownership before you buy.",
 };
 
 export default function RegistryPage() {
@@ -259,7 +259,7 @@ export default function RegistryPage() {
             Register Your Properties Today
           </h2>
           <p className="text-primary-foreground/80 mb-8 text-lg">
-            Join thousands of Nigerians protecting their assets on FindMasters.
+            Join thousands of Nigerians protecting their assets on FindMaster.
             It takes less than 2 minutes.
           </p>
           <div className="flex flex-wrap justify-center gap-3">
@@ -276,7 +276,7 @@ export default function RegistryPage() {
               asChild
               size="lg"
               variant="outline"
-              className="rounded-full px-8 border-white/30 text-white hover:bg-white/10"
+              className="rounded-full px-8 border-white/30 text-black hover:text-white hover:bg-white/10"
             >
               <Link href="/registry/search">Search Registry</Link>
             </Button>
