@@ -7,7 +7,7 @@ const sections = [
   },
   {
     title: "2. How We Use Your Information",
-    content: `We use your information to: operate and improve the TradeZone platform; process and display your listings; facilitate communication between buyers and sellers; send account-related notifications and updates; detect and prevent fraud or abuse; and comply with applicable Nigerian laws and regulations.`,
+    content: `We use your information to: operate and improve the FindMaster platform; process and display your listings; facilitate communication between buyers and sellers; send account-related notifications and updates; detect and prevent fraud or abuse; and comply with applicable Nigerian laws and regulations.`,
   },
   {
     title: "3. Sharing Your Information",
@@ -19,7 +19,7 @@ const sections = [
   },
   {
     title: "5. Cookies",
-    content: `TradeZone uses cookies and similar technologies to maintain your session, remember preferences, and analyze platform usage. You can control cookie settings through your browser, although disabling cookies may affect some platform functionality.`,
+    content: `FindMaster uses cookies and similar technologies to maintain your session, remember preferences, and analyze platform usage. You can control cookie settings through your browser, although disabling cookies may affect some platform functionality.`,
   },
   {
     title: "6. Data Security",
@@ -27,7 +27,7 @@ const sections = [
   },
   {
     title: "7. Your Rights",
-    content: `Under applicable Nigerian data protection regulations (NDPR), you have the right to: access the personal data we hold about you; request correction of inaccurate data; request deletion of your data; object to certain processing activities; and withdraw consent where processing is based on consent. To exercise these rights, contact us at privacy@tradezone.ng.`,
+    content: `Under applicable Nigerian data protection regulations (NDPR), you have the right to: access the personal data we hold about you; request correction of inaccurate data; request deletion of your data; object to certain processing activities; and withdraw consent where processing is based on consent. To exercise these rights, contact us at privacy@findmaster.org.`,
   },
   {
     title: "8. Third-Party Links",
@@ -35,11 +35,11 @@ const sections = [
   },
   {
     title: "9. Children's Privacy",
-    content: `TradeZone is not intended for use by persons under the age of 18. We do not knowingly collect personal information from minors. If we become aware that a minor has provided us with personal data, we will delete it promptly.`,
+    content: `FindMaster is not intended for use by persons under the age of 18. We do not knowingly collect personal information from minors. If we become aware that a minor has provided us with personal data, we will delete it promptly.`,
   },
   {
     title: "10. Changes to This Policy",
-    content: `We may update this Privacy Policy from time to time. We will notify you of significant changes by posting a notice on the platform. Your continued use of TradeZone after changes are posted constitutes your acceptance of the revised policy.`,
+    content: `We may update this Privacy Policy from time to time. We will notify you of significant changes by posting a notice on the platform. Your continued use of FindMaster after changes are posted constitutes your acceptance of the revised policy.`,
   },
 ];
 
@@ -56,7 +56,7 @@ export default function PrivacyPage() {
             {new Date().toLocaleDateString("en-NG", { dateStyle: "long" })}
           </p>
           <p className="text-muted-foreground mt-3 max-w-xl mx-auto">
-            Your privacy matters to us. This policy explains how TradeZone
+            Your privacy matters to us. This policy explains how FindMaster
             collects, uses, and protects your personal information.
           </p>
         </div>
@@ -77,10 +77,10 @@ export default function PrivacyPage() {
         <div className="mt-12 p-5 rounded-2xl bg-muted/40 border text-sm text-muted-foreground">
           For privacy-related inquiries, email us at{" "}
           <a
-            href="mailto:privacy@tradezone.ng"
+            href="mailto:privacy@findmaster.org"
             className="text-primary hover:underline font-medium"
           >
-            privacy@tradezone.ng
+            privacy@findmaster.org
           </a>{" "}
           or visit our{" "}
           <Link

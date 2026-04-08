@@ -159,7 +159,8 @@ export default function SignUpPage() {
         {/* Quote */}
         <div className="relative z-10">
           <p className="text-sm text-primary-foreground/60">
-            "Join thousands of buyers and sellers already trading on TradeZone."
+            "Join thousands of buyers and sellers already trading on
+            FindMaster."
           </p>
         </div>
       </div>

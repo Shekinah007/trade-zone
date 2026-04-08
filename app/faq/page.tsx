@@ -21,7 +21,7 @@ const categories = [
     color: "bg-blue-500/10 text-blue-500",
     faqs: [
       {
-        q: "How do I create an account on TradeZone?",
+        q: "How do I create an account on FindMaster?",
         a: "Click 'Sign Up' on the homepage, fill in your name, email, and password, then submit. Your account will be reviewed by our team within 24–48 hours before you can post listings.",
       },
       {
@@ -42,7 +42,7 @@ const categories = [
       },
       {
         q: "Can I have multiple accounts?",
-        a: "No. Each person is allowed one account on TradeZone. Creating multiple accounts to circumvent bans or suspensions is a violation of our Terms and Conditions.",
+        a: "No. Each person is allowed one account on FindMaster. Creating multiple accounts to circumvent bans or suspensions is a violation of our Terms and Conditions.",
       },
     ],
   },
@@ -68,7 +68,7 @@ const categories = [
         a: "On your listing page, click 'Mark as Sold'. This removes the listing from active search results and records the sale. This action cannot be undone.",
       },
       {
-        q: "What items are not allowed on TradeZone?",
+        q: "What items are not allowed on FindMaster?",
         a: "Prohibited items include stolen goods, counterfeit products, weapons, drugs, adult content, and any item whose sale is illegal under Nigerian law. Violations result in immediate listing removal and possible account suspension.",
       },
       {
@@ -87,8 +87,8 @@ const categories = [
         a: "On any listing page, click 'Contact Seller' to send an in-app message, open a WhatsApp chat, or call directly if the seller has added a phone number.",
       },
       {
-        q: "Does TradeZone handle payments?",
-        a: "TradeZone currently facilitates buyer-seller contact but does not process payments directly. Transactions are conducted between buyers and sellers. Always follow our Safety Tips when exchanging money.",
+        q: "Does FindMaster handle payments?",
+        a: "FindMaster currently facilitates buyer-seller contact but does not process payments directly. Transactions are conducted between buyers and sellers. Always follow our Safety Tips when exchanging money.",
       },
       {
         q: "What should I do if a seller is unresponsive?",
@@ -110,7 +110,7 @@ const categories = [
     color: "bg-yellow-500/10 text-yellow-500",
     faqs: [
       {
-        q: "How does TradeZone keep the platform safe?",
+        q: "How does FindMaster keep the platform safe?",
         a: "We verify sellers through our account approval process, allow users to report suspicious listings, and have a moderation team that reviews reports and takes action on violations.",
       },
       {
@@ -119,10 +119,10 @@ const categories = [
       },
       {
         q: "What should I do if I've been scammed?",
-        a: "Contact TradeZone support immediately with full details of the transaction. You should also report the incident to the Nigerian Police Force or the EFCC. Do not attempt to resolve the issue directly with the scammer.",
+        a: "Contact FindMaster support immediately with full details of the transaction. You should also report the incident to the Nigerian Police Force or the EFCC. Do not attempt to resolve the issue directly with the scammer.",
       },
       {
-        q: "Are sellers verified on TradeZone?",
+        q: "Are sellers verified on FindMaster?",
         a: "All sellers go through an admin approval process before they can post listings. Sellers with a verified business profile have an additional layer of credibility. Always check a seller's reviews and ratings.",
       },
     ],
@@ -181,7 +181,7 @@ export default function FAQPage() {
             Frequently Asked Questions
           </h1>
           <p className="text-muted-foreground mb-8">
-            Find answers to common questions about TradeZone.
+            Find answers to common questions about FindMaster.
           </p>
 
           {/* Search */}

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import LocationDisplay from "./LocationDisplay";
 
 export function RegistrySearchBar() {
   const [query, setQuery] = useState("");
@@ -19,6 +20,7 @@ export function RegistrySearchBar() {
 
   return (
     <form onSubmit={handleSearch} className="flex gap-2 w-full">
+      <LocationDisplay />
       <div className="relative flex-1">
         <Search className="absolute left-4 top-3 h-5 w-5 text-muted-foreground" />
         <Input

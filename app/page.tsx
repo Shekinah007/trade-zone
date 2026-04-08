@@ -59,7 +59,7 @@ export default async function Home() {
             Africa&apos;s #1 Property Security Marketplace
           </div>
 
-          <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight mb-5 leading-tight animate-in fade-in slide-in-from-bottom-6 duration-700 delay-100">
+          <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight mb-5 leading-tight animate-in fade-in slide-in-from-bottom-6 duration-700 delay-100">
             Secure. Verify.{" "}
             <br className="hidden md:block" />
             <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary via-blue-500 to-cyan-500">
@@ -67,9 +67,9 @@ export default async function Home() {
             </span>
           </h1>
 
-          <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-2xl mx-auto animate-in fade-in slide-in-from-bottom-6 duration-700 delay-200">
+          <p className="text-lg md:text-xl font-semibold text-muted-foreground mb-8 max-w-2xl mx-auto animate-in fade-in slide-in-from-bottom-6 duration-700 delay-200">
             Register your devices and vehicles in Africa&apos;s most trusted property
-            registry — and buy or sell with full confidence on our marketplace.
+            registry, and buy or sell with full confidence on our marketplace.
           </p>
 
           {/* Dual Search Cards */}

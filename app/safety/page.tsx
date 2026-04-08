@@ -62,7 +62,7 @@ const tips = [
     title: "Communicate Safely",
     color: "bg-orange-500/10 text-orange-500",
     points: [
-      //   "Use TradeZone's in-app chat to communicate — this keeps a record of all conversations.",
+      //   "Use FindMaster's in-app chat to communicate — this keeps a record of all conversations.",
       //   "Be cautious of buyers or sellers who insist on communicating only outside the platform.",
       "Do not share personal information such as your home address or ID number with strangers.",
       "Trust your instincts — if something feels off, disengage from the conversation.",
@@ -98,7 +98,7 @@ const tips = [
       "If you encounter a suspicious listing, use the 'Report' button on the listing page.",
       "Report any user who attempts to scam, threaten, or harass you.",
       "Contact our support team immediately if you believe you've been defrauded.",
-      "Your reports help keep the TradeZone community safe for everyone.",
+      "Your reports help keep the FindMaster community safe for everyone.",
     ],
   },
 ];
@@ -117,7 +117,7 @@ export default function SafetyPage() {
             Safety Tips
           </h1>
           <p className="text-primary-foreground/80 max-w-xl mx-auto">
-            TradeZone connects buyers and sellers, but your safety during
+            FindMaster connects buyers and sellers, but your safety during
             transactions is paramount. Follow these guidelines to protect
             yourself and trade with confidence.
           </p>

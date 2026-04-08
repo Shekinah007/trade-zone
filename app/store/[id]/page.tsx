@@ -286,7 +286,7 @@ export default async function StorePage({
   const displayName = business?.name || user.name;
   const displayImage = business?.image || user.image;
   const description =
-    business?.description || `Welcome to ${user.name}'s store on TradeZone.`;
+    business?.description || `Welcome to ${user.name}'s store on FindMaster.`;
 
   // Review stats
   const avgRating = reviews.length

@@ -7,24 +7,24 @@ const sections = [
     content: `Cookies are small text files that are stored on your device (computer, tablet, or mobile phone) when you visit a website. They allow the website to recognise your device and remember certain information about your visit, such as your preferences and login status. Cookies are widely used to make websites work efficiently and to provide reporting information.`,
   },
   {
-    title: "2. How TradeZone Uses Cookies",
-    content: `TradeZone uses cookies to provide a better experience on our platform. Specifically, we use cookies to: keep you signed in between sessions; remember your search preferences and filters; track which listings you have recently viewed; measure how users interact with our platform so we can improve it; and detect and prevent fraudulent activity.`,
+    title: "2. How FindMaster Uses Cookies",
+    content: `FindMaster uses cookies to provide a better experience on our platform. Specifically, we use cookies to: keep you signed in between sessions; remember your search preferences and filters; track which listings you have recently viewed; measure how users interact with our platform so we can improve it; and detect and prevent fraudulent activity.`,
   },
   {
     title: "3. Types of Cookies We Use",
-    content: `We use the following categories of cookies on TradeZone:
+    content: `We use the following categories of cookies on FindMaster:
 
 - Strictly Necessary Cookies: These are essential for the platform to function. They include session cookies that keep you logged in and security cookies that protect against fraud. You cannot opt out of these cookies.
 
 - Functional Cookies: These remember your preferences such as your location, language, and saved filters to provide a more personalised experience.
 
-- Analytics Cookies: These help us understand how visitors use TradeZone, which pages are most popular, and where users drop off. We use this data to improve our platform. The information collected is aggregated and anonymous.
+- Analytics Cookies: These help us understand how visitors use FindMaster, which pages are most popular, and where users drop off. We use this data to improve our platform. The information collected is aggregated and anonymous.
 
 - Preference Cookies: These remember choices you make (such as your preferred theme or saved searches) so you don't have to re-enter them each time you visit.`,
   },
   {
     title: "4. Third-Party Cookies",
-    content: `Some cookies on TradeZone are set by third-party services that appear on our pages. For example, we may use authentication cookies from Google or Facebook when you sign in via those providers. These third parties have their own privacy policies and cookie practices. We do not control third-party cookies and recommend reviewing the respective privacy policies of those providers.`,
+    content: `Some cookies on FindMaster are set by third-party services that appear on our pages. For example, we may use authentication cookies from Google or Facebook when you sign in via those providers. These third parties have their own privacy policies and cookie practices. We do not control third-party cookies and recommend reviewing the respective privacy policies of those providers.`,
   },
   {
     title: "5. Cookie Duration",
@@ -32,11 +32,11 @@ const sections = [
   },
   {
     title: "6. Managing & Disabling Cookies",
-    content: `You can control and manage cookies in several ways. Most browsers allow you to view, block, and delete cookies through your browser settings. Please note that if you disable strictly necessary cookies, some features of TradeZone, including staying logged in, may not work correctly. To manage cookies in your browser, refer to the help section of your browser (e.g., Chrome, Firefox, Safari, Edge).`,
+    content: `You can control and manage cookies in several ways. Most browsers allow you to view, block, and delete cookies through your browser settings. Please note that if you disable strictly necessary cookies, some features of FindMaster, including staying logged in, may not work correctly. To manage cookies in your browser, refer to the help section of your browser (e.g., Chrome, Firefox, Safari, Edge).`,
   },
   {
     title: "7. Cookies and Your Consent",
-    content: `By continuing to use TradeZone, you consent to our use of cookies as described in this policy. If you do not wish to accept cookies, you can adjust your browser settings to refuse them or stop using the platform. We may display a cookie consent notice when you first visit TradeZone, and you may update your preferences at any time.`,
+    content: `By continuing to use FindMaster, you consent to our use of cookies as described in this policy. If you do not wish to accept cookies, you can adjust your browser settings to refuse them or stop using the platform. We may display a cookie consent notice when you first visit FindMaster, and you may update your preferences at any time.`,
   },
   {
     title: "8. Cookies and Nigerian Law",
@@ -48,7 +48,7 @@ const sections = [
   },
   {
     title: "10. Contact Us",
-    content: `If you have any questions about our use of cookies, please contact us at privacy@tradezone.ng or visit our Contact page. We aim to respond to all privacy-related enquiries within 5 business days.`,
+    content: `If you have any questions about our use of cookies, please contact us at privacy@findmaster.org or visit our Contact page. We aim to respond to all privacy-related enquiries within 5 business days.`,
   },
 ];
 
@@ -70,7 +70,7 @@ export default function CookiePolicyPage() {
             {new Date().toLocaleDateString("en-NG", { dateStyle: "long" })}
           </p>
           <p className="text-muted-foreground mt-3 max-w-xl mx-auto">
-            This policy explains what cookies are, how TradeZone uses them, and
+            This policy explains what cookies are, how FindMaster uses them, and
             the choices you have regarding their use.
           </p>
         </div>
@@ -89,7 +89,7 @@ export default function CookiePolicyPage() {
             {
               emoji: "📊",
               title: "Analytics",
-              desc: "Help us understand how TradeZone is used",
+              desc: "Help us understand how FindMaster is used",
             },
             {
               emoji: "⚙️",
