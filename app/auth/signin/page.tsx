@@ -99,7 +99,7 @@ export default function SignInPage() {
         {/* Logo */}
         <div className="relative z-10">
           <Link href="/" className="text-2xl font-extrabold tracking-tight">
-            Trade<span className="opacity-70">Zone</span>
+            Find<span className="opacity-70">Master</span>
           </Link>
         </div>
 
