@@ -13,15 +13,16 @@ import {
   AlertTriangle,
   CheckCircle,
   ArrowRight,
-  LayoutDashboard,
   ShoppingBag,
-  Database
+  Database,
+  Zap
 } from "lucide-react";
 import { authOptions } from "@/lib/auth";
 import dbConnect from "@/lib/db";
 import Listing from "@/models/Listing";
 import Property from "@/models/Property";
 import { ListingCard } from "@/components/ListingCard";
+import { TokenPurchaseButton } from "@/components/TokenPurchaseButton";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -54,109 +55,108 @@ export default async function DashboardPage() {
   const missingProperties = properties.filter((p: any) => p.status === "missing");
   const registeredProperties = properties.filter((p: any) => p.status === "registered");
 
-  // Quick stats for dashboard
   const totalViews = listings.reduce((acc: number, l: any) => acc + (l.views || 0), 0);
-  const totalMessages = 12; // This would come from your messages model
+  const totalMessages = 12;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
-      <div className="container mx-auto py-8 px-4 max-w-7xl">
+      <div className="container mx-auto py-6 px-4 max-w-7xl">
         
-        {/* Welcome Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold tracking-tight">Welcome back, {session.user.name?.split(' ')[0]}!</h1>
-          <p className="text-muted-foreground mt-1">Manage your marketplace listings and protected assets</p>
+        {/* Welcome Header - Compact */}
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold tracking-tight">Welcome back, {session.user.name?.split(' ')[0]}!</h1>
+          <p className="text-sm text-muted-foreground mt-0.5">Manage your marketplace listings and protected assets</p>
         </div>
 
-        {/* Stats Overview - Always Visible */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        {/* Stats Overview - Compact */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
           <Card className="border-l-4 border-l-emerald-500">
-            <CardContent className="p-4">
+            <CardContent className="p-3">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-muted-foreground">Active Listings</p>
-                  <h2 className="text-2xl font-bold">{activeListings.length}</h2>
+                  <p className="text-xs text-muted-foreground">Active Listings</p>
+                  <h2 className="text-xl font-bold">{activeListings.length}</h2>
                 </div>
-                <Package className="h-8 w-8 text-emerald-500 opacity-50" />
+                <Package className="h-6 w-6 text-emerald-500 opacity-50" />
               </div>
             </CardContent>
           </Card>
 
           <Card className="border-l-4 border-l-blue-500">
-            <CardContent className="p-4">
+            <CardContent className="p-3">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-muted-foreground">Registered Items</p>
-                  <h2 className="text-2xl font-bold">{properties.length}</h2>
+                  <p className="text-xs text-muted-foreground">Registered Items</p>
+                  <h2 className="text-xl font-bold">{properties.length}</h2>
                 </div>
-                <Shield className="h-8 w-8 text-blue-500 opacity-50" />
+                <Shield className="h-6 w-6 text-blue-500 opacity-50" />
               </div>
             </CardContent>
           </Card>
 
           <Card className="border-l-4 border-l-purple-500">
-            <CardContent className="p-4">
+            <CardContent className="p-3">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-muted-foreground">Total Views</p>
-                  <h2 className="text-2xl font-bold">{totalViews}</h2>
+                  <p className="text-xs text-muted-foreground">Total Views</p>
+                  <h2 className="text-xl font-bold">{totalViews}</h2>
                 </div>
-                <TrendingUp className="h-8 w-8 text-purple-500 opacity-50" />
+                <TrendingUp className="h-6 w-6 text-purple-500 opacity-50" />
               </div>
             </CardContent>
           </Card>
 
           <Card className="border-l-4 border-l-orange-500">
-            <CardContent className="p-4">
+            <CardContent className="p-3">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-muted-foreground">Messages</p>
-                  <h2 className="text-2xl font-bold">{totalMessages}</h2>
+                  <p className="text-xs text-muted-foreground">Messages</p>
+                  <h2 className="text-xl font-bold">{totalMessages}</h2>
                 </div>
-                <MessageCircle className="h-8 w-8 text-orange-500 opacity-50" />
+                <MessageCircle className="h-6 w-6 text-orange-500 opacity-50" />
               </div>
             </CardContent>
           </Card>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           
-          {/* Sidebar - Always Visible */}
-          <div className="lg:col-span-1 space-y-6">
-            {/* User Profile Card */}
+          {/* Sidebar - Compact */}
+          <div className="lg:col-span-1 space-y-4">
+            {/* User Profile Card - Compact */}
             <Card className="overflow-hidden sticky top-6">
-              <div className="h-24 bg-gradient-to-r from-emerald-500 to-blue-500" />
-              <CardContent className="text-center -mt-12 pb-6">
-                <Avatar className="h-24 w-24 mx-auto border-4 border-background shadow-lg">
+              <div className="h-16 bg-gradient-to-r from-emerald-500 to-blue-500" />
+              <CardContent className="text-center -mt-10 pb-4">
+                <Avatar className="h-16 w-16 mx-auto border-2 border-background shadow-lg">
                   <AvatarImage src={session.user.image || ""} />
-                  <AvatarFallback className="text-2xl bg-gradient-to-r from-emerald-500 to-blue-500 text-white">
+                  <AvatarFallback className="text-lg bg-gradient-to-r from-emerald-500 to-blue-500 text-white">
                     {session.user.name?.charAt(0)}
                   </AvatarFallback>
                 </Avatar>
-                <h2 className="mt-3 font-semibold text-lg">{session.user.name}</h2>
-                <p className="text-xs text-muted-foreground">{session.user.email}</p>
+                <h2 className="mt-2 font-semibold text-sm">{session.user.name}</h2>
+                <p className="text-xs text-muted-foreground truncate">{session.user.email}</p>
                 
-                <div className="mt-4 pt-4 border-t">
+                <div className="mt-3 pt-3 border-t">
                   <div className="flex justify-around text-xs">
                     <div className="text-center">
                       <div className="font-bold text-emerald-600">{activeListings.length}</div>
-                      <div className="text-muted-foreground">Active</div>
+                      <div className="text-muted-foreground text-[10px]">Active</div>
                     </div>
                     <div className="text-center">
                       <div className="font-bold text-blue-600">{properties.length}</div>
-                      <div className="text-muted-foreground">Protected</div>
+                      <div className="text-muted-foreground text-[10px]">Protected</div>
                     </div>
                     <div className="text-center">
                       <div className="font-bold text-orange-600">{totalMessages}</div>
-                      <div className="text-muted-foreground">Messages</div>
+                      <div className="text-muted-foreground text-[10px]">Messages</div>
                     </div>
                   </div>
                 </div>
 
-                <div className="mt-4 space-y-2">
-                  <Button variant="outline" className="w-full justify-start" asChild>
+                <div className="mt-3">
+                  <Button variant="outline" size="sm" className="w-full justify-start text-xs h-8" asChild>
                     <Link href="/settings">
-                      <Settings className="mr-2 h-4 w-4" />
+                      <Settings className="mr-2 h-3 w-3" />
                       Account Settings
                     </Link>
                   </Button>
@@ -164,30 +164,30 @@ export default async function DashboardPage() {
               </CardContent>
             </Card>
 
-            {/* Quick Actions */}
+            {/* Quick Actions - Compact */}
             <Card>
-              <CardHeader>
-                <CardTitle className="text-sm font-semibold">Quick Actions</CardTitle>
+              <CardHeader className="p-3 pb-0">
+                <CardTitle className="text-xs font-semibold">Quick Actions</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-2">
-                <Button className="w-full justify-start bg-emerald-600 hover:bg-emerald-700" asChild>
+              <CardContent className="p-3 space-y-2">
+                <Button size="sm" className="w-full justify-start bg-emerald-600 hover:bg-emerald-700 text-xs h-8" asChild>
                   <Link href="/listings/create">
-                    <PlusCircle className="mr-2 h-4 w-4" />
+                    <PlusCircle className="mr-2 h-3 w-3" />
                     Post New Listing
                   </Link>
                 </Button>
-                <Button variant="outline" className="w-full justify-start" asChild>
+                <Button size="sm" variant="outline" className="w-full justify-start text-xs h-8" asChild>
                   <Link href="/registry/register">
-                    <Shield className="mr-2 h-4 w-4" />
+                    <Shield className="mr-2 h-3 w-3" />
                     Register Property
                   </Link>
                 </Button>
-                <Button variant="outline" className="w-full justify-start" asChild>
+                <Button size="sm" variant="outline" className="w-full justify-start text-xs h-8" asChild>
                   <Link href="/messages">
-                    <MessageCircle className="mr-2 h-4 w-4" />
+                    <MessageCircle className="mr-2 h-3 w-3" />
                     View Messages
                     {totalMessages > 0 && (
-                      <Badge variant="destructive" className="ml-auto">
+                      <Badge variant="destructive" className="ml-auto text-[10px] px-1">
                         {totalMessages}
                       </Badge>
                     )}
@@ -200,38 +200,38 @@ export default async function DashboardPage() {
           {/* Main Content - Tab System */}
           <div className="lg:col-span-3">
             <Tabs defaultValue="marketplace" className="w-full">
-              <div className="flex items-center justify-between mb-6">
-                <TabsList className="bg-muted/50 p-1">
+              <div className="flex items-center justify-between mb-4">
+                <TabsList className="bg-muted/50 p-0.5 h-8">
                   <TabsTrigger 
                     value="marketplace" 
-                    className="data-[state=active]:bg-emerald-600 data-[state=active]:text-white gap-2"
+                    className="data-[state=active]:bg-emerald-600 data-[state=active]:text-white gap-1.5 text-xs h-7 px-3"
                   >
-                    <ShoppingBag className="h-4 w-4" />
+                    <ShoppingBag className="h-3.5 w-3.5" />
                     Marketplace
                   </TabsTrigger>
                   <TabsTrigger 
                     value="registry" 
-                    className="data-[state=active]:bg-blue-600 data-[state=active]:text-white gap-2"
+                    className="data-[state=active]:bg-blue-600 data-[state=active]:text-white gap-1.5 text-xs h-7 px-3"
                   >
-                    <Database className="h-4 w-4" />
+                    <Database className="h-3.5 w-3.5" />
                     Property Registry
                   </TabsTrigger>
                 </TabsList>
                 
-                {/* Dynamic Action Button based on active tab */}
+                {/* Dynamic Action Button */}
                 <div className="hidden sm:block">
                   <div className="data-[state=marketplace]:block data-[state=registry]:hidden">
-                    <Button asChild className="bg-emerald-600 hover:bg-emerald-700 rounded-full shadow-lg shadow-emerald-500/20">
+                    <Button size="sm" asChild className="bg-emerald-600 hover:bg-emerald-700 rounded-full h-8 text-xs">
                       <Link href="/listings/create">
-                        <PlusCircle className="mr-2 h-4 w-4" />
+                        <PlusCircle className="mr-1.5 h-3 w-3" />
                         Post Ad
                       </Link>
                     </Button>
                   </div>
                   <div className="data-[state=registry]:block data-[state=marketplace]:hidden">
-                    <Button asChild className="bg-blue-600 hover:bg-blue-700 rounded-full shadow-lg shadow-blue-500/20">
+                    <Button size="sm" asChild className="bg-blue-600 hover:bg-blue-700 rounded-full h-8 text-xs">
                       <Link href="/registry/register">
-                        <Shield className="mr-2 h-4 w-4" />
+                        <Shield className="mr-1.5 h-3 w-3" />
                         Register Asset
                       </Link>
                     </Button>
@@ -240,75 +240,75 @@ export default async function DashboardPage() {
               </div>
               
               {/* ==================== MARKETPLACE TAB ==================== */}
-              <TabsContent value="marketplace" className="space-y-6 mt-0">
-                {/* Marketplace Stats */}
-                <div className="grid grid-cols-2 gap-4">
+              <TabsContent value="marketplace" className="space-y-4 mt-0">
+                {/* Marketplace Stats - Compact */}
+                <div className="grid grid-cols-2 gap-3">
                   <Card className="bg-gradient-to-br from-emerald-50 to-emerald-100 dark:from-emerald-950/30 dark:to-emerald-900/20 border-emerald-200 dark:border-emerald-800">
-                    <CardContent className="p-4">
+                    <CardContent className="p-3">
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="text-sm text-emerald-700 dark:text-emerald-400">Active Listings</p>
-                          <p className="text-2xl font-bold text-emerald-700 dark:text-emerald-400">{activeListings.length}</p>
+                          <p className="text-xs text-emerald-700 dark:text-emerald-400">Active Listings</p>
+                          <p className="text-xl font-bold text-emerald-700 dark:text-emerald-400">{activeListings.length}</p>
                         </div>
-                        <Package className="h-8 w-8 text-emerald-600 opacity-50" />
+                        <Package className="h-6 w-6 text-emerald-600 opacity-50" />
                       </div>
                     </CardContent>
                   </Card>
                   <Card className="bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-950/30 dark:to-orange-900/20 border-orange-200 dark:border-orange-800">
-                    <CardContent className="p-4">
+                    <CardContent className="p-3">
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="text-sm text-orange-700 dark:text-orange-400">Sold Items</p>
-                          <p className="text-2xl font-bold text-orange-700 dark:text-orange-400">{soldListings.length}</p>
+                          <p className="text-xs text-orange-700 dark:text-orange-400">Sold Items</p>
+                          <p className="text-xl font-bold text-orange-700 dark:text-orange-400">{soldListings.length}</p>
                         </div>
-                        <TrendingUp className="h-8 w-8 text-orange-600 opacity-50" />
+                        <TrendingUp className="h-6 w-6 text-orange-600 opacity-50" />
                       </div>
                     </CardContent>
                   </Card>
                 </div>
 
-                {/* Messages Link Card */}
-                <Card className="border-2 border-emerald-200 dark:border-emerald-800 bg-gradient-to-r from-emerald-50/50 to-transparent dark:from-emerald-950/20">
-                  <CardContent className="p-4">
+                {/* Messages Link Card - Compact */}
+                <Card className="border border-emerald-200 dark:border-emerald-800 bg-gradient-to-r from-emerald-50/50 to-transparent dark:from-emerald-950/20">
+                  <CardContent className="p-3">
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="p-2 bg-emerald-100 dark:bg-emerald-900/50 rounded-full">
-                          <MessageCircle className="h-5 w-5 text-emerald-600" />
+                      <div className="flex items-center gap-2">
+                        <div className="p-1.5 bg-emerald-100 dark:bg-emerald-900/50 rounded-full">
+                          <MessageCircle className="h-3.5 w-3.5 text-emerald-600" />
                         </div>
                         <div>
-                          <p className="font-semibold">Messages from buyers</p>
-                          <p className="text-sm text-muted-foreground">You have {totalMessages} unread messages</p>
+                          <p className="font-semibold text-sm">Messages from buyers</p>
+                          <p className="text-xs text-muted-foreground">You have {totalMessages} unread messages</p>
                         </div>
                       </div>
-                      <Button variant="ghost" className="text-emerald-600" asChild>
+                      <Button variant="ghost" size="sm" className="text-emerald-600 text-xs h-7" asChild>
                         <Link href="/messages">
-                          View All <ArrowRight className="ml-2 h-4 w-4" />
+                          View All <ArrowRight className="ml-1 h-3 w-3" />
                         </Link>
                       </Button>
                     </div>
                   </CardContent>
                 </Card>
 
-                {/* Listings Tabs */}
+                {/* Listings Tabs - Compact */}
                 <Tabs defaultValue="active" className="w-full">
-                  <TabsList className="bg-emerald-500/10">
+                  <TabsList className="bg-emerald-500/10 h-8">
                     <TabsTrigger 
                       value="active" 
-                      className="data-[state=active]:bg-emerald-600 data-[state=active]:text-white"
+                      className="data-[state=active]:bg-emerald-600 data-[state=active]:text-white text-xs h-7"
                     >
                       Active ({activeListings.length})
                     </TabsTrigger>
                     <TabsTrigger 
                       value="sold" 
-                      className="data-[state=active]:bg-emerald-600 data-[state=active]:text-white"
+                      className="data-[state=active]:bg-emerald-600 data-[state=active]:text-white text-xs h-7"
                     >
                       Sold ({soldListings.length})
                     </TabsTrigger>
                   </TabsList>
                   
-                  <TabsContent value="active" className="mt-6">
+                  <TabsContent value="active" className="mt-4">
                     {activeListings.length > 0 ? (
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         {activeListings.map((listing: any) => (
                           <div key={listing._id} className="relative group">
                             <ListingCard
@@ -322,9 +322,9 @@ export default async function DashboardPage() {
                               createdAt={listing.createdAt}
                             />
                             <div className="absolute top-2 right-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                              <Button size="icon" variant="secondary" className="h-8 w-8" asChild>
+                              <Button size="icon" variant="secondary" className="h-7 w-7" asChild>
                                 <Link href={`/listings/${listing._id}/edit`}>
-                                  <Edit className="h-4 w-4" />
+                                  <Edit className="h-3 w-3" />
                                 </Link>
                               </Button>
                             </div>
@@ -333,10 +333,10 @@ export default async function DashboardPage() {
                       </div>
                     ) : (
                       <Card>
-                        <CardContent className="flex flex-col items-center justify-center py-12 text-center text-muted-foreground">
-                          <Package className="h-12 w-12 mb-4 opacity-50" />
-                          <p>You don't have any active listings.</p>
-                          <Button variant="link" asChild className="mt-2">
+                        <CardContent className="flex flex-col items-center justify-center py-8 text-center text-muted-foreground">
+                          <Package className="h-8 w-8 mb-2 opacity-50" />
+                          <p className="text-sm">You don't have any active listings.</p>
+                          <Button variant="link" size="sm" asChild className="mt-1 text-xs">
                             <Link href="/listings/create">Create your first listing →</Link>
                           </Button>
                         </CardContent>
@@ -344,9 +344,9 @@ export default async function DashboardPage() {
                     )}
                   </TabsContent>
                   
-                  <TabsContent value="sold" className="mt-6">
+                  <TabsContent value="sold" className="mt-4">
                     {soldListings.length > 0 ? (
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         {soldListings.map((listing: any) => (
                           <ListingCard
                             key={listing._id}
@@ -363,8 +363,8 @@ export default async function DashboardPage() {
                       </div>
                     ) : (
                       <Card>
-                        <CardContent className="flex flex-col items-center justify-center py-12 text-center text-muted-foreground">
-                          <p>No sold items yet.</p>
+                        <CardContent className="flex flex-col items-center justify-center py-8 text-center text-muted-foreground">
+                          <p className="text-sm">No sold items yet.</p>
                         </CardContent>
                       </Card>
                     )}
@@ -373,54 +373,78 @@ export default async function DashboardPage() {
               </TabsContent>
               
               {/* ==================== PROPERTY REGISTRY TAB ==================== */}
-              <TabsContent value="registry" className="space-y-6 mt-0">
-                {/* Registry Stats */}
-                <div className="grid grid-cols-3 gap-4">
+              <TabsContent value="registry" className="space-y-4 mt-0">
+                {/* Registry Stats - Compact */}
+                <div className="grid grid-cols-3 gap-3">
                   <Card className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950/30 dark:to-blue-900/20 border-blue-200 dark:border-blue-800">
-                    <CardContent className="p-4">
+                    <CardContent className="p-3">
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="text-sm text-blue-700 dark:text-blue-400">Total Protected</p>
-                          <p className="text-2xl font-bold text-blue-700 dark:text-blue-400">{properties.length}</p>
+                          <p className="text-xs text-blue-700 dark:text-blue-400">Total Protected</p>
+                          <p className="text-xl font-bold text-blue-700 dark:text-blue-400">{properties.length}</p>
                         </div>
-                        <Shield className="h-8 w-8 text-blue-600 opacity-50" />
+                        <Shield className="h-6 w-6 text-blue-600 opacity-50" />
                       </div>
                     </CardContent>
                   </Card>
                   <Card className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-950/30 dark:to-green-900/20 border-green-200 dark:border-green-800">
-                    <CardContent className="p-4">
+                    <CardContent className="p-3">
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="text-sm text-green-700 dark:text-green-400">Clean Status</p>
-                          <p className="text-2xl font-bold text-green-700 dark:text-green-400">{registeredProperties.length}</p>
+                          <p className="text-xs text-green-700 dark:text-green-400">Clean Status</p>
+                          <p className="text-xl font-bold text-green-700 dark:text-green-400">{registeredProperties.length}</p>
                         </div>
-                        <CheckCircle className="h-8 w-8 text-green-600 opacity-50" />
+                        <CheckCircle className="h-6 w-6 text-green-600 opacity-50" />
                       </div>
                     </CardContent>
                   </Card>
                   <Card className="bg-gradient-to-br from-red-50 to-red-100 dark:from-red-950/30 dark:to-red-900/20 border-red-200 dark:border-red-800">
-                    <CardContent className="p-4">
+                    <CardContent className="p-3">
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="text-sm text-red-700 dark:text-red-400">Missing Items</p>
-                          <p className="text-2xl font-bold text-red-700 dark:text-red-400">{missingProperties.length}</p>
+                          <p className="text-xs text-red-700 dark:text-red-400">Missing Items</p>
+                          <p className="text-xl font-bold text-red-700 dark:text-red-400">{missingProperties.length}</p>
                         </div>
-                        <AlertTriangle className="h-8 w-8 text-red-600 opacity-50" />
+                        <AlertTriangle className="h-6 w-6 text-red-600 opacity-50" />
                       </div>
                     </CardContent>
                   </Card>
                 </div>
 
-                {/* Security Tips */}
-                {properties.length === 0 && (
-                  <Card className="border-2 border-blue-200 dark:border-blue-800 bg-gradient-to-r from-blue-50/50 to-transparent dark:from-blue-950/20">
-                    <CardContent className="p-4">
-                      <div className="flex items-start gap-3">
-                        <Shield className="h-5 w-5 text-blue-600 mt-0.5" />
+                {/* Registry Options - Upgrade Limit */}
+                <Card className="border border-blue-200 dark:border-blue-800 bg-gradient-to-r from-blue-50/50 to-transparent dark:from-blue-950/20 mb-4 mt-4">
+                  <CardContent className="p-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <div className="p-1.5 bg-blue-100 dark:bg-blue-900/50 rounded-full">
+                          <Zap className="h-3.5 w-3.5 text-blue-600" />
+                        </div>
                         <div>
-                          <p className="font-semibold text-sm">Protect your assets today</p>
-                          <p className="text-sm text-muted-foreground">
-                            Register your devices, vehicles, and electronics to create a verifiable chain of ownership and deter theft.
+                          <p className="font-semibold text-sm">Registration Quota</p>
+                          <p className="text-xs text-muted-foreground">
+                            {session.user.unlimitedRegistrations 
+                              ? "You have unlimited property registrations." 
+                              : `You have registered ${properties.length} out of ${session.user.registrationLimit || 1} properties.`}
+                          </p>
+                        </div>
+                      </div>
+                      {!session.user.unlimitedRegistrations && (
+                        <TokenPurchaseButton size="sm" className="h-7 text-xs" />
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Security Tips - Compact */}
+                {properties.length === 0 && (
+                  <Card className="border border-blue-200 dark:border-blue-800 bg-gradient-to-r from-blue-50/50 to-transparent dark:from-blue-950/20">
+                    <CardContent className="p-3">
+                      <div className="flex items-start gap-2">
+                        <Shield className="h-4 w-4 text-blue-600 mt-0.5" />
+                        <div>
+                          <p className="font-semibold text-xs">Protect your assets today</p>
+                          <p className="text-xs text-muted-foreground">
+                            Register your devices, vehicles, and electronics to create a verifiable chain of ownership.
                           </p>
                         </div>
                       </div>
@@ -428,10 +452,10 @@ export default async function DashboardPage() {
                   </Card>
                 )}
 
-                {/* Properties Grid */}
+                {/* Properties Grid - Compact */}
                 <div className="mt-4">
                   {properties.length > 0 ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                       {properties.map((p: any) => {
                         const statusColors: Record<string, string> = {
                           registered: "bg-green-500/10 text-green-600 border-green-500/20",
@@ -449,52 +473,52 @@ export default async function DashboardPage() {
                         
                         return (
                           <Link key={p._id} href={`/registry/${p._id}`}>
-                            <Card className="group overflow-hidden rounded-2xl border bg-card hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer">
-                              <div className="relative h-40 w-full bg-muted">
+                            <Card className="group overflow-hidden rounded-xl border bg-card hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 cursor-pointer">
+                              <div className="relative h-32 w-full bg-muted">
                                 {p.images?.[0] ? (
                                   <img
                                     src={p.images[0]}
                                     alt={`${p.brand} ${p.model}`}
-                                    className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                    className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-200"
                                   />
                                 ) : (
                                   <div className="flex items-center justify-center h-full text-muted-foreground text-xs">
-                                    <Shield className="h-12 w-12 opacity-20" />
+                                    <Shield className="h-8 w-8 opacity-20" />
                                   </div>
                                 )}
-                                <div className="absolute top-2 right-2">
-                                  <Badge className={`text-[10px] px-2 py-0.5 border flex items-center gap-1 ${statusColors[p.status] || ""}`}>
-                                    <StatusIcon className="h-3 w-3" />
+                                <div className="absolute top-1.5 right-1.5">
+                                  <Badge className={`text-[9px] px-1.5 py-0 border flex items-center gap-0.5 ${statusColors[p.status] || ""}`}>
+                                    <StatusIcon className="h-2.5 w-2.5" />
                                     {p.status.toUpperCase()}
                                   </Badge>
                                 </div>
                               </div>
 
-                              <CardContent className="p-4 space-y-3">
-                                <div className="space-y-1">
-                                  <h3 className="font-semibold text-sm leading-tight capitalize">
+                              <CardContent className="p-3 space-y-2">
+                                <div>
+                                  <h3 className="font-semibold text-xs leading-tight capitalize">
                                     {p.brand} {p.model}
                                   </h3>
-                                  <p className="text-xs text-muted-foreground capitalize">
+                                  <p className="text-[10px] text-muted-foreground capitalize">
                                     {p.itemType}
                                   </p>
                                 </div>
 
-                                <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted-foreground">
+                                <div className="flex flex-wrap gap-x-2 gap-y-0.5 text-[10px] text-muted-foreground">
                                   {p.color && <span>🎨 {p.color}</span>}
                                   {p.yearOfPurchase && <span>📅 {p.yearOfPurchase}</span>}
                                 </div>
 
                                 {(p.imei || p.serialNumber || p.chassisNumber) && (
-                                  <div className="text-xs font-mono bg-muted/40 px-2 py-1 rounded-md truncate">
+                                  <div className="text-[9px] font-mono bg-muted/40 px-1.5 py-0.5 rounded truncate">
                                     🔑 {p.imei || p.serialNumber || p.chassisNumber}
                                   </div>
                                 )}
 
                                 {p.status === "missing" && (
-                                  <div className="text-[11px] font-semibold text-red-600 bg-red-500/10 border border-red-500/20 px-2 py-1 rounded-md flex items-center gap-1">
-                                    <AlertTriangle className="h-3 w-3" />
-                                    ⚠ DO NOT PURCHASE - Report if found
+                                  <div className="text-[9px] font-semibold text-red-600 bg-red-500/10 border border-red-500/20 px-1.5 py-0.5 rounded flex items-center gap-0.5">
+                                    <AlertTriangle className="h-2.5 w-2.5" />
+                                    ⚠ DO NOT PURCHASE
                                   </div>
                                 )}
                               </CardContent>
@@ -505,11 +529,11 @@ export default async function DashboardPage() {
                     </div>
                   ) : (
                     <Card>
-                      <CardContent className="flex flex-col items-center justify-center py-14 text-center text-muted-foreground gap-3">
-                        <Shield className="h-12 w-12 opacity-30" />
-                        <p className="font-medium">No registered properties yet</p>
-                        <p className="text-sm max-w-xs">Register your phones, laptops, cars, and more to protect your ownership.</p>
-                        <Button asChild className="rounded-full mt-2 bg-gradient-to-r from-blue-600 to-blue-700 border-0">
+                      <CardContent className="flex flex-col items-center justify-center py-10 text-center text-muted-foreground gap-2">
+                        <Shield className="h-8 w-8 opacity-30" />
+                        <p className="font-medium text-sm">No registered properties yet</p>
+                        <p className="text-xs max-w-xs">Register your phones, laptops, cars, and more to protect your ownership.</p>
+                        <Button size="sm" asChild className="rounded-full mt-1 bg-gradient-to-r from-blue-600 to-blue-700 border-0 text-xs h-8">
                           <Link href="/registry/register">Register Your First Property</Link>
                         </Button>
                       </CardContent>

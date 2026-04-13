@@ -22,6 +22,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { TokenPurchaseModal } from "@/components/TokenPurchaseModal";
 import {
   Select,
   SelectContent,
@@ -46,6 +47,7 @@ export default function RegisterPropertyPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const [submitting, setSubmitting] = useState(false);
+  const [showTokenModal, setShowTokenModal] = useState(false);
 
   const [form, setForm] = useState({
     itemType: "",
@@ -145,7 +147,12 @@ export default function RegisterPropertyPage() {
 
       const data = await res.json();
       if (!res.ok) {
-        toast.error(data.error || "Failed to register property.");
+        if (data.code === 'LIMIT_EXCEEDED') {
+          toast.error(data.error);
+          setShowTokenModal(true);
+        } else {
+          toast.error(data.error || "Failed to register property.");
+        }
         return;
       }
       toast.success("Property registered successfully!");
@@ -384,6 +391,11 @@ export default function RegisterPropertyPage() {
           </Button>
         </form>
       </div>
+
+      <TokenPurchaseModal 
+        isOpen={showTokenModal} 
+        onClose={() => setShowTokenModal(false)} 
+      />
     </div>
   );
 }

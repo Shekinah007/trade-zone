@@ -142,6 +142,8 @@ export const authOptions: NextAuthOptions = {
           image: user.image,
           role: user.role,
           status: user.status,
+          registrationLimit: user.registrationLimit,
+          unlimitedRegistrations: user.unlimitedRegistrations,
         };
       },
     }),
@@ -227,6 +229,8 @@ export const authOptions: NextAuthOptions = {
         user.role = foundUser?.role;
         user.status = foundUser?.status;
         user.userId = foundUser?._id.toString();
+        user.registrationLimit = foundUser?.registrationLimit;
+        user.unlimitedRegistrations = foundUser?.unlimitedRegistrations;
       }
 
       return true;
@@ -239,7 +243,8 @@ export const authOptions: NextAuthOptions = {
         token.sub = user.id;
         token.role = user.role;
         token.status = user.status;
-  
+        token.registrationLimit = user.registrationLimit;
+        token.unlimitedRegistrations = user.unlimitedRegistrations;
       }
       return token;
     },
@@ -247,9 +252,10 @@ export const authOptions: NextAuthOptions = {
     async session({ session, token }) {
       if (token && session.user) {
         session.user.id = token.id as string;
-
         session.user.role = token.role as string;
         session.user.status = token.status as string;
+        session.user.registrationLimit = token.registrationLimit as number;
+        session.user.unlimitedRegistrations = token.unlimitedRegistrations as boolean;
       }
       return session;
     },

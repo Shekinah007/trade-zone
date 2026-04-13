@@ -11,6 +11,8 @@ export interface IUser extends Document {
   createdAt: Date;
   updatedAt: Date;
   status: 'pending' | 'active' | 'suspended' | 'banned';
+  registrationLimit: number;
+  unlimitedRegistrations: boolean;
 }
 
 const UserSchema = new Schema<IUser>(
@@ -27,6 +29,8 @@ const UserSchema = new Schema<IUser>(
     },
     provider: { type: String, default: 'credentials' },
     status: {type: String, enum: ['pending', 'active', 'suspended', 'banned'], default: 'pending' },
+    registrationLimit: { type: Number, default: 1 },
+    unlimitedRegistrations: { type: Boolean, default: false },
   },
   { timestamps: true }
 );

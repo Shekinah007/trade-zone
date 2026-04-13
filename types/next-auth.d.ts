@@ -6,12 +6,16 @@ declare module "next-auth" {
       id?: string;
       role?: string;
       status?: string;
+      registrationLimit?: number;
+      unlimitedRegistrations?: boolean;
     } & DefaultSession["user"];
   }
 
   interface User {
     role?: string;
     status?: string;
+    registrationLimit?: number;
+    unlimitedRegistrations?: boolean;
   }
 }
 
@@ -19,5 +23,7 @@ declare module "next-auth/jwt" {
   interface JWT {
     role?: string;
     status?: string;
+    registrationLimit?: number;
+    unlimitedRegistrations?: boolean;
   }
 }

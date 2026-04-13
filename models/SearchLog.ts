@@ -2,7 +2,7 @@ import mongoose, { Schema, Document, Types } from 'mongoose';
 
 export interface ISearchLog extends Document {
   query: string;
-  propertyIds: Types.ObjectId[];
+  propertyId: Types.ObjectId;
   ipAddress: string;
   location?: {
     lat: number;
@@ -15,7 +15,7 @@ export interface ISearchLog extends Document {
 const searchLogSchema = new Schema<ISearchLog>(
   {
     query: { type: String, required: true },
-    propertyIds: { type: [Schema.Types.ObjectId], ref: 'Property', default: [] },
+    propertyId: { type: Schema.Types.ObjectId, ref: 'Property' },
     ipAddress: { type: String, required: true },
     location: {
       lat: { type: Number },

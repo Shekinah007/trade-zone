@@ -4,6 +4,7 @@ import { authOptions } from '@/lib/auth';
 import dbConnect from '@/lib/db';
 import Property from '@/models/Property';
 import SearchLog from '@/models/SearchLog';
+import User from '@/models/User';
 
 // GET /api/registry?q=<serial|imei|chassis> — public search
 export async function GET(req: NextRequest) {
@@ -59,7 +60,7 @@ export async function GET(req: NextRequest) {
   if (results.length > 0) {
     SearchLog.create({
       query: q,
-      propertyIds: results.map(r => r._id),
+      propertyId: results[0]._id,
       ipAddress,
       location: (lat && lng) ? { lat: Number(lat), lng: Number(lng) } : undefined,
       user: session?.user?.id || undefined,
@@ -87,6 +88,23 @@ export async function POST(req: NextRequest) {
 
   try {
     await dbConnect();
+
+    // Check user registration limits
+    const dbUser = await User.findById(session.user.id);
+    if (!dbUser) {
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    }
+
+    if (!dbUser.unlimitedRegistrations) {
+      const propertyCount = await Property.countDocuments({ owner: dbUser._id });
+      if (propertyCount >= (dbUser.registrationLimit || 1)) {
+        return NextResponse.json({ 
+          error: 'Registration limit reached. Please purchase a token to register more properties.',
+          code: 'LIMIT_EXCEEDED'
+        }, { status: 403 });
+      }
+    }
+
     const formData = await req.formData();
 
     const itemType = formData.get("itemType") as string;
