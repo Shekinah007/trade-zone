@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import {
@@ -55,15 +55,33 @@ export default function RegistrySearchPage() {
   const [results, setResults] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [searched, setSearched] = useState(false);
+  const [coords, setCoords] = useState<{lat: number, lng: number} | null>(null);
+
+  useEffect(() => {
+    if (typeof navigator !== "undefined" && "geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          setCoords({
+            lat: pos.coords.latitude,
+            lng: pos.coords.longitude,
+          });
+        },
+        (err) => console.warn("Geolocation permission denied/failed", err),
+        { timeout: 10000, maximumAge: 60000 }
+      );
+    }
+  }, []);
 
   const doSearch = async (q: string) => {
     if (!q.trim() || q.trim().length < 3) return;
     setLoading(true);
     setSearched(true);
     try {
-      const res = await fetch(
-        `/api/registry?q=${encodeURIComponent(q.trim())}`
-      );
+      let url = `/api/registry?q=${encodeURIComponent(q.trim())}`;
+      if (coords) {
+         url += `&lat=${coords.lat}&lng=${coords.lng}`;
+      }
+      const res = await fetch(url);
       const data = await res.json();
       setResults(data.results || []);
     } catch {
@@ -73,9 +91,12 @@ export default function RegistrySearchPage() {
     }
   };
 
+  const searchedQuery = useRef<string | null>(null);
+
   useEffect(() => {
     const q = searchParams.get("q");
-    if (q) {
+    if (q && searchedQuery.current !== q) {
+      searchedQuery.current = q;
       setQuery(q);
       doSearch(q);
     }
@@ -84,6 +105,7 @@ export default function RegistrySearchPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    searchedQuery.current = query;
     doSearch(query);
   };
 

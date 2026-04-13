@@ -3,12 +3,15 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import dbConnect from '@/lib/db';
 import Property from '@/models/Property';
+import SearchLog from '@/models/SearchLog';
 
 // GET /api/registry?q=<serial|imei|chassis> — public search
 export async function GET(req: NextRequest) {
   await dbConnect();
   const { searchParams } = new URL(req.url);
   const q = searchParams.get('q')?.trim();
+  const lat = searchParams.get('lat');
+  const lng = searchParams.get('lng');
 
   if (!q || q.length < 3) {
     return NextResponse.json(
@@ -18,6 +21,10 @@ export async function GET(req: NextRequest) {
   }
 
   const session = await getServerSession(authOptions);
+
+  // Extract IP
+  const ipInfo = req.headers.get('x-forwarded-for');
+  const ipAddress = ipInfo ? ipInfo.split(',')[0] : (req.ip || 'Unknown');
 
   const properties = await Property.find({
     $or: [
@@ -47,6 +54,17 @@ export async function GET(req: NextRequest) {
       ? { owner: p.owner }
       : { owner: null }),
   }));
+
+  // Asynchronous Logging
+  if (results.length > 0) {
+    SearchLog.create({
+      query: q,
+      propertyIds: results.map(r => r._id),
+      ipAddress,
+      location: (lat && lng) ? { lat: Number(lat), lng: Number(lng) } : undefined,
+      user: session?.user?.id || undefined,
+    }).catch((err) => console.error("Search Audit Log Failed:", err));
+  }
 
   return NextResponse.json({ results });
 }
