@@ -120,25 +120,32 @@ export default async function DashboardPage() {
 </Card> */}
 
         {/* Main Content */}
-        <div className="space-y-6">
-           <div className="flex items-center justify-between">
-              <h1 className="text-3xl font-bold tracking-tight">My Listings</h1>
-              <Button asChild>
-                <Link href="/listings/create">
-                   <PlusCircle className="mr-2 h-4 w-4" />
-                   New Listing
-                </Link>
-              </Button>
-           </div>
+        <div className="space-y-16">
+          
+          {/* Section 1: Marketplace */}
+          <div className="space-y-6">
+             <div className="flex items-center justify-between">
+                <div>
+                   <h2 className="text-2xl font-bold tracking-tight flex items-center gap-2">
+                     <Package className="h-6 w-6 text-emerald-600" /> Marketplace
+                   </h2>
+                   <p className="text-sm text-muted-foreground mt-1">Manage your classified ads for sale.</p>
+                </div>
+                <Button asChild className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-full">
+                  <Link href="/listings/create">
+                     <PlusCircle className="mr-2 h-4 w-4" />
+                     Post Ad
+                  </Link>
+                </Button>
+             </div>
 
-           <Tabs defaultValue="active" className="w-full">
-              <TabsList>
-                <TabsTrigger value="active">Active ({activeListings.length})</TabsTrigger>
-                <TabsTrigger value="sold">Sold ({soldListings.length})</TabsTrigger>
-                <TabsTrigger value="properties">My Properties ({properties.length})</TabsTrigger>
-              </TabsList>
-              
-              <TabsContent value="active" className="mt-6">
+             <Tabs defaultValue="active" className="w-full">
+                <TabsList className="bg-emerald-500/10">
+                  <TabsTrigger value="active" className="data-[state=active]:bg-emerald-600 data-[state=active]:text-white data-[state=active]:shadow-sm">Active ({activeListings.length})</TabsTrigger>
+                  <TabsTrigger value="sold" className="data-[state=active]:bg-emerald-600 data-[state=active]:text-white data-[state=active]:shadow-sm">Sold ({soldListings.length})</TabsTrigger>
+                </TabsList>
+                
+                <TabsContent value="active" className="mt-6">
                  {activeListings.length > 0 ? (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                        {activeListings.map((listing: any) => (
@@ -197,18 +204,31 @@ export default async function DashboardPage() {
                     </Card>
                  )}
               </TabsContent>
+            </Tabs>
+          </div>
 
-              {/* Properties Tab */}
-              <TabsContent value="properties" className="mt-6">
-                 <div className="flex items-center justify-between mb-5">
-                   <p className="text-sm text-muted-foreground">{properties.length} registered propert{properties.length !== 1 ? "ies" : "y"}</p>
-                   <Button asChild size="sm" className="rounded-full bg-gradient-to-r from-primary to-blue-600 border-0">
-                     <Link href="/registry/register">
-                       <Shield className="mr-2 h-4 w-4" />
-                       Register New Property
-                     </Link>
-                   </Button>
-                 </div>
+          <hr className="border-t border-border/50" />
+
+          {/* Section 2: Registry */}
+          <div className="space-y-6">
+             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                  <h2 className="text-2xl font-bold tracking-tight flex items-center gap-2 text-foreground">
+                    <Shield className="h-6 w-6 text-blue-600" /> Property Registry
+                  </h2>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Manage your secured assets and view ownership status. ({properties.length} registered propert{properties.length !== 1 ? "ies" : "y"})
+                  </p>
+                </div>
+                <Button asChild className="rounded-full bg-blue-600 hover:bg-blue-700 text-white shadow-md border-0 self-start sm:self-auto">
+                  <Link href="/registry/register">
+                    <Shield className="mr-2 h-4 w-4" />
+                    Register New Asset
+                  </Link>
+                </Button>
+             </div>
+             
+             <div className="mt-4">
 
                  {properties.length > 0 ? (
                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -298,8 +318,8 @@ export default async function DashboardPage() {
                      </CardContent>
                    </Card>
                  )}
-               </TabsContent>
-           </Tabs>
+             </div>
+          </div>
         </div>
       </div>
     </div>

@@ -23,6 +23,7 @@ export default function RootLayout({
         <Providers>
           <Navbar />
           <main className="flex-1">
+            <p>hello world</p>
             {children}
           </main>
           <Footer />

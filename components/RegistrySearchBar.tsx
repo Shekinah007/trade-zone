@@ -35,7 +35,7 @@ export function RegistrySearchBar() {
       <Button
         type="submit"
         size="lg"
-        className="rounded-full px-6 bg-gradient-to-r from-primary to-blue-600 hover:opacity-90 border-0"
+        className="rounded-full z-1 px-6 bg-gradient-to-r from-primary to-blue-600 hover:opacity-90 border-0"
       >
         Search
       </Button>
