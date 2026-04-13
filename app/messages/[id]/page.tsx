@@ -9,8 +9,11 @@ import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card } from "@/components/ui/card";
 import Link from "next/link";
+import * as Ably from "ably";
+import { useParams } from "next/navigation";
 
-export default function ChatPage({ params }: { params: { id: string } }) {
+export default function ChatPage() {
+   const { id } = useParams<{ id: string }>();
   const { data: session, status } = useSession();
   const router = useRouter();
   const [messages, setMessages] = useState<any[]>([]);
@@ -21,13 +24,31 @@ export default function ChatPage({ params }: { params: { id: string } }) {
   useEffect(() => {
     if (status === "unauthenticated") {
         router.push("/auth/signin");
-    } else if (status === "authenticated") {
+        return;
+    } 
+    
+    if (status === "authenticated" && id) {
         fetchMessages();
-        // Optional: Set up polling or websocket here
-        const interval = setInterval(fetchMessages, 5000); 
-        return () => clearInterval(interval);
+
+        // Initialize Ably
+        const ably = new Ably.Realtime({ authUrl: "/api/ably/auth" });
+        const channel = ably.channels.get(`conversation-${id}`);
+
+        channel.subscribe("message", (message) => {
+           setMessages((prev) => {
+               // Prevent duplicates if REST API and Ably both add the message
+               const exists = prev.some((msg) => msg._id === message.data._id);
+               if (exists) return prev;
+               return [...prev, message.data];
+           });
+        });
+
+        return () => {
+            channel.unsubscribe("message");
+            ably.close();
+        };
     }
-  }, [status, params.id]);
+  }, [status, id]);
 
   useEffect(() => {
       // Scroll to bottom when messages change
@@ -38,7 +59,7 @@ export default function ChatPage({ params }: { params: { id: string } }) {
 
   const fetchMessages = async () => {
     try {
-      const res = await fetch(`/api/conversations/${params.id}/messages`);
+      const res = await fetch(`/api/conversations/${id}/messages`);
       if (res.ok) {
         const data = await res.json();
         setMessages(data);
@@ -55,7 +76,7 @@ export default function ChatPage({ params }: { params: { id: string } }) {
     if (!newMessage.trim()) return;
 
     try {
-      const res = await fetch(`/api/conversations/${params.id}/messages`, {
+      const res = await fetch(`/api/conversations/${id}/messages`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ content: newMessage }),
@@ -63,7 +84,7 @@ export default function ChatPage({ params }: { params: { id: string } }) {
 
       if (res.ok) {
         setNewMessage("");
-        fetchMessages();
+        // Message will be added to the UI via the Ably subscription
       }
     } catch (error) {
       console.error("Failed to send message", error);
@@ -97,7 +118,7 @@ export default function ChatPage({ params }: { params: { id: string } }) {
                                {!isMe && (
                                    <Avatar className="h-8 w-8">
                                        <AvatarImage src={msg.sender.image} />
-                                       <AvatarFallback>{msg.sender.name[0]}</AvatarFallback>
+                                       <AvatarFallback>{msg.sender.name?.[0] || "?"}</AvatarFallback>
                                    </Avatar>
                                )}
                                <div className={`px-4 py-2 rounded-2xl text-sm ${

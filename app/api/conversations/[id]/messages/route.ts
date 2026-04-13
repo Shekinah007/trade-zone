@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth";
 import dbConnect from "@/lib/db";
 import Message from "@/models/Message";
 import Conversation from "@/models/Conversation";
+import * as Ably from "ably";
 
 export async function GET(
   req: Request,
@@ -51,14 +52,27 @@ export async function POST(
       content,
     });
 
+    const populatedMessage = await Message.findById(newMessage._id).populate(
+      "sender",
+      "name image"
+    );
+
     await Conversation.findByIdAndUpdate(id, {
         lastMessage: content,
         lastMessageAt: new Date(),
         $inc: { [`unreadCount.${session.user.id === id ? 'other' : 'unknown'}`]: 1 } // Simplified logic, ideally identify other participant
     });
 
-    return NextResponse.json(newMessage);
+    // Publish to Ably if API key is present
+    if (process.env.ABLY_API_KEY) {
+      const ably = new Ably.Rest(process.env.ABLY_API_KEY);
+      const channel = ably.channels.get(`conversation-${id}`);
+      await channel.publish("message", populatedMessage);
+    }
+
+    return NextResponse.json(populatedMessage);
   } catch (error) {
+    console.error("Message POST error:", error);
     return NextResponse.json({ message: "Internal Error" }, { status: 500 });
   }
 }
