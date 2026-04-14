@@ -24,10 +24,14 @@ import {
   ChevronDown,
   ChevronUp,
   TrendingUp,
-  BarChart3
+  BarChart3,
+  Navigation
 } from "lucide-react";
 import { format } from "date-fns";
-import { cn } from "@/lib/utils";
+import { cn, mapProviders } from "@/lib/utils";
+import { Button } from "./ui/button";
+import { Card } from "./ui/card";
+import { MapDropdownButton } from "./MapDropDownButton";
 
 // Dynamically import the map so it doesn't break SSR
 const SearchLogsMap = dynamic(() => import("./SearchLogsMap"), { 
@@ -73,19 +77,11 @@ export default function OwnerSearchLogs({ propertyId }: { propertyId: string }) 
         logsArray.forEach(async (log) => {
           if (log.location?.lat && log.location?.lng) {
             try {
-              const response = await fetch(
-                `https://nominatim.openstreetmap.org/reverse?format=json&lat=${log.location.lat}&lon=${log.location.lng}&addressdetails=1`,
-                {
-                  headers: {
-                    'Accept-Language': 'en-US,en;q=0.9',
-                  },
-                }
-              );
-              
+              const response = await fetch(`/api/reverse-geocode?lat=${log.location.lat}&lng=${log.location.lng}`);
               const geoData = await response.json();
               
-              if (geoData && geoData.display_name) {
-                setLogAddresses((prev) => ({ ...prev, [log._id]: geoData.display_name }));
+              if (geoData && geoData.display) {
+                setLogAddresses((prev) => ({ ...prev, [log._id]: geoData.display }));
               }
             } catch (err) {
               console.error("Reverse geocoding error:", err);
@@ -118,6 +114,7 @@ export default function OwnerSearchLogs({ propertyId }: { propertyId: string }) 
   const authenticatedSearches = logs.filter(l => l.user).length;
   const searchesWithLocation = logs.filter(l => l.location?.lat).length;
   const suspiciousCount = logs.filter(l => l.ipAddress.startsWith("192.168") || l.user?.name?.toLowerCase().includes("test")).length;
+  const [provider, setProvider] = useState<keyof typeof mapProviders>("google");
 
   if (loading) {
     return (
@@ -385,6 +382,8 @@ export default function OwnerSearchLogs({ propertyId }: { propertyId: string }) 
                         </div>
                       </div>
                     </div>
+
+                    <MapDropdownButton lat={log.location!.lat} lng={log.location!.lng} />
                     
                     {/* Search Query and Expand Button */}
                     <div className="flex items-center gap-2 shrink-0">
@@ -422,12 +421,14 @@ export default function OwnerSearchLogs({ propertyId }: { propertyId: string }) 
                             {log._id.slice(-16)}
                           </code>
                         </div>
-                        {log.location?.lat && logAddresses[log._id] && (
-                          <div className="p-2 rounded bg-muted/30 sm:col-span-2">
-                            <span className="text-muted-foreground block mb-0.5">Full Address</span>
-                            <code className="text-xs font-mono break-all text-foreground/70">
-                              {logAddresses[log._id]}
-                            </code>
+                        {log.location?.lat && (
+                          <div className="p-3 rounded bg-muted/30 sm:col-span-2 flex flex-col gap-3 border border-red-500/10">
+                            <div>
+                                <span className="text-muted-foreground block mb-0.5">Location Data</span>
+                                <code className="text-xs font-mono break-all text-foreground/80">
+                                  {logAddresses[log._id] ? logAddresses[log._id] : `${log.location.lat}, ${log.location.lng}`}
+                                </code>
+                            </div>
                           </div>
                         )}
                       </div>
@@ -438,7 +439,9 @@ export default function OwnerSearchLogs({ propertyId }: { propertyId: string }) 
             );
           })}
         </div>
+       
       </div>
     </div>
   );
 }
+

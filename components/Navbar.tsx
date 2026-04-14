@@ -87,8 +87,8 @@ export default function Navbar() {
         <div className="flex items-center lg:space-x-8">
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-2 group shrink-0">
-            <div className={cn("p-2 rounded-xl transition-colors", isMarketplace ? "bg-emerald-500/10 group-hover:bg-emerald-500/20" : "bg-blue-500/10 group-hover:bg-blue-500/20")}>
-              {isMarketplace ? <ShoppingBag className={cn("h-6 w-6 text-emerald-600")} /> : <Shield className={cn("h-6 w-6 text-blue-600")} />}
+            <div className={cn("p-2 rounded-xl transition-colors", isMarketplace ? "bg-emerald-500/10 group-hover:bg-emerald-500/20" : "bg-red-500/10 group-hover:bg-red-500/20")}>
+              {isMarketplace ? <ShoppingBag className={cn("h-6 w-6 text-emerald-600")} /> : <Shield className={cn("h-6 w-6 text-red-600")} />}
             </div>
             <span className="text-xl font-bold tracking-tight hidden sm:inline-block">
               FindMaster
@@ -105,7 +105,7 @@ export default function Navbar() {
             </button>
             <button
               onClick={() => { setMode("registry"); router.push("/registry"); }}
-              className={cn("flex items-center px-4 py-1.5 rounded-full text-sm font-medium transition-all", !isMarketplace ? "bg-blue-600 text-white shadow-sm" : "text-muted-foreground hover:text-foreground")}
+              className={cn("flex items-center px-4 py-1.5 rounded-full text-sm font-medium transition-all", !isMarketplace ? "bg-red-600 text-white shadow-sm" : "text-muted-foreground hover:text-foreground")}
             >
               Registry
             </button>
@@ -121,7 +121,7 @@ export default function Navbar() {
             </>
           ) : (
             <>
-              <Link href="/registry" className="transition-colors hover:text-blue-600 text-foreground/80">My Registry</Link>
+              <Link href="/registry" className="transition-colors hover:text-red-600 text-foreground/80">My Registry</Link>
             </>
           )}
         </nav>
@@ -138,7 +138,7 @@ export default function Navbar() {
               placeholder={isMarketplace ? "Search marketplace..." : "Search IMEI/Serial..."}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className={cn("w-full pl-10 bg-muted/50 transition-all rounded-full focus-visible:ring-1", isMarketplace ? "focus-visible:ring-emerald-500" : "focus-visible:ring-blue-500")}
+              className={cn("w-full pl-10 bg-muted/50 transition-all rounded-full focus-visible:ring-1", isMarketplace ? "focus-visible:ring-emerald-500" : "focus-visible:ring-red-500")}
             />
           </div>
         </form>
@@ -163,7 +163,7 @@ export default function Navbar() {
               asChild
               variant="default"
               size="sm"
-              className="hidden md:flex rounded-full px-5 shadow-md bg-blue-600 hover:bg-blue-700 text-white transition-all border-0"
+              className="hidden md:flex rounded-full px-5 shadow-md bg-red-600 hover:bg-red-700 text-white transition-all border-0"
             >
               <Link href="/registry/register">
                 <Shield className="h-4 w-4 mr-2" />
@@ -177,11 +177,11 @@ export default function Navbar() {
               <DropdownMenuTrigger asChild>
                 <Button
                   variant="ghost"
-                  className={cn("relative h-9 w-9 rounded-full ring-2 ring-transparent transition-all", isMarketplace ? "hover:ring-emerald-500/30" : "hover:ring-blue-500/30")}
+                  className={cn("relative h-9 w-9 rounded-full ring-2 ring-transparent transition-all", isMarketplace ? "hover:ring-emerald-500/30" : "hover:ring-red-500/30")}
                 >
                   <Avatar className="h-9 w-9">
                     <AvatarImage src={session.user?.image || ""} alt={session.user?.name || ""} />
-                    <AvatarFallback className={cn("text-white", isMarketplace ? "bg-emerald-600" : "bg-blue-600")}>
+                    <AvatarFallback className={cn("text-white", isMarketplace ? "bg-emerald-600" : "bg-red-600")}>
                       {session.user?.name?.charAt(0) || "U"}
                     </AvatarFallback>
                   </Avatar>
@@ -236,7 +236,7 @@ export default function Navbar() {
               <Button asChild variant="ghost" size="sm">
                 <Link href="/auth/signin">Sign In</Link>
               </Button>
-              <Button asChild size="sm" className={cn("rounded-full", isMarketplace ? "bg-emerald-600 hover:bg-emerald-700" : "bg-blue-600 hover:bg-blue-700")}>
+              <Button asChild size="sm" className={cn("rounded-full", isMarketplace ? "bg-emerald-600 hover:bg-emerald-700" : "bg-red-600 hover:bg-red-700")}>
                 <Link href="/auth/signup">Sign Up</Link>
               </Button>
             </div>
@@ -265,7 +265,7 @@ export default function Navbar() {
                     </button>
                     <button
                          onClick={() => { setMode("registry"); router.push("/registry"); closeMobileMenu(); }}
-                        className={cn("flex-1 text-sm py-2 rounded-md font-semibold transition-all", !isMarketplace ? "bg-blue-600 text-white shadow-sm" : "text-muted-foreground")}
+                        className={cn("flex-1 text-sm py-2 rounded-md font-semibold transition-all", !isMarketplace ? "bg-red-600 text-white shadow-sm" : "text-muted-foreground")}
                     >
                         Registry
                     </button>
@@ -286,7 +286,7 @@ export default function Navbar() {
                         placeholder={isMarketplace ? "Search marketplace..." : "Search registry..."}
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className={cn("pl-10 bg-muted/50 rounded-full transition-all text-sm", isMarketplace ? "focus-visible:ring-emerald-500" : "focus-visible:ring-blue-500")}
+                        className={cn("pl-10 bg-muted/50 rounded-full transition-all text-sm", isMarketplace ? "focus-visible:ring-emerald-500" : "focus-visible:ring-red-500")}
                       />
                     </div>
                   </form>
@@ -304,8 +304,8 @@ export default function Navbar() {
                         </>
                     ) : (
                         <>
-                           <Link onClick={closeMobileMenu} href="/registry" className="flex items-center px-3 py-2.5 rounded-xl text-sm font-medium hover:text-blue-700 hover:bg-blue-50">My Registry</Link>
-                           <Link onClick={closeMobileMenu} href="/registry/search" className="flex items-center px-3 py-2.5 rounded-xl text-sm font-medium hover:text-blue-700 hover:bg-blue-50">Search Registry</Link>
+                           <Link onClick={closeMobileMenu} href="/registry" className="flex items-center px-3 py-2.5 rounded-xl text-sm font-medium hover:text-red-700 hover:bg-red-50">My Registry</Link>
+                           <Link onClick={closeMobileMenu} href="/registry/search" className="flex items-center px-3 py-2.5 rounded-xl text-sm font-medium hover:text-red-700 hover:bg-red-50">Search Registry</Link>
                         </>
                     )}
                   </nav>
@@ -319,7 +319,7 @@ export default function Navbar() {
                     <div className="flex items-center gap-3 p-3 rounded-xl bg-background border">
                       <Avatar className="h-10 w-10">
                         <AvatarImage src={session.user?.image || ""} />
-                        <AvatarFallback className={cn("text-white font-bold", isMarketplace ? "bg-emerald-600" : "bg-blue-600")}>
+                        <AvatarFallback className={cn("text-white font-bold", isMarketplace ? "bg-emerald-600" : "bg-red-600")}>
                           {session.user?.name?.charAt(0)}
                         </AvatarFallback>
                       </Avatar>
@@ -333,7 +333,7 @@ export default function Navbar() {
                       <Link href="/dashboard"><LayoutDashboard className="mr-2 h-4 w-4" /> Dashboard</Link>
                     </Button>
 
-                    <Button asChild className={cn("w-full justify-start rounded-full shadow-md", isMarketplace ? "bg-emerald-600 hover:bg-emerald-700 text-white" : "bg-blue-600 hover:bg-blue-700 text-white")} onClick={closeMobileMenu}>
+                    <Button asChild className={cn("w-full justify-start rounded-full shadow-md", isMarketplace ? "bg-emerald-600 hover:bg-emerald-700 text-white" : "bg-red-600 hover:bg-red-700 text-white")} onClick={closeMobileMenu}>
                       {isMarketplace ? (
                          <Link href="/listings/create"><PlusCircle className="mr-2 h-4 w-4" /> Post an Ad</Link>
                       ) : (
@@ -349,7 +349,7 @@ export default function Navbar() {
                     <Button asChild variant="outline" className="w-full rounded-full" onClick={closeMobileMenu}>
                       <Link href="/auth/signin">Sign In</Link>
                     </Button>
-                    <Button asChild className={cn("w-full rounded-full", isMarketplace ? "bg-emerald-600 hover:bg-emerald-700" : "bg-blue-600 hover:bg-blue-700")} onClick={closeMobileMenu}>
+                    <Button asChild className={cn("w-full rounded-full", isMarketplace ? "bg-emerald-600 hover:bg-emerald-700" : "bg-red-600 hover:bg-red-700")} onClick={closeMobileMenu}>
                       <Link href="/auth/signup">Get Started Free</Link>
                     </Button>
                   </div>

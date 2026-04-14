@@ -91,7 +91,7 @@ const features = [
     icon: ClipboardList,
     color: "bg-rose-500/10 text-rose-600",
     title: "Full History Log",
-    desc: "See the complete ownership history of any property — previous owners, transfer dates, sale prices, and locations.",
+    desc: "See the complete ownership history of any property, previous owners, transfer dates, sale prices, and locations.",
   },
 ];
 

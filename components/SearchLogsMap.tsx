@@ -7,6 +7,9 @@ import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import { format } from "date-fns";
 import { User, Clock, MapPin, Globe } from "lucide-react";
+import { Card } from "./ui/card";
+import { Button } from "./ui/button";
+import { mapProviders } from "@/lib/utils";
 
 // Fix Leaflet's default icon path issues in Next.js
 const customIcon = new L.Icon({
@@ -43,6 +46,8 @@ function MapBounds({ logs }: { logs: SearchLog[] }) {
 
 export default function SearchLogsMap({ logs }: { logs: SearchLog[] }) {
   const [mounted, setMounted] = useState(false);
+  const [provider, setProvider] = useState<keyof typeof mapProviders>("google");
+
 
   useEffect(() => {
     setMounted(true);
@@ -106,7 +111,11 @@ export default function SearchLogsMap({ logs }: { logs: SearchLog[] }) {
             </Popup>
           </Marker>
         ))}
+
+       
       </MapContainer>
+
+       
     </div>
   );
 }

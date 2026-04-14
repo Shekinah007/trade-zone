@@ -56,7 +56,7 @@ export default function AdminMobileNav({ user }: Props) {
           <div className="flex items-center justify-between h-16 px-5 border-b">
             <Link href="/" className="flex items-center gap-2 font-bold text-primary" onClick={() => setOpen(false)}>
               <ShoppingBag className="h-5 w-5" />
-              <span>Trade Zone Admin</span>
+              <span>FindMaster Admin</span>
             </Link>
           </div>
 

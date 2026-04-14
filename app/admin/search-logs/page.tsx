@@ -26,10 +26,12 @@ import {
   Shield,
   Database,
   Calendar,
-  Filter
+  Filter,
+  Navigation
 } from "lucide-react";
 import { format, formatDistanceToNow } from "date-fns";
 import { cn } from "@/lib/utils";
+import { MapDropdownButton } from "@/components/MapDropDownButton";
 
 interface SearchLog {
   _id: string;
@@ -65,18 +67,13 @@ export default function AdminSearchLogsPage() {
         logsArray.forEach(async (log) => {
           if (log.location?.lat && log.location?.lng) {
             try {
-              const response = await fetch(
-                `https://nominatim.openstreetmap.org/reverse?format=json&lat=${log.location.lat}&lon=${log.location.lng}&addressdetails=1`,
-                {
-                  headers: {
-                    'Accept-Language': 'en-US,en;q=0.9',
-                  },
-                }
-              );
+              const response = await fetch(`/api/reverse-geocode?lat=${log.location.lat}&lng=${log.location.lng}`);
               const geoData = await response.json();
-              if (geoData && geoData.display_name) {
-                const shortAddress = [geoData.city, geoData.town, geoData.village, geoData.state]
-                  .filter(Boolean)[0] || geoData.display_name.split(",")[0];
+              
+              if (geoData && geoData.display) {
+                // Determine a short version of the address like city, state
+                const shortAddress = [geoData.city, geoData.state]
+                  .filter(Boolean)[0] || geoData.display.split(",")[0];
                 setLogAddresses((prev) => ({ ...prev, [log._id]: shortAddress }));
               }
             } catch (err) {
@@ -405,6 +402,8 @@ export default function AdminSearchLogsPage() {
                           </button>
                         </div>
                       </div>
+
+
                       
                       {/* Expanded Details */}
                       {expandedLogs.has(log._id) && (
@@ -431,12 +430,48 @@ export default function AdminSearchLogsPage() {
                                 {format(new Date(log.createdAt), "EEEE, MMMM d, yyyy 'at' h:mm:ss a")}
                               </code>
                             </div>
-                            {log.location?.lat && logAddresses[log._id] && (
-                              <div className="p-2 rounded bg-muted/30 sm:col-span-2">
-                                <span className="text-muted-foreground block mb-0.5">Full Location</span>
-                                <code className="text-xs font-mono break-all text-foreground/70">
-                                  Coordinates: {log.location.lat.toFixed(6)}, {log.location.lng.toFixed(6)}
-                                </code>
+                            {log.location?.lat && (
+                              <div className="p-3 rounded bg-muted/30 sm:col-span-2 flex flex-col gap-3 border border-red-500/10">
+                                <div>
+                                    <span className="text-muted-foreground block mb-0.5">Location Data</span>
+                                    <code className="text-xs font-mono break-all text-foreground/80">
+                                      {logAddresses[log._id] ? logAddresses[log._id] : `Coordinates: ${log.location.lat.toFixed(6)}, ${log.location.lng.toFixed(6)}`}
+                                    </code>
+                                </div>
+
+                                <div className="flex flex-wrap items-center gap-2 mt-1">
+                    <MapDropdownButton lat={log?.location?.lat} lng={log?.location?.lng} />
+                                  {/* <a 
+                                    href={`https://www.google.com/maps/search/?api=1&query=${log.location.lat},${log.location.lng}`}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    title="Open in Map view"
+                                    className="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-md text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors shadow-sm"
+                                  >
+                                    <MapPin className="h-3.5 w-3.5" />
+                                    Map
+                                  </a>
+                                  <a 
+                                    href={`https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${log.location.lat},${log.location.lng}`}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    title="Open Street View"
+                                    className="px-3 py-1.5 bg-slate-800 hover:bg-slate-900 text-white rounded-md text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors shadow-sm"
+                                  >
+                                    <Eye className="h-3.5 w-3.5" />
+                                    Street View
+                                  </a>
+                                  <a 
+                                    href={`https://www.google.com/maps/dir/?api=1&destination=${log.location.lat},${log.location.lng}`}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    title="Get Directions"
+                                    className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors shadow-sm"
+                                  >
+                                    <Navigation className="h-3.5 w-3.5" />
+                                    Directions
+                                  </a> */}
+                                </div>
                               </div>
                             )}
                           </div>
