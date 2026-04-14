@@ -456,7 +456,7 @@ export default function RegistryPage() {
 
       {/* What You Can Secure - Red Theme */}
       <motion.section
-        variants={sectionVariants}
+        // variants={sectionVariants}
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, amount: 0.3 }}
@@ -512,7 +512,7 @@ export default function RegistryPage() {
 
       {/* How It Works - Red Theme */}
       <motion.section
-        variants={sectionVariants}
+        // variants={sectionVariants}
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, amount: 0.2 }}
@@ -574,7 +574,7 @@ export default function RegistryPage() {
 
       {/* Features Grid - Red Theme */}
       <motion.section
-        variants={sectionVariants}
+        // variants={sectionVariants}
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, amount: 0.2 }}

@@ -24,8 +24,10 @@ export async function GET(req: NextRequest) {
   const session = await getServerSession(authOptions);
 
   // Extract IP
-  const ipInfo = req.headers.get('x-forwarded-for');
-  const ipAddress = ipInfo ? ipInfo.split(',')[0] : (req.ip || 'Unknown');
+//   const ipInfo = req.headers.get('x-forwarded-for');
+//   const ipAddress = ipInfo ? ipInfo.split(',')[0] : (req.ip || 'Unknown');
+const ipInfo = req.headers.get('x-forwarded-for');
+const ipAddress = ipInfo ? ipInfo.split(',')[0].trim() : (req.headers.get('x-real-ip') || 'Unknown');
 
   const properties = await Property.find({
     $or: [
