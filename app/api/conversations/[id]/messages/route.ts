@@ -57,10 +57,22 @@ export async function POST(
       "name image"
     );
 
+    const conversation = await Conversation.findById(id);
+    if (!conversation) {
+      return NextResponse.json({ message: "Conversation not found" }, { status: 404 });
+    }
+
+    const incUpdates: Record<string, number> = {};
+    conversation.participants.forEach((p: any) => {
+      if (p.toString() !== session.user.id) {
+        incUpdates[`unreadCount.${p.toString()}`] = 1;
+      }
+    });
+
     await Conversation.findByIdAndUpdate(id, {
         lastMessage: content,
         lastMessageAt: new Date(),
-        $inc: { [`unreadCount.${session.user.id === id ? 'other' : 'unknown'}`]: 1 } // Simplified logic, ideally identify other participant
+        $inc: incUpdates
     });
 
     // Publish to Ably if API key is present

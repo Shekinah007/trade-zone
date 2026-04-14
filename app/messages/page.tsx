@@ -16,10 +16,17 @@ import {
   Star,
   Archive,
   Trash2,
-  MoreVertical,
   Sparkles,
   Shield,
-  Crown
+  Crown,
+  Mail,
+  MailOpen,
+  Send,
+  ArrowLeft,
+  ChevronRight,
+  PlusCircle,
+  Bell,
+  Settings
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -36,6 +43,7 @@ export default function InboxPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState("all");
+  const [viewMode, setViewMode] = useState<"list" | "grid">("list");
 
   useEffect(() => {
     if (status === "authenticated") {
@@ -64,20 +72,31 @@ export default function InboxPage() {
     const matchesSearch = otherParticipant?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
                           conv.lastMessage?.toLowerCase().includes(searchQuery.toLowerCase());
     
+    const isConvUnread = session?.user?.id && conv.unreadCount && conv.unreadCount[session.user.id] > 0;
+
     if (activeTab === "unread") {
-      return matchesSearch && !conv.isRead;
+      return matchesSearch && isConvUnread;
     }
     return matchesSearch;
   });
 
-  const unreadCount = conversations.filter(conv => !conv.isRead).length;
+  const unreadCount = conversations.filter(conv => session?.user?.id && conv.unreadCount && conv.unreadCount[session.user.id] > 0).length;
+  const todayMessages = conversations.filter(conv => {
+    const lastMessageDate = new Date(conv.lastMessageAt);
+    const today = new Date();
+    return lastMessageDate.toDateString() === today.toDateString();
+  }).length;
 
   if (status === "loading" || isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-emerald-50/50 via-white to-emerald-50/30 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50/30 to-emerald-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 flex items-center justify-center">
         <div className="text-center">
-          <Loader2 className="h-12 w-12 animate-spin text-emerald-600 mx-auto mb-4" />
-          <p className="text-muted-foreground">Loading your messages...</p>
+          <div className="relative">
+            <div className="absolute inset-0 bg-emerald-500/20 rounded-full blur-xl animate-pulse" />
+            <Loader2 className="h-16 w-16 animate-spin text-emerald-600 mx-auto mb-4 relative" />
+          </div>
+          <p className="text-muted-foreground font-medium">Loading your messages...</p>
+          <p className="text-xs text-muted-foreground mt-1">Please wait</p>
         </div>
       </div>
     );
@@ -85,17 +104,22 @@ export default function InboxPage() {
 
   if (status === "unauthenticated") {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-emerald-50/50 via-white to-emerald-50/30 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 flex items-center justify-center">
-        <Card className="max-w-md w-full mx-4 text-center border-0 shadow-xl">
+      <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50/30 to-emerald-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 flex items-center justify-center p-4">
+        <Card className="max-w-md w-full text-center border-0 shadow-2xl bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm">
           <CardContent className="p-8">
-            <div className="w-20 h-20 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center mx-auto mb-4">
-              <MessageSquare className="h-10 w-10 text-emerald-600" />
+            <div className="relative">
+              <div className="absolute inset-0 bg-emerald-500/20 rounded-full blur-2xl" />
+              <div className="relative w-24 h-24 rounded-full bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center mx-auto mb-4 shadow-lg">
+                <MessageSquare className="h-12 w-12 text-white" />
+              </div>
             </div>
-            <h2 className="text-2xl font-bold mb-2">Welcome to Messages</h2>
+            <h2 className="text-2xl font-bold mb-2 bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
+              Welcome to Messages
+            </h2>
             <p className="text-muted-foreground mb-6">
               Sign in to view and manage your conversations with buyers and sellers.
             </p>
-            <Button asChild className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700">
+            <Button asChild className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 shadow-lg shadow-emerald-500/25">
               <Link href="/auth/signin">Sign In to Continue</Link>
             </Button>
           </CardContent>
@@ -105,66 +129,163 @@ export default function InboxPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50/50 via-white to-emerald-50/30 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
-      <div className="container mx-auto py-8 px-4 max-w-5xl">
-        {/* Header */}
+    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50/30 to-emerald-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
+      <div className="container mx-auto py-6 px-4 max-w-6xl">
+        {/* Header with Stats */}
         <div className="mb-8">
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-emerald-100 dark:bg-emerald-900/30 rounded-xl">
-                <MessageSquare className="h-6 w-6 text-emerald-600" />
+              <div className="relative">
+                <div className="absolute inset-0 bg-emerald-500/20 rounded-2xl blur-lg" />
+                <div className="relative p-3 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-2xl shadow-lg">
+                  <MessageSquare className="h-7 w-7 text-white" />
+                </div>
               </div>
               <div>
-                <h1 className="text-3xl font-bold tracking-tight">Messages</h1>
+                <h1 className="text-3xl md:text-4xl font-bold tracking-tight bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
+                  Messages
+                </h1>
                 <p className="text-sm text-muted-foreground mt-1">
                   Manage your conversations with buyers and sellers
                 </p>
               </div>
             </div>
-            <div className="flex items-center gap-2">
-              <Badge variant="outline" className="bg-emerald-500/10 text-emerald-600 border-emerald-500/20">
-                <Sparkles className="h-3 w-3 mr-1" />
-                {conversations.length} Conversations
-              </Badge>
+            
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm" className="gap-2 border-emerald-500/20 hover:bg-emerald-500/10">
+                <Bell className="h-4 w-4" />
+                Notifications
+              </Button>
+              <Button variant="outline" size="sm" className="gap-2 border-emerald-500/20 hover:bg-emerald-500/10">
+                <Settings className="h-4 w-4" />
+                Settings
+              </Button>
             </div>
+          </div>
+
+          {/* Stats Cards */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+            <Card className="border-0 shadow-md bg-gradient-to-br from-emerald-500/10 to-transparent">
+              <CardContent className="p-3">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-xs text-muted-foreground">Total Conversations</p>
+                    <p className="text-2xl font-bold text-emerald-600">{conversations.length}</p>
+                  </div>
+                  <Inbox className="h-6 w-6 text-emerald-500/50" />
+                </div>
+              </CardContent>
+            </Card>
+            
+            <Card className="border-0 shadow-md bg-gradient-to-br from-amber-500/10 to-transparent">
+              <CardContent className="p-3">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-xs text-muted-foreground">Unread</p>
+                    <p className="text-2xl font-bold text-amber-600">{unreadCount}</p>
+                  </div>
+                  <Mail className="h-6 w-6 text-amber-500/50" />
+                </div>
+              </CardContent>
+            </Card>
+            
+            <Card className="border-0 shadow-md bg-gradient-to-br from-blue-500/10 to-transparent">
+              <CardContent className="p-3">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-xs text-muted-foreground">Today</p>
+                    <p className="text-2xl font-bold text-blue-600">{todayMessages}</p>
+                  </div>
+                  <Clock className="h-6 w-6 text-blue-500/50" />
+                </div>
+              </CardContent>
+            </Card>
+            
+            <Card className="border-0 shadow-md bg-gradient-to-br from-purple-500/10 to-transparent">
+              <CardContent className="p-3">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-xs text-muted-foreground">Sent</p>
+                    <p className="text-2xl font-bold text-purple-600">
+                      {conversations.filter(c => c.lastMessageSender === session?.user?.id).length}
+                    </p>
+                  </div>
+                  <Send className="h-6 w-6 text-purple-500/50" />
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </div>
 
-        <Card className="border-0 shadow-xl bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm overflow-hidden">
-          {/* Search and Filter Bar */}
-          <div className="p-4 border-b bg-gradient-to-r from-emerald-50/30 to-transparent dark:from-emerald-950/20">
-            <div className="flex gap-3">
+        {/* Main Content */}
+        <Card className="border-0 shadow-2xl bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm overflow-hidden">
+          {/* Header Bar */}
+          <div className="p-4 border-b bg-gradient-to-r from-emerald-500/5 via-transparent to-emerald-500/5">
+            <div className="flex flex-col sm:flex-row gap-3">
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
-                  placeholder="Search conversations..."
+                  placeholder="Search by name or message..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-9 border-emerald-200 dark:border-emerald-800 focus-visible:ring-emerald-500"
+                  className="pl-9 border-emerald-200 dark:border-emerald-800 focus-visible:ring-emerald-500 bg-white/50 dark:bg-gray-800/50"
                 />
               </div>
-              <Button variant="outline" size="icon" className="shrink-0 hover:bg-emerald-100 dark:hover:bg-emerald-900/30">
-                <Filter className="h-4 w-4" />
-              </Button>
+              <div className="flex gap-2">
+                <Button 
+                  variant="outline" 
+                  size="icon" 
+                  className="shrink-0 hover:bg-emerald-100 dark:hover:bg-emerald-900/30 border-emerald-200"
+                >
+                  <Filter className="h-4 w-4" />
+                </Button>
+                <div className="flex bg-muted/50 rounded-lg p-0.5">
+                  <button
+                    onClick={() => setViewMode("list")}
+                    className={cn(
+                      "px-3 py-1.5 text-xs rounded-md transition-all",
+                      viewMode === "list" 
+                        ? "bg-emerald-600 text-white shadow-sm" 
+                        : "hover:bg-emerald-500/10"
+                    )}
+                  >
+                    List View
+                  </button>
+                  <button
+                    onClick={() => setViewMode("grid")}
+                    className={cn(
+                      "px-3 py-1.5 text-xs rounded-md transition-all",
+                      viewMode === "grid" 
+                        ? "bg-emerald-600 text-white shadow-sm" 
+                        : "hover:bg-emerald-500/10"
+                    )}
+                  >
+                    Grid View
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
 
           {/* Tabs */}
           <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab} className="w-full">
             <div className="px-4 pt-4">
-              <TabsList className="bg-emerald-500/10">
+              <TabsList className="bg-emerald-500/10 p-1">
                 <TabsTrigger 
                   value="all" 
                   className="data-[state=active]:bg-emerald-600 data-[state=active]:text-white gap-2"
                 >
                   <Inbox className="h-4 w-4" />
                   All Messages
+                  <Badge variant="secondary" className="ml-1 text-[10px]">
+                    {conversations.length}
+                  </Badge>
                 </TabsTrigger>
                 <TabsTrigger 
                   value="unread" 
                   className="data-[state=active]:bg-emerald-600 data-[state=active]:text-white gap-2"
                 >
-                  <MessageSquare className="h-4 w-4" />
+                  <Mail className="h-4 w-4" />
                   Unread
                   {unreadCount > 0 && (
                     <Badge variant="destructive" className="ml-1 h-5 px-1.5 text-[10px]">
@@ -176,17 +297,31 @@ export default function InboxPage() {
             </div>
 
             <TabsContent value="all" className="mt-0">
-              <ConversationList 
-                conversations={filteredConversations} 
-                userId={session?.user?.id}
-              />
+              {viewMode === "list" ? (
+                <ConversationList 
+                  conversations={filteredConversations} 
+                  userId={session?.user?.id}
+                />
+              ) : (
+                <ConversationGrid 
+                  conversations={filteredConversations} 
+                  userId={session?.user?.id}
+                />
+              )}
             </TabsContent>
 
             <TabsContent value="unread" className="mt-0">
-              <ConversationList 
-                conversations={filteredConversations} 
-                userId={session?.user?.id}
-              />
+              {viewMode === "list" ? (
+                <ConversationList 
+                  conversations={filteredConversations} 
+                  userId={session?.user?.id}
+                />
+              ) : (
+                <ConversationGrid 
+                  conversations={filteredConversations} 
+                  userId={session?.user?.id}
+                />
+              )}
             </TabsContent>
           </Tabs>
         </Card>
@@ -195,14 +330,17 @@ export default function InboxPage() {
   );
 }
 
-function ConversationList({ conversations, userId }: { conversations: any[]; userId: string |  undefined }) {
+function ConversationList({ conversations, userId }: { conversations: any[]; userId: string | undefined }) {
   if (conversations.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
-        <div className="w-24 h-24 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center mb-4">
-          <MessageSquare className="h-12 w-12 text-emerald-600" />
+      <div className="flex flex-col items-center justify-center py-20 px-4 text-center">
+        <div className="relative">
+          <div className="absolute inset-0 bg-emerald-500/20 rounded-full blur-2xl" />
+          <div className="relative w-28 h-28 rounded-full bg-gradient-to-br from-emerald-100 to-teal-100 dark:from-emerald-900/30 dark:to-teal-900/30 flex items-center justify-center mb-4">
+            <MailOpen className="h-12 w-12 text-emerald-600" />
+          </div>
         </div>
-        <h3 className="font-semibold text-lg mb-2">No messages yet</h3>
+        <h3 className="font-semibold text-xl mb-2">Your inbox is empty</h3>
         <p className="text-sm text-muted-foreground max-w-sm">
           When you start a conversation with a buyer or seller, it will appear here.
         </p>
@@ -211,38 +349,47 @@ function ConversationList({ conversations, userId }: { conversations: any[]; use
   }
 
   return (
-    <div className="divide-y">
-      {conversations.map((conv, idx) => {
+    <div className="divide-y divide-emerald-100 dark:divide-emerald-900/20">
+      {conversations.map((conv) => {
         const otherParticipant = conv.participants.find(
           (p: any) => p._id !== userId
         );
-        const isUnread = !conv.isRead;
+        const isUnread = userId && conv.unreadCount && conv.unreadCount[userId] > 0;
         
         return (
           <Link 
             key={conv._id} 
             href={`/messages/${conv._id}`}
             className={cn(
-              "flex items-center p-4 gap-4 transition-all duration-200 hover:bg-emerald-50/50 dark:hover:bg-emerald-950/20 group relative",
-              isUnread && "bg-emerald-50/30 dark:bg-emerald-950/10"
+              "flex items-center p-5 gap-4 transition-all duration-300 hover:bg-gradient-to-r hover:from-emerald-50/50 hover:to-transparent dark:hover:from-emerald-950/20 group relative",
+              isUnread && "bg-gradient-to-r from-emerald-50/30 to-transparent dark:from-emerald-950/10"
             )}
           >
-            {/* Online Status Indicator */}
+            {/* Status indicator bar */}
+            <div className={cn(
+              "absolute left-0 top-0 bottom-0 w-1 transition-all",
+              isUnread ? "bg-emerald-500" : "bg-transparent group-hover:bg-emerald-500/30"
+            )} />
+            
+            {/* Avatar */}
             <div className="relative">
-              <Avatar className="h-14 w-14 ring-2 ring-emerald-500/20 shadow-md">
+              <Avatar className="h-16 w-16 ring-2 ring-emerald-500/20 shadow-lg transition-transform group-hover:scale-105">
                 <AvatarImage src={otherParticipant?.image} />
-                <AvatarFallback className="bg-gradient-to-br from-emerald-500 to-teal-500 text-white">
+                <AvatarFallback className="bg-gradient-to-br from-emerald-500 to-teal-500 text-white text-lg font-bold">
                   {otherParticipant?.name?.[0] || <User className="h-6 w-6" />}
                 </AvatarFallback>
               </Avatar>
-              <div className="absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full bg-emerald-500 border-2 border-white dark:border-gray-900" />
+              <div className="absolute bottom-0 right-0 w-4 h-4 rounded-full bg-emerald-500 border-2 border-white dark:border-gray-900 shadow-sm" />
+              {isUnread && (
+                <div className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-red-500 animate-pulse ring-2 ring-white" />
+              )}
             </div>
             
             <div className="flex-1 min-w-0">
-              <div className="flex justify-between items-baseline mb-1.5">
-                <div className="flex items-center gap-2">
+              <div className="flex justify-between items-start mb-2">
+                <div className="flex items-center gap-2 flex-wrap">
                   <span className={cn(
-                    "font-semibold truncate",
+                    "font-semibold text-base truncate",
                     isUnread && "text-emerald-700 dark:text-emerald-400"
                   )}>
                     {otherParticipant?.name || "Unknown User"}
@@ -255,7 +402,7 @@ function ConversationList({ conversations, userId }: { conversations: any[]; use
                   )}
                 </div>
                 {conv.lastMessageAt && (
-                  <span className="text-xs text-muted-foreground whitespace-nowrap ml-2 flex items-center gap-1">
+                  <span className="text-xs text-muted-foreground whitespace-nowrap ml-2 flex items-center gap-1 bg-muted/50 px-2 py-1 rounded-full">
                     <Clock className="h-3 w-3" />
                     {formatDistanceToNow(new Date(conv.lastMessageAt), { addSuffix: true })}
                   </span>
@@ -265,7 +412,7 @@ function ConversationList({ conversations, userId }: { conversations: any[]; use
               <div className="flex justify-between items-center">
                 <div className="flex-1 min-w-0">
                   <p className={cn(
-                    "text-sm truncate max-w-[80%]",
+                    "text-sm truncate max-w-[70%]",
                     isUnread 
                       ? "text-foreground font-medium" 
                       : "text-muted-foreground"
@@ -275,37 +422,108 @@ function ConversationList({ conversations, userId }: { conversations: any[]; use
                 </div>
                 <div className="flex items-center gap-2">
                   {conv.listing && (
-                    <Badge variant="outline" className="text-[10px] bg-secondary/50 max-w-[100px] truncate">
-                      {conv.listing.title}
+                    <Badge variant="outline" className="text-[10px] bg-secondary/50 max-w-[120px] truncate border-emerald-200">
+                      📦 {conv.listing.title}
                     </Badge>
-                  )}
-                  {isUnread && (
-                    <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
                   )}
                   {conv.lastMessageSender === userId && (
                     <CheckCheck className={cn(
                       "h-4 w-4",
-                      conv.isRead ? "text-emerald-600" : "text-muted-foreground"
+                      conv.participants.every((p: any) => p._id === userId || !conv.unreadCount || conv.unreadCount[p._id] === 0) ? "text-emerald-600" : "text-muted-foreground"
                     )} />
                   )}
+                  <ChevronRight className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
                 </div>
               </div>
             </div>
+          </Link>
+        );
+      })}
+    </div>
+  );
+}
 
-            {/* Hover Actions */}
-            <div className="absolute right-4 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity">
-              <div className="flex gap-1">
-                <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-emerald-100 dark:hover:bg-emerald-900/30">
-                  <Star className="h-3.5 w-3.5" />
-                </Button>
-                <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-emerald-100 dark:hover:bg-emerald-900/30">
-                  <Archive className="h-3.5 w-3.5" />
-                </Button>
-                <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-red-100 dark:hover:bg-red-900/30 hover:text-red-600">
-                  <Trash2 className="h-3.5 w-3.5" />
-                </Button>
+function ConversationGrid({ conversations, userId }: { conversations: any[]; userId: string | undefined }) {
+  if (conversations.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20 px-4 text-center">
+        <div className="relative">
+          <div className="absolute inset-0 bg-emerald-500/20 rounded-full blur-2xl" />
+          <div className="relative w-28 h-28 rounded-full bg-gradient-to-br from-emerald-100 to-teal-100 dark:from-emerald-900/30 dark:to-teal-900/30 flex items-center justify-center mb-4">
+            <MailOpen className="h-12 w-12 text-emerald-600" />
+          </div>
+        </div>
+        <h3 className="font-semibold text-xl mb-2">Your inbox is empty</h3>
+        <p className="text-sm text-muted-foreground max-w-sm">
+          When you start a conversation with a buyer or seller, it will appear here.
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
+      {conversations.map((conv) => {
+        const otherParticipant = conv.participants.find(
+          (p: any) => p._id !== userId
+        );
+        const isUnread = userId && conv.unreadCount && conv.unreadCount[userId] > 0;
+        
+        return (
+          <Link 
+            key={conv._id} 
+            href={`/messages/${conv._id}`}
+            className={cn(
+              "group relative overflow-hidden rounded-xl border transition-all duration-300 hover:shadow-xl hover:-translate-y-1",
+              isUnread 
+                ? "border-emerald-500/50 bg-gradient-to-br from-emerald-50/50 to-transparent dark:from-emerald-950/20" 
+                : "border-emerald-500/20 bg-white/50 dark:bg-gray-800/50 hover:border-emerald-500/30"
+            )}
+          >
+            {/* Status indicator */}
+            <div className={cn(
+              "absolute top-0 left-0 right-0 h-1 transition-all",
+              isUnread ? "bg-emerald-500" : "bg-transparent group-hover:bg-emerald-500/30"
+            )} />
+            
+            <CardContent className="p-4 text-center">
+              <div className="relative inline-block mx-auto mb-3">
+                <Avatar className="h-20 w-20 ring-2 ring-emerald-500/20 shadow-lg">
+                  <AvatarImage src={otherParticipant?.image} />
+                  <AvatarFallback className="bg-gradient-to-br from-emerald-500 to-teal-500 text-white text-xl font-bold">
+                    {otherParticipant?.name?.[0] || <User className="h-8 w-8" />}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="absolute bottom-0 right-0 w-4 h-4 rounded-full bg-emerald-500 border-2 border-white dark:border-gray-900" />
+                {isUnread && (
+                  <div className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-red-500 animate-pulse" />
+                )}
               </div>
-            </div>
+              
+              <h3 className={cn(
+                "font-semibold text-base truncate mb-1",
+                isUnread && "text-emerald-700 dark:text-emerald-400"
+              )}>
+                {otherParticipant?.name || "Unknown User"}
+              </h3>
+              
+              <p className="text-xs text-muted-foreground truncate mb-2">
+                {conv.lastMessage || "Started a conversation"}
+              </p>
+              
+              <div className="flex items-center justify-center gap-2 mt-3 pt-3 border-t border-emerald-500/10">
+                <Clock className="h-3 w-3 text-muted-foreground" />
+                <span className="text-[10px] text-muted-foreground">
+                  {formatDistanceToNow(new Date(conv.lastMessageAt), { addSuffix: true })}
+                </span>
+                {conv.lastMessageSender === userId && (
+                  <CheckCheck className={cn(
+                    "h-3 w-3",
+                    conv.read ? "text-emerald-600" : "text-muted-foreground"
+                  )} />
+                )}
+              </div>
+            </CardContent>
           </Link>
         );
       })}

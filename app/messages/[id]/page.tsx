@@ -96,6 +96,9 @@ export default function ChatPage() {
       if (res.ok) {
         const data = await res.json();
         setMessages(data);
+        
+        // Mark conversation as read after fetching messages
+        await fetch(`/api/conversations/${id}/read`, { method: "POST" }).catch(console.error);
       }
     } catch (error) {
       console.error("Failed to fetch messages", error);
@@ -156,59 +159,50 @@ export default function ChatPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50/50 via-white to-emerald-50/30 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
-      <div className="container mx-auto py-4 px-4 max-w-6xl h-screen flex flex-col">
+    <div className="py-0 bg-emerald-200 md:bg-white dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
+      <div className="mx-auto  max-w-6xl  h-[calc(100vh-72px)] flex flex-col">
         {/* Chat Header */}
-        <Card className="mb-4 border-0 shadow-lg bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm">
-          <div className="p-4 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <Button variant="ghost" size="sm" asChild className="hover:bg-emerald-100 dark:hover:bg-emerald-900/30">
-                <Link href="/messages">
-                  <ArrowLeft className="mr-2 h-4 w-4" />
-                  Back
-                </Link>
-              </Button>
-              <Separator orientation="vertical" className="h-8" />
-              <Avatar className="h-12 w-12 ring-2 ring-emerald-500/20">
-                <AvatarImage src={otherUser?.image} />
-                <AvatarFallback className="bg-gradient-to-br from-emerald-500 to-teal-500 text-white">
-                  {otherUser?.name?.[0] || "U"}
-                </AvatarFallback>
-              </Avatar>
-              <div>
-                <div className="flex items-center gap-2">
-                  <h1 className="font-semibold text-lg">{otherUser?.name || "User"}</h1>
-                  {otherUser?.isVerified && (
-                    <Shield className="h-4 w-4 text-emerald-600" />
-                  )}
-                  <Badge variant="outline" className="bg-emerald-500/10 text-emerald-600 border-emerald-500/20 text-[10px]">
-                    <Crown className="h-3 w-3 mr-1" />
-                    Verified Seller
-                  </Badge>
-                </div>
-                <div className="flex items-center gap-2 mt-0.5">
-                  <div className="flex items-center gap-1">
-                    <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                    <span className="text-xs text-muted-foreground">Online</span>
-                  </div>
-                  {isTyping && (
-                    <>
-                      <Separator orientation="vertical" className="h-3" />
-                      <div className="flex items-center gap-1">
-                        <Sparkles className="h-3 w-3 text-emerald-500 animate-pulse" />
-                        <span className="text-xs text-emerald-600">Typing...</span>
-                      </div>
-                    </>
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
-        </Card>
+    <Card className="p-1 rounded-none border-0  bg-transparent shadow-none dark:bg-gray-900/80">
+      <div className="px-3 py-2 flex items-center gap-2">
+    <Button variant="ghost" size="sm" asChild className="h-7 px-2 hover:bg-emerald-100">
+      <Link href="/messages">
+        <ArrowLeft className="h-3.5 w-3.5" />
+      </Link>
+    </Button>
+    
+    <Separator orientation="vertical" className="h-5" />
+    
+    <Avatar className="h-8 w-8 ring-1 ring-emerald-500/20">
+      <AvatarImage src={otherUser?.image} />
+      <AvatarFallback className="bg-gradient-to-br from-emerald-500 to-teal-500 text-white text-xs">
+        {otherUser?.name?.[0] || "U"}
+      </AvatarFallback>
+    </Avatar>
+    
+    <div className="flex flex-col">
+      <div className="flex items-center gap-1">
+        <span className="font-semibold text-xs">{otherUser?.name || "User"}</span>
+        {otherUser?.isVerified && (
+          <Shield className="h-3 w-3 text-emerald-600" />
+        )}
+      </div>
+      <div className="flex items-center gap-1">
+        <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+        <span className="text-[9px] text-muted-foreground">Online</span>
+        {isTyping && (
+          <>
+            <span className="text-[9px] text-muted-foreground">•</span>
+            <span className="text-[9px] text-emerald-600 animate-pulse">typing...</span>
+          </>
+        )}
+      </div>
+    </div>
+  </div>
+</Card>
 
         {/* Messages Area */}
-        <Card className="flex-1 flex flex-col overflow-hidden border-0 shadow-lg bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm">
-          <div ref={scrollRef} className="flex-1 overflow-y-auto p-6 space-y-4">
+        <Card className="flex-1 flex flex-col bg-white overflow-y-auto border-0 shadow-none py-0 dark:bg-gray-900/80 backdrop-blur-sm">
+          <div ref={scrollRef} className="flex-1 overflow-auto p-6 space-y-4">
             {messages.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-full text-center">
                 <div className="w-20 h-20 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center mb-4">
