@@ -98,7 +98,7 @@ export default function Navbar() {
           {/* Context Switcher Pill */}
           <div className="hidden md:flex items-center p-1 bg-muted rounded-full border border-border/50">
             <button
-              onClick={() => { setMode("marketplace"); router.push("/browse"); }}
+              onClick={() => { setMode("marketplace"); router.push("/market"); }}
               className={cn("flex items-center px-4 py-1.5 rounded-full text-sm font-medium transition-all", isMarketplace ? "bg-emerald-600 text-white shadow-sm" : "text-muted-foreground hover:text-foreground")}
             >
               Marketplace
@@ -258,7 +258,7 @@ export default function Navbar() {
                 {/* Mobile Mode Switcher */}
                 <div className="flex rounded-lg bg-muted p-1 border">
                     <button
-                        onClick={() => { setMode("marketplace"); router.push("/browse"); closeMobileMenu(); }}
+                        onClick={() => { setMode("marketplace"); router.push("/market"); closeMobileMenu(); }}
                         className={cn("flex-1 text-sm py-2 rounded-md font-semibold transition-all", isMarketplace ? "bg-emerald-600 text-white shadow-sm" : "text-muted-foreground")}
                     >
                         Marketplace
