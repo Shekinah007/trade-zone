@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import Image from "next/image";
+import OwnerSearchLogs from "@/components/OwnerSearchLogs";
 import { toast } from "sonner";
 import {
   Shield,
@@ -860,6 +861,11 @@ export default function PropertyDetailPage() {
                 </div>
               </CardContent>
             </Card>
+          )}
+
+          {/* Owner Audit Logs */}
+          {isOwner && (
+            <OwnerSearchLogs propertyId={id} />
           )}
         </div>
 
