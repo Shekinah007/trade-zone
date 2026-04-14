@@ -28,6 +28,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import User from "@/models/User";
 
 async function getUserListings(userId: string | undefined) {
   await dbConnect();
@@ -41,6 +42,12 @@ async function getUserProperties(userId: string | undefined) {
   return JSON.parse(JSON.stringify(properties));
 }
 
+async function getUserDetails(userId: string | undefined) {
+  await dbConnect();
+  const user = await User.findById(userId);
+  return JSON.parse(JSON.stringify(user));
+}
+
 export default async function DashboardPage() {
   const session = await getServerSession(authOptions);
 
@@ -50,13 +57,14 @@ export default async function DashboardPage() {
 
   const listings = await getUserListings(session.user.id);
   const properties = await getUserProperties(session.user.id);
+  const details = await getUserDetails(session.user.id);
   const activeListings = listings.filter((l: any) => l.status === "active");
   const soldListings = listings.filter((l: any) => l.status === "sold");
   const missingProperties = properties.filter((p: any) => p.status === "missing");
   const registeredProperties = properties.filter((p: any) => p.status === "registered");
 
   const totalViews = listings.reduce((acc: number, l: any) => acc + (l.views || 0), 0);
-  const totalMessages = 12;
+  // const totalMessages = 12;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
@@ -106,7 +114,7 @@ export default async function DashboardPage() {
             </CardContent>
           </Card>
 
-          <Card className="border-l-4 border-l-orange-500">
+          {/* <Card className="border-l-4 border-l-orange-500">
             <CardContent className="p-3">
               <div className="flex items-center justify-between">
                 <div>
@@ -116,15 +124,15 @@ export default async function DashboardPage() {
                 <MessageCircle className="h-6 w-6 text-orange-500 opacity-50" />
               </div>
             </CardContent>
-          </Card>
+          </Card> */}
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           
           {/* Sidebar - Compact */}
-          <div className="lg:col-span-1 space-y-4">
+          <div className="lg:col-span-1 space-y-4 ">
             {/* User Profile Card - Compact */}
-            <Card className="overflow-hidden sticky top-6">
+            <Card className="overflow-hidden sticky top-6 py-0">
               <div className="h-16 bg-gradient-to-r from-emerald-500 to-blue-500" />
               <CardContent className="text-center -mt-10 pb-4">
                 <Avatar className="h-16 w-16 mx-auto border-2 border-background shadow-lg">
@@ -146,10 +154,10 @@ export default async function DashboardPage() {
                       <div className="font-bold text-blue-600">{properties.length}</div>
                       <div className="text-muted-foreground text-[10px]">Protected</div>
                     </div>
-                    <div className="text-center">
+                    {/* <div className="text-center">
                       <div className="font-bold text-orange-600">{totalMessages}</div>
                       <div className="text-muted-foreground text-[10px]">Messages</div>
-                    </div>
+                    </div> */}
                   </div>
                 </div>
 
@@ -161,15 +169,11 @@ export default async function DashboardPage() {
                     </Link>
                   </Button>
                 </div>
-              </CardContent>
-            </Card>
 
-            {/* Quick Actions - Compact */}
-            <Card>
-              <CardHeader className="p-3 pb-0">
-                <CardTitle className="text-xs font-semibold">Quick Actions</CardTitle>
-              </CardHeader>
-              <CardContent className="p-3 space-y-2">
+                <p className="text-xs font-semibold text-muted-foreground mt-7">Quick Actions</p>
+
+                <div className="flex flex-col gap-1 mt-1">
+
                 <Button size="sm" className="w-full justify-start bg-emerald-600 hover:bg-emerald-700 text-xs h-8" asChild>
                   <Link href="/listings/create">
                     <PlusCircle className="mr-2 h-3 w-3" />
@@ -186,13 +190,14 @@ export default async function DashboardPage() {
                   <Link href="/messages">
                     <MessageCircle className="mr-2 h-3 w-3" />
                     View Messages
-                    {totalMessages > 0 && (
+                    {/* {totalMessages > 0 && (
                       <Badge variant="destructive" className="ml-auto text-[10px] px-1">
                         {totalMessages}
                       </Badge>
-                    )}
+                    )} */}
                   </Link>
                 </Button>
+                </div>
               </CardContent>
             </Card>
           </div>
@@ -200,7 +205,7 @@ export default async function DashboardPage() {
           {/* Main Content - Tab System */}
           <div className="lg:col-span-3">
             <Tabs defaultValue="marketplace" className="w-full">
-              <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center justify-between mb-1">
                 <TabsList className="bg-muted/50 p-0.5 h-8">
                   <TabsTrigger 
                     value="marketplace" 
@@ -219,7 +224,7 @@ export default async function DashboardPage() {
                 </TabsList>
                 
                 {/* Dynamic Action Button */}
-                <div className="hidden sm:block">
+                {/* <div className="hidden sm:block">
                   <div className="data-[state=marketplace]:block data-[state=registry]:hidden">
                     <Button size="sm" asChild className="bg-emerald-600 hover:bg-emerald-700 rounded-full h-8 text-xs">
                       <Link href="/listings/create">
@@ -236,11 +241,19 @@ export default async function DashboardPage() {
                       </Link>
                     </Button>
                   </div>
-                </div>
+                </div> */}
               </div>
               
               {/* ==================== MARKETPLACE TAB ==================== */}
               <TabsContent value="marketplace" className="space-y-4 mt-0">
+                <div className="data-[state=marketplace]:block data-[state=registry]:hidden">
+                    <Button size="sm" asChild className="bg-emerald-600 hover:bg-emerald-700 rounded-full h-8 text-xs">
+                      <Link href="/listings/create">
+                        <PlusCircle className="mr-1.5 h-3 w-3" />
+                        Post Ad
+                      </Link>
+                    </Button>
+                  </div>
                 {/* Marketplace Stats - Compact */}
                 <div className="grid grid-cols-2 gap-3">
                   <Card className="bg-gradient-to-br from-emerald-50 to-emerald-100 dark:from-emerald-950/30 dark:to-emerald-900/20 border-emerald-200 dark:border-emerald-800">
@@ -275,10 +288,10 @@ export default async function DashboardPage() {
                         <div className="p-1.5 bg-emerald-100 dark:bg-emerald-900/50 rounded-full">
                           <MessageCircle className="h-3.5 w-3.5 text-emerald-600" />
                         </div>
-                        <div>
+                        {/* <div>
                           <p className="font-semibold text-sm">Messages from buyers</p>
                           <p className="text-xs text-muted-foreground">You have {totalMessages} unread messages</p>
-                        </div>
+                        </div> */}
                       </div>
                       <Button variant="ghost" size="sm" className="text-emerald-600 text-xs h-7" asChild>
                         <Link href="/messages">
@@ -374,6 +387,14 @@ export default async function DashboardPage() {
               
               {/* ==================== PROPERTY REGISTRY TAB ==================== */}
               <TabsContent value="registry" className="space-y-4 mt-0">
+                 <div className="data-[state=registry]:block data-[state=marketplace]:hidden">
+                    <Button size="sm" asChild className="bg-blue-600 hover:bg-blue-700 rounded-full h-8 text-xs">
+                      <Link href="/registry/register">
+                        <Shield className="mr-1.5 h-3 w-3" />
+                        Register Asset
+                      </Link>
+                    </Button>
+                  </div>
                 {/* Registry Stats - Compact */}
                 <div className="grid grid-cols-3 gap-3">
                   <Card className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950/30 dark:to-blue-900/20 border-blue-200 dark:border-blue-800">
@@ -422,13 +443,13 @@ export default async function DashboardPage() {
                         <div>
                           <p className="font-semibold text-sm">Registration Quota</p>
                           <p className="text-xs text-muted-foreground">
-                            {session.user.unlimitedRegistrations 
+                            {details.unlimitedRegistrations 
                               ? "You have unlimited property registrations." 
-                              : `You have registered ${properties.length} out of ${session.user.registrationLimit || 1} properties.`}
+                              : `You have registered ${properties.length} out of ${details.registrationLimit || 1} properties.`}
                           </p>
                         </div>
                       </div>
-                      {!session.user.unlimitedRegistrations && (
+                      {!details.unlimitedRegistrations && (
                         <TokenPurchaseButton size="sm" className="h-7 text-xs" />
                       )}
                     </div>
