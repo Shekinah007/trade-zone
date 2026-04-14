@@ -22,7 +22,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { TokenPurchaseModal } from "@/components/TokenPurchaseModal";
+// import { TokenPurchaseModal } from "@/components/TokenPurchaseModal";
 import {
   Select,
   SelectContent,
@@ -31,6 +31,15 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import dynamic from "next/dynamic";
+
+const TokenPurchaseModal = dynamic(
+  () => import("@/components/TokenPurchaseModal").then(mod => mod.TokenPurchaseModal),
+  { 
+    ssr: false,
+    loading: () => null // Optional: show nothing while loading
+  }
+);
 
 const ITEM_TYPES = [
   { value: "phone", label: "Phone / Smartphone", icon: "📱" },

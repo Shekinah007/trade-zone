@@ -69,6 +69,8 @@ export async function GET(req: NextRequest) {
       await user.save();
     }
 
+    console.log("User updated:", user);
+
     return NextResponse.json({
       message: "Tokens successfully granted",
       registrationLimit: user.registrationLimit,

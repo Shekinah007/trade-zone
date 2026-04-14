@@ -89,8 +89,8 @@ export function TokenPurchaseModal({
 
         <div className="grid md:grid-cols-2 gap-4 mt-4">
           {/* Tier 1 */}
-          <Card className="border-2 hover:border-blue-500 transition-colors">
-            <CardContent className="p-6 flex flex-col h-full bg-gradient-to-br from-blue-50 to-transparent dark:from-blue-950/20">
+          <Card className="border-2 hover:border-blue-500 transition-colors bg-gradient-to-br from-blue-50 to-transparent dark:from-blue-950/20">
+            <CardContent className="p-6 flex flex-col h-full">
               <h3 className="font-bold text-lg">Bundle Pack</h3>
               <div className="my-4">
                 <span className="text-3xl font-black">₦1,000</span>
@@ -99,9 +99,9 @@ export function TokenPurchaseModal({
                 <li className="flex items-center gap-2">
                   <Check className="h-4 w-4 text-green-500" /> +5 Property Registrations
                 </li>
-                <li className="flex items-center gap-2">
+                {/* <li className="flex items-center gap-2">
                   <Check className="h-4 w-4 text-green-500" /> Ownership Certificates
-                </li>
+                </li> */}
                 <li className="flex items-center gap-2">
                   <Check className="h-4 w-4 text-green-500" /> Stackable tokens
                 </li>
@@ -117,11 +117,11 @@ export function TokenPurchaseModal({
           </Card>
 
           {/* Tier 2 */}
-          <Card className="border-2 border-amber-500 shadow-lg relative overflow-hidden">
+          <Card className="bg-gradient-to-br from-amber-50 to-transparent dark:from-amber-950/20 border-2 border-amber-500 shadow-lg relative overflow-hidden">
             <div className="absolute top-0 right-0 bg-amber-500 text-white text-[10px] font-bold px-3 py-1 rounded-bl-lg uppercase tracking-wider">
               Best Value
             </div>
-            <CardContent className="p-6 flex flex-col h-full bg-gradient-to-br from-amber-50 to-transparent dark:from-amber-950/20">
+            <CardContent className="p-6 flex flex-col h-full">
               <h3 className="font-bold text-lg text-amber-600 dark:text-amber-400">Unlimited Plan</h3>
               <div className="my-4">
                 <span className="text-3xl font-black">₦10,000</span>
