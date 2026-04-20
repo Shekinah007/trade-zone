@@ -13,6 +13,13 @@ export interface IUser extends Document {
   status: 'pending' | 'active' | 'suspended' | 'banned';
   registrationLimit: number;
   unlimitedRegistrations: boolean;
+  tokensUsed?: {
+    tokenId: mongoose.Types.ObjectId;
+    usedAt: Date;
+    tokenType: string;
+    value: number;
+  }[];
+  totalTokensRedeemed: number;
 }
 
 const UserSchema = new Schema<IUser>(
@@ -31,6 +38,13 @@ const UserSchema = new Schema<IUser>(
     status: {type: String, enum: ['pending', 'active', 'suspended', 'banned'], default: 'pending' },
     registrationLimit: { type: Number, default: 1 },
     unlimitedRegistrations: { type: Boolean, default: false },
+    tokensUsed: [{
+      tokenId: { type: Schema.Types.ObjectId, ref: 'RechargeToken' },
+      usedAt: { type: Date },
+      tokenType: { type: String },
+      value: { type: Number }
+    }],
+    totalTokensRedeemed: { type: Number, default: 0 },
   },
   { timestamps: true }
 );
