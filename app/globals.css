@@ -3,6 +3,7 @@
 
 @custom-variant dark (&:is(.dark *));
 
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -144,5 +145,25 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+
+
+/* app/globals.css */
+:root {
+  --app-scale: 0.85;
+}
+
+html {
+  zoom: var(--app-scale);
+}
+
+/* For Firefox */
+@-moz-document url-prefix() {
+  html {
+    transform: scale(var(--app-scale));
+    transform-origin: top center;
+    width: calc(100% / var(--app-scale));
   }
 }

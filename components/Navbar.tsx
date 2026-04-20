@@ -78,8 +78,8 @@ export default function Navbar() {
       className={cn(
         "sticky top-0 z-50 w-full transition-all duration-300",
         scrolled
-          ? "border-b bg-background/80 backdrop-blur-md shadow-sm"
-          : "bg-background border-b",
+          ? "border-b bg-white backdrop-blur-md shadow-sm"
+          : "bg-white border-b",
       )}
     >
       <div className="container mx-auto px-4 h-16 flex items-center justify-between gap-4">
