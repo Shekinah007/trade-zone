@@ -5,7 +5,8 @@ import { usePathname } from "next/navigation";
 import {
   LayoutDashboard, Users, ShoppingBag,
   AlertTriangle, Settings, Grid,
-  UserCheck, Shield, History
+  UserCheck, Shield, History,
+  Coins
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
@@ -18,6 +19,7 @@ const navItems = [
   { href: "/admin/reports", label: "Reports", icon: AlertTriangle },
   { href: "/admin/properties", label: "Property Registry", icon: Shield },
   { href: "/admin/search-logs", label: "Search Logs", icon: History },
+  { href: "/admin/tokens", label: "Tokens", icon: Coins },
 ];
 
 const settingsItems = [

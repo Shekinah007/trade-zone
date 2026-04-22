@@ -40,7 +40,7 @@ export default function AdminMobileNav({ user }: Props) {
     }, []);
 
   return (
-    <header className="lg:hidden sticky top-0 z-50 flex items-center justify-between h-0 px-4 bg-background">
+    <header className="lg:hidden sticky top-0 z-50 flex items-center justify-between h-0 px-4">
 
       <Sheet open={open} onOpenChange={setOpen}>
         <SheetTrigger asChild>

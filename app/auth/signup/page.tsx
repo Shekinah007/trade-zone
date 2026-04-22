@@ -119,7 +119,7 @@ export default function SignUpPage() {
         {/* Logo */}
         <div className="relative z-10">
           <Link href="/" className="text-2xl font-extrabold tracking-tight">
-            Trade<span className="opacity-70">Zone</span>
+            Find<span className="opacity-70">Master</span>
           </Link>
         </div>
 
@@ -174,7 +174,7 @@ export default function SignUpPage() {
               href="/"
               className="lg:hidden text-xl font-extrabold tracking-tight text-primary mb-1 block"
             >
-              Trade<span className="opacity-60">Zone</span>
+              Find<span className="opacity-60">Master</span>
             </Link>
             <h1 className="text-2xl font-bold tracking-tight">
               Create your account

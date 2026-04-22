@@ -150,9 +150,7 @@ export default function SignInPage() {
         <div className="w-full max-w-md space-y-6">
           {/* Header */}
           <div className="text-center lg:text-left">
-            {/* <Link href="/" className="lg:hidden text-xl font-extrabold tracking-tight text-primary mb-6 block">
-              Trade<span className="opacity-60">Zone</span>
-            </Link> */}
+           
             <h1 className="text-2xl font-bold tracking-tight">Welcome back</h1>
             <p className="text-muted-foreground text-sm mt-1">
               Don't have an account?{" "}
