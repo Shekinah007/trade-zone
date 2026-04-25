@@ -407,6 +407,7 @@
 "use client";
 
 import { useState } from "react";
+import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -465,6 +466,7 @@ function SectionHeader({ icon: Icon, title, description }: {
 
 export function ListingForm({ initialData, categories }: ListingFormProps) {
   const router = useRouter();
+  const { data: session } = useSession();
   const [isLoading, setIsLoading] = useState(false);
   const [imageItems, setImageItems] = useState<{ url: string; file?: File; isNew: boolean }[]>(
     initialData?.images?.map((url: string) => ({ url, isNew: false })) || []
@@ -645,6 +647,18 @@ export function ListingForm({ initialData, categories }: ListingFormProps) {
                 </FormItem>
               )}
             />
+
+            {!session?.user?.unlimitedRegistrations && (
+              <div className="flex items-start gap-3 p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-900 dark:text-amber-400 mt-2">
+                <Info className="h-5 w-5 mt-0.5 shrink-0" />
+                <div className="flex-1">
+                  <p className="text-sm font-medium">Registry Notice</p>
+                  <p className="text-xs opacity-90 mt-0.5">
+                    Your item will not be automatically added to the Global Property Registry because you do not have unlimited registrations. You can manually register items from your dashboard.
+                  </p>
+                </div>
+              </div>
+            )}
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <FormField

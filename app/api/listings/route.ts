@@ -7,6 +7,7 @@ import { v2 as cloudinary } from 'cloudinary';
 
 import Property from "@/models/Property";
 import Category from "@/models/Category";
+import User from "@/models/User";
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -88,6 +89,8 @@ export async function POST(req: Request) {
 
     let propertyId = undefined;
 
+    const dbUser = await User.findById(session.user.id);
+
     if (uniqueIdentifier) {
       const existingProperty = await Property.findOne({
         $or: [
@@ -98,29 +101,31 @@ export async function POST(req: Request) {
       });
 
       if (!existingProperty) {
-        // Try to auto-create property
-        const categoryDoc = await Category.findById(category).lean();
-        const catName = categoryDoc?.name?.toLowerCase() || "";
-        
-        let itemType = 'other';
-        if (catName.includes('phone') || catName.includes('mobile')) itemType = 'phone';
-        else if (catName.includes('laptop') || catName.includes('mac')) itemType = 'laptop';
-        else if (catName.includes('tablet') || catName.includes('ipad')) itemType = 'tablet';
-        else if (catName.includes('car') || catName.includes('vehicle')) itemType = 'vehicle';
-        else if (catName.includes('motorcycle') || catName.includes('bike')) itemType = 'motorcycle';
-        else if (catName.includes('generator')) itemType = 'generator';
-        else if (catName.includes('electronic')) itemType = 'electronics';
+        // Only auto-create property if user has unlimited registrations
+        if (dbUser && dbUser.unlimitedRegistrations) {
+          const categoryDoc = await Category.findById(category).lean();
+          const catName = categoryDoc?.name?.toLowerCase() || "";
+          
+          let itemType = 'other';
+          if (catName.includes('phone') || catName.includes('mobile')) itemType = 'phone';
+          else if (catName.includes('laptop') || catName.includes('mac')) itemType = 'laptop';
+          else if (catName.includes('tablet') || catName.includes('ipad')) itemType = 'tablet';
+          else if (catName.includes('car') || catName.includes('vehicle')) itemType = 'vehicle';
+          else if (catName.includes('motorcycle') || catName.includes('bike')) itemType = 'motorcycle';
+          else if (catName.includes('generator')) itemType = 'generator';
+          else if (catName.includes('electronic')) itemType = 'electronics';
 
-        const newProperty = await Property.create({
-          owner: session.user.id,
-          itemType,
-          brand: brand || 'Unknown',
-          model: model || title, // Fallback to title if model is not selected
-          serialNumber: uniqueIdentifier, 
-          images: imageUrls,
-          status: 'registered'
-        });
-        propertyId = newProperty._id;
+          const newProperty = await Property.create({
+            owner: session.user.id,
+            itemType,
+            brand: brand || 'Unknown',
+            model: model || title, // Fallback to title if model is not selected
+            serialNumber: uniqueIdentifier, 
+            images: imageUrls,
+            status: 'registered'
+          });
+          propertyId = newProperty._id;
+        }
       } else {
         propertyId = existingProperty._id;
       }
@@ -144,6 +149,9 @@ export async function POST(req: Request) {
       views: 0
     });
 
+    if (propertyId) {
+      await Property.findByIdAndUpdate(propertyId, { listingId: newListing._id });
+    }
 
     return NextResponse.json(newListing, { status: 201 });
   } catch (error: any) {

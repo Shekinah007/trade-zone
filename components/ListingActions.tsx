@@ -55,6 +55,8 @@ export function ListingActions({ listingId, sellerId, listingTitle, price, histo
   const [isLoading, setIsLoading] = useState(false);
   const [isReportOpen, setIsReportOpen] = useState(false);
   const [reportReason, setReportReason] = useState("");
+  const [buyerEmail, setBuyerEmail] = useState("");
+  const [salePrice, setSalePrice] = useState("");
   const [showSoldDialog, setShowSoldDialog] = useState(false);
 
   const isSeller = session?.user?.id === sellerId;
@@ -118,30 +120,34 @@ export function ListingActions({ listingId, sellerId, listingTitle, price, histo
   };
 
   const handleMarkAsSold = async () => {
-  setIsLoading(true);
-  try {
-    const formData = new FormData();
-    formData.append("status", "sold");
-
-    const res = await fetch(`/api/listings/${listingId}`, {
-      method: "PUT",
-      body: formData,
-    });
-
-    if (!res.ok) {
-      const err = await res.json();
-      throw new Error(err.message || "Failed to update status");
+    if (!buyerEmail) {
+      toast.error("Please provide the buyer's FindMaster email address.");
+      return;
     }
+    
+    setIsLoading(true);
+    try {
+      const res = await fetch(`/api/listings/${listingId}/sell`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ buyerEmail, salePrice: salePrice ? Number(salePrice) : undefined }),
+      });
 
-    toast.success("Listing marked as sold!");
-    router.refresh();
-  } catch (error: any) {
-    toast.error(error.message || "Something went wrong");
-  } finally {
-    setIsLoading(false);
-    setShowSoldDialog(false);
-  }
-};
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to update status");
+      }
+
+      toast.success(data.message || "Listing marked as sold!");
+      setShowSoldDialog(false);
+      router.refresh();
+    } catch (error: any) {
+      toast.error(error.message || "Something went wrong");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   // I will return the existing component code for now, but with the isSeller checks, 
   // but I realize I need to fix the API route first.
@@ -313,27 +319,51 @@ export function ListingActions({ listingId, sellerId, listingTitle, price, histo
       <Dialog open={isReportOpen} onOpenChange={setIsReportOpen}>
         {/* ... */}
       </Dialog>
-      <AlertDialog open={showSoldDialog} onOpenChange={setShowSoldDialog}>
-  <AlertDialogContent>
-    <AlertDialogHeader>
-      <AlertDialogTitle>Mark as Sold?</AlertDialogTitle>
-      <AlertDialogDescription>
-        This will mark your listing as sold and hide it from active listings. This action cannot be undone.
-      </AlertDialogDescription>
-    </AlertDialogHeader>
-    <AlertDialogFooter>
-      <AlertDialogCancel>Cancel</AlertDialogCancel>
-      <AlertDialogAction
-        onClick={handleMarkAsSold}
-        disabled={isLoading}
-        className="bg-green-500 hover:bg-green-600 text-white"
-      >
-        {isLoading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-        Yes, Mark as Sold
-      </AlertDialogAction>
-    </AlertDialogFooter>
-  </AlertDialogContent>
-</AlertDialog>
+      <Dialog open={showSoldDialog} onOpenChange={setShowSoldDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Mark Listing as Sold</DialogTitle>
+            <DialogDescription>
+              This will hide your listing from the marketplace. Please provide the buyer's FindMaster email to securely transfer ownership or facilitate registration.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Buyer's Email Address *</label>
+              <input
+                type="email"
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                placeholder="buyer@example.com"
+                value={buyerEmail}
+                onChange={(e) => setBuyerEmail(e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Final Sale Price (₦) (Optional)</label>
+              <input
+                type="number"
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                placeholder="e.g. 50000"
+                value={salePrice}
+                onChange={(e) => setSalePrice(e.target.value)}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowSoldDialog(false)} disabled={isLoading}>
+              Cancel
+            </Button>
+            <Button
+              onClick={handleMarkAsSold}
+              disabled={isLoading}
+              className="bg-green-500 hover:bg-green-600 text-white"
+            >
+              {isLoading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+              Confirm Sale
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }

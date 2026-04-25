@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
@@ -64,6 +64,35 @@ export default function RegisterPropertyPage() {
   const router = useRouter();
   const [submitting, setSubmitting] = useState(false);
   const [showTokenModal, setShowTokenModal] = useState(false);
+
+  const [unregisteredListings, setUnregisteredListings] = useState<any[]>([]);
+  const [selectedListingId, setSelectedListingId] = useState("");
+
+  useEffect(() => {
+    if (session) {
+      fetch("/api/user/unregistered-listings")
+        .then((res) => res.json())
+        .then((data) => {
+          if (Array.isArray(data)) setUnregisteredListings(data);
+        })
+        .catch(console.error);
+    }
+  }, [session]);
+
+  const handleListingSelect = (listingId: string) => {
+    setSelectedListingId(listingId);
+    if (!listingId || listingId === "none") return;
+    const listing = unregisteredListings.find((l) => l._id === listingId);
+    if (listing) {
+      setForm((prev) => ({
+        ...prev,
+        brand: listing.brand || prev.brand,
+        model: listing.model || listing.title || prev.model,
+        description: listing.description || prev.description,
+        imei: listing.uniqueIdentifier || prev.imei,
+      }));
+    }
+  };
 
   const [form, setForm] = useState({
     itemType: "",
@@ -167,6 +196,9 @@ export default function RegisterPropertyPage() {
           formData.append("images", item.file);
         }
       });
+      if (selectedListingId && selectedListingId !== "none") {
+        formData.append("listingId", selectedListingId);
+      }
 
       const res = await fetch("/api/registry", {
         method: "POST",
@@ -230,6 +262,47 @@ export default function RegisterPropertyPage() {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
+          {unregisteredListings.length > 0 && (
+            <Card className="bg-black/[0.03] backdrop-blur-sm border-red-500/20 shadow-xl shadow-red-500/5">
+              <CardHeader className="border-b border-red-500/10 pb-4">
+                <CardTitle className="text-lg text-black flex items-center gap-2">
+                  <Package className="h-5 w-5 text-gray-900" />
+                  Select from Existing Listings
+                  <span className="text-gray-800 font-normal text-sm ml-2">
+                    (Optional)
+                  </span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="pt-5">
+                <Select
+                  value={selectedListingId}
+                  onValueChange={handleListingSelect}
+                >
+                  <SelectTrigger className="bg-black/[0.05] border-red-500/20 text-black hover:bg-black/[0.08] transition-colors rounded-xl h-11">
+                    <SelectValue placeholder="Link an existing listing to autofill details..." />
+                  </SelectTrigger>
+                  <SelectContent className="bg-white border-red-500/20 text-black max-h-60">
+                    <SelectItem
+                      value="none"
+                      className="focus:bg-red-500/20 focus:text-black italic"
+                    >
+                      -- Do not link to a listing --
+                    </SelectItem>
+                    {unregisteredListings.map((l) => (
+                      <SelectItem
+                        key={l._id}
+                        value={l._id}
+                        className="focus:bg-red-500/20 focus:text-black"
+                      >
+                        {l.title} {l.price ? `(₦${l.price})` : ""}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </CardContent>
+            </Card>
+          )}
+
           {/* Item Details Card */}
           <Card className="bg-black/[0.03] backdrop-blur-sm border-red-500/20 shadow-xl shadow-red-500/5">
             <CardHeader className="border-b border-red-500/10 pb-4">
@@ -253,7 +326,7 @@ export default function RegisterPropertyPage() {
                   >
                     <SelectValue placeholder="Select item type..." />
                   </SelectTrigger>
-                  <SelectContent className="bg-red-950 border-red-500/20 text-black">
+                  <SelectContent className="bg-white border-red-500/20 text-black">
                     {ITEM_TYPES.map((t) => {
                       const IconComponent = t.icon;
                       return (
@@ -420,51 +493,83 @@ export default function RegisterPropertyPage() {
               </CardTitle>
             </CardHeader>
             <CardContent className="pt-5">
-              <div className="flex items-center justify-between mb-4">
-                <Label className="text-gray-900/80 text-sm">
-                  Property Images
-                </Label>
-                <span className="text-xs px-3 py-1 rounded-full bg-red-500/10 border border-red-500/20 text-gray-900">
-                  {imageItems.length}/5
-                </span>
-              </div>
-              <div className="grid grid-cols-3 sm:grid-cols-5 gap-3">
-                {imageItems.map((item, index) => (
-                  <div
-                    key={index}
-                    className="relative aspect-square rounded-xl overflow-hidden border border-red-500/20 bg-red-500/5 group hover:border-red-400/40 transition-all"
-                  >
-                    <img
-                      src={item.url}
-                      alt="Preview"
-                      className="h-full w-full object-cover"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => removeImageItem(index)}
-                      className="absolute top-2 right-2 rounded-full bg-red-500/90 text-black p-1.5 opacity-0 group-hover:opacity-100 transition-all hover:bg-red-600 shadow-lg"
-                    >
-                      <X className="h-3 w-3" />
-                    </button>
-                  </div>
-                ))}
-
-                {imageItems.length < 5 && (
-                  <label className="flex aspect-square cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-red-500/30 bg-red-500/[0.02] hover:bg-red-500/[0.08] hover:border-red-400/50 transition-all group">
-                    <Upload className="h-6 w-6 text-gray-900/60 group-hover:text-gray-900 transition-colors" />
-                    <span className="mt-2 text-xs text-gray-900/60 group-hover:text-gray-900 transition-colors">
-                      Add Photo
+              {selectedListingId && selectedListingId !== "none" ? (
+                (() => {
+                  const selectedListing = unregisteredListings.find((l) => l._id === selectedListingId);
+                  return (
+                    <div className="space-y-4">
+                      <div className="p-4 rounded-xl bg-orange-500/10 border border-orange-500/20 text-orange-900 text-sm">
+                        <Info className="h-4 w-4 inline mr-2" />
+                        We will securely import photos directly from your listing! You do not need to upload new photos.
+                      </div>
+                      {selectedListing?.images && selectedListing.images.length > 0 && (
+                        <div className="grid grid-cols-3 sm:grid-cols-5 gap-3">
+                          {selectedListing.images.map((url: string, idx: number) => (
+                            <div
+                              key={idx}
+                              className="relative aspect-square rounded-xl overflow-hidden border border-red-500/20 bg-red-500/5"
+                            >
+                              <img
+                                src={url}
+                                alt="Listing Photo"
+                                className="h-full w-full object-cover"
+                              />
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })()
+              ) : (
+                <>
+                  <div className="flex items-center justify-between mb-4">
+                    <Label className="text-gray-900/80 text-sm">
+                      Property Images
+                    </Label>
+                    <span className="text-xs px-3 py-1 rounded-full bg-red-500/10 border border-red-500/20 text-gray-900">
+                      {imageItems.length}/5
                     </span>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      multiple
-                      className="hidden"
-                      onChange={handleImageChange}
-                    />
-                  </label>
-                )}
-              </div>
+                  </div>
+                  <div className="grid grid-cols-3 sm:grid-cols-5 gap-3">
+                    {imageItems.map((item, index) => (
+                      <div
+                        key={index}
+                        className="relative aspect-square rounded-xl overflow-hidden border border-red-500/20 bg-red-500/5 group hover:border-red-400/40 transition-all"
+                      >
+                        <img
+                          src={item.url}
+                          alt="Preview"
+                          className="h-full w-full object-cover"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => removeImageItem(index)}
+                          className="absolute top-2 right-2 rounded-full bg-red-500/90 text-black p-1.5 opacity-0 group-hover:opacity-100 transition-all hover:bg-red-600 shadow-lg"
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
+                      </div>
+                    ))}
+
+                    {imageItems.length < 5 && (
+                      <label className="flex aspect-square cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-red-500/30 bg-red-500/[0.02] hover:bg-red-500/[0.08] hover:border-red-400/50 transition-all group">
+                        <Upload className="h-6 w-6 text-gray-900/60 group-hover:text-gray-900 transition-colors" />
+                        <span className="mt-2 text-xs text-gray-900/60 group-hover:text-gray-900 transition-colors">
+                          Add Photo
+                        </span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          multiple
+                          className="hidden"
+                          onChange={handleImageChange}
+                        />
+                      </label>
+                    )}
+                  </div>
+                </>
+              )}
             </CardContent>
           </Card>
 

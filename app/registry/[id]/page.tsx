@@ -167,16 +167,13 @@ export default function PropertyDetailPage() {
     }
     setTransferring(true);
     try {
-      const res = await fetch("/api/registry/transfer", {
+      const res = await fetch("/api/registry/transfer/initiate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           propertyId: id,
-          toEmail: transferEmail,
-          dateSold: dateSold || undefined,
+          targetEmail: transferEmail,
           salePrice: salePrice ? Number(salePrice) : undefined,
-          location: location || undefined,
-          notes: notes || undefined,
         }),
       });
       const data = await res.json();
@@ -184,13 +181,36 @@ export default function PropertyDetailPage() {
         toast.error(data.error);
         return;
       }
-      toast.success(data.message);
+      toast.success("Transfer initiated! An email has been sent to the recipient.");
       setTransferOpen(false);
-      router.push("/dashboard");
+      setProperty({ ...property, status: "transfer_pending" });
     } catch {
-      toast.error("Transfer failed. Please try again.");
+      toast.error("Transfer initiation failed. Please try again.");
     } finally {
       setTransferring(false);
+    }
+  };
+
+  const cancelTransfer = async () => {
+    if (!confirm("Are you sure you want to cancel this transfer?")) return;
+    setUpdatingStatus(true);
+    try {
+      const res = await fetch("/api/registry/transfer/cancel", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ propertyId: id }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        toast.error(data.error);
+        return;
+      }
+      toast.success("Transfer cancelled successfully.");
+      setProperty({ ...property, status: "registered" });
+    } catch {
+      toast.error("Failed to cancel transfer.");
+    } finally {
+      setUpdatingStatus(false);
     }
   };
 
@@ -520,7 +540,14 @@ export default function PropertyDetailPage() {
                     <CardTitle className="text-lg">Manage Property</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-3">
-                    {property.status !== "missing" && (
+                    {property.status === "transfer_pending" && (
+                      <div className="p-3 bg-orange-500/10 border-orange-500/30 border text-orange-600 rounded-lg text-sm mb-2">
+                        <AlertTriangle className="h-4 w-4 inline mr-2 text-orange-600" />
+                        A transfer request is currently pending. The recipient has been emailed.
+                      </div>
+                    )}
+                    
+                    {property.status !== "missing" && property.status !== "transfer_pending" && (
                       <Button
                         variant="destructive"
                         className="w-full rounded-xl"
@@ -550,16 +577,28 @@ export default function PropertyDetailPage() {
                     <Separator />
 
                     {/* Transfer Dialog */}
-                    <Dialog open={transferOpen} onOpenChange={setTransferOpen}>
-                      <DialogTrigger asChild>
-                        <Button
-                          variant="outline"
-                          className="w-full rounded-xl"
-                        >
-                          <ArrowLeftRight className="h-4 w-4 mr-2" />
-                          Transfer Ownership
-                        </Button>
-                      </DialogTrigger>
+                    {property.status === "transfer_pending" ? (
+                      <Button
+                        variant="outline"
+                        className="w-full rounded-xl border-orange-200 hover:bg-orange-50 text-orange-700"
+                        onClick={cancelTransfer}
+                        disabled={updatingStatus}
+                      >
+                        <X className="h-4 w-4 mr-2" />
+                        Cancel Pending Transfer
+                      </Button>
+                    ) : (
+                      <Dialog open={transferOpen} onOpenChange={setTransferOpen}>
+                        <DialogTrigger asChild>
+                          <Button
+                            variant="outline"
+                            className="w-full rounded-xl"
+                            disabled={property.status === "missing"}
+                          >
+                            <ArrowLeftRight className="h-4 w-4 mr-2" />
+                            Transfer Ownership
+                          </Button>
+                        </DialogTrigger>
                       <DialogContent className="max-w-md">
                         <DialogHeader>
                           <DialogTitle>Transfer Ownership</DialogTitle>
@@ -628,6 +667,7 @@ export default function PropertyDetailPage() {
                         </div>
                       </DialogContent>
                     </Dialog>
+                    )}
                   </CardContent>
                 </Card>
               )}

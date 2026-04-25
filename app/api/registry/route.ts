@@ -4,6 +4,7 @@ import { authOptions } from '@/lib/auth';
 import dbConnect from '@/lib/db';
 import Property from '@/models/Property';
 import SearchLog from '@/models/SearchLog';
+import Listing from '@/models/Listing';
 import User from '@/models/User';
 
 // GET /api/registry?q=<serial|imei|chassis> — public search
@@ -136,6 +137,7 @@ export async function POST(req: NextRequest) {
     const color = formData.get("color") as string;
     const yearOfPurchaseStr = formData.get("yearOfPurchase") as string;
     const yearOfPurchase = yearOfPurchaseStr ? Number(yearOfPurchaseStr) : undefined;
+    const listingId = formData.get("listingId") as string;
 
     if (!itemType || !brand || !model) {
       return NextResponse.json(
@@ -168,8 +170,16 @@ export async function POST(req: NextRequest) {
       }
     }
 
+    let listingImages: string[] = [];
+    if (listingId) {
+      const existingListing = await Listing.findById(listingId);
+      if (existingListing && Array.isArray(existingListing.images)) {
+        listingImages = existingListing.images;
+      }
+    }
+
     const imageFiles = formData.getAll("images") as File[];
-    const imageUrls: string[] = [];
+    const imageUrls: string[] = [...listingImages];
 
     // Upload images to Cloudinary
     if (imageFiles && imageFiles.length > 0) {
@@ -203,7 +213,12 @@ export async function POST(req: NextRequest) {
       color,
       yearOfPurchase,
       images: imageUrls,
+      listingId: listingId || undefined,
     });
+
+    if (listingId) {
+      await Listing.findByIdAndUpdate(listingId, { propertyId: property._id });
+    }
 
     return NextResponse.json({ property }, { status: 201 });
   } catch (error: any) {

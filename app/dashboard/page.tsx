@@ -21,6 +21,7 @@ import { authOptions } from "@/lib/auth";
 import dbConnect from "@/lib/db";
 import Listing from "@/models/Listing";
 import Property from "@/models/Property";
+import TransferRequest from "@/models/TransferRequest";
 import { ListingCard } from "@/components/ListingCard";
 import { TokenPurchaseButton } from "@/components/TokenPurchaseButton";
 import { Button } from "@/components/ui/button";
@@ -52,6 +53,33 @@ async function getUserDetails(userId: string | undefined) {
   return JSON.parse(JSON.stringify(user));
 }
 
+async function getPendingTransfers(userId: string | undefined, userEmail: string | undefined) {
+  if (!userId || !userEmail) return { incoming: [], outgoing: [] };
+  await dbConnect();
+  const now = new Date();
+  
+  const [incoming, outgoing] = await Promise.all([
+    TransferRequest.find({
+      $or: [
+        { targetEmail: userEmail.toLowerCase() },
+        { targetUserId: userId }
+      ],
+      status: "pending",
+      expiresAt: { $gt: now },
+    }).populate("propertyId", "brand model itemType images").lean(),
+    TransferRequest.find({
+      initiator: userId,
+      status: "pending",
+      expiresAt: { $gt: now },
+    }).populate("propertyId", "brand model itemType images").lean()
+  ]);
+  
+  return {
+    incoming: JSON.parse(JSON.stringify(incoming)),
+    outgoing: JSON.parse(JSON.stringify(outgoing))
+  };
+}
+
 export default async function DashboardPage({ searchParams }: any) {
   const session = await getServerSession(authOptions);
   // Parse search params for Next.js 15+ compatibility
@@ -65,6 +93,7 @@ export default async function DashboardPage({ searchParams }: any) {
   const listings = await getUserListings(session.user.id);
   const properties = await getUserProperties(session.user.id);
   const details = await getUserDetails(session.user.id);
+  const pendingTransfers = await getPendingTransfers(session.user.id, session.user.email);
   const activeListings = listings.filter((l: any) => l.status === "active");
   const soldListings = listings.filter((l: any) => l.status === "sold");
   const missingProperties = properties.filter(
@@ -83,6 +112,30 @@ export default async function DashboardPage({ searchParams }: any) {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
       <div className="container mx-auto py-6 px-4 max-w-7xl">
+        {/* Pending Transfers Notifications */}
+        {pendingTransfers.incoming.length > 0 && (
+          <div className="mb-6 bg-red-50 dark:bg-red-950/30 border-l-4 border-red-500 p-4 rounded-r-xl shadow-sm text-red-900 dark:text-red-200">
+            <div className="flex items-start gap-3">
+              <Shield className="h-5 w-5 text-red-600 mt-0.5" />
+              <div>
+                <h3 className="font-semibold">You have {pendingTransfers.incoming.length} incoming property transfer request(s)</h3>
+                <p className="text-sm mt-1">Please check your email for the secure token to claim ownership.</p>
+              </div>
+            </div>
+          </div>
+        )}
+        {pendingTransfers.outgoing.length > 0 && (
+          <div className="mb-6 bg-orange-50 dark:bg-orange-950/30 border-l-4 border-orange-500 p-4 rounded-r-xl shadow-sm text-orange-900 dark:text-orange-200">
+            <div className="flex items-start gap-3">
+              <AlertTriangle className="h-5 w-5 text-orange-600 mt-0.5" />
+              <div>
+                <h3 className="font-semibold">You have {pendingTransfers.outgoing.length} pending outgoing transfer request(s)</h3>
+                <p className="text-sm mt-1">Waiting for the recipient(s) to accept the transfer. You can cancel them from the Registry tab.</p>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Welcome Header - Compact */}
         <div className="mb-6">
           <h1 className="text-2xl font-bold tracking-tight">

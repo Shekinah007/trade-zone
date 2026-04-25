@@ -30,13 +30,14 @@ export interface IProperty {
   color?: string;
   yearOfPurchase?: number;
   images: string[];
-  status: 'registered' | 'missing' | 'found' | 'transferred';
+  status: 'registered' | 'missing' | 'found' | 'transferred' | 'transfer_pending';
   previousOwners: ITransferRecord[];
   reportedMissingAt?: Date;
   reportedFoundAt?: Date;
   registeredAt: Date;
   createdAt: Date;
   updatedAt: Date;
+  listingId?: mongoose.Types.ObjectId;
 }
 
 const TransferRecordSchema = new Schema<ITransferRecord>(
@@ -80,13 +81,14 @@ const PropertySchema = new Schema<IProperty>(
     images: [{ type: String }],
     status: {
       type: String,
-      enum: ['registered', 'missing', 'found', 'transferred'],
+      enum: ['registered', 'missing', 'found', 'transferred', 'transfer_pending'],
       default: 'registered',
     },
     previousOwners: [TransferRecordSchema],
     reportedMissingAt: { type: Date },
     reportedFoundAt: { type: Date },
     registeredAt: { type: Date, default: Date.now },
+    listingId: { type: Schema.Types.ObjectId, ref: 'Listing' },
   },
   { timestamps: true }
 );
