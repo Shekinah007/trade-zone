@@ -12,6 +12,12 @@ import {
   Loader2,
   Eye,
   Lock,
+  ScanLine,
+  Hash,
+  ChevronRight,
+  Zap,
+  Globe,
+  ArrowRight,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,33 +26,49 @@ import { useSession } from "next-auth/react";
 
 const STATUS_CONFIG: Record<
   string,
-  { label: string; color: string; icon: React.ElementType; bg: string }
+  {
+    label: string;
+    color: string;
+    icon: React.ElementType;
+    bg: string;
+    gradient: string;
+  }
 > = {
   registered: {
     label: "Registered",
-    color: "text-green-600",
-    bg: "bg-green-500/10 border-green-500/20",
+    color: "text-emerald-700",
+    bg: "bg-emerald-50 border-emerald-200",
+    gradient: "from-emerald-400 to-teal-500",
     icon: CheckCircle2,
   },
   missing: {
     label: "MISSING / STOLEN",
-    color: "text-red-600",
-    bg: "bg-red-500/10 border-red-500/20",
+    color: "text-rose-700",
+    bg: "bg-rose-50 border-rose-200",
+    gradient: "from-rose-400 to-pink-500",
     icon: AlertTriangle,
   },
   found: {
     label: "Found",
-    color: "text-blue-600",
-    bg: "bg-blue-500/10 border-blue-500/20",
+    color: "text-sky-700",
+    bg: "bg-sky-50 border-sky-200",
+    gradient: "from-sky-400 to-red-500",
     icon: CheckCircle2,
   },
   transferred: {
     label: "Transferred",
-    color: "text-purple-600",
-    bg: "bg-purple-500/10 border-purple-500/20",
+    color: "text-violet-700",
+    bg: "bg-violet-50 border-violet-200",
+    gradient: "from-violet-400 to-purple-500",
     icon: ArrowLeftRight,
   },
 };
+
+const QUICK_SEARCHES = [
+  { icon: ScanLine, label: "IMEI Lookup", placeholder: "359876054321234" },
+  { icon: Hash, label: "Serial Number", placeholder: "FX8R92N41M" },
+  { icon: Globe, label: "Chassis Number", placeholder: "WBA3A5C59DF123456" },
+];
 
 export default function RegistrySearchPage() {
   const searchParams = useSearchParams();
@@ -55,7 +77,10 @@ export default function RegistrySearchPage() {
   const [results, setResults] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [searched, setSearched] = useState(false);
-  const [coords, setCoords] = useState<{lat: number, lng: number} | null>(null);
+  const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(
+    null,
+  );
+  const [focused, setFocused] = useState(false);
 
   useEffect(() => {
     if (typeof navigator !== "undefined" && "geolocation" in navigator) {
@@ -67,7 +92,7 @@ export default function RegistrySearchPage() {
           });
         },
         (err) => console.warn("Geolocation permission denied/failed", err),
-        { timeout: 10000, maximumAge: 60000 }
+        { timeout: 10000, maximumAge: 60000 },
       );
     }
   }, []);
@@ -79,7 +104,7 @@ export default function RegistrySearchPage() {
     try {
       let url = `/api/registry?q=${encodeURIComponent(q.trim())}`;
       if (coords) {
-         url += `&lat=${coords.lat}&lng=${coords.lng}`;
+        url += `&lat=${coords.lat}&lng=${coords.lng}`;
       }
       const res = await fetch(url);
       const data = await res.json();
@@ -109,195 +134,392 @@ export default function RegistrySearchPage() {
     doSearch(query);
   };
 
+  const handleQuickSearch = (placeholder: string) => {
+    setQuery(placeholder);
+    searchedQuery.current = placeholder;
+    doSearch(placeholder);
+  };
+
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-slate-50">
+      {/* Decorative background pattern */}
+      <div className="fixed inset-0 pointer-events-none">
+        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiMyMTIxMjEiIGZpbGwtb3BhY2l0eT0iMC4wMSI+PHBhdGggZD0iTTM2IDE4YzAgMS0xIDItMiAyczItMSAyLTJ6TTE4IDM2YzAgMS0xIDItMiAyczItMSAyLTJ6TTAgMGg2MHY2MEgweiIvPjwvZz48L2c+PC9zdmc+')] opacity-50" />
+        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-gradient-to-bl from-red-100/40 to-purple-100/20 rounded-full blur-3xl" />
+        <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-gradient-to-tr from-emerald-100/30 to-teal-100/20 rounded-full blur-3xl" />
+      </div>
+
       {/* Header */}
-      <section className="border-b bg-muted/20 py-12">
-        <div className="container mx-auto px-4 max-w-3xl text-center">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border bg-background text-xs font-medium text-primary mb-4">
-            <Shield className="h-3.5 w-3.5" />
-            FindMaster Registry
+      <section className="relative pt-20 pb-16">
+        <div className="container mx-auto px-4 max-w-4xl">
+          {/* Top badge */}
+          <div className="flex justify-center mb-8">
+            <div className="inline-flex items-center gap-3 px-5 py-2.5 rounded-2xl bg-white/80 backdrop-blur-sm border border-slate-200 shadow-sm">
+              <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-gradient-to-r from-red-500 to-purple-600 text-white text-xs font-bold">
+                <Zap className="h-3 w-3" />
+                LIVE
+              </div>
+              <span className="text-sm font-medium text-slate-600">
+                Global Property Registry Network
+              </span>
+            </div>
           </div>
-          <h1 className="text-4xl font-extrabold tracking-tight mb-3">
-            Search the Property Registry
-          </h1>
-          <p className="text-muted-foreground mb-8">
-            Enter a device&apos;s IMEI, serial number, or vehicle chassis number
-            to check its registration status.
-          </p>
+
+          {/* Main heading */}
+          <div className="text-center mb-12">
+            <h1 className="text-3xl md:text-4xl lg:text-5xl font-black tracking-tight mb-6">
+              <span className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-700 bg-clip-text text-transparent">
+                Property Registry
+              </span>
+              <br />
+              <span className="bg-gradient-to-r from-red-600 to-purple-600 bg-clip-text text-transparent">
+                Search & Verification
+              </span>
+            </h1>
+            <p className="text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed">
+              Instantly verify ownership and check status of any registered item
+              using IMEI, serial numbers, or chassis identifiers. Join millions
+              protecting their property.
+            </p>
+          </div>
 
           {/* Search Form */}
-          <form onSubmit={handleSubmit} className="flex gap-2 max-w-xl mx-auto">
-            <div className="relative flex-1">
-              <Search className="absolute left-4 top-3 h-4 w-4 text-muted-foreground" />
-              <Input
-                id="search-registry-field"
-                type="search"
-                placeholder="e.g. 359876054321234 or ABC123XYZ"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                className="pl-10 h-11 rounded-full bg-background border-border focus:border-primary/50"
-              />
-            </div>
-            <Button
-              type="submit"
-              className="rounded-full px-6 bg-gradient-to-r from-primary to-blue-600 border-0"
-              disabled={loading}
-            >
-              {loading ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                "Search"
+          <div className="max-w-3xl mx-auto">
+            <form onSubmit={handleSubmit} className="relative group">
+              <div
+                className={`
+                relative bg-white rounded-3xl shadow-lg transition-all duration-300
+                ${focused ? "shadow-xl ring-4 ring-red-500/10 scale-[1.02]" : "hover:shadow-xl hover:scale-[1.01]"}
+                border border-slate-200
+              `}
+              >
+                {/* Glow effect on focus */}
+                <div
+                  className={`
+                  absolute inset-0 rounded-3xl bg-gradient-to-r from-red-500 to-purple-600 opacity-0 transition-opacity duration-300 blur-xl
+                  ${focused ? "opacity-20" : ""}
+                `}
+                />
+
+                <div className="relative flex items-center gap-2 p-2">
+                  <div className="flex-shrink-0 pl-4">
+                    {loading ? (
+                      <Loader2 className="h-6 w-6 animate-spin text-red-600" />
+                    ) : (
+                      <Search className="h-6 w-6 text-slate-400" />
+                    )}
+                  </div>
+
+                  <Input
+                    id="search-registry-field"
+                    type="search"
+                    placeholder="Enter IMEI, serial number, or chassis number..."
+                    value={query}
+                    onChange={(e) => setQuery(e.target.value)}
+                    onFocus={() => setFocused(true)}
+                    onBlur={() => setFocused(false)}
+                    className="flex-1 h-14 text-lg border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:text-slate-400"
+                  />
+
+                  <Button
+                    type="submit"
+                    size="lg"
+                    className="rounded-2xl px-8 h-14 bg-gradient-to-r from-red-600 to-purple-600 hover:from-red-700 hover:to-purple-700 text-white font-bold shadow-lg shadow-red-500/25 hover:shadow-red-500/40 transition-all duration-300"
+                    disabled={loading}
+                  >
+                    {loading ? (
+                      <Loader2 className="h-5 w-5 animate-spin" />
+                    ) : (
+                      <>
+                        Search
+                        <ArrowRight className="ml-2 h-4 w-4" />
+                      </>
+                    )}
+                  </Button>
+                </div>
+              </div>
+
+              {/* Quick search suggestions */}
+              {!searched && !loading && (
+                <div className="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  {QUICK_SEARCHES.map((item) => (
+                    <button
+                      key={item.label}
+                      onClick={() => handleQuickSearch(item.placeholder)}
+                      className="group flex items-center gap-3 px-4 py-3 rounded-2xl bg-white/60 backdrop-blur-sm border border-slate-200 hover:border-red-300 hover:bg-white hover:shadow-md transition-all duration-200"
+                    >
+                      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-red-50 to-purple-50 flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <item.icon className="h-5 w-5 text-red-600" />
+                      </div>
+                      <div className="text-left">
+                        <div className="text-sm font-semibold text-slate-700">
+                          {item.label}
+                        </div>
+                        <div className="text-xs text-slate-500 font-mono truncate max-w-[150px]">
+                          {item.placeholder}
+                        </div>
+                      </div>
+                    </button>
+                  ))}
+                </div>
               )}
-            </Button>
-          </form>
+            </form>
+          </div>
         </div>
       </section>
 
+      {/* Stats bar */}
+      {!searched && (
+        <section className="relative pb-16">
+          <div className="container mx-auto px-4 max-w-4xl">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {[
+                {
+                  value: "500K+",
+                  label: "Registered Items",
+                  color: "from-red-500 to-cyan-500",
+                },
+                {
+                  value: "99.9%",
+                  label: "Recovery Rate",
+                  color: "from-emerald-500 to-teal-500",
+                },
+                {
+                  value: "150+",
+                  label: "Countries",
+                  color: "from-violet-500 to-purple-500",
+                },
+              ].map((stat, i) => (
+                <div key={i} className="relative group">
+                  <div className="absolute inset-0 bg-gradient-to-r opacity-0 group-hover:opacity-10 rounded-2xl transition-opacity duration-300" />
+                  <div className="relative px-6 py-4 rounded-2xl bg-white/60 backdrop-blur-sm border border-slate-200 text-center">
+                    <div
+                      className={`text-3xl font-black bg-gradient-to-r ${stat.color} bg-clip-text text-transparent`}
+                    >
+                      {stat.value}
+                    </div>
+                    <div className="text-sm font-medium text-slate-600 mt-1">
+                      {stat.label}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* Results */}
-      <div className="container mx-auto px-4 py-12 max-w-4xl">
+      <div className="container mx-auto px-4 pb-24 max-w-4xl relative">
         {loading && (
-          <div className="flex flex-col items-center justify-center py-20">
-            <Loader2 className="h-10 w-10 animate-spin text-primary mb-4" />
-            <p className="text-muted-foreground">Searching registry...</p>
+          <div className="flex flex-col items-center justify-center py-24">
+            <div className="relative">
+              <div className="w-24 h-24 rounded-full bg-gradient-to-r from-red-500 to-purple-600 animate-pulse" />
+              <Loader2 className="absolute inset-0 m-auto h-12 w-12 animate-spin text-white" />
+            </div>
+            <p className="mt-6 text-lg font-medium text-slate-600">
+              Searching global registry...
+            </p>
+            <p className="text-sm text-slate-500 mt-1">
+              This may take a few moments
+            </p>
           </div>
         )}
 
         {!loading && searched && results.length === 0 && (
-          <div className="flex flex-col items-center justify-center py-20 border-2 border-dashed border-muted rounded-3xl">
-            <div className="w-16 h-16 bg-green-500/10 rounded-full flex items-center justify-center mb-4">
-              <CheckCircle2 className="h-8 w-8 text-green-500" />
+          <div className="flex flex-col items-center justify-center py-20">
+            <div className="relative mb-8">
+              <div className="w-32 h-32 rounded-full bg-gradient-to-br from-emerald-100 to-teal-100 flex items-center justify-center">
+                <Shield className="h-16 w-16 text-emerald-600" />
+              </div>
+              <div className="absolute -top-2 -right-2 w-12 h-12 rounded-full bg-emerald-500 flex items-center justify-center">
+                <CheckCircle2 className="h-6 w-6 text-white" />
+              </div>
             </div>
-            <h3 className="text-xl font-bold mb-2">Not Found in Registry</h3>
-            <p className="text-muted-foreground text-center max-w-sm mb-6">
-              This identifier is not currently registered on FindMaster. If you
-              own this item, register it now to protect your ownership.
+            <h3 className="text-2xl font-bold text-slate-900 mb-3">
+              Not Found in Registry
+            </h3>
+            <p className="text-slate-600 text-center max-w-md mb-8 leading-relaxed">
+              This identifier isn't registered yet. Be proactive and register
+              your property to protect it against theft and simplify recovery.
             </p>
-            <Button asChild className="rounded-full">
-              <Link href="/registry/register">
-                <Shield className="mr-2 h-4 w-4" />
-                Register This Item
-              </Link>
-            </Button>
+            <div className="flex gap-3">
+              <Button
+                asChild
+                size="lg"
+                className="rounded-2xl bg-gradient-to-r from-red-600 to-purple-600 hover:from-red-700 hover:to-purple-700 text-white shadow-lg shadow-red-500/25"
+              >
+                <Link href="/registry/register">
+                  <Shield className="mr-2 h-5 w-5" />
+                  Register This Item
+                </Link>
+              </Button>
+              <Button
+                asChild
+                variant="outline"
+                size="lg"
+                className="rounded-2xl"
+              >
+                <Link href="/">
+                  Learn More
+                  <ChevronRight className="ml-2 h-4 w-4" />
+                </Link>
+              </Button>
+            </div>
           </div>
         )}
 
         {!loading && results.length > 0 && (
           <div className="space-y-4">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="font-bold text-lg">
-                {results.length} result{results.length !== 1 ? "s" : ""} found
-              </h2>
+            <div className="flex items-center justify-between mb-8">
+              <div>
+                <h2 className="text-2xl font-bold text-slate-900">
+                  {results.length} Result{results.length !== 1 ? "s" : ""} Found
+                </h2>
+                <p className="text-sm text-slate-600 mt-1">
+                  Matching records from the global registry
+                </p>
+              </div>
               {!session && (
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Lock className="h-3.5 w-3.5" />
-                  <Link
-                    href="/auth/signin"
-                    className="text-primary hover:underline font-medium"
-                  >
-                    Sign in
-                  </Link>{" "}
-                  to view owner details
+                <div className="flex items-center gap-3 px-4 py-2.5 rounded-2xl bg-amber-50 border border-amber-200">
+                  <Lock className="h-4 w-4 text-amber-600" />
+                  <span className="text-sm text-amber-700">
+                    <Link
+                      href="/auth/signin"
+                      className="font-semibold underline hover:no-underline"
+                    >
+                      Sign in
+                    </Link>{" "}
+                    to view owner details
+                  </span>
                 </div>
               )}
             </div>
 
-            {results.map((item: any) => {
-              const cfg = STATUS_CONFIG[item.status] || STATUS_CONFIG.registered;
+            {results.map((item: any, index: number) => {
+              const cfg =
+                STATUS_CONFIG[item.status] || STATUS_CONFIG.registered;
               const StatusIcon = cfg.icon;
               return (
                 <div
-                  key={item._id}
-                  className="rounded-2xl border bg-card p-5 hover:shadow-md transition-shadow"
+                  key={item._id || index}
+                  className="group relative rounded-3xl bg-white border border-slate-200 p-6 hover:shadow-xl hover:border-slate-300 transition-all duration-300"
                 >
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-2">
-                        <span className="font-bold text-lg capitalize">
-                          {item.brand} {item.model}
-                        </span>
-                        <Badge
-                          variant="outline"
-                          className={`text-xs ${cfg.bg} ${cfg.color} border`}
+                  {/* Status indicator bar */}
+                  <div
+                    className={`absolute top-0 left-6 right-6 h-1 rounded-full bg-gradient-to-r ${cfg.gradient}`}
+                  />
+
+                  <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+                    <div className="space-y-3 flex-1">
+                      {/* Title & Status */}
+                      <div className="flex items-start gap-3">
+                        <div
+                          className={`w-12 h-12 rounded-2xl ${cfg.bg} flex items-center justify-center flex-shrink-0`}
                         >
-                          <StatusIcon className="h-3 w-3 mr-1" />
-                          {cfg.label}
-                        </Badge>
+                          <StatusIcon className={`h-6 w-6 ${cfg.color}`} />
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-3 flex-wrap">
+                            <h3 className="text-xl font-bold text-slate-900 capitalize">
+                              {item.brand} {item.model}
+                            </h3>
+                            <Badge
+                              className={`${cfg.bg} ${cfg.color} border-transparent font-semibold px-3 py-1`}
+                            >
+                              <StatusIcon className="h-3.5 w-3.5 mr-1.5" />
+                              {cfg.label}
+                            </Badge>
+                          </div>
+                          <p className="text-sm text-slate-500 mt-1 capitalize">
+                            {item.itemType}
+                            {item.itemType && item.color ? " • " : ""}
+                            {item.color && (
+                              <span className="capitalize">{item.color}</span>
+                            )}
+                          </p>
+                        </div>
                       </div>
 
-                      <div className="flex flex-wrap gap-x-5 gap-y-1 text-sm text-muted-foreground">
-                        <span className="capitalize">
-                          Type:{" "}
-                          <span className="text-foreground font-medium">
-                            {item.itemType}
-                          </span>
-                        </span>
-                        {item.color && (
-                          <span>
-                            Color:{" "}
-                            <span className="text-foreground font-medium capitalize">
-                              {item.color}
-                            </span>
-                          </span>
+                      {/* Identifier details */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                        {item.imei && (
+                          <div className="px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-100">
+                            <div className="text-xs font-medium text-slate-500 mb-1">
+                              IMEI
+                            </div>
+                            <div className="font-mono text-sm font-semibold text-slate-900">
+                              {item.imei}
+                            </div>
+                          </div>
                         )}
                         {item.serialNumber && (
-                          <span>
-                            S/N:{" "}
-                            <span className="text-foreground font-medium font-mono">
+                          <div className="px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-100">
+                            <div className="text-xs font-medium text-slate-500 mb-1">
+                              Serial Number
+                            </div>
+                            <div className="font-mono text-sm font-semibold text-slate-900">
                               {item.serialNumber}
-                            </span>
-                          </span>
-                        )}
-                        {item.imei && (
-                          <span>
-                            IMEI:{" "}
-                            <span className="text-foreground font-medium font-mono">
-                              {item.imei}
-                            </span>
-                          </span>
+                            </div>
+                          </div>
                         )}
                         {item.chassisNumber && (
-                          <span>
-                            Chassis:{" "}
-                            <span className="text-foreground font-medium font-mono">
+                          <div className="px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-100">
+                            <div className="text-xs font-medium text-slate-500 mb-1">
+                              Chassis Number
+                            </div>
+                            <div className="font-mono text-sm font-semibold text-slate-900">
                               {item.chassisNumber}
-                            </span>
-                          </span>
+                            </div>
+                          </div>
                         )}
                       </div>
 
-                      {/* Owner info — members only */}
+                      {/* Owner info */}
                       {session && item.owner ? (
-                        <div className="pt-1 text-sm">
-                          <span className="text-muted-foreground">Owner: </span>
-                          <span className="font-semibold text-foreground">
-                            {item.owner.name}
-                          </span>
-                          <span className="text-muted-foreground ml-2">
-                            ({item.owner.email})
-                          </span>
+                        <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-gradient-to-r from-red-50 to-purple-50 border border-red-100">
+                          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-red-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm">
+                            {item.owner.name?.charAt(0) || "?"}
+                          </div>
+                          <div>
+                            <div className="font-semibold text-slate-900">
+                              {item.owner.name}
+                            </div>
+                            <div className="text-sm text-slate-600">
+                              {item.owner.email}
+                            </div>
+                          </div>
                         </div>
                       ) : !session ? (
-                        <p className="text-xs text-muted-foreground flex items-center gap-1 pt-1">
-                          <Lock className="h-3 w-3" />
-                          Sign in to view owner details
-                        </p>
+                        <div className="flex items-center gap-2 text-sm text-slate-500">
+                          <Lock className="h-3.5 w-3.5" />
+                          Owner details hidden — sign in to view
+                        </div>
                       ) : null}
                     </div>
 
-                    {/* Status alert for missing items */}
-                    <div className="flex flex-col gap-2 shrink-0">
+                    {/* Actions */}
+                    <div className="flex flex-col gap-3 lg:self-start">
                       {item.status === "missing" && (
-                        <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-red-500/10 border border-red-500/20 text-red-600 text-xs font-semibold">
-                          <AlertTriangle className="h-4 w-4" />
-                          DO NOT PURCHASE
+                        <div className="flex items-center gap-3 px-5 py-3 rounded-2xl bg-gradient-to-r from-red-500 to-rose-500 text-white shadow-lg shadow-red-500/25">
+                          <AlertTriangle className="h-5 w-5" />
+                          <div>
+                            <div className="font-bold text-sm">STOLEN ITEM</div>
+                            <div className="text-xs opacity-90">
+                              Do not purchase
+                            </div>
+                          </div>
                         </div>
                       )}
                       {session && (
-                        <Button asChild size="sm" variant="outline" className="rounded-full">
+                        <Button
+                          asChild
+                          variant="outline"
+                          className="rounded-2xl border-slate-200 hover:border-red-300 hover:bg-red-50"
+                        >
                           <Link href={`/registry/${item._id}`}>
-                            <Eye className="mr-1.5 h-3.5 w-3.5" />
-                            Full Details
+                            <Eye className="mr-2 h-4 w-4" />
+                            View Full Details
                           </Link>
                         </Button>
                       )}
@@ -310,16 +532,21 @@ export default function RegistrySearchPage() {
         )}
 
         {!searched && (
-          <div className="flex flex-col items-center justify-center py-24 text-center">
-            <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mb-5">
-              <Search className="h-10 w-10 text-primary" />
+          <div className="flex flex-col items-center justify-center py-16">
+            <div className="relative mb-8">
+              <div className="w-24 h-24 rounded-full bg-gradient-to-br from-red-100 to-purple-100 flex items-center justify-center">
+                <Search className="h-12 w-12 text-red-600" />
+              </div>
+              <div className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-red-600 flex items-center justify-center">
+                <ArrowRight className="h-4 w-4 text-white" />
+              </div>
             </div>
-            <h3 className="text-2xl font-bold mb-2">
-              Enter an Identifier to Search
+            <h3 className="text-2xl font-bold text-slate-900 mb-3">
+              Ready to Search
             </h3>
-            <p className="text-muted-foreground max-w-md">
-              Type an IMEI number, serial number, or chassis number above to
-              check whether a property is registered, missing, or clean.
+            <p className="text-slate-600 text-center max-w-md leading-relaxed">
+              Enter an identifier above to search the global registry. Results
+              appear here instantly.
             </p>
           </div>
         )}
