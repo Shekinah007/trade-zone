@@ -21,6 +21,7 @@ export async function GET(
     
     const messages = await Message.find({ conversation: id })
       .populate("sender", "name image")
+      .populate("receiver", "name image")
       .sort({ createdAt: 1 });
 
     return NextResponse.json(messages);
@@ -43,24 +44,26 @@ export async function POST(
 
   try {
     await dbConnect();
-    const body = await req.json();
-    const { content } = body;
-
-    const newMessage = await Message.create({
-      conversation: id,
-      sender: session.user.id,
-      content,
-    });
-
-    const populatedMessage = await Message.findById(newMessage._id).populate(
-      "sender",
-      "name image"
-    );
-
     const conversation = await Conversation.findById(id);
     if (!conversation) {
       return NextResponse.json({ message: "Conversation not found" }, { status: 404 });
     }
+
+    const body = await req.json();
+    const { content } = body;
+
+    const receiverId = conversation.participants.find((p: any) => p.toString() !== session.user.id);
+
+    const newMessage = await Message.create({
+      conversation: id,
+      sender: session.user.id,
+      receiver: receiverId,
+      content,
+    });
+
+    const populatedMessage = await Message.findById(newMessage._id)
+      .populate("sender", "name image")
+      .populate("receiver", "name image");
 
     const incUpdates: Record<string, number> = {};
     conversation.participants.forEach((p: any) => {

@@ -3,13 +3,13 @@
 import { useEffect, useState, useRef } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { 
-  Send, 
-  Loader2, 
-  ArrowLeft, 
-  MessageCircle, 
-  User, 
-  CheckCheck, 
+import {
+  Send,
+  Loader2,
+  ArrowLeft,
+  MessageCircle,
+  User,
+  CheckCheck,
   Clock,
   Phone,
   Video,
@@ -20,7 +20,7 @@ import {
   Mic,
   Shield,
   Crown,
-  Sparkles
+  Sparkles,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -51,7 +51,7 @@ export default function ChatPage() {
       router.push("/auth/signin");
       return;
     }
-    
+
     if (status === "authenticated" && id) {
       fetchMessages();
       fetchConversationDetails();
@@ -85,7 +85,7 @@ export default function ChatPage() {
     if (scrollRef.current) {
       scrollRef.current.scrollTo({
         top: scrollRef.current.scrollHeight,
-        behavior: "smooth"
+        behavior: "smooth",
       });
     }
   }, [messages]);
@@ -96,9 +96,10 @@ export default function ChatPage() {
       if (res.ok) {
         const data = await res.json();
         setMessages(data);
-        
         // Mark conversation as read after fetching messages
-        await fetch(`/api/conversations/${id}/read`, { method: "POST" }).catch(console.error);
+        await fetch(`/api/conversations/${id}/read`, { method: "POST" }).catch(
+          console.error,
+        );
       }
     } catch (error) {
       console.error("Failed to fetch messages", error);
@@ -159,49 +160,60 @@ export default function ChatPage() {
   }
 
   return (
-    <div className="py-0 bg-emerald-200 md:bg-white dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
+    <div className="py-0 bg-white  md:bg-white dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
       <div className="mx-auto  max-w-6xl  h-[calc(100vh-72px)] flex flex-col">
         {/* Chat Header */}
-    <Card className="p-1 rounded-none border-0  bg-transparent shadow-none dark:bg-gray-900/80">
-      <div className="px-3 py-2 flex items-center gap-2">
-    <Button variant="ghost" size="sm" asChild className="h-7 px-2 hover:bg-emerald-100">
-      <Link href="/messages">
-        <ArrowLeft className="h-3.5 w-3.5" />
-      </Link>
-    </Button>
-    
-    <Separator orientation="vertical" className="h-5" />
-    
-    <Avatar className="h-8 w-8 ring-1 ring-emerald-500/20">
-      <AvatarImage src={otherUser?.image} />
-      <AvatarFallback className="bg-gradient-to-br from-emerald-500 to-teal-500 text-white text-xs">
-        {otherUser?.name?.[0] || "U"}
-      </AvatarFallback>
-    </Avatar>
-    
-    <div className="flex flex-col">
-      <div className="flex items-center gap-1">
-        <span className="font-semibold text-xs">{otherUser?.name || "User"}</span>
-        {otherUser?.isVerified && (
-          <Shield className="h-3 w-3 text-emerald-600" />
-        )}
-      </div>
-      <div className="flex items-center gap-1">
-        <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-        <span className="text-[9px] text-muted-foreground">Online</span>
-        {isTyping && (
-          <>
-            <span className="text-[9px] text-muted-foreground">•</span>
-            <span className="text-[9px] text-emerald-600 animate-pulse">typing...</span>
-          </>
-        )}
-      </div>
-    </div>
-  </div>
-</Card>
+        <Card className="p-1 rounded-none rounded-b-lg border-none   shadow-none dark:bg-gray-900/80">
+          <div className="px-3 py-2 flex items-center gap-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              asChild
+              className="h-7 px-2 hover:bg-emerald-100"
+            >
+              <Link href="/messages">
+                <ArrowLeft className="h-3.5 w-3.5" />
+              </Link>
+            </Button>
+
+            <Separator orientation="vertical" className="h-5" />
+
+            <Avatar className="h-8 w-8 ring-1 ring-emerald-500/20">
+              <AvatarImage src={otherUser?.image} />
+              <AvatarFallback className="bg-gradient-to-br from-emerald-500 to-teal-500 text-white text-xs">
+                {otherUser?.name?.[0] || "U"}
+              </AvatarFallback>
+            </Avatar>
+
+            <div className="flex flex-col">
+              <div className="flex items-center gap-1">
+                <span className="font-semibold text-base">
+                  {otherUser?.name || "User"}
+                </span>
+                {otherUser?.isVerified && (
+                  <Shield className="h-3 w-3 text-emerald-600" />
+                )}
+              </div>
+              <div className="flex items-center gap-1">
+                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                <span className="text-[14px] text-muted-foreground">
+                  Online
+                </span>
+                {isTyping && (
+                  <>
+                    <span className="text-[14px] text-muted-foreground">•</span>
+                    <span className="text-[14px] text-emerald-600 animate-pulse">
+                      typing...
+                    </span>
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+        </Card>
 
         {/* Messages Area */}
-        <Card className="flex-1 flex flex-col bg-white overflow-y-auto border-0 shadow-none py-0 dark:bg-gray-900/80 backdrop-blur-sm">
+        <Card className="flex-1 flex flex-col bg-white overflow-y-auto border-1 rounded-b-none py-0 dark:bg-gray-900/80 backdrop-blur-sm">
           <div ref={scrollRef} className="flex-1 overflow-auto p-6 space-y-4">
             {messages.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-full text-center">
@@ -210,25 +222,39 @@ export default function ChatPage() {
                 </div>
                 <h3 className="font-semibold text-lg mb-2">No messages yet</h3>
                 <p className="text-sm text-muted-foreground max-w-sm">
-                  Start a conversation with {otherUser?.name || "the user"} by sending a message below.
+                  Start a conversation with {otherUser?.name || "the user"} by
+                  sending a message below.
                 </p>
               </div>
             ) : (
               messages.map((msg, idx) => {
                 const isMe = msg.sender._id === session?.user?.id;
-                const showDate = idx === 0 || new Date(msg.createdAt).toDateString() !== new Date(messages[idx - 1]?.createdAt).toDateString();
-                
+                const showDate =
+                  idx === 0 ||
+                  new Date(msg.createdAt).toDateString() !==
+                    new Date(messages[idx - 1]?.createdAt).toDateString();
+
                 return (
                   <div key={msg._id}>
                     {showDate && (
                       <div className="flex justify-center my-4">
-                        <Badge variant="secondary" className="text-xs bg-muted/50 backdrop-blur-sm">
-                          {format(new Date(msg.createdAt), "EEEE, MMMM d, yyyy")}
+                        <Badge
+                          variant="secondary"
+                          className="text-xs bg-muted/50 backdrop-blur-sm"
+                        >
+                          {format(
+                            new Date(msg.createdAt),
+                            "EEEE, MMMM d, yyyy",
+                          )}
                         </Badge>
                       </div>
                     )}
-                    <div className={`flex ${isMe ? 'justify-end' : 'justify-start'} group`}>
-                      <div className={`flex max-w-[70%] ${isMe ? 'flex-row-reverse' : 'flex-row'} items-end gap-2`}>
+                    <div
+                      className={`flex ${isMe ? "justify-end" : "justify-start"} group`}
+                    >
+                      <div
+                        className={`flex max-w-[70%] ${isMe ? "flex-row-reverse" : "flex-row"} items-end gap-2`}
+                      >
                         {!isMe && (
                           <Avatar className="h-8 w-8 ring-2 ring-emerald-500/20">
                             <AvatarImage src={msg.sender.image} />
@@ -238,22 +264,26 @@ export default function ChatPage() {
                           </Avatar>
                         )}
                         <div className="relative">
-                          <div className={cn(
-                            "px-4 py-2.5 rounded-2xl text-sm shadow-sm transition-all duration-200",
-                            isMe 
-                              ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-br-none hover:shadow-md" 
-                              : "bg-gray-100 dark:bg-gray-800 text-foreground rounded-bl-none hover:shadow-md"
-                          )}>
+                          <div
+                            className={cn(
+                              "px-4 py-2.5 rounded-2xl text-sm shadow-sm transition-all duration-200",
+                              isMe
+                                ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-br-none hover:shadow-md"
+                                : "bg-gray-100 dark:bg-gray-800 text-foreground rounded-bl-none hover:shadow-md",
+                            )}
+                          >
                             {msg.content}
                           </div>
-                          <div className={cn(
-                            "flex items-center gap-1 mt-1 text-[10px] text-muted-foreground",
-                            isMe ? "justify-end" : "justify-start"
-                          )}>
-                            <span>{format(new Date(msg.createdAt), "h:mm a")}</span>
-                            {isMe && (
-                              <CheckCheck className="h-3 w-3" />
+                          <div
+                            className={cn(
+                              "flex items-center gap-1 mt-1 text-[10px] text-muted-foreground",
+                              isMe ? "justify-end" : "justify-start",
                             )}
+                          >
+                            <span>
+                              {format(new Date(msg.createdAt), "h:mm a")}
+                            </span>
+                            {isMe && <CheckCheck className="h-3 w-3" />}
                           </div>
                         </div>
                       </div>
@@ -283,19 +313,19 @@ export default function ChatPage() {
               >
                 <Smile className="h-4 w-4" />
               </Button> */}
-              <Input 
+              <Input
                 ref={inputRef}
-                value={newMessage} 
+                value={newMessage}
                 onChange={(e) => {
                   setNewMessage(e.target.value);
                   handleTyping();
-                }} 
-                placeholder="Type a message..." 
+                }}
+                placeholder="Type a message..."
                 className="flex-1 border-emerald-200 dark:border-emerald-800 focus-visible:ring-emerald-500"
               />
-              <Button 
-                type="submit" 
-                size="icon" 
+              <Button
+                type="submit"
+                size="icon"
                 disabled={!newMessage.trim()}
                 className="shrink-0 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white shadow-lg shadow-emerald-500/20"
               >

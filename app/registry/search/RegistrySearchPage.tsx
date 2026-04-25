@@ -70,6 +70,11 @@ const QUICK_SEARCHES = [
   { icon: Globe, label: "Chassis Number", placeholder: "WBA3A5C59DF123456" },
 ];
 
+const maskVal = (val?: string) => {
+  if (!val) return "";
+  return val.length > 4 ? val.substring(0, 4) + "***" : val;
+};
+
 export default function RegistrySearchPage() {
   const searchParams = useSearchParams();
   const { data: session } = useSession();
@@ -449,7 +454,7 @@ export default function RegistrySearchPage() {
                               IMEI
                             </div>
                             <div className="font-mono text-sm font-semibold text-slate-900">
-                              {item.imei}
+                              {maskVal(item.imei)}
                             </div>
                           </div>
                         )}
@@ -459,7 +464,7 @@ export default function RegistrySearchPage() {
                               Serial Number
                             </div>
                             <div className="font-mono text-sm font-semibold text-slate-900">
-                              {item.serialNumber}
+                              {maskVal(item.serialNumber)}
                             </div>
                           </div>
                         )}
@@ -469,7 +474,7 @@ export default function RegistrySearchPage() {
                               Chassis Number
                             </div>
                             <div className="font-mono text-sm font-semibold text-slate-900">
-                              {item.chassisNumber}
+                              {maskVal(item.chassisNumber)}
                             </div>
                           </div>
                         )}
@@ -483,10 +488,10 @@ export default function RegistrySearchPage() {
                           </div>
                           <div>
                             <div className="font-semibold text-slate-900">
-                              {item.owner.name}
+                              {maskVal(item.owner.name)}
                             </div>
                             <div className="text-sm text-slate-600">
-                              {item.owner.email}
+                              {maskVal(item.owner.email)}
                             </div>
                           </div>
                         </div>

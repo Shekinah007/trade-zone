@@ -33,8 +33,8 @@ export default function Footer() {
               </span>
             </Link>
             <p className="text-sm text-muted-foreground max-w-xs leading-relaxed">
-              Africa&apos;s #1 property security registry and trusted marketplace.
-              Register, verify, and trade with confidence.
+              Africa&apos;s #1 property security registry and trusted
+              marketplace. Register, verify, and trade with confidence.
             </p>
 
             {/* Emails */}
