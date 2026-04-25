@@ -9,6 +9,7 @@ import dbConnect from "@/lib/db";
 import Review from "@/models/Review";
 import User from "@/models/User";
 import { formatDistanceToNow } from "date-fns";
+import { BackButton } from "@/components/BackButton";
 
 async function getSellerReviews(id: string) {
   await dbConnect();
@@ -34,11 +35,17 @@ async function getSellerReviews(id: string) {
     star,
     count: reviews.filter((r: any) => r.rating === star).length,
     percent: totalReviews
-      ? Math.round((reviews.filter((r: any) => r.rating === star).length / totalReviews) * 100)
+      ? Math.round(
+          (reviews.filter((r: any) => r.rating === star).length /
+            totalReviews) *
+            100,
+        )
       : 0,
   }));
 
-  return JSON.parse(JSON.stringify({ seller, reviews, totalReviews, averageRating, breakdown }));
+  return JSON.parse(
+    JSON.stringify({ seller, reviews, totalReviews, averageRating, breakdown }),
+  );
 }
 
 function StarRow({ rating, filled }: { rating: number; filled: boolean }) {
@@ -73,18 +80,19 @@ export default async function SellerReviewsPage({
   return (
     <div className="min-h-screen bg-background">
       {/* Hero */}
-      <section className="relative py-12 border-b overflow-hidden">
+      <section className="relative py-3 border-b overflow-hidden">
         <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-primary/10 rounded-full blur-3xl -z-10" />
         <div className="container mx-auto px-4">
-          <Link
+          {/* <Link
             href={`/store/${id}`}
             className="inline-flex items-center text-sm text-muted-foreground hover:text-primary transition-colors mb-6"
           >
             <ArrowLeft className="h-4 w-4 mr-1" />
             Back to Store
-          </Link>
+          </Link> */}
+          <BackButton variant="ghost" />
 
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5">
+          <div className="flex mt-2 flex-col sm:flex-row items-start sm:items-center gap-5">
             <Avatar className="h-16 w-16 ring-4 ring-primary/10">
               <AvatarImage src={seller.image} />
               <AvatarFallback className="text-xl font-bold bg-primary/10 text-primary">
@@ -131,7 +139,9 @@ export default async function SellerReviewsPage({
                         style={{ width: `${percent}%` }}
                       />
                     </div>
-                    <span className="w-6 text-xs text-muted-foreground text-right">{count}</span>
+                    <span className="w-6 text-xs text-muted-foreground text-right">
+                      {count}
+                    </span>
                   </div>
                 ))}
               </div>
@@ -145,7 +155,9 @@ export default async function SellerReviewsPage({
                 <p className="text-3xl font-bold text-green-500">
                   {breakdown.find((b: any) => b.star === 5)?.count ?? 0}
                 </p>
-                <p className="text-xs text-muted-foreground mt-1">5-Star Reviews</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  5-Star Reviews
+                </p>
               </CardContent>
             </Card>
             <Card>
@@ -153,20 +165,26 @@ export default async function SellerReviewsPage({
                 <p className="text-3xl font-bold">
                   {totalReviews > 0
                     ? `${Math.round(
-                        ((breakdown.find((b: any) => b.star >= 4)?.count ?? 0) +
-                          (breakdown.find((b: any) => b.star === 5)?.count ?? 0)) /
-                          totalReviews *
-                          100
+                        (((breakdown.find((b: any) => b.star >= 4)?.count ??
+                          0) +
+                          (breakdown.find((b: any) => b.star === 5)?.count ??
+                            0)) /
+                          totalReviews) *
+                          100,
                       )}%`
                     : "—"}
                 </p>
-                <p className="text-xs text-muted-foreground mt-1">Positive (4★+)</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Positive (4★+)
+                </p>
               </CardContent>
             </Card>
             <Card className="col-span-2">
               <CardContent className="p-5 text-center">
                 <p className="text-3xl font-bold">{totalReviews}</p>
-                <p className="text-xs text-muted-foreground mt-1">Total Reviews</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Total Reviews
+                </p>
               </CardContent>
             </Card>
           </div>
@@ -202,9 +220,13 @@ export default async function SellerReviewsPage({
                           </AvatarFallback>
                         </Avatar>
                         <div>
-                          <p className="font-semibold text-sm">{review.reviewer?.name || "Anonymous"}</p>
+                          <p className="font-semibold text-sm">
+                            {review.reviewer?.name || "Anonymous"}
+                          </p>
                           <p className="text-xs text-muted-foreground">
-                            {formatDistanceToNow(new Date(review.createdAt), { addSuffix: true })}
+                            {formatDistanceToNow(new Date(review.createdAt), {
+                              addSuffix: true,
+                            })}
                           </p>
                         </div>
                       </div>
@@ -234,8 +256,12 @@ export default async function SellerReviewsPage({
                     {/* Seller response */}
                     {review.response && (
                       <div className="mt-2 pl-3 border-l-2 border-primary/30 bg-muted/30 rounded-r-lg p-3">
-                        <p className="text-xs font-semibold text-primary mb-1">Seller's Response</p>
-                        <p className="text-xs text-muted-foreground">{review.response}</p>
+                        <p className="text-xs font-semibold text-primary mb-1">
+                          Seller's Response
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {review.response}
+                        </p>
                       </div>
                     )}
                   </CardContent>
