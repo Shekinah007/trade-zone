@@ -10,19 +10,23 @@ import {
   Loader2,
   ArrowRight,
   Info,
+  Upload,
+  X,
+  ChevronRight,
+  Camera,
   Smartphone,
   Car,
   Laptop,
+  Tablet,
   Cpu,
-  ImagePlus,
-  Upload,
-  X,
+  Zap,
+  Package,
+  AlertCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-// import { TokenPurchaseModal } from "@/components/TokenPurchaseModal";
 import {
   Select,
   SelectContent,
@@ -34,22 +38,25 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import dynamic from "next/dynamic";
 
 const TokenPurchaseModal = dynamic(
-  () => import("@/components/TokenPurchaseModal").then(mod => mod.TokenPurchaseModal),
-  { 
+  () =>
+    import("@/components/TokenPurchaseModal").then(
+      (mod) => mod.TokenPurchaseModal,
+    ),
+  {
     ssr: false,
-    loading: () => null // Optional: show nothing while loading
-  }
+    loading: () => null,
+  },
 );
 
 const ITEM_TYPES = [
-  { value: "phone", label: "Phone / Smartphone", icon: "📱" },
-  { value: "tablet", label: "Tablet", icon: "📟" },
-  { value: "laptop", label: "Laptop / PC", icon: "💻" },
-  { value: "vehicle", label: "Car / Vehicle", icon: "🚗" },
-  { value: "motorcycle", label: "Motorcycle", icon: "🏍️" },
-  { value: "generator", label: "Generator", icon: "⚡" },
-  { value: "electronics", label: "Electronics", icon: "🖥️" },
-  { value: "other", label: "Other", icon: "📦" },
+  { value: "phone", label: "Phone / Smartphone", icon: Smartphone },
+  { value: "tablet", label: "Tablet", icon: Tablet },
+  { value: "laptop", label: "Laptop / PC", icon: Laptop },
+  { value: "vehicle", label: "Car / Vehicle", icon: Car },
+  { value: "motorcycle", label: "Motorcycle", icon: Zap },
+  { value: "generator", label: "Generator", icon: Zap },
+  { value: "electronics", label: "Electronics", icon: Cpu },
+  { value: "other", label: "Other", icon: Package },
 ];
 
 export default function RegisterPropertyPage() {
@@ -70,7 +77,9 @@ export default function RegisterPropertyPage() {
     description: "",
   });
 
-  const [imageItems, setImageItems] = useState<{ url: string; file?: File }[]>([]);
+  const [imageItems, setImageItems] = useState<{ url: string; file?: File }[]>(
+    [],
+  );
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -93,25 +102,35 @@ export default function RegisterPropertyPage() {
 
   if (status === "loading") {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      <div className="min-h-screen bg-gradient-to-br from-red-950 via-red-900 to-rose-950 flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="h-12 w-12 animate-spin text-gray-900 mx-auto" />
+          <p className="mt-4 text-gray-900/60">Loading your session...</p>
+        </div>
       </div>
     );
   }
 
   if (!session) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center gap-4 text-center px-4">
-        <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
-          <Shield className="h-8 w-8 text-primary" />
+      <div className="min-h-screen bg-gradient-to-br from-red-950 via-red-900 to-rose-950 flex flex-col items-center justify-center gap-6 text-center px-4">
+        <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-red-500 to-rose-600 flex items-center justify-center shadow-lg shadow-red-500/20">
+          <Shield className="h-10 w-10 text-black" />
         </div>
-        <h1 className="text-2xl font-bold">Sign In Required</h1>
-        <p className="text-muted-foreground max-w-sm">
-          You need to be signed in to register a property on FindMaster.
-        </p>
-        <Button asChild className="rounded-full">
+        <div>
+          <h1 className="text-3xl font-bold text-black mb-2">
+            Sign In Required
+          </h1>
+          <p className="text-gray-900/60 max-w-sm">
+            You need to be signed in to register a property on FindMaster.
+          </p>
+        </div>
+        <Button
+          asChild
+          className="rounded-full bg-gradient-to-r from-red-500 to-rose-600 hover:from-red-600 hover:to-rose-700 text-black shadow-lg shadow-red-500/20 border-0 px-8 py-6 text-lg"
+        >
           <Link href="/auth/signin?callbackUrl=/registry/register">
-            Sign In to Continue <ArrowRight className="ml-2 h-4 w-4" />
+            Sign In to Continue <ArrowRight className="ml-2 h-5 w-5" />
           </Link>
         </Button>
       </div>
@@ -130,7 +149,7 @@ export default function RegisterPropertyPage() {
     }
     if (!form.serialNumber && !form.imei && !form.chassisNumber) {
       toast.error(
-        "Please provide at least one identifier: Serial Number, IMEI, or Chassis Number."
+        "Please provide at least one identifier: Serial Number, IMEI, or Chassis Number.",
       );
       return;
     }
@@ -156,7 +175,7 @@ export default function RegisterPropertyPage() {
 
       const data = await res.json();
       if (!res.ok) {
-        if (data.code === 'LIMIT_EXCEEDED') {
+        if (data.code === "LIMIT_EXCEEDED") {
           toast.error(data.error);
           setShowTokenModal(true);
         } else {
@@ -174,91 +193,130 @@ export default function RegisterPropertyPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <section className="border-b bg-muted/20 py-12">
-        <div className="container mx-auto px-4 max-w-2xl text-center">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border bg-background text-xs font-medium text-primary mb-4">
-            <Shield className="h-3.5 w-3.5" /> Property Registry
+    <div className="min-h-screen bg-gradient-to-br from-white via-white to-white">
+      {/* Hero Section */}
+      <section className="relative border-b border-red-500/20 py-16 md:py-20">
+        <div className="absolute inset-0 bg-gradient-to-b from-red-500/5 to-transparent" />
+        <div className="container mx-auto px-4 max-w-2xl text-center relative">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-red-500/10 border border-red-500/20 text-sm font-medium text-gray-900 mb-6 backdrop-blur-sm">
+            <Shield className="h-4 w-4" /> Property Registry
           </div>
-          <h1 className="text-4xl font-extrabold tracking-tight mb-3">
+          <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight mb-4 bg-gradient-to-r from-red-200 via-black to-red-200 bg-clip-text text-transparent">
             Register a Property
           </h1>
-          <p className="text-muted-foreground">
+          <p className="text-gray-900/60 text-lg max-w-xl mx-auto">
             Add your item to the FindMaster registry. This creates a permanent
             record of ownership under your account.
           </p>
         </div>
       </section>
 
-      <div className="container mx-auto px-4 py-12 max-w-2xl">
-        {/* Info Box */}
-        <div className="flex items-start gap-3 p-4 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-700 dark:text-blue-400 text-sm mb-8">
-          <Info className="h-4 w-4 mt-0.5 shrink-0" />
-          <p>
-            At least one identifier (Serial Number, IMEI, or Chassis Number) is
-            required. This is used for registry searches.
-          </p>
+      <div className="container mx-auto px-4 py-8 md:py-12 max-w-2xl">
+        {/* Alert Box */}
+        <div className="flex items-start gap-3 p-4 rounded-2xl bg-red-500/10 border border-red-500/20 text-gray-900 backdrop-blur-sm mb-8">
+          <AlertCircle className="h-5 w-5 mt-0.5 shrink-0 text-gray-900" />
+          <div className="flex-1">
+            <p className="text-sm">
+              At least one identifier (Serial Number, IMEI, or Chassis Number)
+              is required. This is used for registry searches.
+            </p>
+          </div>
+          <Link
+            href="/dashboard"
+            className="shrink-0 px-4 py-2 rounded-lg bg-red-500/20 hover:bg-red-500/30 text-gray-900 text-sm font-medium border border-red-500/20 transition-colors"
+          >
+            Cancel
+          </Link>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Item Type */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Item Details</CardTitle>
+          {/* Item Details Card */}
+          <Card className="bg-black/[0.03] backdrop-blur-sm border-red-500/20 shadow-xl shadow-red-500/5">
+            <CardHeader className="border-b border-red-500/10 pb-4">
+              <CardTitle className="text-lg text-black flex items-center gap-2">
+                <Package className="h-5 w-5 text-gray-900" />
+                Item Details
+              </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-5 pt-5">
               <div className="space-y-2">
-                <Label htmlFor="itemType">Item Type *</Label>
+                <Label htmlFor="itemType" className="text-gray-900/80 text-sm">
+                  Item Type <span className="text-gray-900">*</span>
+                </Label>
                 <Select
                   value={form.itemType}
                   onValueChange={(v) => set("itemType", v)}
                 >
-                  <SelectTrigger id="itemType">
+                  <SelectTrigger
+                    id="itemType"
+                    className="bg-black/[0.05] border-red-500/20 text-black hover:bg-black/[0.08] transition-colors rounded-xl h-11"
+                  >
                     <SelectValue placeholder="Select item type..." />
                   </SelectTrigger>
-                  <SelectContent>
-                    {ITEM_TYPES.map((t) => (
-                      <SelectItem key={t.value} value={t.value}>
-                        {t.icon} {t.label}
-                      </SelectItem>
-                    ))}
+                  <SelectContent className="bg-red-950 border-red-500/20 text-black">
+                    {ITEM_TYPES.map((t) => {
+                      const IconComponent = t.icon;
+                      return (
+                        <SelectItem
+                          key={t.value}
+                          value={t.value}
+                          className="focus:bg-red-500/20 focus:text-black"
+                        >
+                          <span className="flex items-center gap-2">
+                            <IconComponent className="h-4 w-4 text-gray-900" />
+                            {t.label}
+                          </span>
+                        </SelectItem>
+                      );
+                    })}
                   </SelectContent>
                 </Select>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="brand">Brand / Make *</Label>
+                  <Label htmlFor="brand" className="text-gray-900/80 text-sm">
+                    Brand / Make <span className="text-gray-900">*</span>
+                  </Label>
                   <Input
                     id="brand"
                     placeholder="e.g. Samsung, Toyota, HP"
                     value={form.brand}
                     onChange={(e) => set("brand", e.target.value)}
+                    className="bg-black/[0.05] border-red-500/20 text-black placeholder:text-gray-900/30 focus:border-red-400/50 rounded-xl h-11"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="model">Model *</Label>
+                  <Label htmlFor="model" className="text-gray-900/80 text-sm">
+                    Model <span className="text-gray-900">*</span>
+                  </Label>
                   <Input
                     id="model"
                     placeholder="e.g. Galaxy S24, Camry 2020"
                     value={form.model}
                     onChange={(e) => set("model", e.target.value)}
+                    className="bg-black/[0.05] border-red-500/20 text-black placeholder:text-gray-900/30 focus:border-red-400/50 rounded-xl h-11"
                   />
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="color">Color</Label>
+                  <Label htmlFor="color" className="text-gray-900/80 text-sm">
+                    Color
+                  </Label>
                   <Input
                     id="color"
                     placeholder="e.g. Black, Silver"
                     value={form.color}
                     onChange={(e) => set("color", e.target.value)}
+                    className="bg-black/[0.05] border-red-500/20 text-black placeholder:text-gray-900/30 focus:border-red-400/50 rounded-xl h-11"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="year">Year of Purchase</Label>
+                  <Label htmlFor="year" className="text-gray-900/80 text-sm">
+                    Year of Purchase
+                  </Label>
                   <Input
                     id="year"
                     type="number"
@@ -267,16 +325,23 @@ export default function RegisterPropertyPage() {
                     max={new Date().getFullYear()}
                     value={form.yearOfPurchase}
                     onChange={(e) => set("yearOfPurchase", e.target.value)}
+                    className="bg-black/[0.05] border-red-500/20 text-black placeholder:text-gray-900/30 focus:border-red-400/50 rounded-xl h-11"
                   />
                 </div>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="description">Description (optional)</Label>
+                <Label
+                  htmlFor="description"
+                  className="text-gray-900/80 text-sm"
+                >
+                  Description{" "}
+                  <span className="text-gray-900/60">(optional)</span>
+                </Label>
                 <Textarea
                   id="description"
                   placeholder="Any additional details about the item..."
-                  className="resize-none min-h-[80px]"
+                  className="resize-none min-h-[100px] bg-black/[0.05] border-red-500/20 text-black placeholder:text-gray-900/30 focus:border-red-400/50 rounded-xl"
                   value={form.description}
                   onChange={(e) => set("description", e.target.value)}
                 />
@@ -284,72 +349,90 @@ export default function RegisterPropertyPage() {
             </CardContent>
           </Card>
 
-          {/* Identifiers */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">
-                Unique Identifiers{" "}
-                <span className="text-muted-foreground font-normal text-sm">
+          {/* Identifiers Card */}
+          <Card className="bg-black/[0.03] backdrop-blur-sm border-red-500/20 shadow-xl shadow-red-500/5">
+            <CardHeader className="border-b border-red-500/10 pb-4">
+              <CardTitle className="text-lg text-black flex items-center gap-2">
+                <Shield className="h-5 w-5 text-gray-900" />
+                Unique Identifiers
+                <span className="text-gray-800 font-normal text-sm ml-2">
                   (at least one required)
                 </span>
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-5 pt-5">
               <div className="space-y-2">
-                <Label htmlFor="imei">IMEI Number (for phones/tablets)</Label>
+                <Label htmlFor="imei" className="text-gray-900/80 text-sm">
+                  IMEI Number
+                  <span className="text-gray-900/60 text-xs ml-1">
+                    (for phones/tablets)
+                  </span>
+                </Label>
                 <Input
                   id="imei"
                   placeholder="15-digit IMEI e.g. 359876054321234"
                   value={form.imei}
                   onChange={(e) => set("imei", e.target.value)}
-                  className="font-mono"
+                  className="font-mono bg-black/[0.05] border-red-500/20 text-black placeholder:text-gray-900/30 focus:border-red-400/50 rounded-xl h-11"
                 />
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs text-gray-900/40">
                   Dial *#06# on your phone to find the IMEI
                 </p>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="serial">Serial Number</Label>
+                <Label htmlFor="serial" className="text-gray-900/80 text-sm">
+                  Serial Number
+                </Label>
                 <Input
                   id="serial"
                   placeholder="e.g. C02X12ABCDEF"
                   value={form.serialNumber}
                   onChange={(e) => set("serialNumber", e.target.value)}
-                  className="font-mono"
+                  className="font-mono bg-black/[0.05] border-red-500/20 text-black placeholder:text-gray-900/30 focus:border-red-400/50 rounded-xl h-11"
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="chassis">Chassis Number (for vehicles)</Label>
+                <Label htmlFor="chassis" className="text-gray-900/80 text-sm">
+                  Chassis Number
+                  <span className="text-gray-900/60 text-xs ml-1">
+                    (for vehicles)
+                  </span>
+                </Label>
                 <Input
                   id="chassis"
                   placeholder="17-character VIN e.g. 1HGBH41JXMN109186"
                   value={form.chassisNumber}
                   onChange={(e) => set("chassisNumber", e.target.value)}
-                  className="font-mono"
+                  className="font-mono bg-black/[0.05] border-red-500/20 text-black placeholder:text-gray-900/30 focus:border-red-400/50 rounded-xl h-11"
                 />
               </div>
             </CardContent>
           </Card>
 
-          {/* Photos */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base flex items-center gap-2">
-                <ImagePlus className="h-4 w-4" /> Photos
+          {/* Photos Card */}
+          <Card className="bg-black/[0.03] backdrop-blur-sm border-red-500/20 shadow-xl shadow-red-500/5">
+            <CardHeader className="border-b border-red-500/10 pb-4">
+              <CardTitle className="text-lg text-black flex items-center gap-2">
+                <Camera className="h-5 w-5 text-gray-900" />
+                Photos
               </CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="flex items-center justify-between mb-2">
-                <Label>Property Images</Label>
-                <span className="text-xs text-muted-foreground">{imageItems.length}/5</span>
+            <CardContent className="pt-5">
+              <div className="flex items-center justify-between mb-4">
+                <Label className="text-gray-900/80 text-sm">
+                  Property Images
+                </Label>
+                <span className="text-xs px-3 py-1 rounded-full bg-red-500/10 border border-red-500/20 text-gray-900">
+                  {imageItems.length}/5
+                </span>
               </div>
               <div className="grid grid-cols-3 sm:grid-cols-5 gap-3">
                 {imageItems.map((item, index) => (
                   <div
                     key={index}
-                    className="relative aspect-square rounded-xl overflow-hidden border bg-muted group"
+                    className="relative aspect-square rounded-xl overflow-hidden border border-red-500/20 bg-red-500/5 group hover:border-red-400/40 transition-all"
                   >
                     <img
                       src={item.url}
@@ -359,7 +442,7 @@ export default function RegisterPropertyPage() {
                     <button
                       type="button"
                       onClick={() => removeImageItem(index)}
-                      className="absolute top-1 right-1 rounded-full bg-black/60 text-white p-1 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-destructive"
+                      className="absolute top-2 right-2 rounded-full bg-red-500/90 text-black p-1.5 opacity-0 group-hover:opacity-100 transition-all hover:bg-red-600 shadow-lg"
                     >
                       <X className="h-3 w-3" />
                     </button>
@@ -367,9 +450,9 @@ export default function RegisterPropertyPage() {
                 ))}
 
                 {imageItems.length < 5 && (
-                  <label className="flex aspect-square cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-muted-foreground/20 bg-muted/30 hover:bg-muted/50 hover:border-primary/30 transition-all group">
-                    <Upload className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
-                    <span className="mt-1.5 text-xs text-muted-foreground group-hover:text-primary">
+                  <label className="flex aspect-square cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-red-500/30 bg-red-500/[0.02] hover:bg-red-500/[0.08] hover:border-red-400/50 transition-all group">
+                    <Upload className="h-6 w-6 text-gray-900/60 group-hover:text-gray-900 transition-colors" />
+                    <span className="mt-2 text-xs text-gray-900/60 group-hover:text-gray-900 transition-colors">
                       Add Photo
                     </span>
                     <input
@@ -385,25 +468,32 @@ export default function RegisterPropertyPage() {
             </CardContent>
           </Card>
 
+          {/* Submit Button */}
           <Button
             type="submit"
             size="lg"
-            className="w-full rounded-full bg-gradient-to-r from-primary to-blue-600 hover:opacity-90 border-0 shadow-lg"
+            className="w-full rounded-2xl bg-gradient-to-r from-red-500 via-rose-500 to-red-600 hover:from-red-600 hover:via-rose-600 hover:to-red-700 text-black shadow-xl shadow-red-500/20 border-0 py-7 text-lg font-semibold transition-all duration-300 hover:scale-[1.02]"
             disabled={submitting}
           >
             {submitting ? (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              <>
+                <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                Registering...
+              </>
             ) : (
-              <Shield className="mr-2 h-4 w-4" />
+              <>
+                <Shield className="mr-2 h-5 w-5" />
+                Register Property
+                <ChevronRight className="ml-2 h-5 w-5" />
+              </>
             )}
-            {submitting ? "Registering..." : "Register Property"}
           </Button>
         </form>
       </div>
 
-      <TokenPurchaseModal 
-        isOpen={showTokenModal} 
-        onClose={() => setShowTokenModal(false)} 
+      <TokenPurchaseModal
+        isOpen={showTokenModal}
+        onClose={() => setShowTokenModal(false)}
       />
     </div>
   );

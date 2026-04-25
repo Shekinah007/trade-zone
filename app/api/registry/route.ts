@@ -60,11 +60,28 @@ const ipAddress = ipInfo ? ipInfo.split(',')[0].trim() : (req.headers.get('x-rea
 
   // Asynchronous Logging
   if (results.length > 0) {
+    let resolvedLat = lat ? Number(lat) : undefined;
+    let resolvedLng = lng ? Number(lng) : undefined;
+
+    // IP-based Geolocation Fallback
+    if ((!resolvedLat || !resolvedLng) && ipAddress && ipAddress !== 'Unknown' && ipAddress !== '::1' && ipAddress !== '127.0.0.1') {
+      try {
+        const geoRes = await fetch(`http://ip-api.com/json/${ipAddress}`);
+        const geoData = await geoRes.json();
+        if (geoData && geoData.status === 'success') {
+          resolvedLat = geoData.lat;
+          resolvedLng = geoData.lon;
+        }
+      } catch (err) {
+        console.error("IP Geolocation fallback failed:", err);
+      }
+    }
+
     SearchLog.create({
       query: q,
       propertyId: results[0]._id,
       ipAddress,
-      location: (lat && lng) ? { lat: Number(lat), lng: Number(lng) } : undefined,
+      location: (resolvedLat && resolvedLng) ? { lat: resolvedLat, lng: resolvedLng } : undefined,
       user: session?.user?.id || undefined,
     }).catch((err) => console.error("Search Audit Log Failed:", err));
   }

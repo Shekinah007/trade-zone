@@ -25,7 +25,12 @@ import {
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
-import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
@@ -48,7 +53,9 @@ export default function Navbar() {
     if (isMarketplace) {
       router.push(q ? `/browse?q=${encodeURIComponent(q)}` : "/browse");
     } else {
-      router.push(q ? `/registry/search?q=${encodeURIComponent(q)}` : "/registry/search");
+      router.push(
+        q ? `/registry/search?q=${encodeURIComponent(q)}` : "/registry/search",
+      );
     }
   };
 
@@ -83,14 +90,24 @@ export default function Navbar() {
       )}
     >
       <div className="container mx-auto px-4 h-16 flex items-center justify-between gap-4">
-        
         <div className="flex items-center lg:space-x-8">
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-2 group shrink-0">
-            <div className={cn("p-2 rounded-xl transition-colors", isMarketplace ? "bg-emerald-500/10 group-hover:bg-emerald-500/20" : "bg-red-500/10 group-hover:bg-red-500/20")}>
-              {isMarketplace ? <ShoppingBag className={cn("h-6 w-6 text-emerald-600")} /> : <Shield className={cn("h-6 w-6 text-red-600")} />}
+            <div
+              className={cn(
+                "p-2 rounded-xl transition-colors",
+                isMarketplace
+                  ? "bg-emerald-500/10 group-hover:bg-emerald-500/20"
+                  : "bg-red-500/10 group-hover:bg-red-500/20",
+              )}
+            >
+              {isMarketplace ? (
+                <ShoppingBag className={cn("h-6 w-6 text-emerald-600")} />
+              ) : (
+                <Shield className={cn("h-6 w-6 text-red-600")} />
+              )}
             </div>
-            <span className="text-xl font-bold tracking-tight hidden sm:inline-block">
+            <span className="text-xl font-bold tracking-tight sm:inline-block">
               FindMaster
             </span>
           </Link>
@@ -98,14 +115,30 @@ export default function Navbar() {
           {/* Context Switcher Pill */}
           <div className="hidden md:flex items-center p-1 bg-muted rounded-full border border-border/50">
             <button
-              onClick={() => { setMode("marketplace"); router.push("/market"); }}
-              className={cn("flex items-center px-4 py-1.5 rounded-full text-sm font-medium transition-all", isMarketplace ? "bg-emerald-600 text-white shadow-sm" : "text-muted-foreground hover:text-foreground")}
+              onClick={() => {
+                setMode("marketplace");
+                router.push("/market");
+              }}
+              className={cn(
+                "flex items-center px-4 py-1.5 rounded-full text-sm font-medium transition-all",
+                isMarketplace
+                  ? "bg-emerald-600 text-white shadow-sm"
+                  : "text-muted-foreground hover:text-foreground",
+              )}
             >
               Marketplace
             </button>
             <button
-              onClick={() => { setMode("registry"); router.push("/registry"); }}
-              className={cn("flex items-center px-4 py-1.5 rounded-full text-sm font-medium transition-all", !isMarketplace ? "bg-red-600 text-white shadow-sm" : "text-muted-foreground hover:text-foreground")}
+              onClick={() => {
+                setMode("registry");
+                router.push("/registry");
+              }}
+              className={cn(
+                "flex items-center px-4 py-1.5 rounded-full text-sm font-medium transition-all",
+                !isMarketplace
+                  ? "bg-red-600 text-white shadow-sm"
+                  : "text-muted-foreground hover:text-foreground",
+              )}
             >
               Registry
             </button>
@@ -116,12 +149,27 @@ export default function Navbar() {
         <nav className="hidden lg:flex items-center space-x-6 text-sm font-medium">
           {isMarketplace ? (
             <>
-              <Link href="/browse" className="transition-colors hover:text-emerald-600 text-foreground/80">Browse</Link>
-              <Link href="/categories" className="transition-colors hover:text-emerald-600 text-foreground/80">Categories</Link>
+              <Link
+                href="/browse"
+                className="transition-colors hover:text-emerald-600 text-foreground/80"
+              >
+                Browse
+              </Link>
+              <Link
+                href="/categories"
+                className="transition-colors hover:text-emerald-600 text-foreground/80"
+              >
+                Categories
+              </Link>
             </>
           ) : (
             <>
-              <Link href="/dashboard?tab=registry" className="transition-colors hover:text-red-600 text-foreground/80">My Registry</Link>
+              <Link
+                href="/dashboard?tab=registry"
+                className="transition-colors hover:text-red-600 text-foreground/80"
+              >
+                My Registry
+              </Link>
             </>
           )}
         </nav>
@@ -135,29 +183,37 @@ export default function Navbar() {
             <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground transition-colors" />
             <Input
               type="search"
-              placeholder={isMarketplace ? "Search marketplace..." : "Search IMEI/Serial..."}
+              placeholder={
+                isMarketplace
+                  ? "Search marketplace..."
+                  : "Search IMEI/Serial..."
+              }
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className={cn("w-full pl-10 bg-muted/50 transition-all rounded-full focus-visible:ring-1", isMarketplace ? "focus-visible:ring-emerald-500" : "focus-visible:ring-red-500")}
+              className={cn(
+                "w-full pl-10 bg-muted/50 transition-all rounded-full focus-visible:ring-1",
+                isMarketplace
+                  ? "focus-visible:ring-emerald-500"
+                  : "focus-visible:ring-red-500",
+              )}
             />
           </div>
         </form>
 
         {/* Right Actions */}
         <div className="flex items-center space-x-3 shrink-0">
-          
           {isMarketplace ? (
-             <Button
-             asChild
-             variant="default"
-             size="sm"
-             className="hidden md:flex rounded-full px-6 shadow-md hover:shadow-lg transition-all bg-emerald-600 hover:bg-emerald-700 text-white border-0"
-           >
-             <Link href="/listings/create">
-               <PlusCircle className="h-4 w-4 mr-2" />
-               Post Ad
-             </Link>
-           </Button>
+            <Button
+              asChild
+              variant="default"
+              size="sm"
+              className="hidden md:flex rounded-full px-6 shadow-md hover:shadow-lg transition-all bg-emerald-600 hover:bg-emerald-700 text-white border-0"
+            >
+              <Link href="/listings/create">
+                <PlusCircle className="h-4 w-4 mr-2" />
+                Post Ad
+              </Link>
+            </Button>
           ) : (
             <Button
               asChild
@@ -177,11 +233,24 @@ export default function Navbar() {
               <DropdownMenuTrigger asChild>
                 <Button
                   variant="ghost"
-                  className={cn("relative h-9 w-9 rounded-full ring-2 ring-transparent transition-all", isMarketplace ? "hover:ring-emerald-500/30" : "hover:ring-red-500/30")}
+                  className={cn(
+                    "relative h-9 w-9 rounded-full ring-2 ring-transparent transition-all",
+                    isMarketplace
+                      ? "hover:ring-emerald-500/30"
+                      : "hover:ring-red-500/30",
+                  )}
                 >
                   <Avatar className="h-9 w-9">
-                    <AvatarImage src={session.user?.image || ""} alt={session.user?.name || ""} />
-                    <AvatarFallback className={cn("text-white", isMarketplace ? "bg-emerald-600" : "bg-red-600")}>
+                    <AvatarImage
+                      src={session.user?.image || ""}
+                      alt={session.user?.name || ""}
+                    />
+                    <AvatarFallback
+                      className={cn(
+                        "text-white",
+                        isMarketplace ? "bg-emerald-600" : "bg-red-600",
+                      )}
+                    >
                       {session.user?.name?.charAt(0) || "U"}
                     </AvatarFallback>
                   </Avatar>
@@ -190,8 +259,12 @@ export default function Navbar() {
               <DropdownMenuContent className="w-56 mt-2" align="end" forceMount>
                 <DropdownMenuLabel className="font-normal">
                   <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium leading-none">{session.user?.name}</p>
-                    <p className="text-xs leading-none text-muted-foreground">{session.user?.email}</p>
+                    <p className="text-sm font-medium leading-none">
+                      {session.user?.name}
+                    </p>
+                    <p className="text-xs leading-none text-muted-foreground">
+                      {session.user?.email}
+                    </p>
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
@@ -210,18 +283,21 @@ export default function Navbar() {
                     <User className="mr-2 h-4 w-4" /> Profile
                   </Link>
                 </DropdownMenuItem>
-                
+
                 {session?.user?.role === "admin" && (
-                    <>
+                  <>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem asChild>
-                    <Link href="/admin" className="cursor-pointer text-purple-600">
+                      <Link
+                        href="/admin"
+                        className="cursor-pointer text-purple-600"
+                      >
                         <LayoutDashboard className="mr-2 h-4 w-4" /> Admin Panel
-                    </Link>
+                      </Link>
                     </DropdownMenuItem>
-                    </>
+                  </>
                 )}
-                
+
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                   onClick={() => signOut({ callbackUrl: "/" })}
@@ -236,7 +312,16 @@ export default function Navbar() {
               <Button asChild variant="ghost" size="sm">
                 <Link href="/auth/signin">Sign In</Link>
               </Button>
-              <Button asChild size="sm" className={cn("rounded-full", isMarketplace ? "bg-emerald-600 hover:bg-emerald-700" : "bg-red-600 hover:bg-red-700")}>
+              <Button
+                asChild
+                size="sm"
+                className={cn(
+                  "rounded-full",
+                  isMarketplace
+                    ? "bg-emerald-600 hover:bg-emerald-700"
+                    : "bg-red-600 hover:bg-red-700",
+                )}
+              >
                 <Link href="/auth/signup">Sign Up</Link>
               </Button>
             </div>
@@ -252,23 +337,40 @@ export default function Navbar() {
             </SheetTrigger>
             <SheetContent side="right" className="w-[300px] p-0 flex flex-col">
               <SheetTitle className="sr-only">Menu</SheetTitle>
-              
+
               <div className="flex flex-col flex-1 overflow-y-auto p-5 space-y-6">
-                
                 {/* Mobile Mode Switcher */}
                 <div className="flex rounded-lg bg-muted p-1 border">
-                    <button
-                        onClick={() => { setMode("marketplace"); router.push("/market"); closeMobileMenu(); }}
-                        className={cn("flex-1 text-sm py-2 rounded-md font-semibold transition-all", isMarketplace ? "bg-emerald-600 text-white shadow-sm" : "text-muted-foreground")}
-                    >
-                        Marketplace
-                    </button>
-                    <button
-                         onClick={() => { setMode("registry"); router.push("/registry"); closeMobileMenu(); }}
-                        className={cn("flex-1 text-sm py-2 rounded-md font-semibold transition-all", !isMarketplace ? "bg-red-600 text-white shadow-sm" : "text-muted-foreground")}
-                    >
-                        Registry
-                    </button>
+                  <button
+                    onClick={() => {
+                      setMode("marketplace");
+                      router.push("/market");
+                      closeMobileMenu();
+                    }}
+                    className={cn(
+                      "flex-1 text-sm py-2 rounded-md font-semibold transition-all",
+                      isMarketplace
+                        ? "bg-emerald-600 text-white shadow-sm"
+                        : "text-muted-foreground",
+                    )}
+                  >
+                    Marketplace
+                  </button>
+                  <button
+                    onClick={() => {
+                      setMode("registry");
+                      router.push("/registry");
+                      closeMobileMenu();
+                    }}
+                    className={cn(
+                      "flex-1 text-sm py-2 rounded-md font-semibold transition-all",
+                      !isMarketplace
+                        ? "bg-red-600 text-white shadow-sm"
+                        : "text-muted-foreground",
+                    )}
+                  >
+                    Registry
+                  </button>
                 </div>
 
                 {menuVisible && (
@@ -283,10 +385,19 @@ export default function Navbar() {
                       <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground transition-colors" />
                       <Input
                         type="search"
-                        placeholder={isMarketplace ? "Search marketplace..." : "Search registry..."}
+                        placeholder={
+                          isMarketplace
+                            ? "Search marketplace..."
+                            : "Search registry..."
+                        }
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className={cn("pl-10 bg-muted/50 rounded-full transition-all text-sm", isMarketplace ? "focus-visible:ring-emerald-500" : "focus-visible:ring-red-500")}
+                        className={cn(
+                          "pl-10 bg-muted/50 rounded-full transition-all text-sm",
+                          isMarketplace
+                            ? "focus-visible:ring-emerald-500"
+                            : "focus-visible:ring-red-500",
+                        )}
                       />
                     </div>
                   </form>
@@ -298,15 +409,39 @@ export default function Navbar() {
                   </p>
                   <nav className="flex flex-col space-y-1">
                     {isMarketplace ? (
-                        <>
-                            <Link onClick={closeMobileMenu} href="/browse" className="flex items-center px-3 py-2.5 rounded-xl text-sm font-medium hover:text-emerald-700 hover:bg-emerald-50">Browse Listings</Link>
-                            <Link onClick={closeMobileMenu} href="/categories" className="flex items-center px-3 py-2.5 rounded-xl text-sm font-medium hover:text-emerald-700 hover:bg-emerald-50">Categories</Link>
-                        </>
+                      <>
+                        <Link
+                          onClick={closeMobileMenu}
+                          href="/browse"
+                          className="flex items-center px-3 py-2.5 rounded-xl text-sm font-medium hover:text-emerald-700 hover:bg-emerald-50"
+                        >
+                          Browse Listings
+                        </Link>
+                        <Link
+                          onClick={closeMobileMenu}
+                          href="/categories"
+                          className="flex items-center px-3 py-2.5 rounded-xl text-sm font-medium hover:text-emerald-700 hover:bg-emerald-50"
+                        >
+                          Categories
+                        </Link>
+                      </>
                     ) : (
-                        <>
-                           <Link onClick={closeMobileMenu} href="/dashboard?tab=registry" className="flex items-center px-3 py-2.5 rounded-xl text-sm font-medium hover:text-red-700 hover:bg-red-50">My Registry</Link>
-                           <Link onClick={closeMobileMenu} href="/registry/search" className="flex items-center px-3 py-2.5 rounded-xl text-sm font-medium hover:text-red-700 hover:bg-red-50">Search Registry</Link>
-                        </>
+                      <>
+                        <Link
+                          onClick={closeMobileMenu}
+                          href="/dashboard?tab=registry"
+                          className="flex items-center px-3 py-2.5 rounded-xl text-sm font-medium hover:text-red-700 hover:bg-red-50"
+                        >
+                          My Registry
+                        </Link>
+                        <Link
+                          onClick={closeMobileMenu}
+                          href="/registry/search"
+                          className="flex items-center px-3 py-2.5 rounded-xl text-sm font-medium hover:text-red-700 hover:bg-red-50"
+                        >
+                          Search Registry
+                        </Link>
+                      </>
                     )}
                   </nav>
                 </div>
@@ -319,37 +454,84 @@ export default function Navbar() {
                     <div className="flex items-center gap-3 p-3 rounded-xl bg-background border">
                       <Avatar className="h-10 w-10">
                         <AvatarImage src={session.user?.image || ""} />
-                        <AvatarFallback className={cn("text-white font-bold", isMarketplace ? "bg-emerald-600" : "bg-red-600")}>
+                        <AvatarFallback
+                          className={cn(
+                            "text-white font-bold",
+                            isMarketplace ? "bg-emerald-600" : "bg-red-600",
+                          )}
+                        >
                           {session.user?.name?.charAt(0)}
                         </AvatarFallback>
                       </Avatar>
                       <div className="flex-1 min-w-0">
-                        <p className="font-semibold text-sm truncate">{session.user?.name}</p>
-                        <p className="text-xs text-muted-foreground truncate">{session.user?.email}</p>
+                        <p className="font-semibold text-sm truncate">
+                          {session.user?.name}
+                        </p>
+                        <p className="text-xs text-muted-foreground truncate">
+                          {session.user?.email}
+                        </p>
                       </div>
                     </div>
 
-                    <Button asChild variant="outline" className="w-full justify-start rounded-xl" onClick={closeMobileMenu}>
-                      <Link href="/dashboard"><LayoutDashboard className="mr-2 h-4 w-4" /> Dashboard</Link>
+                    <Button
+                      asChild
+                      variant="outline"
+                      className="w-full justify-start rounded-xl"
+                      onClick={closeMobileMenu}
+                    >
+                      <Link href="/dashboard">
+                        <LayoutDashboard className="mr-2 h-4 w-4" /> Dashboard
+                      </Link>
                     </Button>
 
-                    <Button asChild className={cn("w-full justify-start rounded-full shadow-md", isMarketplace ? "bg-emerald-600 hover:bg-emerald-700 text-white" : "bg-red-600 hover:bg-red-700 text-white")} onClick={closeMobileMenu}>
+                    <Button
+                      asChild
+                      className={cn(
+                        "w-full justify-start rounded-full shadow-md",
+                        isMarketplace
+                          ? "bg-emerald-600 hover:bg-emerald-700 text-white"
+                          : "bg-red-600 hover:bg-red-700 text-white",
+                      )}
+                      onClick={closeMobileMenu}
+                    >
                       {isMarketplace ? (
-                         <Link href="/listings/create"><PlusCircle className="mr-2 h-4 w-4" /> Post an Ad</Link>
+                        <Link href="/listings/create">
+                          <PlusCircle className="mr-2 h-4 w-4" /> Post an Ad
+                        </Link>
                       ) : (
-                         <Link href="/registry/register"><Shield className="mr-2 h-4 w-4" /> Register Item</Link>
+                        <Link href="/registry/register">
+                          <Shield className="mr-2 h-4 w-4" /> Register Item
+                        </Link>
                       )}
                     </Button>
-                    <Button variant="ghost" className="w-full justify-start rounded-xl text-destructive hover:bg-destructive/10" onClick={() => signOut({ callbackUrl: "/" })}>
+                    <Button
+                      variant="ghost"
+                      className="w-full justify-start rounded-xl text-destructive hover:bg-destructive/10"
+                      onClick={() => signOut({ callbackUrl: "/" })}
+                    >
                       <LogOut className="mr-2 h-4 w-4" /> Log out
                     </Button>
                   </div>
                 ) : (
                   <div className="flex flex-col space-y-3">
-                    <Button asChild variant="outline" className="w-full rounded-full" onClick={closeMobileMenu}>
+                    <Button
+                      asChild
+                      variant="outline"
+                      className="w-full rounded-full"
+                      onClick={closeMobileMenu}
+                    >
                       <Link href="/auth/signin">Sign In</Link>
                     </Button>
-                    <Button asChild className={cn("w-full rounded-full", isMarketplace ? "bg-emerald-600 hover:bg-emerald-700" : "bg-red-600 hover:bg-red-700")} onClick={closeMobileMenu}>
+                    <Button
+                      asChild
+                      className={cn(
+                        "w-full rounded-full",
+                        isMarketplace
+                          ? "bg-emerald-600 hover:bg-emerald-700"
+                          : "bg-red-600 hover:bg-red-700",
+                      )}
+                      onClick={closeMobileMenu}
+                    >
                       <Link href="/auth/signup">Get Started Free</Link>
                     </Button>
                   </div>
