@@ -121,7 +121,7 @@ export default function Navbar() {
             </>
           ) : (
             <>
-              <Link href="/registry" className="transition-colors hover:text-red-600 text-foreground/80">My Registry</Link>
+              <Link href="/dashboard?tab=registry" className="transition-colors hover:text-red-600 text-foreground/80">My Registry</Link>
             </>
           )}
         </nav>
@@ -304,7 +304,7 @@ export default function Navbar() {
                         </>
                     ) : (
                         <>
-                           <Link onClick={closeMobileMenu} href="/registry" className="flex items-center px-3 py-2.5 rounded-xl text-sm font-medium hover:text-red-700 hover:bg-red-50">My Registry</Link>
+                           <Link onClick={closeMobileMenu} href="/dashboard?tab=registry" className="flex items-center px-3 py-2.5 rounded-xl text-sm font-medium hover:text-red-700 hover:bg-red-50">My Registry</Link>
                            <Link onClick={closeMobileMenu} href="/registry/search" className="flex items-center px-3 py-2.5 rounded-xl text-sm font-medium hover:text-red-700 hover:bg-red-50">Search Registry</Link>
                         </>
                     )}

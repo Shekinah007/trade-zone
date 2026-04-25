@@ -48,8 +48,11 @@ async function getUserDetails(userId: string | undefined) {
   return JSON.parse(JSON.stringify(user));
 }
 
-export default async function DashboardPage() {
+export default async function DashboardPage({ searchParams }: any) {
   const session = await getServerSession(authOptions);
+  // Parse search params for Next.js 15+ compatibility
+  const params = await searchParams;
+  const defaultTab = params?.tab === "registry" ? "registry" : "marketplace";
 
   if (!session) {
     redirect("/auth/signin?callbackUrl=/dashboard");
@@ -204,7 +207,7 @@ export default async function DashboardPage() {
 
           {/* Main Content - Tab System */}
           <div className="lg:col-span-3">
-            <Tabs defaultValue="marketplace" className="w-full">
+            <Tabs defaultValue={defaultTab} className="w-full">
               <div className="flex items-center justify-between mb-1">
                 <TabsList className="bg-muted/50 p-0.5 h-8">
                   <TabsTrigger 
