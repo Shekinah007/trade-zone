@@ -61,7 +61,7 @@ export async function POST(
     // Log the transfer in previousOwners
     property.previousOwners.push({
       fromUser: transferRequest.fromUser,
-      toUser: session.user.id,
+      toUser: session.user.id as any,
       dateSold: new Date(),
       salePrice: transferRequest.salePrice,
       notes: transferRequest.notes,
@@ -69,7 +69,7 @@ export async function POST(
     });
 
     // Update Property ownership
-    property.owner = session.user.id;
+    property.owner = session.user.id as any;
     property.status = "registered";
     await property.save();
 

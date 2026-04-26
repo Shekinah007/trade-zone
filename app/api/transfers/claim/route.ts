@@ -35,7 +35,7 @@ export async function POST(req: Request) {
     }
 
     // Associate the transfer with the user
-    transferRequest.toUser = session.user.id;
+    transferRequest.toUser = session.user.id as any;
     // Clear the token so it can't be used again
     transferRequest.token = undefined;
     await transferRequest.save();

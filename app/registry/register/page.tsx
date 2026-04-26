@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
@@ -59,7 +59,7 @@ const ITEM_TYPES = [
   { value: "other", label: "Other", icon: Package },
 ];
 
-export default function RegisterPropertyPage() {
+function RegisterPropertyForm() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -617,5 +617,22 @@ export default function RegisterPropertyPage() {
         onClose={() => setShowTokenModal(false)}
       />
     </div>
+  );
+}
+
+export default function RegisterPropertyPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-gradient-to-br from-white via-white to-white flex items-center justify-center">
+          <div className="text-center">
+            <Loader2 className="h-12 w-12 animate-spin text-red-500 mx-auto" />
+            <p className="mt-4 text-gray-500">Loading form...</p>
+          </div>
+        </div>
+      }
+    >
+      <RegisterPropertyForm />
+    </Suspense>
   );
 }

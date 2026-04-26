@@ -17,6 +17,7 @@ import {
   ShoppingBag,
   Database,
   Zap,
+  Coins,
 } from "lucide-react";
 import { authOptions } from "@/lib/auth";
 import dbConnect from "@/lib/db";
@@ -57,14 +58,20 @@ async function getUserDetails(userId: string | undefined) {
 
 async function getUserTransfers(userId: string | undefined) {
   await dbConnect();
-  const incoming = await TransferRequest.find({ toUser: userId, status: 'pending' })
-    .populate('fromUser', 'name email')
-    .populate('propertyId', 'brand model images itemType')
+  const incoming = await TransferRequest.find({
+    toUser: userId,
+    status: "pending",
+  })
+    .populate("fromUser", "name email")
+    .populate("propertyId", "brand model images itemType")
     .sort({ createdAt: -1 })
     .lean();
-  const outgoing = await TransferRequest.find({ fromUser: userId, status: 'pending' })
-    .populate('toUser', 'name email')
-    .populate('propertyId', 'brand model images itemType')
+  const outgoing = await TransferRequest.find({
+    fromUser: userId,
+    status: "pending",
+  })
+    .populate("toUser", "name email")
+    .populate("propertyId", "brand model images itemType")
     .sort({ createdAt: -1 })
     .lean();
   return JSON.parse(JSON.stringify({ incoming, outgoing }));
@@ -268,6 +275,22 @@ export default async function DashboardPage({ searchParams }: any) {
                     )} */}
                     </Link>
                   </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="w-full justify-start text-xs h-8"
+                    asChild
+                  >
+                    <Link href="/dashboard/tokens">
+                      <Coins className="mr-2 h-3 w-3" />
+                      My Tokens
+                      {/* {totalMessages > 0 && (
+                      <Badge variant="destructive" className="ml-auto text-[10px] px-1">
+                        {totalMessages}
+                      </Badge>
+                    )} */}
+                    </Link>
+                  </Button>
                 </div>
               </CardContent>
             </Card>
@@ -298,7 +321,8 @@ export default async function DashboardPage({ searchParams }: any) {
                   >
                     <ArrowLeftRight className="h-3.5 w-3.5" />
                     Transfers
-                    {(transfers.incoming.length > 0 || transfers.outgoing.length > 0) && (
+                    {(transfers.incoming.length > 0 ||
+                      transfers.outgoing.length > 0) && (
                       <span className="absolute -top-1 -right-1 flex h-3 w-3">
                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
                         <span className="relative inline-flex rounded-full h-3 w-3 bg-purple-500"></span>
@@ -334,7 +358,7 @@ export default async function DashboardPage({ searchParams }: any) {
                   <Button
                     size="sm"
                     asChild
-                    className="bg-emerald-600 hover:bg-emerald-700 rounded-full h-8 text-xs"
+                    className="w-full py-6 bg-emerald-600 hover:bg-emerald-700 rounded-full h-8 text-base"
                   >
                     <Link href="/listings/create">
                       <PlusCircle className="mr-1.5 h-3 w-3" />
@@ -506,11 +530,11 @@ export default async function DashboardPage({ searchParams }: any) {
                   <Button
                     size="sm"
                     asChild
-                    className="bg-blue-600 hover:bg-blue-700 rounded-full h-8 text-xs"
+                    className="w-full py-6 bg-red-600 hover:bg-blue-700 rounded-full h-8 text-base"
                   >
                     <Link href="/registry/register">
                       <Shield className="mr-1.5 h-3 w-3" />
-                      Register New Asset
+                      Register New Item
                     </Link>
                   </Button>
                 </div>
@@ -727,7 +751,10 @@ export default async function DashboardPage({ searchParams }: any) {
 
               {/* ==================== TRANSFERS TAB ==================== */}
               <TabsContent value="transfers" className="space-y-4 mt-0">
-                <TransfersTab incoming={transfers.incoming} outgoing={transfers.outgoing} />
+                <TransfersTab
+                  incoming={transfers.incoming}
+                  outgoing={transfers.outgoing}
+                />
               </TabsContent>
             </Tabs>
           </div>
