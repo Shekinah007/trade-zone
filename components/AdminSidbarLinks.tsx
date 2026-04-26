@@ -3,10 +3,16 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-  LayoutDashboard, Users, ShoppingBag,
-  AlertTriangle, Settings, Grid,
-  UserCheck, Shield, History,
-  Coins
+  LayoutDashboard,
+  Users,
+  ShoppingBag,
+  AlertTriangle,
+  Settings,
+  Grid,
+  UserCheck,
+  Shield,
+  History,
+  Coins,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
@@ -22,13 +28,13 @@ const navItems = [
   { href: "/admin/tokens", label: "Tokens", icon: Coins },
 ];
 
-const settingsItems = [
-  { href: "/admin/settings", label: "General", icon: Settings },
-];
+// const settingsItems = [
+//   { href: "/admin/settings", label: "General", icon: Settings },
+// ];
 
 export default function AdminSidebarLinks() {
   const pathname = usePathname();
-   const [pendingCount, setPendingCount] = useState(0);
+  const [pendingCount, setPendingCount] = useState(0);
 
   useEffect(() => {
     fetch("/api/admin/registrations")
@@ -50,7 +56,7 @@ export default function AdminSidebarLinks() {
                 "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all",
                 isActive
                   ? "bg-primary text-primary-foreground shadow-sm"
-                  : "text-foreground/70 hover:text-foreground hover:bg-muted"
+                  : "text-foreground/70 hover:text-foreground hover:bg-muted",
               )}
             >
               <Icon className="h-4 w-4 shrink-0" />
@@ -58,13 +64,13 @@ export default function AdminSidebarLinks() {
             </Link>
           );
         })}
-          <Link
+        <Link
           href="/admin/registrations"
           className={cn(
             "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all",
             pathname === "/admin/registrations"
               ? "bg-primary text-primary-foreground shadow-sm"
-              : "text-foreground/70 hover:text-foreground hover:bg-muted"
+              : "text-foreground/70 hover:text-foreground hover:bg-muted",
           )}
         >
           <UserCheck className="h-4 w-4 shrink-0" />
@@ -77,7 +83,7 @@ export default function AdminSidebarLinks() {
         </Link>
       </div>
 
-      <div className="border-t pt-4">
+      {/* <div className="border-t pt-4">
         <p className="px-3 mb-2 text-xs font-semibold text-muted-foreground uppercase tracking-widest">
           Settings
         </p>
@@ -91,7 +97,7 @@ export default function AdminSidebarLinks() {
                 "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all",
                 isActive
                   ? "bg-primary text-primary-foreground shadow-sm"
-                  : "text-foreground/70 hover:text-foreground hover:bg-muted"
+                  : "text-foreground/70 hover:text-foreground hover:bg-muted",
               )}
             >
               <Icon className="h-4 w-4 shrink-0" />
@@ -99,10 +105,7 @@ export default function AdminSidebarLinks() {
             </Link>
           );
         })}
-      </div>
-                           
-                      
-
+      </div> */}
     </div>
   );
 }

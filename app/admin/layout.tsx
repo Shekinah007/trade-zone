@@ -28,7 +28,7 @@ export default async function AdminLayout({
   }
 
   return (
-    <div className="flex min-h-screen bg-white">
+    <div className="flex min-h-screen bg-gray-50">
       {/* Sidebar */}
       <aside className="hidden w-64 border-r bg-background lg:block">
         <div className="flex h-full flex-col bg-white">
@@ -59,7 +59,7 @@ export default async function AdminLayout({
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col">
-        <main className="flex-1 p-4 md:p-2">
+        <main className="flex-1 p-4 md:p-8 rounded-4xl md:bg-white md:m-5">
           <AdminMobileNav user={session.user} />
 
           {children}

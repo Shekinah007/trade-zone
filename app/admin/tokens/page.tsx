@@ -199,7 +199,7 @@ export default function AdminTokensPage() {
   };
 
   const StatCard = ({ title, value, icon: Icon, color, trend }: any) => (
-    <div className="group relative overflow-hidden rounded-xl bg-gray-50 dark:bg-gray-900/50  dark:border-gray-800 p-3 hover:shadow-lg transition-all duration-200">
+    <div className="group relative overflow-hidden rounded-xl bg-white md:bg-gray-50  dark:bg-gray-900/50  dark:border-gray-800 p-3 hover:shadow-lg transition-all duration-200">
       <div
         className={`absolute inset-0 bg-gradient-to-br ${color} opacity-0 group-hover:opacity-5 transition-opacity`}
       />
@@ -221,8 +221,8 @@ export default function AdminTokensPage() {
   );
 
   return (
-    <div className="min-h-screen bg-white dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
-      <div className="py-3 md:px-5  w-full ">
+    <div className="min-h-screen">
+      <div className="py-3 w-full ">
         {/* Header */}
         <div className="mb-4">
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
