@@ -4,9 +4,17 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-  LayoutDashboard, Users, ShoppingBag, AlertTriangle,
-  Settings, Menu, Grid, X,
-  UserCheck, Shield
+  LayoutDashboard,
+  Users,
+  ShoppingBag,
+  AlertTriangle,
+  Settings,
+  Menu,
+  Grid,
+  X,
+  UserCheck,
+  Shield,
+  Coins,
 } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
@@ -19,6 +27,7 @@ const navItems = [
   { href: "/admin/listings", label: "Listings", icon: ShoppingBag },
   { href: "/admin/categories", label: "Categories", icon: Grid },
   { href: "/admin/reports", label: "Reports", icon: AlertTriangle },
+  { href: "/admin/tokens", label: "Token Management", icon: Coins },
   { href: "/admin/properties", label: "Property Registry", icon: Shield },
 ];
 
@@ -31,30 +40,31 @@ export default function AdminMobileNav({ user }: Props) {
   const pathname = usePathname();
 
   const [pendingCount, setPendingCount] = useState(0);
-  
-    useEffect(() => {
-      fetch("/api/admin/registrations")
-        .then((r) => r.json())
-        .then((data) => setPendingCount(Array.isArray(data) ? data.length : 0))
-        .catch(() => {});
-    }, []);
+
+  useEffect(() => {
+    fetch("/api/admin/registrations")
+      .then((r) => r.json())
+      .then((data) => setPendingCount(Array.isArray(data) ? data.length : 0))
+      .catch(() => {});
+  }, []);
 
   return (
     <header className="lg:hidden sticky top-0 z-50 flex items-center justify-between h-0 px-4">
-
       <Sheet open={open} onOpenChange={setOpen}>
         <SheetTrigger asChild>
-                              
-  <button className="lg:hidden fixed bottom-6 right-6 z-50 flex items-center gap-2 px-4 py-3 rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/30 hover:bg-primary/90 hover:scale-105 transition-all text-sm font-medium">
-          <LayoutDashboard className="h-4 w-4" />
-          Admin Menu
-        </button>
+          <button className="lg:hidden fixed bottom-6 right-6 z-50 flex items-center gap-2 px-4 py-3 rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/30 hover:bg-primary/90 hover:scale-105 transition-all text-sm font-medium">
+            <LayoutDashboard className="h-4 w-4" />
+            Admin Menu
+          </button>
         </SheetTrigger>
         <SheetContent side="left" className="w-[280px] p-0 flex flex-col">
-
           {/* Header */}
           <div className="flex items-center justify-between h-16 px-5 border-b">
-            <Link href="/" className="flex items-center gap-2 font-bold text-primary" onClick={() => setOpen(false)}>
+            <Link
+              href="/"
+              className="flex items-center gap-2 font-bold text-primary"
+              onClick={() => setOpen(false)}
+            >
               <ShoppingBag className="h-5 w-5" />
               <span>FindMaster Admin</span>
             </Link>
@@ -73,7 +83,7 @@ export default function AdminMobileNav({ user }: Props) {
                     "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all",
                     isActive
                       ? "bg-primary text-primary-foreground shadow-sm"
-                      : "text-foreground/70 hover:text-foreground hover:bg-muted"
+                      : "text-foreground/70 hover:text-foreground hover:bg-muted",
                   )}
                 >
                   <Icon className="h-4 w-4 shrink-0" />
@@ -82,23 +92,22 @@ export default function AdminMobileNav({ user }: Props) {
               );
             })}
             <Link
-                    href="/admin/registrations"
-                    className={cn(
-                      "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all",
-                      pathname === "/admin/registrations"
-                        ? "bg-primary text-primary-foreground shadow-sm"
-                        : "text-foreground/70 hover:text-foreground hover:bg-muted"
-                    )}
-                  >
-                    <UserCheck className="h-4 w-4 shrink-0" />
-                    Registrations
-                    {pendingCount > 0 && (
-                      <span className="ml-auto text-white bg-destructive text-destructive-foreground text-xs font-bold px-1.5 py-0.5 rounded-full">
-                        {pendingCount}
-                      </span>
-                    )}
-                  </Link>
-
+              href="/admin/registrations"
+              className={cn(
+                "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all",
+                pathname === "/admin/registrations"
+                  ? "bg-primary text-primary-foreground shadow-sm"
+                  : "text-foreground/70 hover:text-foreground hover:bg-muted",
+              )}
+            >
+              <UserCheck className="h-4 w-4 shrink-0" />
+              Registrations
+              {pendingCount > 0 && (
+                <span className="ml-auto text-white bg-destructive text-destructive-foreground text-xs font-bold px-1.5 py-0.5 rounded-full">
+                  {pendingCount}
+                </span>
+              )}
+            </Link>
           </nav>
 
           {/* User Footer */}
@@ -112,15 +121,12 @@ export default function AdminMobileNav({ user }: Props) {
               </Avatar>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-semibold truncate">{user.name}</p>
-                <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+                <p className="text-xs text-muted-foreground truncate">
+                  {user.email}
+                </p>
               </div>
             </div>
           </div>
-
-                                
-            
-
-
         </SheetContent>
       </Sheet>
     </header>
