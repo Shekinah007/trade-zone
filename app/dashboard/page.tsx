@@ -13,6 +13,7 @@ import {
   AlertTriangle,
   CheckCircle,
   ArrowRight,
+  ArrowLeftRight,
   ShoppingBag,
   Database,
   Zap,
@@ -23,6 +24,7 @@ import Listing from "@/models/Listing";
 import Property from "@/models/Property";
 import TransferRequest from "@/models/TransferRequest";
 import { ListingCard } from "@/components/ListingCard";
+import { TransfersTab } from "@/components/TransfersTab";
 import { TokenPurchaseButton } from "@/components/TokenPurchaseButton";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -53,31 +55,19 @@ async function getUserDetails(userId: string | undefined) {
   return JSON.parse(JSON.stringify(user));
 }
 
-async function getPendingTransfers(userId: string | undefined, userEmail: string | undefined) {
-  if (!userId || !userEmail) return { incoming: [], outgoing: [] };
+async function getUserTransfers(userId: string | undefined) {
   await dbConnect();
-  const now = new Date();
-  
-  const [incoming, outgoing] = await Promise.all([
-    TransferRequest.find({
-      $or: [
-        { targetEmail: userEmail.toLowerCase() },
-        { targetUserId: userId }
-      ],
-      status: "pending",
-      expiresAt: { $gt: now },
-    }).populate("propertyId", "brand model itemType images").lean(),
-    TransferRequest.find({
-      initiator: userId,
-      status: "pending",
-      expiresAt: { $gt: now },
-    }).populate("propertyId", "brand model itemType images").lean()
-  ]);
-  
-  return {
-    incoming: JSON.parse(JSON.stringify(incoming)),
-    outgoing: JSON.parse(JSON.stringify(outgoing))
-  };
+  const incoming = await TransferRequest.find({ toUser: userId, status: 'pending' })
+    .populate('fromUser', 'name email')
+    .populate('propertyId', 'brand model images itemType')
+    .sort({ createdAt: -1 })
+    .lean();
+  const outgoing = await TransferRequest.find({ fromUser: userId, status: 'pending' })
+    .populate('toUser', 'name email')
+    .populate('propertyId', 'brand model images itemType')
+    .sort({ createdAt: -1 })
+    .lean();
+  return JSON.parse(JSON.stringify({ incoming, outgoing }));
 }
 
 export default async function DashboardPage({ searchParams }: any) {
@@ -93,7 +83,7 @@ export default async function DashboardPage({ searchParams }: any) {
   const listings = await getUserListings(session.user.id);
   const properties = await getUserProperties(session.user.id);
   const details = await getUserDetails(session.user.id);
-  const pendingTransfers = await getPendingTransfers(session.user.id, session.user.email);
+  const transfers = await getUserTransfers(session.user.id);
   const activeListings = listings.filter((l: any) => l.status === "active");
   const soldListings = listings.filter((l: any) => l.status === "sold");
   const missingProperties = properties.filter(
@@ -112,30 +102,6 @@ export default async function DashboardPage({ searchParams }: any) {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
       <div className="container mx-auto py-6 px-4 max-w-7xl">
-        {/* Pending Transfers Notifications */}
-        {pendingTransfers.incoming.length > 0 && (
-          <div className="mb-6 bg-red-50 dark:bg-red-950/30 border-l-4 border-red-500 p-4 rounded-r-xl shadow-sm text-red-900 dark:text-red-200">
-            <div className="flex items-start gap-3">
-              <Shield className="h-5 w-5 text-red-600 mt-0.5" />
-              <div>
-                <h3 className="font-semibold">You have {pendingTransfers.incoming.length} incoming property transfer request(s)</h3>
-                <p className="text-sm mt-1">Please check your email for the secure token to claim ownership.</p>
-              </div>
-            </div>
-          </div>
-        )}
-        {pendingTransfers.outgoing.length > 0 && (
-          <div className="mb-6 bg-orange-50 dark:bg-orange-950/30 border-l-4 border-orange-500 p-4 rounded-r-xl shadow-sm text-orange-900 dark:text-orange-200">
-            <div className="flex items-start gap-3">
-              <AlertTriangle className="h-5 w-5 text-orange-600 mt-0.5" />
-              <div>
-                <h3 className="font-semibold">You have {pendingTransfers.outgoing.length} pending outgoing transfer request(s)</h3>
-                <p className="text-sm mt-1">Waiting for the recipient(s) to accept the transfer. You can cancel them from the Registry tab.</p>
-              </div>
-            </div>
-          </div>
-        )}
-
         {/* Welcome Header - Compact */}
         <div className="mb-6">
           <h1 className="text-2xl font-bold tracking-tight">
@@ -325,6 +291,19 @@ export default async function DashboardPage({ searchParams }: any) {
                   >
                     <Database className="h-3.5 w-3.5" />
                     Property Registry
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="transfers"
+                    className="data-[state=active]:bg-purple-600 data-[state=active]:text-white gap-1.5 text-xs h-7 px-3 relative"
+                  >
+                    <ArrowLeftRight className="h-3.5 w-3.5" />
+                    Transfers
+                    {(transfers.incoming.length > 0 || transfers.outgoing.length > 0) && (
+                      <span className="absolute -top-1 -right-1 flex h-3 w-3">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-3 w-3 bg-purple-500"></span>
+                      </span>
+                    )}
                   </TabsTrigger>
                 </TabsList>
 
@@ -744,6 +723,11 @@ export default async function DashboardPage({ searchParams }: any) {
                     </Card>
                   )}
                 </div>
+              </TabsContent>
+
+              {/* ==================== TRANSFERS TAB ==================== */}
+              <TabsContent value="transfers" className="space-y-4 mt-0">
+                <TransfersTab incoming={transfers.incoming} outgoing={transfers.outgoing} />
               </TabsContent>
             </Tabs>
           </div>

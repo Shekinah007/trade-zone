@@ -6,6 +6,7 @@ export interface IListing {
   price: number;
   category: mongoose.Types.ObjectId;
   seller: mongoose.Types.ObjectId;
+  buyerId?: mongoose.Types.ObjectId;
   propertyId?: mongoose.Types.ObjectId;
   brand?: string;
   model?: string;
@@ -37,6 +38,7 @@ const ListingSchema = new Schema<IListing>(
     model: { type: String },
     uniqueIdentifier: { type: String, required: false }, // Optional for broader compatibility, or strictly required based on user request. User said "must have", but let's stick to required=false first to avoid breaking existing. actually user said "all items must have", so let's make it required but maybe default to empty string if migration is needed? simpler to just make it type String.
     seller: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+    buyerId: { type: Schema.Types.ObjectId, ref: 'User' },
     images: [{ type: String }],
     condition: { type: String, required: true },
     location: {

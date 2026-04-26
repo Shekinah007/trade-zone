@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { toast } from "sonner";
@@ -62,22 +62,38 @@ const ITEM_TYPES = [
 export default function RegisterPropertyPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const defaultListingId = searchParams?.get("listingId");
   const [submitting, setSubmitting] = useState(false);
   const [showTokenModal, setShowTokenModal] = useState(false);
 
   const [unregisteredListings, setUnregisteredListings] = useState<any[]>([]);
-  const [selectedListingId, setSelectedListingId] = useState("");
+  const [selectedListingId, setSelectedListingId] = useState(defaultListingId || "");
 
   useEffect(() => {
     if (session) {
       fetch("/api/user/unregistered-listings")
         .then((res) => res.json())
         .then((data) => {
-          if (Array.isArray(data)) setUnregisteredListings(data);
+          if (Array.isArray(data)) {
+            setUnregisteredListings(data);
+            if (defaultListingId) {
+              const listing = data.find((l) => l._id === defaultListingId);
+              if (listing) {
+                setForm((prev) => ({
+                  ...prev,
+                  brand: listing.brand || prev.brand,
+                  model: listing.model || listing.title || prev.model,
+                  description: listing.description || prev.description,
+                  imei: listing.uniqueIdentifier || prev.imei,
+                }));
+              }
+            }
+          }
         })
         .catch(console.error);
     }
-  }, [session]);
+  }, [session, defaultListingId]);
 
   const handleListingSelect = (listingId: string) => {
     setSelectedListingId(listingId);

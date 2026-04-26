@@ -6,6 +6,7 @@ import { useSession } from "next-auth/react";
 import Link from "next/link";
 import Image from "next/image";
 import OwnerSearchLogs from "@/components/OwnerSearchLogs";
+import { TransferModal } from "@/components/TransferModal";
 import { toast } from "sonner";
 import {
   Shield,
@@ -103,14 +104,7 @@ export default function PropertyDetailPage() {
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
 
-  // Transfer dialog state
-  const [transferOpen, setTransferOpen] = useState(false);
-  const [transferEmail, setTransferEmail] = useState("");
-  const [dateSold, setDateSold] = useState("");
-  const [salePrice, setSalePrice] = useState("");
-  const [location, setLocation] = useState("");
-  const [notes, setNotes] = useState("");
-  const [transferring, setTransferring] = useState(false);
+  // Transfer modal state handled by TransferModal component
 
   useEffect(() => {
     const fetch_ = async () => {
@@ -160,59 +154,7 @@ export default function PropertyDetailPage() {
     }
   };
 
-  const handleTransfer = async () => {
-    if (!transferEmail) {
-      toast.error("Recipient email is required.");
-      return;
-    }
-    setTransferring(true);
-    try {
-      const res = await fetch("/api/registry/transfer/initiate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          propertyId: id,
-          targetEmail: transferEmail,
-          salePrice: salePrice ? Number(salePrice) : undefined,
-        }),
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        toast.error(data.error);
-        return;
-      }
-      toast.success("Transfer initiated! An email has been sent to the recipient.");
-      setTransferOpen(false);
-      setProperty({ ...property, status: "transfer_pending" });
-    } catch {
-      toast.error("Transfer initiation failed. Please try again.");
-    } finally {
-      setTransferring(false);
-    }
-  };
-
-  const cancelTransfer = async () => {
-    if (!confirm("Are you sure you want to cancel this transfer?")) return;
-    setUpdatingStatus(true);
-    try {
-      const res = await fetch("/api/registry/transfer/cancel", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ propertyId: id }),
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        toast.error(data.error);
-        return;
-      }
-      toast.success("Transfer cancelled successfully.");
-      setProperty({ ...property, status: "registered" });
-    } catch {
-      toast.error("Failed to cancel transfer.");
-    } finally {
-      setUpdatingStatus(false);
-    }
-  };
+  // handleTransfer moved to TransferModal
 
   const nextImage = () => {
     if (property?.images?.length) {
@@ -540,14 +482,7 @@ export default function PropertyDetailPage() {
                     <CardTitle className="text-lg">Manage Property</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-3">
-                    {property.status === "transfer_pending" && (
-                      <div className="p-3 bg-orange-500/10 border-orange-500/30 border text-orange-600 rounded-lg text-sm mb-2">
-                        <AlertTriangle className="h-4 w-4 inline mr-2 text-orange-600" />
-                        A transfer request is currently pending. The recipient has been emailed.
-                      </div>
-                    )}
-                    
-                    {property.status !== "missing" && property.status !== "transfer_pending" && (
+                    {property.status !== "missing" && (
                       <Button
                         variant="destructive"
                         className="w-full rounded-xl"
@@ -576,98 +511,12 @@ export default function PropertyDetailPage() {
 
                     <Separator />
 
-                    {/* Transfer Dialog */}
-                    {property.status === "transfer_pending" ? (
-                      <Button
-                        variant="outline"
-                        className="w-full rounded-xl border-orange-200 hover:bg-orange-50 text-orange-700"
-                        onClick={cancelTransfer}
-                        disabled={updatingStatus}
-                      >
-                        <X className="h-4 w-4 mr-2" />
-                        Cancel Pending Transfer
-                      </Button>
-                    ) : (
-                      <Dialog open={transferOpen} onOpenChange={setTransferOpen}>
-                        <DialogTrigger asChild>
-                          <Button
-                            variant="outline"
-                            className="w-full rounded-xl"
-                            disabled={property.status === "missing"}
-                          >
-                            <ArrowLeftRight className="h-4 w-4 mr-2" />
-                            Transfer Ownership
-                          </Button>
-                        </DialogTrigger>
-                      <DialogContent className="max-w-md">
-                        <DialogHeader>
-                          <DialogTitle>Transfer Ownership</DialogTitle>
-                        </DialogHeader>
-                        <div className="space-y-4 mt-2">
-                          <div className="space-y-1.5">
-                            <Label>
-                              Recipient&apos;s FindMaster Email *
-                            </Label>
-                            <Input
-                              placeholder="buyer@email.com"
-                              value={transferEmail}
-                              onChange={(e) => setTransferEmail(e.target.value)}
-                            />
-                          </div>
-                          <div className="grid grid-cols-2 gap-3">
-                            <div className="space-y-1.5">
-                              <Label>Date Sold</Label>
-                              <Input
-                                type="date"
-                                value={dateSold}
-                                onChange={(e) => setDateSold(e.target.value)}
-                              />
-                            </div>
-                            <div className="space-y-1.5">
-                              <Label>Sale Price (₦)</Label>
-                              <Input
-                                type="number"
-                                placeholder="e.g. 50000"
-                                value={salePrice}
-                                onChange={(e) => setSalePrice(e.target.value)}
-                              />
-                            </div>
-                          </div>
-                          <div className="space-y-1.5">
-                            <Label>Location of Sale</Label>
-                            <Input
-                              placeholder="e.g. Lagos Island"
-                              value={location}
-                              onChange={(e) => setLocation(e.target.value)}
-                            />
-                          </div>
-                          <div className="space-y-1.5">
-                            <Label>Notes (optional)</Label>
-                            <Textarea
-                              placeholder="Any additional notes..."
-                              className="resize-none min-h-[70px]"
-                              value={notes}
-                              onChange={(e) => setNotes(e.target.value)}
-                            />
-                          </div>
-                          <Button
-                            className="w-full rounded-full"
-                            onClick={handleTransfer}
-                            disabled={transferring}
-                          >
-                            {transferring ? (
-                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                            ) : (
-                              <Send className="mr-2 h-4 w-4" />
-                            )}
-                            {transferring
-                              ? "Transferring..."
-                              : "Confirm Transfer"}
-                          </Button>
-                        </div>
-                      </DialogContent>
-                    </Dialog>
-                    )}
+                    {/* Transfer Modal */}
+                    <TransferModal 
+                      propertyId={id as string} 
+                      propertyTitle={`${property.brand} ${property.model}`} 
+                      onSuccess={() => router.push("/dashboard?tab=transfers")} 
+                    />
                   </CardContent>
                 </Card>
               )}

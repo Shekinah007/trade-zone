@@ -9,10 +9,9 @@ import {
   LogOut,
   LayoutDashboard,
   Shield,
+  Menu,
   Heart,
   ShoppingBag,
-  Bell,
-  Menu,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -36,6 +35,7 @@ import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import { useAppMode } from "@/components/AppModeContext";
+import { NotificationDropdown } from "@/components/NotificationDropdown";
 
 export default function Navbar() {
   const { data: session } = useSession();
@@ -46,23 +46,7 @@ export default function Navbar() {
   const [menuVisible, setMenuVisible] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [pendingCount, setPendingCount] = useState(0);
   const router = useRouter();
-
-  useEffect(() => {
-    if (session?.user) {
-      fetch("/api/registry/transfer/pending")
-        .then((res) => res.json())
-        .then((data) => {
-          if (data.incoming || data.outgoing) {
-            setPendingCount(
-              (data.incoming?.length || 0) + (data.outgoing?.length || 0),
-            );
-          }
-        })
-        .catch(console.error);
-    }
-  }, [session]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -247,103 +231,83 @@ export default function Navbar() {
 
           {session ? (
             <div className="flex items-center space-x-2">
-              <Button
-                asChild
-                variant="ghost"
-                size="icon"
-                className="relative hidden sm:flex"
-              >
-                <Link href="/dashboard?tab=registry">
-                  <Bell className="h-5 w-5 text-muted-foreground hover:text-foreground transition-colors" />
-                  {pendingCount > 0 && (
-                    <span className="absolute top-1.5 right-1.5 flex h-2 w-2">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                      <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
-                    </span>
-                  )}
-                </Link>
-              </Button>
+              <NotificationDropdown />
               <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    className={cn(
-                      "relative h-9 w-9 rounded-full ring-2 ring-transparent transition-all",
-                      isMarketplace
-                        ? "hover:ring-emerald-500/30"
-                        : "hover:ring-red-500/30",
-                    )}
-                  >
-                    <Avatar className="h-9 w-9">
-                      <AvatarImage
-                        src={session.user?.image || ""}
-                        alt={session.user?.name || ""}
-                      />
-                      <AvatarFallback
-                        className={cn(
-                          "text-white",
-                          isMarketplace ? "bg-emerald-600" : "bg-red-600",
-                        )}
-                      >
-                        {session.user?.name?.charAt(0) || "U"}
-                      </AvatarFallback>
-                    </Avatar>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent
-                  className="w-56 mt-2"
-                  align="end"
-                  forceMount
-                >
-                  <DropdownMenuLabel className="font-normal">
-                    <div className="flex flex-col space-y-1">
-                      <p className="text-sm font-medium leading-none">
-                        {session.user?.name}
-                      </p>
-                      <p className="text-xs leading-none text-muted-foreground">
-                        {session.user?.email}
-                      </p>
-                    </div>
-                  </DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem asChild>
-                    <Link href="/dashboard" className="cursor-pointer">
-                      <LayoutDashboard className="mr-2 h-4 w-4" /> Dashboard
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link href="/saved" className="cursor-pointer">
-                      <Heart className="mr-2 h-4 w-4" /> Saved Listings
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link href="/settings" className="cursor-pointer">
-                      <User className="mr-2 h-4 w-4" /> Profile
-                    </Link>
-                  </DropdownMenuItem>
-
-                  {session?.user?.role === "admin" && (
-                    <>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem asChild>
-                        <Link
-                          href="/admin"
-                          className="cursor-pointer text-purple-600"
-                        >
-                          <LayoutDashboard className="mr-2 h-4 w-4" /> Admin
-                          Panel
-                        </Link>
-                      </DropdownMenuItem>
-                    </>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  className={cn(
+                    "relative h-9 w-9 rounded-full ring-2 ring-transparent transition-all",
+                    isMarketplace
+                      ? "hover:ring-emerald-500/30"
+                      : "hover:ring-red-500/30",
                   )}
+                >
+                  <Avatar className="h-9 w-9">
+                    <AvatarImage
+                      src={session.user?.image || ""}
+                      alt={session.user?.name || ""}
+                    />
+                    <AvatarFallback
+                      className={cn(
+                        "text-white",
+                        isMarketplace ? "bg-emerald-600" : "bg-red-600",
+                      )}
+                    >
+                      {session.user?.name?.charAt(0) || "U"}
+                    </AvatarFallback>
+                  </Avatar>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-56 mt-2" align="end" forceMount>
+                <DropdownMenuLabel className="font-normal">
+                  <div className="flex flex-col space-y-1">
+                    <p className="text-sm font-medium leading-none">
+                      {session.user?.name}
+                    </p>
+                    <p className="text-xs leading-none text-muted-foreground">
+                      {session.user?.email}
+                    </p>
+                  </div>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link href="/dashboard" className="cursor-pointer">
+                    <LayoutDashboard className="mr-2 h-4 w-4" /> Dashboard
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/saved" className="cursor-pointer">
+                    <Heart className="mr-2 h-4 w-4" /> Saved Listings
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/settings" className="cursor-pointer">
+                    <User className="mr-2 h-4 w-4" /> Profile
+                  </Link>
+                </DropdownMenuItem>
 
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem
-                    onClick={() => signOut({ callbackUrl: "/" })}
-                    className="cursor-pointer text-destructive focus:text-destructive"
-                  >
-                    <LogOut className="mr-2 h-4 w-4" /> Log out
-                  </DropdownMenuItem>
+                {session?.user?.role === "admin" && (
+                  <>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild>
+                      <Link
+                        href="/admin"
+                        className="cursor-pointer text-purple-600"
+                      >
+                        <LayoutDashboard className="mr-2 h-4 w-4" /> Admin Panel
+                      </Link>
+                    </DropdownMenuItem>
+                  </>
+                )}
+
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  onClick={() => signOut({ callbackUrl: "/" })}
+                  className="cursor-pointer text-destructive focus:text-destructive"
+                >
+                  <LogOut className="mr-2 h-4 w-4" /> Log out
+                </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>

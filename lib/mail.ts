@@ -47,39 +47,55 @@ export async function sendPasswordResetEmail(email: string, token: string) {
   }
 }
 
-export async function sendTransferRequestEmail(
-  email: string,
-  token: string,
-  itemName: string,
-  senderName: string,
-  isNewUser: boolean
-) {
+export async function sendTransferRequestEmail(email: string, senderName: string, propertyName: string) {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-  const claimLink = `${appUrl}/registry/transfer/claim?token=${token}`;
-
-  const message = isNewUser
-    ? `<p>${senderName} just transferred ownership of an item (${itemName}) to you on FindMaster.</p>
-       <p>To claim your item and secure it in the Global Property Registry, please create an account and accept the transfer using the link below:</p>`
-    : `<p>${senderName} has initiated a transfer of ownership for an item (${itemName}) to you.</p>
-       <p>Please log in to your account and accept the transfer:</p>`;
+  const dashboardLink = `${appUrl}/dashboard?tab=transfers`;
 
   const mailOptions = {
-    from: `"FindMaster Registry" <${process.env.SMTP_USER}>`,
+    from: `"FindMaster" <${process.env.SMTP_USER}>`,
     to: email,
-    subject: "Property Ownership Transfer Request",
+    subject: "New Property Transfer Request",
     html: `
       <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
-        <h2 style="color: #ef4444;">Ownership Transfer</h2>
-        ${message}
+        <h2 style="color: #ef4444;">Transfer Request</h2>
+        <p><strong>${senderName}</strong> wants to transfer ownership of <strong>${propertyName}</strong> to you.</p>
+        <p>Click the button below to review and accept the transfer in your dashboard:</p>
         <div style="margin: 30px 0;">
-          <a href="${claimLink}" style="background-color: #ef4444; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">
-            Review Transfer
+          <a href="${dashboardLink}" style="background-color: #ef4444; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">
+            View Transfer Request
           </a>
         </div>
-        <p>If you don't recognize this request, you can safely ignore this email.</p>
+      </div>
+    `,
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+  } catch (error) {
+    console.error("Error sending transfer request email: ", error);
+  }
+}
+
+export async function sendTransferClaimEmail(email: string, senderName: string, propertyName: string, token: string) {
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+  const claimLink = `${appUrl}/claim/${token}`;
+
+  const mailOptions = {
+    from: `"FindMaster" <${process.env.SMTP_USER}>`,
+    to: email,
+    subject: "You've Received a Property on FindMaster",
+    html: `
+      <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <h2 style="color: #ef4444;">Claim Your New Property</h2>
+        <p><strong>${senderName}</strong> has sent you <strong>${propertyName}</strong> via the FindMaster Global Registry.</p>
+        <p>To accept this transfer and secure your legal ownership, you need to create a FindMaster account.</p>
+        <div style="margin: 30px 0;">
+          <a href="${claimLink}" style="background-color: #ef4444; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">
+            Create Account & Claim Property
+          </a>
+        </div>
         <p style="margin-top: 30px; font-size: 14px; color: #666;">
-          This link will expire in 7 days.
-          <br>
+          If the button doesn't work, copy and paste this link into your browser:
           <br>
           <a href="${claimLink}" style="color: #ef4444;">${claimLink}</a>
         </p>
@@ -90,48 +106,6 @@ export async function sendTransferRequestEmail(
   try {
     await transporter.sendMail(mailOptions);
   } catch (error) {
-    console.error("Error sending transfer email: ", error);
-    throw new Error("Failed to send transfer email.");
-  }
-}
-
-export async function sendRegistryUpsellEmail(
-  email: string,
-  itemName: string,
-  listingId: string
-) {
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-  const registerLink = `${appUrl}/registry/register?listingId=${listingId}`;
-
-  const mailOptions = {
-    from: `"FindMaster Registry" <${process.env.SMTP_USER}>`,
-    to: email,
-    subject: "Protect Your New Purchase - FindMaster",
-    html: `
-      <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
-        <h2 style="color: #3b82f6;">Congratulations on your purchase!</h2>
-        <p>We saw you recently acquired a <strong>${itemName}</strong> on FindMaster.</p>
-        <div style="background-color: #f3f4f6; border-left: 4px solid #f59e0b; padding: 12px; margin: 20px 0;">
-          <strong>Did you know?</strong> This item is currently unregistered. That makes it much harder to track if it's ever lost or stolen.
-        </div>
-        <p>Secure your new asset safely in the Global Registry. Since you bought it on FindMaster, we can auto-fill all your item's details and photos instantly.</p>
-        <div style="margin: 30px 0;">
-          <a href="${registerLink}" style="background-color: #3b82f6; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">
-            Register Property Now
-          </a>
-        </div>
-        <p>Protecting your property takes less than 2 minutes.</p>
-        <p style="margin-top: 30px; font-size: 14px; color: #666;">
-          <a href="${registerLink}" style="color: #3b82f6;">${registerLink}</a>
-        </p>
-      </div>
-    `,
-  };
-
-  try {
-    await transporter.sendMail(mailOptions);
-  } catch (error) {
-    console.error("Error sending upsell email: ", error);
-    throw new Error("Failed to send upsell email.");
+    console.error("Error sending transfer claim email: ", error);
   }
 }

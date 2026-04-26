@@ -5,7 +5,8 @@ export interface ITransaction extends Document {
   seller: mongoose.Types.ObjectId;
   listing: mongoose.Types.ObjectId;
   price: number;
-  status: 'pending' | 'completed' | 'cancelled';
+  status: 'pending' | 'seller_confirmed' | 'buyer_confirmed' | 'fully_confirmed' | 'cancelled';
+  transferRequestId?: mongoose.Types.ObjectId;
   createdAt: Date;
 }
 
@@ -17,9 +18,10 @@ const TransactionSchema = new Schema<ITransaction>(
     price: { type: Number, required: true },
     status: {
       type: String,
-      enum: ['pending', 'completed', 'cancelled'],
-      default: 'completed', // For "Buy Now" simplified flow
+      enum: ['pending', 'seller_confirmed', 'buyer_confirmed', 'fully_confirmed', 'cancelled'],
+      default: 'pending', // Changed default from 'completed' for handshake
     },
+    transferRequestId: { type: Schema.Types.ObjectId, ref: 'TransferRequest' },
   },
   { timestamps: true }
 );
