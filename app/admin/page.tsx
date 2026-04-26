@@ -3,6 +3,7 @@ import User from "@/models/User";
 import Listing from "@/models/Listing";
 import Report from "@/models/Report";
 import Transaction from "@/models/Transaction";
+import Category from "@/models/Category";
 import Link from "next/link";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
