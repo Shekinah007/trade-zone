@@ -15,6 +15,7 @@ import {
   UserCheck,
   Shield,
   Coins,
+  Search,
 } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
@@ -28,6 +29,7 @@ const navItems = [
   { href: "/admin/categories", label: "Categories", icon: Grid },
   { href: "/admin/reports", label: "Reports", icon: AlertTriangle },
   { href: "/admin/tokens", label: "Token Management", icon: Coins },
+  { href: "/admin/search-logs", label: "Search Logs", icon: Search },
   { href: "/admin/properties", label: "Property Registry", icon: Shield },
 ];
 
