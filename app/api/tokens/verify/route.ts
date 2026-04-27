@@ -14,13 +14,18 @@ export async function GET(req: NextRequest) {
   const reference = searchParams.get("reference");
 
   if (!reference) {
-    return NextResponse.json({ error: "Reference is required" }, { status: 400 });
+    return NextResponse.json(
+      { error: "Reference is required" },
+      { status: 400 },
+    );
   }
 
   try {
     const paystackSecret = process.env.PAYSTACK_SECRET_KEY;
     if (!paystackSecret) {
-       console.warn("No paystack secret key found. Define PAYSTACK_SECRET_KEY in .env.local");
+      console.warn(
+        "No paystack secret key found. Define PAYSTACK_SECRET_KEY in .env.local",
+      );
     }
 
     const response = await fetch(
@@ -29,7 +34,7 @@ export async function GET(req: NextRequest) {
         headers: {
           Authorization: `Bearer ${paystackSecret}`,
         },
-      }
+      },
     );
 
     const data = await response.json();
@@ -38,11 +43,16 @@ export async function GET(req: NextRequest) {
       // In a real staging environment, if validation fails due to test keys, we might want to override.
       // For now we enforce real success payload logic.
       if (process.env.NODE_ENV !== "development" || data.status) {
-         return NextResponse.json({ error: "Transaction verification failed" }, { status: 400 });
+        return NextResponse.json(
+          { error: "Transaction verification failed" },
+          { status: 400 },
+        );
       }
     }
 
-    const amount = data.data ? data.data.amount : Number(searchParams.get("amount") || 0);
+    const amount = data.data
+      ? data.data.amount
+      : Number(searchParams.get("amount") || 0);
 
     await dbConnect();
     const user = await User.findById(session.user.id);
@@ -62,7 +72,10 @@ export async function GET(req: NextRequest) {
       user.unlimitedRegistrations = true;
       limitIncreased = true;
     } else {
-      return NextResponse.json({ error: `Unrecognized transaction amount: ${amount} kobo` }, { status: 400 });
+      return NextResponse.json(
+        { error: `Unrecognized transaction amount: ${amount} kobo` },
+        { status: 400 },
+      );
     }
 
     if (limitIncreased) {
@@ -76,9 +89,11 @@ export async function GET(req: NextRequest) {
       registrationLimit: user.registrationLimit,
       unlimitedRegistrations: user.unlimitedRegistrations,
     });
-
   } catch (error: any) {
     console.error("Paystack verification error:", error);
-    return NextResponse.json({ error: "Server error verifying transaction" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Server error verifying transaction" },
+      { status: 500 },
+    );
   }
 }

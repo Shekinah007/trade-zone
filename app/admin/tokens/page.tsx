@@ -22,9 +22,11 @@ import {
   RefreshCw,
   Copy,
   Download,
+  Printer,
 } from "lucide-react";
 import { format, formatDistanceToNow } from "date-fns";
 import { cn } from "@/lib/utils";
+import TokenPrintPreview from "@/components/admin/TokenPrintPreview";
 
 interface RechargeToken {
   _id: string;
@@ -59,6 +61,8 @@ export default function AdminTokensPage() {
   const [filterStatus, setFilterStatus] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
   const [itemsPerPage] = useState(15);
+  const [selectedTokens, setSelectedTokens] = useState<Set<string>>(new Set());
+  const [showPrintModal, setShowPrintModal] = useState(false);
 
   const fetchStats = async () => {
     try {
@@ -95,6 +99,7 @@ export default function AdminTokensPage() {
   useEffect(() => {
     fetchStats();
     fetchTokens();
+    setSelectedTokens(new Set());
   }, [page, filterStatus]);
 
   useEffect(() => {
@@ -221,7 +226,7 @@ export default function AdminTokensPage() {
   );
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen print:hidden">
       <div className="py-3 w-full ">
         {/* Header */}
         <div className="mb-4">
@@ -445,6 +450,20 @@ export default function AdminTokensPage() {
                   </div>
                 </div>
               </div>
+              {selectedTokens.size > 0 && (
+                <div className="px-4 py-2 bg-red-50 dark:bg-red-900/10 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between">
+                  <span className="text-sm font-medium text-red-600">
+                    {selectedTokens.size} token(s) selected
+                  </span>
+                  <button
+                    onClick={() => setShowPrintModal(true)}
+                    className="flex items-center gap-2 px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-medium transition-colors shadow-sm"
+                  >
+                    <Printer className="w-4 h-4" />
+                    Print Selected
+                  </button>
+                </div>
+              )}
 
               <div className="block lg:hidden">
                 {/* Mobile Card View */}
@@ -471,7 +490,20 @@ export default function AdminTokensPage() {
                         className="p-4 space-y-3 hover:bg-gray-50/50 dark:hover:bg-gray-800/30 transition-colors"
                       >
                         {/* Header Row with Token Code and Actions */}
-                        <div className="flex items-start justify-between">
+                        <div className="flex items-start gap-3">
+                          <div className="pt-0.5">
+                            <input
+                              type="checkbox"
+                              checked={selectedTokens.has(token._id)}
+                              onChange={(e) => {
+                                const newSet = new Set(selectedTokens);
+                                if (e.target.checked) newSet.add(token._id);
+                                else newSet.delete(token._id);
+                                setSelectedTokens(newSet);
+                              }}
+                              className="w-4 h-4 rounded border-gray-300 text-red-600 focus:ring-red-500"
+                            />
+                          </div>
                           <div className="flex-1">
                             <div className="flex items-center gap-2 flex-wrap">
                               <code className="font-mono text-sm bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded break-all">
@@ -618,6 +650,20 @@ export default function AdminTokensPage() {
                 <table className="w-full text-sm">
                   <thead className="bg-gray-50 dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-700">
                     <tr>
+                      <th className="px-4 py-3 w-10 text-left">
+                        <input
+                          type="checkbox"
+                          checked={tokens.length > 0 && selectedTokens.size === tokens.length}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setSelectedTokens(new Set(tokens.map(t => t._id)));
+                            } else {
+                              setSelectedTokens(new Set());
+                            }
+                          }}
+                          className="w-4 h-4 rounded border-gray-300 text-red-600 focus:ring-red-500"
+                        />
+                      </th>
                       <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                         Token Code
                       </th>
@@ -641,7 +687,7 @@ export default function AdminTokensPage() {
                   <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
                     {loading ? (
                       <tr>
-                        <td colSpan={6} className="text-center py-12">
+                        <td colSpan={7} className="text-center py-12">
                           <Loader2 className="w-6 h-6 animate-spin text-red-500 mx-auto" />
                           <p className="text-sm text-muted-foreground mt-2">
                             Loading tokens...
@@ -650,7 +696,7 @@ export default function AdminTokensPage() {
                       </tr>
                     ) : tokens.length === 0 ? (
                       <tr>
-                        <td colSpan={6} className="text-center py-12">
+                        <td colSpan={7} className="text-center py-12">
                           <Database className="w-12 h-12 text-muted-foreground/30 mx-auto mb-3" />
                           <p className="text-muted-foreground">
                             No tokens found
@@ -666,6 +712,19 @@ export default function AdminTokensPage() {
                           key={token._id}
                           className="hover:bg-gray-50/50 dark:hover:bg-gray-800/30 transition-colors group"
                         >
+                          <td className="px-4 py-3">
+                            <input
+                              type="checkbox"
+                              checked={selectedTokens.has(token._id)}
+                              onChange={(e) => {
+                                const newSet = new Set(selectedTokens);
+                                if (e.target.checked) newSet.add(token._id);
+                                else newSet.delete(token._id);
+                                setSelectedTokens(newSet);
+                              }}
+                              className="w-4 h-4 rounded border-gray-300 text-red-600 focus:ring-red-500"
+                            />
+                          </td>
                           <td className="px-4 py-3">
                             <div className="flex items-center gap-2">
                               <code className="font-mono text-xs bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded break-all max-w-[200px]">
@@ -824,6 +883,12 @@ export default function AdminTokensPage() {
           </div>
         </div>
       </div>
+      {showPrintModal && (
+        <TokenPrintPreview
+          tokens={tokens.filter(t => selectedTokens.has(t._id))}
+          onClose={() => setShowPrintModal(false)}
+        />
+      )}
     </div>
   );
 }

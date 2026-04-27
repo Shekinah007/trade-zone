@@ -133,7 +133,7 @@ export default function AdminSearchLogsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-red-50/30 via-white to-red-50/20 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
+      <div className="min-h-screen bg-linear-to-br from-red-50/30 via-white to-red-50/20 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
         <div className="mx-auto py-8 px-4 max-w-7xl">
           <div className="flex items-center gap-3 mb-6">
             <div className="p-2.5 bg-red-500/10 rounded-xl">
@@ -161,7 +161,7 @@ export default function AdminSearchLogsPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-red-50/30 via-white to-red-50/20 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
+      <div className="min-h-screen bg-linear-to-br from-red-50/30 via-white to-red-50/20 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
         <div className="container mx-auto py-8 px-4 max-w-7xl">
           <div className="flex items-center gap-3 mb-6">
             <div className="p-2.5 bg-red-500/10 rounded-xl">
@@ -184,7 +184,7 @@ export default function AdminSearchLogsPage() {
   }
 
   return (
-    <div className="p-3 md:p-0 rounded-lg min-h-screen bg-gradient-to-br from-red-50/30 via-white to-red-50/20 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
+    <div className="p-3 md:p-0 rounded-lg min-h-screen bg-linear-to-br from-red-50/30 via-white to-red-50/20 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
       <div className="">
         {/* Header Section */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
@@ -221,7 +221,7 @@ export default function AdminSearchLogsPage() {
 
         {/* Statistics Dashboard */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-6">
-          <div className="p-3 rounded-xl border-l-4 border-l-red-500 bg-gradient-to-r from-red-500/5 to-transparent">
+          <div className="p-3 rounded-xl border-l-4 border-l-red-500 bg-linear-to-r from-red-500/5 to-transparent">
             <div className="flex items-center justify-between mb-1">
               <Eye className="h-4 w-4 text-red-600" />
               <TrendingUp className="h-3 w-3 text-muted-foreground" />
@@ -230,7 +230,7 @@ export default function AdminSearchLogsPage() {
             <p className="text-[10px] text-muted-foreground">Total Searches</p>
           </div>
 
-          <div className="p-3 rounded-xl border-l-4 border-l-red-500 bg-gradient-to-r from-red-500/5 to-transparent">
+          <div className="p-3 rounded-xl border-l-4 border-l-red-500 bg-linear-to-r from-red-500/5 to-transparent">
             <div className="flex items-center justify-between mb-1">
               <Fingerprint className="h-4 w-4 text-red-600" />
             </div>
@@ -238,7 +238,7 @@ export default function AdminSearchLogsPage() {
             <p className="text-[10px] text-muted-foreground">Unique IPs</p>
           </div>
 
-          <div className="p-3 rounded-xl border-l-4 border-l-red-500 bg-gradient-to-r from-red-500/5 to-transparent">
+          <div className="p-3 rounded-xl border-l-4 border-l-red-500 bg-linear-to-r from-red-500/5 to-transparent">
             <div className="flex items-center justify-between mb-1">
               <Globe className="h-4 w-4 text-red-600" />
             </div>
@@ -248,7 +248,7 @@ export default function AdminSearchLogsPage() {
             <p className="text-[10px] text-muted-foreground">Anonymous</p>
           </div>
 
-          <div className="p-3 rounded-xl border-l-4 border-l-red-500 bg-gradient-to-r from-red-500/5 to-transparent">
+          <div className="p-3 rounded-xl border-l-4 border-l-red-500 bg-linear-to-r from-red-500/5 to-transparent">
             <div className="flex items-center justify-between mb-1">
               <User className="h-4 w-4 text-red-600" />
             </div>
@@ -258,7 +258,7 @@ export default function AdminSearchLogsPage() {
             <p className="text-[10px] text-muted-foreground">Authenticated</p>
           </div>
 
-          <div className="p-3 rounded-xl border-l-4 border-l-red-500 bg-gradient-to-r from-red-500/5 to-transparent">
+          <div className="p-3 rounded-xl border-l-4 border-l-red-500 bg-linear-to-r from-red-500/5 to-transparent">
             <div className="flex items-center justify-between mb-1">
               <MapPin className="h-4 w-4 text-red-600" />
             </div>
@@ -268,7 +268,7 @@ export default function AdminSearchLogsPage() {
             <p className="text-[10px] text-muted-foreground">With Location</p>
           </div>
 
-          <div className="p-3 rounded-xl border-l-4 border-l-red-500 bg-gradient-to-r from-red-500/5 to-transparent">
+          <div className="p-3 rounded-xl border-l-4 border-l-red-500 bg-linear-to-r from-red-500/5 to-transparent">
             <div className="flex items-center justify-between mb-1">
               <Calendar className="h-4 w-4 text-red-600" />
             </div>
