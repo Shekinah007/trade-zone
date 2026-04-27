@@ -41,7 +41,7 @@ export default async function MarketHome() {
       <section className="relative px-4 py-16 md:py-24 overflow-hidden border-b">
         {/* Animated background paths */}
         <div className="absolute inset-0 z-10 opacity-40">
-          <FloatingPaths position={1} />
+          {/* <FloatingPaths position={1} /> */}
           {/* <FloatingPaths position={-1} /> */}
         </div>
         <div className="absolute inset-0 -z-10 bg-gradient-to-b from-background via-emerald-950/5 to-background pointer-events-none" />
