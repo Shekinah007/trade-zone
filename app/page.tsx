@@ -50,7 +50,7 @@ export default async function Home() {
         {/* Animated background paths */}
         <div className="absolute inset-0 z-10 opacity-30">
           <FloatingPaths position={1} />
-          <FloatingPaths position={-1} />
+          {/* <FloatingPaths position={-1} /> */}
         </div>
         {/* Subtle gradient overlay */}
         <div className="absolute inset-0 -z-10 bg-gradient-to-b from-background via-background/90 to-background pointer-events-none" />
