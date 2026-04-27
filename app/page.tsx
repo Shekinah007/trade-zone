@@ -48,7 +48,14 @@ export default async function Home() {
       {/* Hero Section */}
       <section className="relative px-4 py-10 md:py-16 overflow-hidden border-b pb-16 md:pb-24">
         {/* Animated background paths */}
-        <div className="absolute inset-0 z-10 opacity-30">
+        <div
+          className="absolute inset-0 z-10 opacity-30"
+          style={{
+            contain: "strict",
+            willChange: "opacity",
+            transform: "translateZ(0)",
+          }}
+        >
           <FloatingPaths position={1} />
           {/* <FloatingPaths position={-1} /> */}
         </div>
