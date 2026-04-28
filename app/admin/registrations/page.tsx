@@ -5,9 +5,14 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
-  AlertDialog, AlertDialogAction, AlertDialogCancel,
-  AlertDialogContent, AlertDialogDescription,
-  AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { CheckCircle, XCircle, Loader2, UserCheck, Clock } from "lucide-react";
 import { toast } from "sonner";
@@ -18,7 +23,10 @@ type ActionType = "approve" | "reject" | null;
 export default function RegistrationsPage() {
   const [users, setUsers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [actionTarget, setActionTarget] = useState<{ user: any; action: ActionType }>({
+  const [actionTarget, setActionTarget] = useState<{
+    user: any;
+    action: ActionType;
+  }>({
     user: null,
     action: null,
   });
@@ -26,7 +34,10 @@ export default function RegistrationsPage() {
   useEffect(() => {
     fetch("/api/admin/registrations")
       .then((r) => r.json())
-      .then((data) => { setUsers(data); setLoading(false); });
+      .then((data) => {
+        setUsers(data);
+        setLoading(false);
+      });
   }, []);
 
   const handleAction = async () => {
@@ -37,14 +48,22 @@ export default function RegistrationsPage() {
       const res = await fetch(`/api/admin/registrations/${user._id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action }),
+        body: JSON.stringify({
+          action,
+          email: user.email,
+          userName: user.name,
+        }),
       });
 
       if (!res.ok) throw new Error();
 
       // Remove from list
       setUsers((prev) => prev.filter((u) => u._id !== user._id));
-      toast.success(action === "approve" ? `${user.name} approved!` : `${user.name} rejected`);
+      toast.success(
+        action === "approve"
+          ? `${user.name} approved!`
+          : `${user.name} rejected`,
+      );
     } catch {
       toast.error("Action failed. Please try again.");
     } finally {
@@ -65,7 +84,9 @@ export default function RegistrationsPage() {
       {/* Header */}
       <div className="flex items-start justify-between">
         <div>
-          <h2 className="text-3xl font-bold tracking-tight">Registration Requests</h2>
+          <h2 className="text-3xl font-bold tracking-tight">
+            Registration Requests
+          </h2>
           <p className="text-muted-foreground text-sm mt-1">
             Review and approve new user registrations
           </p>
@@ -82,14 +103,19 @@ export default function RegistrationsPage() {
         <div className="text-center py-20 border-2 border-dashed rounded-3xl">
           <UserCheck className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
           <p className="text-lg font-medium">All caught up!</p>
-          <p className="text-muted-foreground">No pending registration requests.</p>
+          <p className="text-muted-foreground">
+            No pending registration requests.
+          </p>
         </div>
       ) : (
         <>
           {/* Mobile: cards */}
           <div className="space-y-3 md:hidden">
             {users.map((user: any) => (
-              <div key={user._id} className="rounded-xl border bg-card p-4 space-y-3">
+              <div
+                key={user._id}
+                className="rounded-xl border bg-card p-4 space-y-3"
+              >
                 <div className="flex items-center gap-3">
                   <Avatar className="h-10 w-10">
                     <AvatarImage src={user.image} />
@@ -98,16 +124,24 @@ export default function RegistrationsPage() {
                     </AvatarFallback>
                   </Avatar>
                   <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-sm truncate">{user.name}</p>
-                    <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+                    <p className="font-semibold text-sm truncate">
+                      {user.name}
+                    </p>
+                    <p className="text-xs text-muted-foreground truncate">
+                      {user.email}
+                    </p>
                   </div>
                 </div>
 
                 <div className="flex items-center gap-2 flex-wrap text-xs text-muted-foreground">
-                  <Badge variant="outline" className="capitalize">{user.provider}</Badge>
+                  <Badge variant="outline" className="capitalize">
+                    {user.provider}
+                  </Badge>
                   <span className="flex items-center gap-1">
                     <Clock className="h-3 w-3" />
-                    {formatDistanceToNow(new Date(user.createdAt), { addSuffix: true })}
+                    {formatDistanceToNow(new Date(user.createdAt), {
+                      addSuffix: true,
+                    })}
                   </span>
                 </div>
 
@@ -137,15 +171,26 @@ export default function RegistrationsPage() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="bg-muted/50 text-left">
-                  <th className="px-4 py-3 font-medium text-muted-foreground">User</th>
-                  <th className="px-4 py-3 font-medium text-muted-foreground">Provider</th>
-                  <th className="px-4 py-3 font-medium text-muted-foreground">Registered</th>
-                  <th className="px-4 py-3 font-medium text-muted-foreground text-right">Actions</th>
+                  <th className="px-4 py-3 font-medium text-muted-foreground">
+                    User
+                  </th>
+                  <th className="px-4 py-3 font-medium text-muted-foreground">
+                    Provider
+                  </th>
+                  <th className="px-4 py-3 font-medium text-muted-foreground">
+                    Registered
+                  </th>
+                  <th className="px-4 py-3 font-medium text-muted-foreground text-right">
+                    Actions
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y">
                 {users.map((user: any) => (
-                  <tr key={user._id} className="hover:bg-muted/20 transition-colors">
+                  <tr
+                    key={user._id}
+                    className="hover:bg-muted/20 transition-colors"
+                  >
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-3">
                         <Avatar className="h-8 w-8">
@@ -156,17 +201,23 @@ export default function RegistrationsPage() {
                         </Avatar>
                         <div>
                           <p className="font-medium">{user.name}</p>
-                          <p className="text-xs text-muted-foreground">{user.email}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {user.email}
+                          </p>
                         </div>
                       </div>
                     </td>
                     <td className="px-4 py-3">
-                      <Badge variant="outline" className="capitalize">{user.provider}</Badge>
+                      <Badge variant="outline" className="capitalize">
+                        {user.provider}
+                      </Badge>
                     </td>
                     <td className="px-4 py-3 text-muted-foreground">
                       <span className="flex items-center gap-1.5">
                         <Clock className="h-3.5 w-3.5" />
-                        {formatDistanceToNow(new Date(user.createdAt), { addSuffix: true })}
+                        {formatDistanceToNow(new Date(user.createdAt), {
+                          addSuffix: true,
+                        })}
                       </span>
                     </td>
                     <td className="px-4 py-3">
@@ -174,7 +225,9 @@ export default function RegistrationsPage() {
                         <Button
                           size="sm"
                           className="bg-green-500 hover:bg-green-600 text-white h-8"
-                          onClick={() => setActionTarget({ user, action: "approve" })}
+                          onClick={() =>
+                            setActionTarget({ user, action: "approve" })
+                          }
                         >
                           <CheckCircle className="h-3.5 w-3.5 mr-1" /> Approve
                         </Button>
@@ -182,7 +235,9 @@ export default function RegistrationsPage() {
                           size="sm"
                           variant="outline"
                           className="text-destructive border-destructive/30 hover:bg-destructive/10 h-8"
-                          onClick={() => setActionTarget({ user, action: "reject" })}
+                          onClick={() =>
+                            setActionTarget({ user, action: "reject" })
+                          }
                         >
                           <XCircle className="h-3.5 w-3.5 mr-1" /> Reject
                         </Button>
@@ -199,12 +254,16 @@ export default function RegistrationsPage() {
       {/* Confirm dialog */}
       <AlertDialog
         open={!!actionTarget.action}
-        onOpenChange={(open) => !open && setActionTarget({ user: null, action: null })}
+        onOpenChange={(open) =>
+          !open && setActionTarget({ user: null, action: null })
+        }
       >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>
-              {actionTarget.action === "approve" ? "Approve Registration" : "Reject Registration"}
+              {actionTarget.action === "approve"
+                ? "Approve Registration"
+                : "Reject Registration"}
             </AlertDialogTitle>
             <AlertDialogDescription>
               {actionTarget.action === "approve"
@@ -214,7 +273,8 @@ export default function RegistrationsPage() {
                 {actionTarget.user?.name}
               </span>{" "}
               ({actionTarget.user?.email}).
-              {actionTarget.action === "reject" && " They will not be able to sign in."}
+              {actionTarget.action === "reject" &&
+                " They will not be able to sign in."}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

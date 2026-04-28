@@ -3,28 +3,33 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import dbConnect from "@/lib/db";
 import User from "@/models/User";
+import {
+  sendAccountActivatedEmail,
+  sendAccountRejectedEmail,
+} from "@/lib/mail";
 
 export async function PATCH(
   req: Request,
-   context: { params: Promise<{ id: string }> }
-
+  context: { params: Promise<{ id: string }> },
 ) {
   const session = await getServerSession(authOptions);
   if (!session || session.user.role !== "admin")
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
 
   const { id } = await context.params;
-  const { action } = await req.json(); // "approve" | "reject"
+  const { action, email, userName } = await req.json(); // "approve" | "reject"
 
   await dbConnect();
 
   if (action === "approve") {
     await User.findByIdAndUpdate(id, { status: "active" });
+    await sendAccountActivatedEmail(email, userName);
     return NextResponse.json({ message: "User approved" });
   }
 
   if (action === "reject") {
-    await User.findByIdAndUpdate(id, { status: "banned" });
+    // await User.findByIdAndUpdate(id, { status: "banned" });
+    await sendAccountRejectedEmail(email, userName);
     return NextResponse.json({ message: "User rejected" });
   }
 

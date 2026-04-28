@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Shield, Mail, Phone, MapPin } from "lucide-react";
+import Image from "next/image";
 
 const offices = [
   {
@@ -27,10 +28,14 @@ export default function Footer() {
           {/* Brand */}
           <div className="md:col-span-2 space-y-4">
             <Link href="/" className="flex items-center space-x-2">
-              <Shield className="h-6 w-6 text-primary" />
-              <span className="text-xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-primary to-blue-600">
-                FindMaster
-              </span>
+              <Image
+                src="/LOGO_DESIGN/Logo Resources/Transparent/Combo.png" // or "/logo.png" depending on your file
+                alt="FindMaster"
+                width={180}
+                height={180}
+                className="object-contain"
+                priority
+              />
             </Link>
             <p className="text-sm text-muted-foreground max-w-xs leading-relaxed">
               Africa&apos;s #1 property security registry and trusted
