@@ -11,6 +11,7 @@ import {
   Phone,
   Mail,
   Camera,
+  ImagePlus,
   CheckCircle,
   Sparkles,
 } from "lucide-react";
@@ -26,7 +27,12 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { cn } from "@/lib/utils";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const formSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -49,6 +55,7 @@ export function UserEditForm({ initialData }: UserEditFormProps) {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -57,6 +64,22 @@ export function UserEditForm({ initialData }: UserEditFormProps) {
       phone: initialData.phone || "",
     },
   });
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error("Image must be less than 5MB");
+        return;
+      }
+      setImageFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
@@ -115,34 +138,53 @@ export function UserEditForm({ initialData }: UserEditFormProps) {
                   "U"}
               </AvatarFallback>
             </Avatar>
+
+            {/* Hidden gallery input */}
             <input
               type="file"
               accept="image/*"
               className="hidden"
               ref={fileInputRef}
-              onChange={(e) => {
-                const file = e.target.files?.[0];
-                if (file) {
-                  if (file.size > 5 * 1024 * 1024) {
-                    toast.error("Image must be less than 5MB");
-                    return;
-                  }
-                  setImageFile(file);
-                  const reader = new FileReader();
-                  reader.onloadend = () => {
-                    setImagePreview(reader.result as string);
-                  };
-                  reader.readAsDataURL(file);
-                }
-              }}
+              onChange={handleImageChange}
             />
-            <button
-              type="button"
-              className="absolute bottom-0 right-0 p-1.5 rounded-full bg-gradient-to-r from-red-600 to-red-700 text-white shadow-lg hover:shadow-red-500/50 transition-all duration-200 hover:scale-110"
-              onClick={() => fileInputRef.current?.click()}
-            >
-              <Camera className="h-3.5 w-3.5" />
-            </button>
+
+            {/* Hidden camera input */}
+            <input
+              type="file"
+              accept="image/*"
+              capture="environment"
+              className="hidden"
+              ref={cameraInputRef}
+              onChange={handleImageChange}
+            />
+
+            {/* Dropdown trigger on the camera button */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  type="button"
+                  className="absolute bottom-0 right-0 p-1.5 rounded-full bg-gradient-to-r from-red-600 to-red-700 text-white shadow-lg hover:shadow-red-500/50 transition-all duration-200 hover:scale-110"
+                >
+                  <Camera className="h-3.5 w-3.5" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-44">
+                <DropdownMenuItem
+                  onClick={() => cameraInputRef.current?.click()}
+                  className="gap-2 cursor-pointer"
+                >
+                  <Camera className="h-4 w-4 text-red-500" />
+                  Take Photo
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => fileInputRef.current?.click()}
+                  className="gap-2 cursor-pointer"
+                >
+                  <ImagePlus className="h-4 w-4 text-green-500" />
+                  Choose from Gallery
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
 
