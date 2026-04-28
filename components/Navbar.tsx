@@ -36,6 +36,7 @@ import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import { useAppMode } from "@/components/AppModeContext";
 import { NotificationDropdown } from "@/components/NotificationDropdown";
+import Image from "next/image";
 
 export default function Navbar() {
   const { data: session } = useSession();
@@ -94,7 +95,7 @@ export default function Navbar() {
         <div className="flex items-center lg:space-x-8">
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-2 group shrink-0">
-            <div
+            {/* <div
               className={cn(
                 "p-2 rounded-xl transition-colors",
                 isMarketplace
@@ -107,10 +108,15 @@ export default function Navbar() {
               ) : (
                 <Shield className={cn("h-6 w-6 text-red-600")} />
               )}
-            </div>
-            <span className="text-xl font-bold tracking-tight sm:inline-block">
-              FindMaster
-            </span>
+            </div> */}
+            <Image
+              src="/LOGO_DESIGN/Logo Resources/Transparent/Combo.png" // or "/logo.png" depending on your file
+              alt="FindMaster"
+              width={180}
+              height={180}
+              className="object-contain"
+              priority
+            />
           </Link>
 
           {/* Context Switcher Pill */}
@@ -233,81 +239,86 @@ export default function Navbar() {
             <div className="flex items-center space-x-2">
               <NotificationDropdown />
               <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  className={cn(
-                    "relative h-9 w-9 rounded-full ring-2 ring-transparent transition-all",
-                    isMarketplace
-                      ? "hover:ring-emerald-500/30"
-                      : "hover:ring-red-500/30",
-                  )}
-                >
-                  <Avatar className="h-9 w-9">
-                    <AvatarImage
-                      src={session.user?.image || ""}
-                      alt={session.user?.name || ""}
-                    />
-                    <AvatarFallback
-                      className={cn(
-                        "text-white",
-                        isMarketplace ? "bg-emerald-600" : "bg-red-600",
-                      )}
-                    >
-                      {session.user?.name?.charAt(0) || "U"}
-                    </AvatarFallback>
-                  </Avatar>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-56 mt-2" align="end" forceMount>
-                <DropdownMenuLabel className="font-normal">
-                  <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium leading-none">
-                      {session.user?.name}
-                    </p>
-                    <p className="text-xs leading-none text-muted-foreground">
-                      {session.user?.email}
-                    </p>
-                  </div>
-                </DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem asChild>
-                  <Link href="/dashboard" className="cursor-pointer">
-                    <LayoutDashboard className="mr-2 h-4 w-4" /> Dashboard
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link href="/saved" className="cursor-pointer">
-                    <Heart className="mr-2 h-4 w-4" /> Saved Listings
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link href="/settings" className="cursor-pointer">
-                    <User className="mr-2 h-4 w-4" /> Profile
-                  </Link>
-                </DropdownMenuItem>
-
-                {session?.user?.role === "admin" && (
-                  <>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem asChild>
-                      <Link
-                        href="/admin"
-                        className="cursor-pointer text-purple-600"
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    className={cn(
+                      "relative h-9 w-9 rounded-full ring-2 ring-transparent transition-all",
+                      isMarketplace
+                        ? "hover:ring-emerald-500/30"
+                        : "hover:ring-red-500/30",
+                    )}
+                  >
+                    <Avatar className="h-9 w-9">
+                      <AvatarImage
+                        src={session.user?.image || ""}
+                        alt={session.user?.name || ""}
+                      />
+                      <AvatarFallback
+                        className={cn(
+                          "text-white",
+                          isMarketplace ? "bg-emerald-600" : "bg-red-600",
+                        )}
                       >
-                        <LayoutDashboard className="mr-2 h-4 w-4" /> Admin Panel
-                      </Link>
-                    </DropdownMenuItem>
-                  </>
-                )}
-
-                <DropdownMenuSeparator />
-                <DropdownMenuItem
-                  onClick={() => signOut({ callbackUrl: "/" })}
-                  className="cursor-pointer text-destructive focus:text-destructive"
+                        {session.user?.name?.charAt(0) || "U"}
+                      </AvatarFallback>
+                    </Avatar>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent
+                  className="w-56 mt-2"
+                  align="end"
+                  forceMount
                 >
-                  <LogOut className="mr-2 h-4 w-4" /> Log out
-                </DropdownMenuItem>
+                  <DropdownMenuLabel className="font-normal">
+                    <div className="flex flex-col space-y-1">
+                      <p className="text-sm font-medium leading-none">
+                        {session.user?.name}
+                      </p>
+                      <p className="text-xs leading-none text-muted-foreground">
+                        {session.user?.email}
+                      </p>
+                    </div>
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link href="/dashboard" className="cursor-pointer">
+                      <LayoutDashboard className="mr-2 h-4 w-4" /> Dashboard
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/saved" className="cursor-pointer">
+                      <Heart className="mr-2 h-4 w-4" /> Saved Listings
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/settings" className="cursor-pointer">
+                      <User className="mr-2 h-4 w-4" /> Profile
+                    </Link>
+                  </DropdownMenuItem>
+
+                  {session?.user?.role === "admin" && (
+                    <>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem asChild>
+                        <Link
+                          href="/admin"
+                          className="cursor-pointer text-purple-600"
+                        >
+                          <LayoutDashboard className="mr-2 h-4 w-4" /> Admin
+                          Panel
+                        </Link>
+                      </DropdownMenuItem>
+                    </>
+                  )}
+
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    onClick={() => signOut({ callbackUrl: "/" })}
+                    className="cursor-pointer text-destructive focus:text-destructive"
+                  >
+                    <LogOut className="mr-2 h-4 w-4" /> Log out
+                  </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>

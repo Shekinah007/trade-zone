@@ -69,6 +69,7 @@ export function TokenPurchaseModal({
 
   const handlePurchase = (tierAmount: number) => {
     setLoadingTier(tierAmount);
+    onClose();
 
     // Override the amount when calling the initialize method
     initializePayment({
@@ -86,7 +87,7 @@ export function TokenPurchaseModal({
       toast.error("Please enter a token code");
       return;
     }
-    
+
     setRedeeming(true);
     try {
       const res = await fetch("/api/tokens/redeem", {
@@ -95,7 +96,7 @@ export function TokenPurchaseModal({
         body: JSON.stringify({ code: tokenCode }),
       });
       const data = await res.json();
-      
+
       if (res.ok) {
         toast.success(data.message || "Token redeemed successfully!");
         await update();
@@ -191,14 +192,17 @@ export function TokenPurchaseModal({
         </div>
 
         <Separator className="my-2" />
-        
+
         <div className="bg-gray-50 dark:bg-gray-900/50 p-4 rounded-xl border border-gray-100 dark:border-gray-800">
-          <Label htmlFor="token-code" className="text-sm font-semibold flex items-center gap-2 mb-2">
+          <Label
+            htmlFor="token-code"
+            className="text-sm font-semibold flex items-center gap-2 mb-2"
+          >
             <Ticket className="h-4 w-4 text-primary" />
             Have a Pre-purchased Token?
           </Label>
           <div className="flex gap-2">
-            <Input 
+            <Input
               id="token-code"
               placeholder="Enter your token code (e.g. TKN-123...)"
               value={tokenCode}
@@ -206,12 +210,14 @@ export function TokenPurchaseModal({
               className="flex-1"
               disabled={redeeming || loadingTier !== null}
             />
-            <Button 
+            <Button
               onClick={handleRedeem}
               disabled={!tokenCode.trim() || redeeming || loadingTier !== null}
               variant="secondary"
             >
-              {redeeming ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+              {redeeming ? (
+                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+              ) : null}
               Redeem
             </Button>
           </div>
