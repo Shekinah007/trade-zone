@@ -336,7 +336,7 @@ export default function AdminTokensPage() {
                       >
                         <div className="font-medium text-sm">Basic</div>
                         <div className="text-xs text-muted-foreground mt-1">
-                          +10 Properties
+                          +5 Properties
                         </div>
                       </button>
                       <button

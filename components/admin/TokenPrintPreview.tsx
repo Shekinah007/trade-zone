@@ -3,6 +3,7 @@
 import { X, Printer, ShieldCheck, Loader2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { format } from "date-fns";
+import Image from "next/image";
 
 interface RechargeToken {
   _id: string;
@@ -181,14 +182,21 @@ export default function TokenPrintPreview({ tokens, onClose }: Props) {
                       {/* Header Section */}
                       <div className="flex items-start justify-between mb-2">
                         <div className="flex items-center gap-2">
-                          <div className="p-1.5 bg-red-600 rounded-lg shadow-sm flex items-center justify-center">
-                            <ShieldCheck className="w-3.5 h-3.5 text-white" />
+                          <div className="p-1.5 bg-white rounded-lg flex items-center justify-center">
+                            <Image
+                              src="/LOGO_DESIGN/Logo Resources/Transparent/Mark Only.png" // or "/logo.png" depending on your file
+                              alt="FindMaster"
+                              width={15}
+                              height={15}
+                              className="object-contain"
+                              priority
+                            />
                           </div>
                           <div>
-                            <h3 className="font-bold text-gray-900 leading-tight text-sm">
+                            <h3 className="font-bold text-gray-900 leading-tight text-xs">
                               FindMaster
                             </h3>
-                            <p className="text-[8px] text-gray-500 font-medium uppercase tracking-wider">
+                            <p className="text-[6px] text-gray-500 font-medium uppercase tracking-wider">
                               Property Registry
                             </p>
                           </div>
