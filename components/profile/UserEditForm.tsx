@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -46,6 +46,9 @@ export function UserEditForm({ initialData }: UserEditFormProps) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -63,6 +66,7 @@ export function UserEditForm({ initialData }: UserEditFormProps) {
       const formData = new FormData();
       formData.append("name", values.name);
       if (values.phone) formData.append("phone", values.phone);
+      if (imageFile) formData.append("image", imageFile);
 
       const res = await fetch("/api/user/profile", {
         method: "PUT",
@@ -104,16 +108,38 @@ export function UserEditForm({ initialData }: UserEditFormProps) {
           <div className="relative">
             <div className="absolute inset-0 bg-gradient-to-r from-red-500 to-green-500 rounded-full blur-xl opacity-20" />
             <Avatar className="h-24 w-24 ring-4 ring-white dark:ring-gray-950 shadow-xl">
-              <AvatarImage src={initialData.image || ""} />
+              <AvatarImage src={imagePreview || initialData.image || ""} />
               <AvatarFallback className="bg-gradient-to-br from-red-500 to-red-600 text-white text-2xl font-bold">
                 {initialData.name?.charAt(0) ||
                   initialData.email?.charAt(0)?.toUpperCase() ||
                   "U"}
               </AvatarFallback>
             </Avatar>
+            <input
+              type="file"
+              accept="image/*"
+              className="hidden"
+              ref={fileInputRef}
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) {
+                  if (file.size > 5 * 1024 * 1024) {
+                    toast.error("Image must be less than 5MB");
+                    return;
+                  }
+                  setImageFile(file);
+                  const reader = new FileReader();
+                  reader.onloadend = () => {
+                    setImagePreview(reader.result as string);
+                  };
+                  reader.readAsDataURL(file);
+                }
+              }}
+            />
             <button
+              type="button"
               className="absolute bottom-0 right-0 p-1.5 rounded-full bg-gradient-to-r from-red-600 to-red-700 text-white shadow-lg hover:shadow-red-500/50 transition-all duration-200 hover:scale-110"
-              onClick={() => toast.info("Image upload coming soon!")}
+              onClick={() => fileInputRef.current?.click()}
             >
               <Camera className="h-3.5 w-3.5" />
             </button>

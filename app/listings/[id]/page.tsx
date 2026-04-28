@@ -1,7 +1,16 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { formatDistanceToNow } from "date-fns";
-import { MapPin, Share2, ShieldCheck, Flag, Calendar, Eye, Shield, ExternalLink } from "lucide-react";
+import {
+  MapPin,
+  Share2,
+  ShieldCheck,
+  Flag,
+  Calendar,
+  Eye,
+  Shield,
+  ExternalLink,
+} from "lucide-react";
 import dbConnect from "@/lib/db";
 import Listing from "@/models/Listing";
 import "@/models/User"; // Ensure User model is registered
@@ -34,11 +43,16 @@ async function getListing(id: string) {
     const listing = await Listing.findById(id)
       .populate("seller")
       .populate("category")
-      .populate("propertyId", "brand model itemType status serialNumber imei chassisNumber color yearOfPurchase images")
+      .populate(
+        "propertyId",
+        "brand model itemType status serialNumber imei chassisNumber color yearOfPurchase images",
+      )
       .lean();
     if (!listing) return null;
 
-    const business = await Business.findOne({ owner: listing.seller?._id }).lean();
+    const business = await Business.findOne({
+      owner: listing.seller?._id,
+    }).lean();
 
     // Fetch History
     const history = await Transaction.find({ listing: id })
@@ -57,7 +71,11 @@ async function getListing(id: string) {
   }
 }
 
-export default async function ListingPage({ params }: { params: { id: string } }) {
+export default async function ListingPage({
+  params,
+}: {
+  params: { id: string };
+}) {
   const { id } = await params;
   const listing = await getListing(id);
 
@@ -69,7 +87,6 @@ export default async function ListingPage({ params }: { params: { id: string } }
     style: "currency",
     currency: "NGN",
   }).format(listing.price);
-
 
   return (
     <div className="container mx-auto py-8 px-4">
@@ -94,7 +111,9 @@ export default async function ListingPage({ params }: { params: { id: string } }
                 ) : (
                   <CarouselItem>
                     <div className="relative aspect-video w-full overflow-hidden rounded-lg bg-muted flex items-center justify-center">
-                      <span className="text-muted-foreground">No images available</span>
+                      <span className="text-muted-foreground">
+                        No images available
+                      </span>
                     </div>
                   </CarouselItem>
                 )}
@@ -126,16 +145,28 @@ export default async function ListingPage({ params }: { params: { id: string } }
             <CardContent>
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
-                  <span className="font-semibold text-muted-foreground">Condition:</span>
+                  <span className="font-semibold text-muted-foreground">
+                    Condition:
+                  </span>
                   <span className="ml-2">{listing.condition}</span>
                 </div>
                 <div>
-                  <span className="font-semibold text-muted-foreground">Category:</span>
-                  <span className="ml-2">{listing.category?.name || "Uncategorized"}</span>
+                  <span className="font-semibold text-muted-foreground">
+                    Category:
+                  </span>
+                  <span className="ml-2">
+                    {listing.category?.name || "Uncategorized"}
+                  </span>
                 </div>
                 <div>
-                  <span className="font-semibold text-muted-foreground">Posted:</span>
-                  <span className="ml-2">{formatDistanceToNow(new Date(listing.createdAt), { addSuffix: true })}</span>
+                  <span className="font-semibold text-muted-foreground">
+                    Posted:
+                  </span>
+                  <span className="ml-2">
+                    {formatDistanceToNow(new Date(listing.createdAt), {
+                      addSuffix: true,
+                    })}
+                  </span>
                 </div>
                 <div className="flex flex-row gap-2 items-center text-muted-foreground">
                   <Eye className="h-4 w-4" />
@@ -144,10 +175,16 @@ export default async function ListingPage({ params }: { params: { id: string } }
                 </div>
                 {listing.uniqueIdentifier && (
                   <div className="col-span-2 border-t pt-2 mt-2">
-                    <span className="font-semibold text-muted-foreground block mb-1">Serial / Unique ID:</span>
-                    <code className="bg-muted px-2 py-1 rounded text-xs font-mono select-all">
-                      {listing.uniqueIdentifier}
-                    </code>
+                    <div className="flex items-center justify-between">
+                      <span className="font-semibold text-muted-foreground">
+                        Serial / Unique ID:
+                      </span>
+                      <div className="flex items-center gap-2">
+                        <code className="bg-muted/50 backdrop-blur-sm px-3 py-1.5 rounded-lg text-xs font-mono select-all border border-border/50">
+                          ••••••••••••••
+                        </code>
+                      </div>
+                    </div>
                   </div>
                 )}
               </div>
@@ -167,38 +204,54 @@ export default async function ListingPage({ params }: { params: { id: string } }
                 <div className="grid grid-cols-2 gap-3 text-sm mb-4">
                   {listing.propertyId.brand && (
                     <div>
-                      <span className="font-semibold text-muted-foreground block text-xs mb-0.5">Brand</span>
+                      <span className="font-semibold text-muted-foreground block text-xs mb-0.5">
+                        Brand
+                      </span>
                       <span>{listing.propertyId.brand}</span>
                     </div>
                   )}
                   {listing.propertyId.model && (
                     <div>
-                      <span className="font-semibold text-muted-foreground block text-xs mb-0.5">Model</span>
+                      <span className="font-semibold text-muted-foreground block text-xs mb-0.5">
+                        Model
+                      </span>
                       <span>{listing.propertyId.model}</span>
                     </div>
                   )}
                   {listing.propertyId.color && (
                     <div>
-                      <span className="font-semibold text-muted-foreground block text-xs mb-0.5">Color</span>
+                      <span className="font-semibold text-muted-foreground block text-xs mb-0.5">
+                        Color
+                      </span>
                       <span>{listing.propertyId.color}</span>
                     </div>
                   )}
                   {listing.propertyId.yearOfPurchase && (
                     <div>
-                      <span className="font-semibold text-muted-foreground block text-xs mb-0.5">Year</span>
+                      <span className="font-semibold text-muted-foreground block text-xs mb-0.5">
+                        Year
+                      </span>
                       <span>{listing.propertyId.yearOfPurchase}</span>
                     </div>
                   )}
                   <div className="col-span-2">
-                    <span className="font-semibold text-muted-foreground block text-xs mb-0.5">Registry Status</span>
-                    <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium ${
-                      listing.propertyId.status === 'registered' ? 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400' :
-                      listing.propertyId.status === 'missing' ? 'bg-red-500/10 text-red-700 dark:text-red-400' :
-                      listing.propertyId.status === 'found' ? 'bg-blue-500/10 text-blue-700 dark:text-blue-400' :
-                      'bg-muted text-muted-foreground'
-                    }`}>
+                    <span className="font-semibold text-muted-foreground block text-xs mb-0.5">
+                      Registry Status
+                    </span>
+                    <span
+                      className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium ${
+                        listing.propertyId.status === "registered"
+                          ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400"
+                          : listing.propertyId.status === "missing"
+                            ? "bg-red-500/10 text-red-700 dark:text-red-400"
+                            : listing.propertyId.status === "found"
+                              ? "bg-blue-500/10 text-blue-700 dark:text-blue-400"
+                              : "bg-muted text-muted-foreground"
+                      }`}
+                    >
                       <span className="w-1.5 h-1.5 rounded-full bg-current" />
-                      {listing.propertyId.status.charAt(0).toUpperCase() + listing.propertyId.status.slice(1)}
+                      {listing.propertyId.status.charAt(0).toUpperCase() +
+                        listing.propertyId.status.slice(1)}
                     </span>
                   </div>
                 </div>
@@ -219,9 +272,13 @@ export default async function ListingPage({ params }: { params: { id: string } }
           <Card className="border-2 border-primary/10">
             <CardContent className="p-6 space-y-6">
               <div>
-                <h1 className="text-2xl font-bold leading-tight mb-2">{listing.title}</h1>
+                <h1 className="text-2xl font-bold leading-tight mb-2">
+                  {listing.title}
+                </h1>
                 <div className="flex items-center justify-between">
-                  <span className="text-3xl font-bold text-primary">{formattedPrice}</span>
+                  <span className="text-3xl font-bold text-primary">
+                    {formattedPrice}
+                  </span>
                   <Badge variant="outline">{listing.condition}</Badge>
                 </div>
               </div>
@@ -250,14 +307,24 @@ export default async function ListingPage({ params }: { params: { id: string } }
               <CardTitle className="text-lg">Seller Information</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <Link href={`/store/${listing.seller?._id}`} className="flex items-center space-x-4 hover:bg-muted/50 p-2 rounded-lg transition-colors group">
+              <Link
+                href={`/store/${listing.seller?._id}`}
+                className="flex items-center space-x-4 hover:bg-muted/50 p-2 rounded-lg transition-colors group"
+              >
                 <Avatar className="h-12 w-12 group-hover:ring-2 ring-primary/20 transition-all">
                   <AvatarImage src={listing.seller?.image} />
-                  <AvatarFallback>{listing.seller?.name?.charAt(0) || "U"}</AvatarFallback>
+                  <AvatarFallback>
+                    {listing.seller?.name?.charAt(0) || "U"}
+                  </AvatarFallback>
                 </Avatar>
                 <div>
-                  <p className="font-medium group-hover:text-primary transition-colors">{listing.seller?.name || "Unknown User"}</p>
-                  <p className="text-xs text-muted-foreground">Member since {new Date(listing.seller?.createdAt).getFullYear()}</p>
+                  <p className="font-medium group-hover:text-primary transition-colors">
+                    {listing.seller?.name || "Unknown User"}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Member since{" "}
+                    {new Date(listing.seller?.createdAt).getFullYear()}
+                  </p>
                 </div>
               </Link>
 
@@ -269,7 +336,6 @@ export default async function ListingPage({ params }: { params: { id: string } }
               <div className="pt-2 border-t mt-2">
                 <SellerRating sellerId={listing.seller?._id} />
               </div>
-
 
               <ReportButton listingId={listing._id} />
             </CardContent>

@@ -59,8 +59,8 @@ export default async function Home() {
           <FloatingPaths position={1} />
           {/* <FloatingPaths position={-1} /> */}
         </div>
-        {/* Subtle gradient overlay */}
-        <div className="absolute inset-0 -z-10 bg-gradient-to-b from-background via-background/90 to-background pointer-events-none" />
+        {/* Subtle linear overlay */}
+        <div className="absolute inset-0 -z-10 bg-linear-to-b from-background via-background/90 to-background pointer-events-none" />
 
         <div className="container mx-auto relative z-10 text-center">
           <div className="inline-flex items-center px-2.5 py-1 rounded-full border bg-background/80 backdrop-blur-sm text-xs font-semibold mb-6 text-primary animate-in fade-in slide-in-from-bottom-4 duration-700 shadow-sm">
@@ -68,7 +68,7 @@ export default async function Home() {
             Africa&apos;s #1 Property Security Marketplace
           </div>
 
-          <h1 className="text-4xl md:text-6xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-red-500  to-emerald-500 tracking-tight mb-4 leading-tight animate-in fade-in slide-in-from-bottom-6 duration-700 delay-100">
+          <h1 className="text-4xl md:text-6xl font-bold bg-clip-text text-transparent bg-linear-to-r from-red-500  to-emerald-500 tracking-tight mb-4 leading-tight animate-in fade-in slide-in-from-bottom-6 duration-700 delay-100">
             Secure. Verify. <br className="hidden md:block" />
             <span className="">Trade Safely.</span>
           </h1>
@@ -81,7 +81,7 @@ export default async function Home() {
           {/* Dual Search Cards */}
           <div className="grid md:grid-cols-2 gap-4 lg:gap-6 max-w-5xl mx-auto animate-in fade-in slide-in-from-bottom-6 duration-700 delay-300">
             {/* Marketplace Card */}
-            <div className="rounded-3xl border-2 border-emerald-500/30 bg-gradient-to-b from-card to-emerald-900/10 backdrop-blur-2xl p-5 md:p-6 text-left space-y-3 shadow-[0_0_30px_-15px_rgba(16,185,129,0.3)] hover:shadow-[0_0_40px_-15px_rgba(16,185,129,0.4)] hover:-translate-y-1 transition-all duration-300 relative overflow-hidden group">
+            <div className="rounded-3xl border-2 border-emerald-500/30 bg-linear-to-b from-card to-emerald-900/10 backdrop-blur-2xl p-5 md:p-6 text-left space-y-3 shadow-[0_0_30px_-15px_rgba(16,185,129,0.3)] hover:shadow-[0_0_40px_-15px_rgba(16,185,129,0.4)] hover:-translate-y-1 transition-all duration-300 relative overflow-hidden group">
               <div className="absolute -right-10 -top-10 w-40 h-40 bg-emerald-500/20 rounded-full blur-3xl group-hover:bg-emerald-500/30 transition-all duration-500" />
               <div className="relative z-10">
                 <div className="flex items-center gap-3 mb-4">
@@ -116,7 +116,7 @@ export default async function Home() {
             </div>
 
             {/* Registry Card */}
-            <div className="rounded-3xl border-2 border-red-500/30 bg-gradient-to-b from-card to-red-900/10 backdrop-blur-2xl p-5 md:p-6 text-left space-y-3 shadow-[0_0_30px_-15px_rgba(59,130,246,0.3)] hover:shadow-[0_0_40px_-15px_rgba(59,130,246,0.4)] hover:-translate-y-1 transition-all duration-300 relative overflow-hidden group">
+            <div className="rounded-3xl border-2 border-red-500/30 bg-linear-to-b from-card to-red-900/10 backdrop-blur-2xl p-5 md:p-6 text-left space-y-3 shadow-[0_0_30px_-15px_rgba(59,130,246,0.3)] hover:shadow-[0_0_40px_-15px_rgba(59,130,246,0.4)] hover:-translate-y-1 transition-all duration-300 relative overflow-hidden group">
               <div className="absolute -left-10 -bottom-10 w-40 h-40 bg-red-500/20 rounded-full blur-3xl group-hover:bg-red-500/30 transition-all duration-500" />
               <div className="relative z-10">
                 <div className="flex items-center gap-3 mb-4">
@@ -159,7 +159,7 @@ export default async function Home() {
             </span>
             <h2 className="text-3xl md:text-4xl font-bold tracking-tight">
               Two Platforms.{" "}
-              <span className="bg-clip-text text-transparent bg-gradient-to-r from-emerald-600 to-red-600">
+              <span className="bg-clip-text text-transparent bg-linear-to-r from-emerald-600 to-red-600">
                 One Mission.
               </span>
             </h2>
@@ -188,7 +188,7 @@ export default async function Home() {
               </div>
               <div className="space-y-6 flex-1">
                 <div className="flex gap-4">
-                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-emerald-500/10 text-emerald-600 flex justify-center items-center font-bold shadow-sm text-sm">
+                  <div className="shrink-0 w-8 h-8 rounded-full bg-emerald-500/10 text-emerald-600 flex justify-center items-center font-bold shadow-sm text-sm">
                     1
                   </div>
                   <div>
@@ -200,7 +200,7 @@ export default async function Home() {
                   </div>
                 </div>
                 <div className="flex gap-4">
-                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-emerald-500/10 text-emerald-600 flex justify-center items-center font-bold shadow-sm text-sm">
+                  <div className="shrink-0 w-8 h-8 rounded-full bg-emerald-500/10 text-emerald-600 flex justify-center items-center font-bold shadow-sm text-sm">
                     2
                   </div>
                   <div>
@@ -245,7 +245,7 @@ export default async function Home() {
               </div>
               <div className="space-y-6 flex-1 relative z-10">
                 <div className="flex gap-4">
-                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-red-500/10 text-red-600 dark:text-red-400 flex justify-center items-center font-bold shadow-sm text-sm">
+                  <div className="shrink-0 w-8 h-8 rounded-full bg-red-500/10 text-red-600 dark:text-red-400 flex justify-center items-center font-bold shadow-sm text-sm">
                     1
                   </div>
                   <div>
@@ -259,7 +259,7 @@ export default async function Home() {
                   </div>
                 </div>
                 <div className="flex gap-4">
-                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-red-500/10 text-red-600 dark:text-red-400 flex justify-center items-center font-bold shadow-sm text-sm">
+                  <div className="shrink-0 w-8 h-8 rounded-full bg-red-500/10 text-red-600 dark:text-red-400 flex justify-center items-center font-bold shadow-sm text-sm">
                     2
                   </div>
                   <div>
@@ -407,8 +407,8 @@ export default async function Home() {
       <section className="relative py-24 md:py-32 overflow-hidden bg-[#0a0101]">
         {/* Dynamic background pattern */}
         <div className="absolute inset-0">
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-red-900/30 via-transparent to-transparent" />
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_var(--tw-gradient-stops))] from-emerald-900/30 via-transparent to-transparent" />
+          <div className="absolute inset-0 bg-[radial-linear(ellipse_at_top_right,_var(--tw-linear-stops))] from-red-900/30 via-transparent to-transparent" />
+          <div className="absolute inset-0 bg-[radial-linear(ellipse_at_bottom_left,_var(--tw-linear-stops))] from-emerald-900/30 via-transparent to-transparent" />
           <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-red-600/10 rounded-full blur-[128px] animate-pulse" />
           <div className="absolute bottom-1/4 left-1/4 w-96 h-96 bg-emerald-600/10 rounded-full blur-[128px] animate-pulse delay-1000" />
         </div>
@@ -422,9 +422,9 @@ export default async function Home() {
         <div className="container mx-auto px-4 relative z-10">
           {/* Section Header */}
           <div className="max-w-3xl mx-auto text-center mb-16 md:mb-20">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-red-500/10 via-transparent to-emerald-500/10 border border-red-500/20 mb-8">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-linear-to-r from-red-500/10 via-transparent to-emerald-500/10 border border-red-500/20 mb-8">
               <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-              <span className="text-sm font-medium bg-gradient-to-r from-red-400 to-emerald-400 bg-clip-text text-transparent">
+              <span className="text-sm font-medium bg-linear-to-r from-red-400 to-emerald-400 bg-clip-text text-transparent">
                 Trust & Safety First
               </span>
               <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse delay-500" />
@@ -432,7 +432,7 @@ export default async function Home() {
 
             <h2 className="text-4xl md:text-6xl font-black tracking-tight mb-6">
               <span className="text-white">Reimagining </span>
-              <span className="bg-gradient-to-r from-red-400 via-rose-300 to-emerald-400 bg-clip-text text-transparent">
+              <span className="bg-linear-to-r from-red-400 via-rose-300 to-emerald-400 bg-clip-text text-transparent">
                 Safe Trading
               </span>
             </h2>
@@ -445,8 +445,8 @@ export default async function Home() {
           {/* Feature Cards Grid */}
           <div className="grid md:grid-cols-3 gap-1 max-w-5xl mx-auto">
             {/* Card 1 */}
-            <div className="group relative p-8 md:p-10 bg-gradient-to-b from-zinc-900 to-zinc-950 border border-zinc-800 hover:border-red-500/50 transition-all duration-500">
-              <div className="absolute inset-0 bg-gradient-to-b from-red-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            <div className="group relative p-8 md:p-10 bg-linear-to-b from-zinc-900 to-zinc-950 border border-zinc-800 hover:border-red-500/50 transition-all duration-500">
+              <div className="absolute inset-0 bg-linear-to-b from-red-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
               <div className="relative z-10">
                 <div className="flex items-center gap-3 mb-6">
@@ -456,7 +456,7 @@ export default async function Home() {
                     </div>
                     <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full animate-ping group-hover:animate-none" />
                   </div>
-                  <div className="h-px flex-1 bg-gradient-to-r from-red-500/20 to-transparent" />
+                  <div className="h-px flex-1 bg-linear-to-r from-red-500/20 to-transparent" />
                 </div>
 
                 <h3 className="text-2xl font-bold text-white mb-3">
@@ -478,8 +478,8 @@ export default async function Home() {
             </div>
 
             {/* Card 2 - Center (slightly elevated) */}
-            <div className="group relative p-8 md:p-10 bg-gradient-to-b from-zinc-900 to-zinc-950 border border-zinc-800 hover:border-zinc-600 transition-all duration-500 md:-mt-4 md:-mb-4 md:shadow-2xl md:shadow-black/50">
-              <div className="absolute inset-0 bg-gradient-to-b from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            <div className="group relative p-8 md:p-10 bg-linear-to-b from-zinc-900 to-zinc-950 border border-zinc-800 hover:border-zinc-600 transition-all duration-500 md:-mt-4 md:-mb-4 md:shadow-2xl md:shadow-black/50">
+              <div className="absolute inset-0 bg-linear-to-b from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
               <div className="relative z-10">
                 <div className="flex items-center gap-3 mb-6">
@@ -489,7 +489,7 @@ export default async function Home() {
                     </div>
                     <div className="absolute -top-1 -right-1 w-3 h-3 bg-white rounded-full animate-pulse" />
                   </div>
-                  <div className="h-px flex-1 bg-gradient-to-r from-white/20 to-transparent" />
+                  <div className="h-px flex-1 bg-linear-to-r from-white/20 to-transparent" />
                   <div className="absolute top-4 right-4 px-2 py-1 bg-red-600 text-white text-xs font-bold rounded">
                     PREMIUM
                   </div>
@@ -514,15 +514,15 @@ export default async function Home() {
             </div>
 
             {/* Card 3 */}
-            <div className="group relative p-8 md:p-10 bg-gradient-to-b from-zinc-900 to-zinc-950 border border-zinc-800 hover:border-emerald-500/50 transition-all duration-500">
-              <div className="absolute inset-0 bg-gradient-to-b from-emerald-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            <div className="group relative p-8 md:p-10 bg-linear-to-b from-zinc-900 to-zinc-950 border border-zinc-800 hover:border-emerald-500/50 transition-all duration-500">
+              <div className="absolute inset-0 bg-linear-to-b from-emerald-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
               <div className="relative z-10">
                 <div className="flex items-center gap-3 mb-6">
                   <div className="w-12 h-12 bg-emerald-500/10 rounded-lg flex items-center justify-center border border-emerald-500/20 group-hover:border-emerald-500/40 transition-colors">
                     <Globe className="w-6 h-6 text-emerald-400" />
                   </div>
-                  <div className="h-px flex-1 bg-gradient-to-r from-emerald-500/20 to-transparent" />
+                  <div className="h-px flex-1 bg-linear-to-r from-emerald-500/20 to-transparent" />
                 </div>
 
                 <h3 className="text-2xl font-bold text-white mb-3">
@@ -548,7 +548,7 @@ export default async function Home() {
           <div className="max-w-4xl mx-auto mt-16 md:mt-20">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div className="text-center p-6 bg-zinc-900/50 border border-zinc-800 rounded-lg">
-                <div className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-red-400 to-red-600 bg-clip-text text-transparent mb-2">
+                <div className="text-3xl md:text-4xl font-bold bg-linear-to-r from-red-400 to-red-600 bg-clip-text text-transparent mb-2">
                   50K+
                 </div>
                 <div className="text-sm text-zinc-500">Registered Items</div>
@@ -560,7 +560,7 @@ export default async function Home() {
                 <div className="text-sm text-zinc-500">Verified Users</div>
               </div>
               <div className="text-center p-6 bg-zinc-900/50 border border-zinc-800 rounded-lg">
-                <div className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-emerald-400 to-teal-500 bg-clip-text text-transparent mb-2">
+                <div className="text-3xl md:text-4xl font-bold bg-linear-to-r from-emerald-400 to-teal-500 bg-clip-text text-transparent mb-2">
                   99.9%
                 </div>
                 <div className="text-sm text-zinc-500">Safe Transactions</div>

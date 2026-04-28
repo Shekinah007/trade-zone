@@ -122,16 +122,16 @@ export default function TokenPrintPreview({ tokens, onClose }: Props) {
             {/* Header with print-friendly styling */}
             <div className="mb-8 pb-4 border-b-2 border-gray-300 flex justify-between items-center print:mb-4">
               <div>
-                <h1 className="text-2xl font-bold text-gray-800">
+                <h1 className="text-lg font-bold text-gray-800 tracking-wider">
                   FindMaster Recharge Tokens
                 </h1>
-                <p className="text-sm text-gray-500 mt-1">
+                <p className="text-sm text-gray-500 mt-1 tracking-wider">
                   Official Property Registry Vouchers
                 </p>
               </div>
               <div className="text-sm text-gray-500 text-right">
-                <p>Generated: {printDate}</p>
-                <p className="font-semibold text-gray-700 mt-1">
+                <p className="tracking-wider">Generated: {printDate}</p>
+                <p className="font-semibold text-gray-700 mt-1 tracking-wider">
                   Total: {tokens.length} tokens
                 </p>
               </div>
@@ -149,7 +149,7 @@ export default function TokenPrintPreview({ tokens, onClose }: Props) {
                   style={{
                     pageBreakInside: "avoid",
                     breakInside: "avoid",
-                    width: "95mm", // Fixed width per card (A4 width is 210mm, minus padding = ~95mm per card)
+                    width: "85mm", // Fixed width per card (A4 width is 210mm, minus padding = ~95mm per card)
                   }}
                 >
                   {/* Cutting Guide Lines */}
@@ -162,7 +162,7 @@ export default function TokenPrintPreview({ tokens, onClose }: Props) {
                   <div
                     className="relative overflow-hidden border-2 border-gray-200 rounded-xl bg-white p-4 transition-all duration-200 hover:shadow-md"
                     style={{
-                      height: "180px", // Fixed height
+                      height: "45mm", // Fixed height
                       width: "100%",
                       printColorAdjust: "exact",
                       WebkitPrintColorAdjust: "exact",
@@ -218,7 +218,7 @@ export default function TokenPrintPreview({ tokens, onClose }: Props) {
                         </p>
                         <div className="bg-gray-50 border-2 border-gray-200 rounded-lg py-2 px-3 w-full text-center">
                           <code className="text-base font-mono font-bold text-gray-800 tracking-[0.1em] break-all">
-                            {token.code.match(/.{1,4}/g)?.join("-") ||
+                            {token.code.match(/.{1,4}/g)?.join(" ") ||
                               token.code}
                           </code>
                         </div>
@@ -261,11 +261,11 @@ export default function TokenPrintPreview({ tokens, onClose }: Props) {
 
             {/* Footer with cutting instructions */}
             <div className="mt-8 pt-4 border-t-2 border-gray-300 text-center print:mt-4">
-              <p className="text-[10px] text-gray-400">
+              <p className="text-[10px] text-gray-400 tracking-wider">
                 ✂ Cut along the corner marks to separate individual tokens. Each
                 token is valid for one-time use only.
               </p>
-              <p className="text-[9px] text-gray-400 mt-2">
+              <p className="text-[9px] text-gray-400 mt-2 tracking-wider">
                 For assistance, contact support@findmaster.com | FindMaster
                 Property Registry System
               </p>

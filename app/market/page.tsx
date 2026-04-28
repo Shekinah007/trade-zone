@@ -44,7 +44,7 @@ export default async function MarketHome() {
           {/* <FloatingPaths position={1} /> */}
           {/* <FloatingPaths position={-1} /> */}
         </div>
-        <div className="absolute inset-0 -z-10 bg-gradient-to-b from-background via-emerald-950/5 to-background pointer-events-none" />
+        <div className="absolute inset-0 -z-10 bg-linear-to-b from-background via-emerald-950/5 to-background pointer-events-none" />
 
         <div className="container mx-auto relative z-10 text-center max-w-4xl pt-8">
           <div className="inline-flex items-center px-3 py-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 backdrop-blur-sm text-xs font-bold mb-8 text-emerald-700 dark:text-emerald-400 uppercase tracking-widest animate-in fade-in slide-in-from-bottom-4 duration-700 shadow-sm">
@@ -54,7 +54,7 @@ export default async function MarketHome() {
 
           <h1 className="text-4xl md:text-6xl lg:text-7xl font-extrabold tracking-tight mb-6 leading-tight animate-in fade-in slide-in-from-bottom-6 duration-700 delay-100">
             Shop Verified. <br className="hidden md:block" />
-            <span className="bg-clip-text text-transparent bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500">
+            <span className="bg-clip-text text-transparent bg-linear-to-r from-emerald-500 via-teal-500 to-cyan-500">
               Trade Confidently.
             </span>
           </h1>

@@ -4,8 +4,13 @@ import { authOptions } from "@/lib/auth";
 import dbConnect from "@/lib/db";
 import User from "@/models/User";
 import * as z from "zod";
-import { writeFile } from "fs/promises";
-import path from "path";
+import { v2 as cloudinary } from 'cloudinary';
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
 const updateProfileSchema = z.object({
   name: z.string().min(2),
@@ -60,15 +65,17 @@ export async function PUT(req: Request) {
         const bytes = await imageFile.arrayBuffer();
         const buffer = Buffer.from(bytes);
   
-        // Create unique filename
-        const filename = `${Date.now()}-${imageFile.name.replace(/\s/g, "-")}`;
-        const uploadDir = path.join(process.cwd(), "public/uploads");
-        
-        // Ensure directory exists (you might want to use fs.mkdir with recursive: true separately if not guaranteed)
-        // For now relying on existing uploads folder or simple error if missing
-        
-        await writeFile(path.join(uploadDir, filename), buffer);
-        updateData.image = `/uploads/${filename}`;
+        const uploadResult: any = await new Promise((resolve, reject) => {
+          cloudinary.uploader.upload_stream(
+            { folder: "trade-zone" },
+            (error, result) => {
+              if (error) reject(error);
+              else resolve(result);
+            }
+          ).end(buffer);
+        });
+
+        updateData.image = uploadResult.secure_url;
     }
 
     const updatedUser = await User.findByIdAndUpdate(

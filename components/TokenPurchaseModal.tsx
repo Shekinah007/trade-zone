@@ -12,8 +12,11 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Check, Shield, Zap } from "lucide-react";
+import { Check, Shield, Zap, Ticket, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
 import { useRouter } from "next/navigation";
 
 export function TokenPurchaseModal({
@@ -26,11 +29,15 @@ export function TokenPurchaseModal({
   const { data: session, update } = useSession();
   const router = useRouter();
   const [loadingTier, setLoadingTier] = useState<number | null>(null);
+  const [tokenCode, setTokenCode] = useState("");
+  const [redeeming, setRedeeming] = useState(false);
 
   const config = {
-    reference: new Date().getTime().toString() + Math.floor(Math.random() * 1000),
+    reference:
+      new Date().getTime().toString() + Math.floor(Math.random() * 1000),
     email: session?.user?.email || "anonymous@trade-zone.com",
-    publicKey: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY || "pk_test_placeholder123",
+    publicKey:
+      process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY || "pk_test_placeholder123",
   };
 
   const initializePayment = usePaystackPayment({ ...config, amount: 0 }); // Base config
@@ -42,7 +49,7 @@ export function TokenPurchaseModal({
       if (res.ok) {
         toast.success(data.message || "Payment verified!");
         // Update the session explicitly so the rest of the app knows limits are increased
-        await update(); 
+        await update();
         onClose();
         router.refresh(); // Refresh dashboard stats
       } else {
@@ -62,16 +69,46 @@ export function TokenPurchaseModal({
 
   const handlePurchase = (tierAmount: number) => {
     setLoadingTier(tierAmount);
-    
+
     // Override the amount when calling the initialize method
     initializePayment({
-        onSuccess: (val: any) => handleSuccess(val.reference),
-        onClose: handleClosePaystack,
-        config: {
-          ...config,
-          amount: tierAmount
-        }
+      onSuccess: (val: any) => handleSuccess(val.reference),
+      onClose: handleClosePaystack,
+      config: {
+        ...config,
+        amount: tierAmount,
+      },
     } as any);
+  };
+
+  const handleRedeem = async () => {
+    if (!tokenCode.trim()) {
+      toast.error("Please enter a token code");
+      return;
+    }
+    
+    setRedeeming(true);
+    try {
+      const res = await fetch("/api/tokens/redeem", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code: tokenCode }),
+      });
+      const data = await res.json();
+      
+      if (res.ok) {
+        toast.success(data.message || "Token redeemed successfully!");
+        await update();
+        onClose();
+        router.refresh();
+      } else {
+        toast.error(data.error || "Failed to redeem token");
+      }
+    } catch (err) {
+      toast.error("An error occurred during redemption.");
+    } finally {
+      setRedeeming(false);
+    }
   };
 
   return (
@@ -83,7 +120,8 @@ export function TokenPurchaseModal({
             Upgrade Registration Limits
           </DialogTitle>
           <DialogDescription>
-            You have reached your free property registration limit. Purchase a token to secure more of your valuable assets.
+            You have reached your free property registration limit. Purchase a
+            token to secure more of your valuable assets.
           </DialogDescription>
         </DialogHeader>
 
@@ -97,7 +135,8 @@ export function TokenPurchaseModal({
               </div>
               <ul className="space-y-2 mb-6 flex-1 text-sm text-muted-foreground">
                 <li className="flex items-center gap-2">
-                  <Check className="h-4 w-4 text-green-500" /> +5 Property Registrations
+                  <Check className="h-4 w-4 text-green-500" /> +5 Property
+                  Registrations
                 </li>
                 {/* <li className="flex items-center gap-2">
                   <Check className="h-4 w-4 text-green-500" /> Ownership Certificates
@@ -106,7 +145,7 @@ export function TokenPurchaseModal({
                   <Check className="h-4 w-4 text-green-500" /> Stackable tokens
                 </li>
               </ul>
-              <Button 
+              <Button
                 onClick={() => handlePurchase(100000)} // 100,000 kobo = N1,000
                 disabled={loadingTier !== null}
                 className="w-full bg-blue-600 hover:bg-blue-700"
@@ -122,13 +161,16 @@ export function TokenPurchaseModal({
               Best Value
             </div>
             <CardContent className="p-6 flex flex-col h-full">
-              <h3 className="font-bold text-lg text-amber-600 dark:text-amber-400">Unlimited Plan</h3>
+              <h3 className="font-bold text-lg text-amber-600 dark:text-amber-400">
+                Unlimited Plan
+              </h3>
               <div className="my-4">
                 <span className="text-3xl font-black">₦10,000</span>
               </div>
               <ul className="space-y-2 mb-6 flex-1 text-sm text-muted-foreground">
                 <li className="flex items-center gap-2">
-                  <Zap className="h-4 w-4 text-amber-500" /> Infinite Property Registrations
+                  <Zap className="h-4 w-4 text-amber-500" /> Infinite Property
+                  Registrations
                 </li>
                 <li className="flex items-center gap-2">
                   <Check className="h-4 w-4 text-green-500" /> Lifetime access
@@ -137,7 +179,7 @@ export function TokenPurchaseModal({
                   <Check className="h-4 w-4 text-green-500" /> Premium support
                 </li>
               </ul>
-              <Button 
+              <Button
                 onClick={() => handlePurchase(1000000)} // 1,000,000 kobo = N10,000
                 disabled={loadingTier !== null}
                 className="w-full bg-amber-500 hover:bg-amber-600 text-white"
@@ -146,6 +188,33 @@ export function TokenPurchaseModal({
               </Button>
             </CardContent>
           </Card>
+        </div>
+
+        <Separator className="my-2" />
+        
+        <div className="bg-gray-50 dark:bg-gray-900/50 p-4 rounded-xl border border-gray-100 dark:border-gray-800">
+          <Label htmlFor="token-code" className="text-sm font-semibold flex items-center gap-2 mb-2">
+            <Ticket className="h-4 w-4 text-primary" />
+            Have a Pre-purchased Token?
+          </Label>
+          <div className="flex gap-2">
+            <Input 
+              id="token-code"
+              placeholder="Enter your token code (e.g. TKN-123...)"
+              value={tokenCode}
+              onChange={(e) => setTokenCode(e.target.value.toUpperCase())}
+              className="flex-1"
+              disabled={redeeming || loadingTier !== null}
+            />
+            <Button 
+              onClick={handleRedeem}
+              disabled={!tokenCode.trim() || redeeming || loadingTier !== null}
+              variant="secondary"
+            >
+              {redeeming ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+              Redeem
+            </Button>
+          </div>
         </div>
       </DialogContent>
     </Dialog>

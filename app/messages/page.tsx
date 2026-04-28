@@ -174,7 +174,7 @@ export default function InboxPage() {
               </div>
             </div>
 
-            <div className="flex gap-2">
+            {/* <div className="flex gap-2">
               <Button
                 variant="outline"
                 size="sm"
@@ -191,7 +191,7 @@ export default function InboxPage() {
                 <Settings className="h-4 w-4" />
                 Settings
               </Button>
-            </div>
+            </div> */}
           </div>
 
           {/* Stats Cards */}

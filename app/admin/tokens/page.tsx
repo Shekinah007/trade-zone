@@ -206,7 +206,7 @@ export default function AdminTokensPage() {
   const StatCard = ({ title, value, icon: Icon, color, trend }: any) => (
     <div className="group relative overflow-hidden rounded-xl bg-white md:bg-gray-50  dark:bg-gray-900/50  dark:border-gray-800 p-3 hover:shadow-lg transition-all duration-200">
       <div
-        className={`absolute inset-0 bg-gradient-to-br ${color} opacity-0 group-hover:opacity-5 transition-opacity`}
+        className={`absolute inset-0 bg-linear-to-br ${color} opacity-0 group-hover:opacity-5 transition-opacity`}
       />
       <div className="flex items-start justify-between">
         <div>
@@ -227,12 +227,12 @@ export default function AdminTokensPage() {
 
   return (
     <div className="min-h-screen print:hidden">
-      <div className="py-3 w-full ">
+      <div className="w-full ">
         {/* Header */}
         <div className="mb-4">
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <div className="p-2.5 bg-gradient-to-br from-red-500 to-red-600 rounded-xl shadow-lg shadow-red-500/20">
+              <div className="p-2.5 bg-linear-to-br from-red-500 to-red-600 rounded-xl shadow-lg shadow-red-500/20">
                 <Ticket className="h-6 w-6 text-white" />
               </div>
               <div>
@@ -291,7 +291,7 @@ export default function AdminTokensPage() {
           {/* Generator Card */}
           <div className="lg:col-span-1 ">
             <div className="bg-white dark:bg-gray-900/50 rounded-xl border border-gray-200 dark:border-gray-800 overflow-hidden sticky top-20 ">
-              <div className="p-3 border-b border-gray-200 dark:border-gray-800 bg-gradient-to-r from-red-50/50 to-transparent dark:from-red-950/10">
+              <div className="p-3 border-b border-gray-200 dark:border-gray-800 bg-linear-to-r from-red-50/50 to-transparent dark:from-red-950/10">
                 <div className="flex items-center gap-2">
                   <PlusCircle className="w-5 h-5 text-red-600" />
                   <h3 className="font-semibold">Generate New Tokens</h3>
@@ -390,7 +390,7 @@ export default function AdminTokensPage() {
                 <button
                   disabled={generating}
                   type="submit"
-                  className="w-full py-2.5 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white rounded-lg font-medium text-sm transition-all flex justify-center items-center gap-2 shadow-lg shadow-red-500/20"
+                  className="w-full py-2.5 bg-linear-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white rounded-lg font-medium text-sm transition-all flex justify-center items-center gap-2 shadow-lg shadow-red-500/20"
                 >
                   {generating ? (
                     <>
@@ -653,10 +653,15 @@ export default function AdminTokensPage() {
                       <th className="px-4 py-3 w-10 text-left">
                         <input
                           type="checkbox"
-                          checked={tokens.length > 0 && selectedTokens.size === tokens.length}
+                          checked={
+                            tokens.length > 0 &&
+                            selectedTokens.size === tokens.length
+                          }
                           onChange={(e) => {
                             if (e.target.checked) {
-                              setSelectedTokens(new Set(tokens.map(t => t._id)));
+                              setSelectedTokens(
+                                new Set(tokens.map((t) => t._id)),
+                              );
                             } else {
                               setSelectedTokens(new Set());
                             }
@@ -885,7 +890,7 @@ export default function AdminTokensPage() {
       </div>
       {showPrintModal && (
         <TokenPrintPreview
-          tokens={tokens.filter(t => selectedTokens.has(t._id))}
+          tokens={tokens.filter((t) => selectedTokens.has(t._id))}
           onClose={() => setShowPrintModal(false)}
         />
       )}

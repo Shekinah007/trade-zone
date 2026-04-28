@@ -7,6 +7,7 @@ import Link from "next/link";
 import Image from "next/image";
 import OwnerSearchLogs from "@/components/OwnerSearchLogs";
 import { TransferModal } from "@/components/TransferModal";
+import { EditPropertyModal } from "@/components/registry/EditPropertyModal";
 import { toast } from "sonner";
 import {
   Shield,
@@ -41,6 +42,7 @@ import {
   GitBranch,
   GitCommit,
   GitMerge,
+  Edit,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -99,12 +101,11 @@ export default function PropertyDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [updatingStatus, setUpdatingStatus] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
 
   // Image gallery state
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
-
-  // Transfer modal state handled by TransferModal component
 
   useEffect(() => {
     const fetch_ = async () => {
@@ -131,6 +132,7 @@ export default function PropertyDetailPage() {
   }, [id]);
 
   const isOwner = session?.user?.id === property?.owner?._id;
+  const isAdmin = session?.user?.role === "admin";
 
   const updateStatus = async (newStatus: string) => {
     setUpdatingStatus(true);
@@ -154,12 +156,10 @@ export default function PropertyDetailPage() {
     }
   };
 
-  // handleTransfer moved to TransferModal
-
   const nextImage = () => {
     if (property?.images?.length) {
       setSelectedImageIndex((prev) =>
-        prev === property.images.length - 1 ? 0 : prev + 1
+        prev === property.images.length - 1 ? 0 : prev + 1,
       );
     }
   };
@@ -167,7 +167,7 @@ export default function PropertyDetailPage() {
   const prevImage = () => {
     if (property?.images?.length) {
       setSelectedImageIndex((prev) =>
-        prev === 0 ? property.images.length - 1 : prev - 1
+        prev === 0 ? property.images.length - 1 : prev - 1,
       );
     }
   };
@@ -193,8 +193,8 @@ export default function PropertyDetailPage() {
           </Button>
         )}
         <Button variant="ghost" onClick={() => router.back()}>
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Dashboard
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Back to Dashboard
         </Button>
       </div>
     );
@@ -221,7 +221,11 @@ export default function PropertyDetailPage() {
       <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
         <div className="container mx-auto px-4 py-6 md:py-10 max-w-7xl">
           {/* Back Button */}
-          <Button variant="ghost" onClick={() => router.back()} className="mb-6">
+          <Button
+            variant="ghost"
+            onClick={() => router.back()}
+            className="mb-6"
+          >
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Dashboard
           </Button>
@@ -282,7 +286,7 @@ export default function PropertyDetailPage() {
                         "relative aspect-square rounded-lg overflow-hidden border-2 transition-all",
                         selectedImageIndex === idx
                           ? "border-primary ring-2 ring-primary/20"
-                          : "border-transparent hover:border-muted-foreground/20"
+                          : "border-transparent hover:border-muted-foreground/20",
                       )}
                     >
                       <Image
@@ -306,21 +310,20 @@ export default function PropertyDetailPage() {
                     </p>
                     <p className="text-sm text-red-600/90 leading-relaxed">
                       This item has been reported as missing or stolen. Do not
-                      purchase or accept this item. If you have information about
-                      this property, please contact the owner or report to the
-                      authorities immediately.
+                      purchase or accept this item. If you have information
+                      about this property, please contact the owner or report to
+                      the authorities immediately.
                     </p>
                     {property.reportedMissingAt && (
                       <p className="text-xs text-red-600/70 pt-1">
                         Reported missing on{" "}
-                        {new Date(property.reportedMissingAt).toLocaleDateString(
-                          "en-NG",
-                          {
-                            day: "numeric",
-                            month: "long",
-                            year: "numeric",
-                          }
-                        )}
+                        {new Date(
+                          property.reportedMissingAt,
+                        ).toLocaleDateString("en-NG", {
+                          day: "numeric",
+                          month: "long",
+                          year: "numeric",
+                        })}
                       </p>
                     )}
                   </div>
@@ -421,7 +424,7 @@ export default function PropertyDetailPage() {
                             <p
                               className={cn(
                                 "font-medium capitalize truncate",
-                                item.mono && "font-mono text-sm"
+                                item.mono && "font-mono text-sm",
                               )}
                             >
                               {item.value}
@@ -476,12 +479,21 @@ export default function PropertyDetailPage() {
               </Card>
 
               {/* Owner Actions */}
-              {isOwner && (
+              {(isOwner || isAdmin) && (
                 <Card className="border-primary/30 bg-primary/5">
                   <CardHeader>
                     <CardTitle className="text-lg">Manage Property</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-3">
+                    <Button
+                      variant="outline"
+                      className="w-full rounded-xl flex items-center justify-center"
+                      onClick={() => setShowEditModal(true)}
+                    >
+                      <Edit className="h-4 w-4 mr-2" />
+                      Edit Property
+                    </Button>
+
                     {property.status !== "missing" && (
                       <Button
                         variant="destructive"
@@ -512,10 +524,15 @@ export default function PropertyDetailPage() {
                     <Separator />
 
                     {/* Transfer Modal */}
-                    <TransferModal 
-                      propertyId={id as string} 
-                      propertyTitle={`${property.brand} ${property.model}`} 
-                      onSuccess={() => router.push("/dashboard?tab=transfers")} 
+                    <TransferModal
+                      propertyId={id as string}
+                      propertyTitle={`${property.brand} ${property.model}`}
+                      onSuccess={() => router.push("/dashboard?tab=transfers")}
+                    />
+                    <EditPropertyModal
+                      isOpen={showEditModal}
+                      onClose={() => setShowEditModal(false)}
+                      property={property}
                     />
                   </CardContent>
                 </Card>
@@ -531,37 +548,44 @@ export default function PropertyDetailPage() {
                   <TreeDeciduous className="h-6 w-6 text-primary" />
                   Ownership Tree
                   <Badge variant="secondary" className="ml-2">
-                    {fullTimeline.length} {fullTimeline.length === 1 ? "Owner" : "Owners"}
+                    {fullTimeline.length}{" "}
+                    {fullTimeline.length === 1 ? "Owner" : "Owners"}
                   </Badge>
                 </CardTitle>
                 <p className="text-sm text-muted-foreground mt-1">
-                  Complete lineage of this property from first registration to current owner
+                  Complete lineage of this property from first registration to
+                  current owner
                 </p>
               </CardHeader>
               <CardContent className="p-6">
                 <div className="relative">
                   {/* Vertical timeline line */}
                   <div className="absolute left-6 top-8 bottom-8 w-0.5 bg-gradient-to-b from-primary/30 via-primary/20 to-primary/5 hidden md:block" />
-                  
+
                   <div className="space-y-0">
                     {fullTimeline.map((record: any, index: number) => {
                       const isCurrent = record.isCurrent;
                       const isFirst = index === 0;
                       const isLast = index === fullTimeline.length - 1;
                       const transferRecord = ownershipTree[index];
-                      
+
                       return (
-                        <div key={index} className="relative flex flex-col md:flex-row gap-4 pb-8">
+                        <div
+                          key={index}
+                          className="relative flex flex-col md:flex-row gap-4 pb-8"
+                        >
                           {/* Tree branch connector */}
                           <div className="relative flex flex-col items-center md:items-start">
                             {/* Node circle */}
-                            <div className={cn(
-                              "relative z-10 w-12 h-12 rounded-full flex items-center justify-center shadow-lg transition-all duration-300",
-                              isCurrent 
-                                ? "bg-gradient-to-br from-primary to-primary/80 ring-4 ring-primary/20" 
-                                : "bg-gradient-to-br from-gray-500 to-gray-600 ring-4 ring-gray-500/20",
-                              "hover:scale-110 transition-transform cursor-pointer"
-                            )}>
+                            <div
+                              className={cn(
+                                "relative z-10 w-12 h-12 rounded-full flex items-center justify-center shadow-lg transition-all duration-300",
+                                isCurrent
+                                  ? "bg-gradient-to-br from-primary to-primary/80 ring-4 ring-primary/20"
+                                  : "bg-gradient-to-br from-gray-500 to-gray-600 ring-4 ring-gray-500/20",
+                                "hover:scale-110 transition-transform cursor-pointer",
+                              )}
+                            >
                               {isCurrent ? (
                                 <Crown className="h-6 w-6 text-white" />
                               ) : isFirst ? (
@@ -570,29 +594,31 @@ export default function PropertyDetailPage() {
                                 <Leaf className="h-6 w-6 text-white" />
                               )}
                             </div>
-                            
+
                             {/* Horizontal connector line for desktop */}
                             {!isLast && (
                               <div className="hidden md:block absolute left-6 top-12 w-12 h-0.5 bg-gradient-to-r from-primary/40 to-transparent" />
                             )}
-                            
+
                             {/* Vertical connector for mobile */}
                             {!isLast && (
                               <div className="md:hidden absolute left-6 top-12 bottom-0 w-0.5 bg-gradient-to-b from-primary/40 to-transparent h-full" />
                             )}
                           </div>
-                          
+
                           {/* Content card */}
-                          <div className={cn(
-                            "flex-1 ml-0 md:ml-8 p-5 rounded-xl border transition-all duration-300 hover:shadow-lg",
-                            isCurrent 
-                              ? "bg-gradient-to-br from-primary/5 to-transparent border-primary/30 shadow-md" 
-                              : "bg-card hover:border-primary/20",
-                            "relative"
-                          )}>
+                          <div
+                            className={cn(
+                              "flex-1 ml-0 md:ml-8 p-5 rounded-xl border transition-all duration-300 hover:shadow-lg",
+                              isCurrent
+                                ? "bg-gradient-to-br from-primary/5 to-transparent border-primary/30 shadow-md"
+                                : "bg-card hover:border-primary/20",
+                              "relative",
+                            )}
+                          >
                             {/* Tree branch line to card */}
                             <div className="hidden md:block absolute left-0 top-6 -translate-x-8 w-8 h-0.5 bg-gradient-to-r from-primary/30 to-transparent" />
-                            
+
                             <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
                               <div className="flex-1">
                                 <div className="flex items-center gap-2 flex-wrap mb-3">
@@ -612,7 +638,10 @@ export default function PropertyDetailPage() {
                                     </>
                                   ) : isFirst ? (
                                     <>
-                                      <Badge variant="secondary" className="bg-emerald-500/10 text-emerald-600 border-emerald-500/20">
+                                      <Badge
+                                        variant="secondary"
+                                        className="bg-emerald-500/10 text-emerald-600 border-emerald-500/20"
+                                      >
                                         First Owner
                                       </Badge>
                                       <Tooltip>
@@ -629,22 +658,29 @@ export default function PropertyDetailPage() {
                                       Previous Owner
                                     </Badge>
                                   )}
-                                  
+
                                   {transferRecord?.salePrice && (
-                                    <Badge variant="outline" className="bg-green-500/10 text-green-600 border-green-500/20">
-                                      ₦{transferRecord.salePrice.toLocaleString()}
+                                    <Badge
+                                      variant="outline"
+                                      className="bg-green-500/10 text-green-600 border-green-500/20"
+                                    >
+                                      ₦
+                                      {transferRecord.salePrice.toLocaleString()}
                                     </Badge>
                                   )}
                                 </div>
-                                
+
                                 <div className="flex items-center gap-3 mb-3">
-                                  <div className={cn(
-                                    "w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg",
-                                    isCurrent 
-                                      ? "bg-primary/20 text-primary" 
-                                      : "bg-muted text-foreground"
-                                  )}>
-                                    {record.name?.charAt(0).toUpperCase() || "U"}
+                                  <div
+                                    className={cn(
+                                      "w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg",
+                                      isCurrent
+                                        ? "bg-primary/20 text-primary"
+                                        : "bg-muted text-foreground",
+                                    )}
+                                  >
+                                    {record.name?.charAt(0).toUpperCase() ||
+                                      "U"}
                                   </div>
                                   <div>
                                     <p className="font-semibold text-base">
@@ -656,44 +692,50 @@ export default function PropertyDetailPage() {
                                     </p>
                                   </div>
                                 </div>
-                                
+
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm mt-3">
                                   {transferRecord?.dateSold && (
                                     <div className="flex items-center gap-2 text-muted-foreground">
                                       <Calendar className="h-4 w-4" />
                                       <span>
-                                        Sold: {new Date(transferRecord.dateSold).toLocaleDateString()}
+                                        Sold:{" "}
+                                        {new Date(
+                                          transferRecord.dateSold,
+                                        ).toLocaleDateString()}
                                       </span>
                                     </div>
                                   )}
-                                  
+
                                   {transferRecord?.location && (
                                     <div className="flex items-center gap-2 text-muted-foreground">
                                       <MapPin className="h-4 w-4" />
                                       {transferRecord.location}
                                     </div>
                                   )}
-                                  
+
                                   <div className="flex items-center gap-2 text-muted-foreground">
                                     <Clock className="h-4 w-4" />
                                     <span>
-                                      {isCurrent 
+                                      {isCurrent
                                         ? "Current owner since"
                                         : "Owned until"}{" "}
                                       {new Date(
-                                        isCurrent ? record.transferredAt : (transferRecord?.transferredAt || record.transferredAt)
+                                        isCurrent
+                                          ? record.transferredAt
+                                          : transferRecord?.transferredAt ||
+                                              record.transferredAt,
                                       ).toLocaleDateString()}
                                     </span>
                                   </div>
                                 </div>
-                                
+
                                 {transferRecord?.notes && (
                                   <div className="mt-3 p-3 rounded-lg bg-muted/30 italic text-sm text-muted-foreground">
                                     &ldquo;{transferRecord.notes}&rdquo;
                                   </div>
                                 )}
                               </div>
-                              
+
                               {/* Transfer arrow indicator */}
                               {!isLast && (
                                 <div className="hidden md:flex flex-col items-center justify-center">
@@ -706,7 +748,7 @@ export default function PropertyDetailPage() {
                                 </div>
                               )}
                             </div>
-                            
+
                             {/* Mobile transfer indicator */}
                             {!isLast && (
                               <div className="md:hidden flex items-center justify-center gap-2 mt-4 pt-4 border-t">
@@ -724,7 +766,7 @@ export default function PropertyDetailPage() {
                     })}
                   </div>
                 </div>
-                
+
                 {/* Tree Legend */}
                 <div className="mt-6 pt-6 border-t flex flex-wrap gap-4 justify-center">
                   <div className="flex items-center gap-2">
@@ -753,9 +795,7 @@ export default function PropertyDetailPage() {
           )}
 
           {/* Owner Audit Logs */}
-          {isOwner && (
-            <OwnerSearchLogs propertyId={id} />
-          )}
+          {isOwner && <OwnerSearchLogs propertyId={id} />}
         </div>
 
         {/* Image Lightbox */}
