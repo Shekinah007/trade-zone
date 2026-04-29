@@ -12,6 +12,8 @@ import {
   Menu,
   Heart,
   ShoppingBag,
+  Mail,
+  MessageCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -37,6 +39,7 @@ import { useRouter } from "next/navigation";
 import { useAppMode } from "@/components/AppModeContext";
 import { NotificationDropdown } from "@/components/NotificationDropdown";
 import Image from "next/image";
+import { Badge } from "./ui/badge";
 
 export default function Navbar() {
   const { data: session } = useSession();
@@ -48,6 +51,32 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const router = useRouter();
+  const [conversations, setConversations] = useState<any[]>([]);
+
+  const fetchConversations = async () => {
+    try {
+      const res = await fetch("/api/conversations");
+      if (res.ok) {
+        const data = await res.json();
+        setConversations(data);
+      }
+    } catch (error) {
+      console.error("Failed to load conversations", error);
+    } finally {
+      // setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchConversations();
+  }, []);
+
+  const unreadCount = conversations.filter(
+    (conv) =>
+      session?.user?.id &&
+      conv.unreadCount &&
+      conv.unreadCount[session.user.id] > 0,
+  ).length;
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -238,6 +267,29 @@ export default function Navbar() {
           {session ? (
             <div className="flex items-center space-x-2">
               <NotificationDropdown />
+              <Button
+                variant="ghost"
+                onClick={async () => {
+                  await fetchConversations();
+                  router.push("/messages");
+                }}
+                className={cn(
+                  "relative h-9 w-9 rounded-full ring-2 ring-transparent transition-all",
+                  isMarketplace
+                    ? "hover:ring-emerald-500/30"
+                    : "hover:ring-red-500/30",
+                )}
+              >
+                <MessageCircle className="h-5 w-5" />
+                {unreadCount > 0 && (
+                  <Badge
+                    variant="destructive"
+                    className="absolute -top-1 -right-1"
+                  >
+                    {unreadCount}
+                  </Badge>
+                )}
+              </Button>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button

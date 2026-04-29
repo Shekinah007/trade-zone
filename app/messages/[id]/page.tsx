@@ -195,10 +195,10 @@ export default function ChatPage() {
                 )}
               </div>
               <div className="flex items-center gap-1">
-                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                {/* <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                 <span className="text-[14px] text-muted-foreground">
                   Online
-                </span>
+                </span> */}
                 {isTyping && (
                   <>
                     <span className="text-[14px] text-muted-foreground">•</span>
