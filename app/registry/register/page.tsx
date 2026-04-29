@@ -68,7 +68,9 @@ function RegisterPropertyForm() {
   const [showTokenModal, setShowTokenModal] = useState(false);
 
   const [unregisteredListings, setUnregisteredListings] = useState<any[]>([]);
-  const [selectedListingId, setSelectedListingId] = useState(defaultListingId || "");
+  const [selectedListingId, setSelectedListingId] = useState(
+    defaultListingId || "",
+  );
 
   useEffect(() => {
     if (session) {
@@ -511,29 +513,35 @@ function RegisterPropertyForm() {
             <CardContent className="pt-5">
               {selectedListingId && selectedListingId !== "none" ? (
                 (() => {
-                  const selectedListing = unregisteredListings.find((l) => l._id === selectedListingId);
+                  const selectedListing = unregisteredListings.find(
+                    (l) => l._id === selectedListingId,
+                  );
                   return (
                     <div className="space-y-4">
                       <div className="p-4 rounded-xl bg-orange-500/10 border border-orange-500/20 text-orange-900 text-sm">
                         <Info className="h-4 w-4 inline mr-2" />
-                        We will securely import photos directly from your listing! You do not need to upload new photos.
+                        We will securely import photos directly from your
+                        listing! You do not need to upload new photos.
                       </div>
-                      {selectedListing?.images && selectedListing.images.length > 0 && (
-                        <div className="grid grid-cols-3 sm:grid-cols-5 gap-3">
-                          {selectedListing.images.map((url: string, idx: number) => (
-                            <div
-                              key={idx}
-                              className="relative aspect-square rounded-xl overflow-hidden border border-red-500/20 bg-red-500/5"
-                            >
-                              <img
-                                src={url}
-                                alt="Listing Photo"
-                                className="h-full w-full object-cover"
-                              />
-                            </div>
-                          ))}
-                        </div>
-                      )}
+                      {selectedListing?.images &&
+                        selectedListing.images.length > 0 && (
+                          <div className="grid grid-cols-3 sm:grid-cols-5 gap-3">
+                            {selectedListing.images.map(
+                              (url: string, idx: number) => (
+                                <div
+                                  key={idx}
+                                  className="relative aspect-square rounded-xl overflow-hidden border border-red-500/20 bg-red-500/5"
+                                >
+                                  <img
+                                    src={url}
+                                    alt="Listing Photo"
+                                    className="h-full w-full object-cover"
+                                  />
+                                </div>
+                              ),
+                            )}
+                          </div>
+                        )}
                     </div>
                   );
                 })()
@@ -561,7 +569,7 @@ function RegisterPropertyForm() {
                         <button
                           type="button"
                           onClick={() => removeImageItem(index)}
-                          className="absolute top-2 right-2 rounded-full bg-red-500/90 text-black p-1.5 opacity-0 group-hover:opacity-100 transition-all hover:bg-red-600 shadow-lg"
+                          className="absolute top-2 right-2 rounded-full bg-white/40 text-white p-1.5 group-hover:opacity-100 transition-all hover:bg-red-600 shadow-lg"
                         >
                           <X className="h-3 w-3" />
                         </button>
