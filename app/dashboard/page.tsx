@@ -33,6 +33,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import User from "@/models/User";
+import Conversation from "@/models/Conversation";
 
 async function getUserListings(userId: string | undefined) {
   await dbConnect();
@@ -54,6 +55,14 @@ async function getUserDetails(userId: string | undefined) {
   await dbConnect();
   const user = await User.findById(userId);
   return JSON.parse(JSON.stringify(user));
+}
+
+async function fetchConversations(userId: string | undefined) {
+  await dbConnect();
+  const conversations = await Conversation.find({
+    participants: userId,
+  });
+  return JSON.parse(JSON.stringify(conversations));
 }
 
 async function getUserTransfers(userId: string | undefined) {
@@ -86,6 +95,15 @@ export default async function DashboardPage({ searchParams }: any) {
   if (!session) {
     redirect("/auth/signin?callbackUrl=/dashboard");
   }
+
+  const conversations = await fetchConversations(session.user.id);
+
+  const unreadCount = conversations.filter(
+    (conv: any) =>
+      session?.user?.id &&
+      conv.unreadCount &&
+      conv.unreadCount[session.user.id] > 0,
+  ).length;
 
   const listings = await getUserListings(session.user.id);
   const properties = await getUserProperties(session.user.id);
@@ -223,7 +241,18 @@ export default async function DashboardPage({ searchParams }: any) {
                   <Button
                     variant="outline"
                     size="sm"
-                    className="w-full justify-start text-xs h-8"
+                    className="w-full justify-start text-sm h-12 mb-3 bg-green-500 text-white"
+                    asChild
+                  >
+                    <Link href={`/store/${session.user.id}`}>
+                      <Store className="mr-2 h-3 w-3" />
+                      View My Store
+                    </Link>
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full justify-start text-sm h-9"
                     asChild
                   >
                     <Link href="/settings">
@@ -237,7 +266,7 @@ export default async function DashboardPage({ searchParams }: any) {
                   Quick Actions
                 </p>
 
-                <div className="flex flex-col gap-1 mt-1">
+                <div className="flex flex-col gap-2 mt-1">
                   <Button
                     size="sm"
                     className="w-full justify-start bg-emerald-600 hover:bg-emerald-700 text-xs h-8"
@@ -251,7 +280,7 @@ export default async function DashboardPage({ searchParams }: any) {
                   <Button
                     size="sm"
                     variant="outline"
-                    className="w-full justify-start text-xs h-8"
+                    className="w-full justify-start text-xs h-8 bg-red-500 text-white"
                     asChild
                   >
                     <Link href="/registry/register">
@@ -408,10 +437,14 @@ export default async function DashboardPage({ searchParams }: any) {
                         <div className="p-1.5 bg-emerald-100 dark:bg-emerald-900/50 rounded-full">
                           <MessageCircle className="h-3.5 w-3.5 text-emerald-600" />
                         </div>
-                        {/* <div>
-                          <p className="font-semibold text-sm">Messages from buyers</p>
-                          <p className="text-xs text-muted-foreground">You have {totalMessages} unread messages</p>
-                        </div> */}
+                        <div>
+                          <p className="font-semibold text-sm">
+                            Messages from buyers
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            You have {unreadCount} unread messages
+                          </p>
+                        </div>
                       </div>
                       <Button
                         variant="ghost"
