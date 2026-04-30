@@ -2,11 +2,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import dbConnect from '@/lib/db';
-import Property from '@/models/Property';
+import Item from '@/models/Item';
 import User from '@/models/User';
 
 // POST /api/registry/transfer
-// Body: { propertyId, toEmail, dateSold?, salePrice?, location?, notes? }
+// Body: { itemId, toEmail, dateSold?, salePrice?, location?, notes? }
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {
@@ -15,25 +15,26 @@ export async function POST(req: NextRequest) {
 
   await dbConnect();
   const body = await req.json();
-  const { propertyId, toEmail, dateSold, salePrice, location, notes } = body;
+  const { propertyId, itemId, toEmail, dateSold, salePrice, location, notes } = body;
+  const actualItemId = itemId || propertyId;
 
-  if (!propertyId || !toEmail) {
+  if (!actualItemId || !toEmail) {
     return NextResponse.json(
-      { error: 'propertyId and toEmail are required.' },
+      { error: 'itemId and toEmail are required.' },
       { status: 400 }
     );
   }
 
-  const property = await Property.findById(propertyId);
-  if (!property) {
+  const item = await Item.findById(actualItemId);
+  if (!item || !item.isRegistered) {
     return NextResponse.json({ error: 'Property not found.' }, { status: 404 });
   }
 
-  if (property.owner.toString() !== session.user.id) {
+  if (item.owner.toString() !== session.user.id) {
     return NextResponse.json({ error: 'You do not own this property.' }, { status: 403 });
   }
 
-  if (property.status === 'missing') {
+  if (item.ownershipStatus === 'missing') {
     return NextResponse.json(
       { error: 'Cannot transfer a property that is reported missing.' },
       { status: 400 }
@@ -56,9 +57,11 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  if (!item.previousOwners) item.previousOwners = [];
+
   // Record the transfer
-  property.previousOwners.push({
-    fromUser: property.owner,
+  item.previousOwners.push({
+    fromUser: item.owner,
     toUser: newOwner._id,
     dateSold: dateSold ? new Date(dateSold) : undefined,
     salePrice: salePrice ?? undefined,
@@ -67,12 +70,19 @@ export async function POST(req: NextRequest) {
     transferredAt: new Date(),
   });
 
-  property.owner = newOwner._id;
-  property.status = 'transferred';
-  await property.save();
+  item.owner = newOwner._id;
+  item.ownershipStatus = 'transferred';
+  
+  // If it was listed by the old owner, we might want to end the listing
+  if (item.isListed && item.seller?.toString() === session.user.id) {
+      if (!item.listing) item.listing = {};
+      item.listing.status = 'sold';
+  }
+
+  await item.save();
 
   return NextResponse.json({
     message: `Ownership successfully transferred to ${newOwner.name}.`,
-    property,
+    property: item,
   });
 }

@@ -2,16 +2,14 @@
 
 import { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
-import { 
-  Badge 
-} from "@/components/ui/badge";
-import { 
-  Loader2, 
-  Search, 
-  History, 
-  Globe, 
-  User, 
-  MapPin, 
+import { Badge } from "@/components/ui/badge";
+import {
+  Loader2,
+  Search,
+  History,
+  Globe,
+  User,
+  MapPin,
   Clock,
   AlertTriangle,
   ShieldAlert,
@@ -25,7 +23,7 @@ import {
   ChevronUp,
   TrendingUp,
   BarChart3,
-  Navigation
+  Navigation,
 } from "lucide-react";
 import { format } from "date-fns";
 import { cn, mapProviders } from "@/lib/utils";
@@ -34,13 +32,13 @@ import { Card } from "./ui/card";
 import { MapDropdownButton } from "./MapDropDownButton";
 
 // Dynamically import the map so it doesn't break SSR
-const SearchLogsMap = dynamic(() => import("./SearchLogsMap"), { 
+const SearchLogsMap = dynamic(() => import("./SearchLogsMap"), {
   ssr: false,
   loading: () => (
     <div className="h-[400px] w-full bg-gradient-to-br from-red-50 to-red-100 dark:from-red-950/20 dark:to-red-900/10 animate-pulse rounded-xl flex items-center justify-center">
       <Loader2 className="h-8 w-8 animate-spin text-red-600" />
     </div>
-  )
+  ),
 });
 
 export interface SearchLog {
@@ -53,14 +51,20 @@ export interface SearchLog {
   createdAt: string;
 }
 
-export default function OwnerSearchLogs({ propertyId }: { propertyId: string }) {
+export default function OwnerSearchLogs({
+  propertyId,
+}: {
+  propertyId: string;
+}) {
   const [logs, setLogs] = useState<SearchLog[]>([]);
   const [logAddresses, setLogAddresses] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<"list" | "map">("list");
   const [expandedLogs, setExpandedLogs] = useState<Set<string>>(new Set());
-  const [selectedTimeRange, setSelectedTimeRange] = useState<"week" | "month" | "all">("all");
+  const [selectedTimeRange, setSelectedTimeRange] = useState<
+    "week" | "month" | "all"
+  >("all");
 
   useEffect(() => {
     const fetchLogs = async () => {
@@ -71,17 +75,22 @@ export default function OwnerSearchLogs({ propertyId }: { propertyId: string }) 
         }
         const data = await res.json();
         setLogs(data.logs || []);
-        
+
         // Reverse geocoding for logs with location
         const logsArray: SearchLog[] = data.logs || [];
         logsArray.forEach(async (log) => {
           if (log.location?.lat && log.location?.lng) {
             try {
-              const response = await fetch(`/api/reverse-geocode?lat=${log.location.lat}&lng=${log.location.lng}`);
+              const response = await fetch(
+                `/api/reverse-geocode?lat=${log.location.lat}&lng=${log.location.lng}`,
+              );
               const geoData = await response.json();
-              
+
               if (geoData && geoData.display) {
-                setLogAddresses((prev) => ({ ...prev, [log._id]: geoData.display }));
+                setLogAddresses((prev) => ({
+                  ...prev,
+                  [log._id]: geoData.display,
+                }));
               }
             } catch (err) {
               console.error("Reverse geocoding error:", err);
@@ -109,11 +118,15 @@ export default function OwnerSearchLogs({ propertyId }: { propertyId: string }) 
   };
 
   // Calculate statistics
-  const uniqueIPs = new Set(logs.map(l => l.ipAddress)).size;
-  const anonymousSearches = logs.filter(l => !l.user).length;
-  const authenticatedSearches = logs.filter(l => l.user).length;
-  const searchesWithLocation = logs.filter(l => l.location?.lat).length;
-  const suspiciousCount = logs.filter(l => l.ipAddress.startsWith("192.168") || l.user?.name?.toLowerCase().includes("test")).length;
+  const uniqueIPs = new Set(logs.map((l) => l.ipAddress)).size;
+  const anonymousSearches = logs.filter((l) => !l.user).length;
+  const authenticatedSearches = logs.filter((l) => l.user).length;
+  const searchesWithLocation = logs.filter((l) => l.location?.lat).length;
+  const suspiciousCount = logs.filter(
+    (l) =>
+      l.ipAddress.startsWith("192.168") ||
+      l.user?.name?.toLowerCase().includes("test"),
+  ).length;
   const [provider, setProvider] = useState<keyof typeof mapProviders>("google");
 
   if (loading) {
@@ -125,13 +138,17 @@ export default function OwnerSearchLogs({ propertyId }: { propertyId: string }) 
           </div>
           <div>
             <h2 className="text-xl font-bold">Security Audit Logs</h2>
-            <p className="text-sm text-muted-foreground">Loading search history...</p>
+            <p className="text-sm text-muted-foreground">
+              Loading search history...
+            </p>
           </div>
         </div>
         <div className="flex justify-center py-12">
           <div className="text-center">
             <Loader2 className="h-10 w-10 animate-spin text-red-600 mx-auto mb-3" />
-            <p className="text-sm text-muted-foreground">Analyzing security data...</p>
+            <p className="text-sm text-muted-foreground">
+              Analyzing security data...
+            </p>
           </div>
         </div>
       </div>
@@ -151,14 +168,18 @@ export default function OwnerSearchLogs({ propertyId }: { propertyId: string }) 
           </div>
           <div>
             <h2 className="text-xl font-bold">Security Audit Logs</h2>
-            <p className="text-sm text-muted-foreground">Monitor property searches and access</p>
+            <p className="text-sm text-muted-foreground">
+              Monitor property searches and access
+            </p>
           </div>
         </div>
         <div className="py-12 text-center border-2 border-dashed border-red-500/20 rounded-xl bg-red-500/5">
           <div className="w-20 h-20 rounded-full bg-red-500/10 flex items-center justify-center mx-auto mb-4">
             <Eye className="h-10 w-10 text-red-600" />
           </div>
-          <p className="font-medium text-muted-foreground">No searches recorded yet</p>
+          <p className="font-medium text-muted-foreground">
+            No searches recorded yet
+          </p>
           <p className="text-sm text-muted-foreground mt-1">
             When someone searches for this property, it will appear here
           </p>
@@ -167,7 +188,9 @@ export default function OwnerSearchLogs({ propertyId }: { propertyId: string }) 
     );
   }
 
-  const logsWithLocation = logs.filter((l) => l.location?.lat && l.location?.lng);
+  const logsWithLocation = logs.filter(
+    (l) => l.location?.lat && l.location?.lng,
+  );
 
   return (
     <div className="mt-8 shadow shadow-gray-300 rounded-md md:m-5 p-5">
@@ -180,18 +203,25 @@ export default function OwnerSearchLogs({ propertyId }: { propertyId: string }) 
           <div>
             <div className="flex items-center gap-2">
               <h2 className="text-2xl font-bold">Security Audit Logs</h2>
-              <Badge variant="outline" className="bg-red-500/10 text-red-600 border-red-500/20">
+              <Badge
+                variant="outline"
+                className="bg-red-500/10 text-red-600 border-red-500/20"
+              >
                 <Activity className="h-3 w-3 mr-1" />
                 Live Monitoring
               </Badge>
             </div>
             <p className="text-sm text-muted-foreground mt-0.5">
-              Complete history of all searches and access attempts for this property
+              Complete history of all searches and access attempts for this
+              property
             </p>
           </div>
         </div>
         <div className="flex gap-2">
-          <Badge variant="outline" className="bg-red-500/10 text-red-600 border-red-500/20 text-sm py-1.5 px-3">
+          <Badge
+            variant="outline"
+            className="bg-red-500/10 text-red-600 border-red-500/20 text-sm py-1.5 px-3"
+          >
             <Search className="h-3.5 w-3.5 mr-1.5" />
             {logs.length} Total Searches
           </Badge>
@@ -208,7 +238,7 @@ export default function OwnerSearchLogs({ propertyId }: { propertyId: string }) 
           <p className="text-2xl font-bold text-red-600">{logs.length}</p>
           <p className="text-xs text-muted-foreground mt-1">Total Views</p>
         </div>
-        
+
         <div className="p-4 rounded-xl border-l-4 border-l-red-500 bg-gradient-to-r from-red-500/5 to-transparent">
           <div className="flex items-center justify-between mb-2">
             <Fingerprint className="h-5 w-5 text-red-600" />
@@ -217,21 +247,27 @@ export default function OwnerSearchLogs({ propertyId }: { propertyId: string }) 
           <p className="text-2xl font-bold text-red-600">{uniqueIPs}</p>
           <p className="text-xs text-muted-foreground mt-1">Unique IPs</p>
         </div>
-        
+
         <div className="p-4 rounded-xl border-l-4 border-l-red-500 bg-gradient-to-r from-red-500/5 to-transparent">
           <div className="flex items-center justify-between mb-2">
             <Globe className="h-5 w-5 text-red-600" />
           </div>
           <p className="text-2xl font-bold text-red-600">{anonymousSearches}</p>
-          <p className="text-xs text-muted-foreground mt-1">Anonymous Searches</p>
+          <p className="text-xs text-muted-foreground mt-1">
+            Anonymous Searches
+          </p>
         </div>
-        
+
         <div className="p-4 rounded-xl border-l-4 border-l-red-500 bg-gradient-to-r from-red-500/5 to-transparent">
           <div className="flex items-center justify-between mb-2">
             <MapPin className="h-5 w-5 text-red-600" />
           </div>
-          <p className="text-2xl font-bold text-red-600">{searchesWithLocation}</p>
-          <p className="text-xs text-muted-foreground mt-1">With Location Data</p>
+          <p className="text-2xl font-bold text-red-600">
+            {searchesWithLocation}
+          </p>
+          <p className="text-xs text-muted-foreground mt-1">
+            With Location Data
+          </p>
         </div>
       </div>
 
@@ -248,9 +284,9 @@ export default function OwnerSearchLogs({ propertyId }: { propertyId: string }) 
                 onClick={() => setViewMode("list")}
                 className={cn(
                   "px-3 py-1 text-xs rounded-md transition-all",
-                  viewMode === "list" 
-                    ? "bg-red-600 text-white shadow-sm" 
-                    : "hover:bg-red-500/10"
+                  viewMode === "list"
+                    ? "bg-red-600 text-white shadow-sm"
+                    : "hover:bg-red-500/10",
                 )}
               >
                 List View
@@ -259,16 +295,16 @@ export default function OwnerSearchLogs({ propertyId }: { propertyId: string }) 
                 onClick={() => setViewMode("map")}
                 className={cn(
                   "px-3 py-1 text-xs rounded-md transition-all",
-                  viewMode === "map" 
-                    ? "bg-red-600 text-white shadow-sm" 
-                    : "hover:bg-red-500/10"
+                  viewMode === "map"
+                    ? "bg-red-600 text-white shadow-sm"
+                    : "hover:bg-red-500/10",
                 )}
               >
                 Map View
               </button>
             </div>
           </div>
-          
+
           {viewMode === "map" && (
             <div className="rounded-xl overflow-hidden border border-red-500/20 shadow-lg">
               <SearchLogsMap logs={logsWithLocation} />
@@ -283,9 +319,13 @@ export default function OwnerSearchLogs({ propertyId }: { propertyId: string }) 
           <div className="flex items-start gap-2">
             <AlertTriangle className="h-4 w-4 text-amber-600 mt-0.5 shrink-0" />
             <div className="text-sm">
-              <span className="font-semibold text-amber-700 dark:text-amber-400">Security Notice:</span>
+              <span className="font-semibold text-amber-700 dark:text-amber-400">
+                Security Notice:
+              </span>
               <span className="text-muted-foreground ml-1">
-                {suspiciousCount} suspicious {suspiciousCount === 1 ? "activity" : "activities"} detected. Please review the flagged entries below.
+                {suspiciousCount} suspicious{" "}
+                {suspiciousCount === 1 ? "activity" : "activities"} detected.
+                Please review the flagged entries below.
               </span>
             </div>
           </div>
@@ -301,80 +341,91 @@ export default function OwnerSearchLogs({ propertyId }: { propertyId: string }) 
             Real-time
           </Badge>
         </div>
-        
+
         <div className="space-y-3">
           {logs.map((log, index) => {
-            const isSuspicious = log.user?.name?.toLowerCase().includes("test") || 
-                                 log.ipAddress.startsWith("192.168") ||
-                                 log.ipAddress.startsWith("10.");
-            
+            const isSuspicious =
+              log.user?.name?.toLowerCase().includes("test") ||
+              log.ipAddress.startsWith("192.168") ||
+              log.ipAddress.startsWith("10.");
+
             return (
-              <div 
-                key={log._id} 
+              <div
+                key={log._id}
                 className={cn(
                   "group relative rounded-xl transition-all duration-200 hover:bg-red-500/5",
-                  isSuspicious && "bg-amber-500/5"
+                  isSuspicious && "bg-amber-500/5",
                 )}
               >
                 {/* Left accent border */}
-                <div className={cn(
-                  "absolute left-0 top-3 bottom-3 w-0.5 rounded-full",
-                  isSuspicious ? "bg-amber-500" : "bg-red-500"
-                )} />
-                
+                <div
+                  className={cn(
+                    "absolute left-0 top-3 bottom-3 w-0.5 rounded-full",
+                    isSuspicious ? "bg-amber-500" : "bg-red-500",
+                  )}
+                />
+
                 <div className="p-4 pl-5">
                   <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-3">
                     {/* User Info */}
                     <div className="flex items-start gap-3 flex-1 min-w-0">
-                      <div className={cn(
-                        "p-2 rounded-full shrink-0",
-                        log.user 
-                          ? "bg-red-500/10" 
-                          : "bg-muted"
-                      )}>
+                      <div
+                        className={cn(
+                          "p-2 rounded-full shrink-0",
+                          log.user ? "bg-red-500/10" : "bg-muted",
+                        )}
+                      >
                         {log.user ? (
                           <User className="h-4 w-4 text-red-600" />
                         ) : (
                           <Globe className="h-4 w-4 text-muted-foreground" />
                         )}
                       </div>
-                      
+
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
                           <p className="font-semibold text-sm">
                             {log.user ? log.user.name : "Anonymous User"}
                           </p>
                           {!log.user && (
-                            <Badge variant="secondary" className="text-[9px] uppercase bg-muted/50 px-1.5">
+                            <Badge
+                              variant="secondary"
+                              className="text-[9px] uppercase bg-muted/50 px-1.5"
+                            >
                               <Lock className="h-2 w-2 mr-0.5" />
                               Guest
                             </Badge>
                           )}
                           {isSuspicious && (
-                            <Badge variant="outline" className="text-[9px] border-amber-500/50 text-amber-600 px-1.5">
+                            <Badge
+                              variant="outline"
+                              className="text-[9px] border-amber-500/50 text-amber-600 px-1.5"
+                            >
                               <Flag className="h-2 w-2 mr-0.5" />
                               Review
                             </Badge>
                           )}
                         </div>
-                        
+
                         <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1.5 text-xs text-muted-foreground">
                           <span className="flex items-center gap-1">
                             <Fingerprint className="h-3 w-3" />
                             {log.ipAddress}
                           </span>
-                          
+
                           {log.location?.lat && (
                             <span className="flex items-center gap-1">
                               <MapPin className="h-3 w-3 text-red-500" />
                               {logAddresses[log._id] ? (
-                                <span className="truncate max-w-[200px]">{logAddresses[log._id].split(",")[0]}</span>
+                                <span className="truncate max-w-[200px]">
+                                  {logAddresses[log._id].split(",")[0]}
+                                </span>
                               ) : (
                                 `${log.location.lat.toFixed(2)}, ${log.location.lng.toFixed(2)}`
                               )}
                             </span>
                           )}
-                          
+
                           <span className="flex items-center gap-1">
                             <Clock className="h-3 w-3" />
                             {format(new Date(log.createdAt), "MMM d, h:mm a")}
@@ -383,15 +434,21 @@ export default function OwnerSearchLogs({ propertyId }: { propertyId: string }) 
                       </div>
                     </div>
 
-                    <MapDropdownButton lat={log.location!.lat} lng={log.location!.lng} />
-                    
+                    <MapDropdownButton
+                      lat={log?.location!.lat}
+                      lng={log?.location!.lng}
+                    />
+
                     {/* Search Query and Expand Button */}
                     <div className="flex items-center gap-2 shrink-0">
-                      <Badge variant="outline" className="bg-red-500/5 border-red-500/20 font-mono text-xs py-1 px-2">
-                        <Search className="h-2.5 w-2.5 mr-1 text-red-600" />
-                        "{log.query}"
+                      <Badge
+                        variant="outline"
+                        className="bg-red-500/5 border-red-500/20 font-mono text-xs py-1 px-2"
+                      >
+                        <Search className="h-2.5 w-2.5 mr-1 text-red-600" />"
+                        {log.query}"
                       </Badge>
-                      
+
                       <button
                         onClick={() => toggleExpand(log._id)}
                         className="p-1 rounded hover:bg-red-500/10 transition-colors"
@@ -404,19 +461,24 @@ export default function OwnerSearchLogs({ propertyId }: { propertyId: string }) 
                       </button>
                     </div>
                   </div>
-                  
+
                   {/* Expanded Details */}
                   {expandedLogs.has(log._id) && (
                     <div className="mt-3 pt-3 border-t border-red-500/10 animate-in slide-in-from-top-1 duration-200">
                       <div className="grid sm:grid-cols-2 gap-2 text-xs">
                         <div className="p-2 rounded bg-muted/30">
-                          <span className="text-muted-foreground block mb-0.5">User Agent</span>
+                          <span className="text-muted-foreground block mb-0.5">
+                            User Agent
+                          </span>
                           <code className="text-xs font-mono break-all text-foreground/70">
-                            Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36
+                            Mozilla/5.0 (Windows NT 10.0; Win64; x64)
+                            AppleWebKit/537.36
                           </code>
                         </div>
                         <div className="p-2 rounded bg-muted/30">
-                          <span className="text-muted-foreground block mb-0.5">Session ID</span>
+                          <span className="text-muted-foreground block mb-0.5">
+                            Session ID
+                          </span>
                           <code className="text-xs font-mono break-all text-foreground/70">
                             {log._id.slice(-16)}
                           </code>
@@ -424,10 +486,14 @@ export default function OwnerSearchLogs({ propertyId }: { propertyId: string }) 
                         {log.location?.lat && (
                           <div className="p-3 rounded bg-muted/30 sm:col-span-2 flex flex-col gap-3 border border-red-500/10">
                             <div>
-                                <span className="text-muted-foreground block mb-0.5">Location Data</span>
-                                <code className="text-xs font-mono break-all text-foreground/80">
-                                  {logAddresses[log._id] ? logAddresses[log._id] : `${log.location.lat}, ${log.location.lng}`}
-                                </code>
+                              <span className="text-muted-foreground block mb-0.5">
+                                Location Data
+                              </span>
+                              <code className="text-xs font-mono break-all text-foreground/80">
+                                {logAddresses[log._id]
+                                  ? logAddresses[log._id]
+                                  : `${log.location.lat}, ${log.location.lng}`}
+                              </code>
                             </div>
                           </div>
                         )}
@@ -439,9 +505,7 @@ export default function OwnerSearchLogs({ propertyId }: { propertyId: string }) 
             );
           })}
         </div>
-       
       </div>
     </div>
   );
 }
-

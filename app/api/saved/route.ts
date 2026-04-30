@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import dbConnect from "@/lib/db";
-import SavedListing from "@/models/SavedListing";
+import SavedItem from "@/models/SavedItem";
 
 // GET — check if a listing is saved, or get all saved listings
 export async function GET(req: Request) {
@@ -15,12 +15,12 @@ export async function GET(req: Request) {
   await dbConnect();
 
   if (listingId) {
-    const saved = await SavedListing.findOne({ user: session.user.id, listing: listingId });
+    const saved = await SavedItem.findOne({ user: session.user.id, item: listingId });
     return NextResponse.json({ saved: !!saved });
   }
 
-  const saved = await SavedListing.find({ user: session.user.id })
-    .populate("listing")
+  const saved = await SavedItem.find({ user: session.user.id })
+    .populate("item")
     .sort({ createdAt: -1 })
     .lean();
 
@@ -36,7 +36,7 @@ export async function POST(req: Request) {
   await dbConnect();
 
   try {
-    await SavedListing.create({ user: session.user.id, listing: listingId });
+    await SavedItem.create({ user: session.user.id, item: listingId });
     return NextResponse.json({ saved: true });
   } catch (err: any) {
     if (err.code === 11000) {
@@ -54,6 +54,6 @@ export async function DELETE(req: Request) {
   const { listingId } = await req.json();
   await dbConnect();
 
-  await SavedListing.findOneAndDelete({ user: session.user.id, listing: listingId });
+  await SavedItem.findOneAndDelete({ user: session.user.id, item: listingId });
   return NextResponse.json({ saved: false });
 }

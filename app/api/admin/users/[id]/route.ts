@@ -3,7 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import dbConnect from "@/lib/db";
 import User from "@/models/User";
-import Listing from "@/models/Listing";
+import Item from "@/models/Item";
 
 export async function GET(
   req: Request,
@@ -18,7 +18,7 @@ export async function GET(
 
   const [user, listings] = await Promise.all([
     User.findById(id).lean(),
-    Listing.find({ seller: id }).sort({ createdAt: -1 }).lean(),
+    Item.find({ owner: id, isListed: true }).sort({ createdAt: -1 }).lean(),
   ]);
 
   if (!user) return NextResponse.json({ message: "User not found" }, { status: 404 });

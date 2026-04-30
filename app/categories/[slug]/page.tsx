@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { ArrowLeft, ChevronRight, Tag } from "lucide-react";
 import dbConnect from "@/lib/db";
 import Category from "@/models/Category";
-import Listing from "@/models/Listing";
+import Item from "@/models/Item";
 import { ListingCard } from "@/components/ListingCard";
 
 async function getCategoryData(slug: string) {
@@ -24,21 +24,22 @@ async function getCategoryData(slug: string) {
       .then((subs) =>
         Promise.all(
           subs.map(async (sub: any) => {
-            const count = await Listing.countDocuments({
-              category: sub._id,
-              status: "active",
+            const count = await Item.countDocuments({
+              isListed: true,
+              "listing.category": sub._id,
+              "listing.status": "active",
             });
             return { ...sub, count };
           }),
         ),
       ),
     // Featured listings in this category
-    Listing.find({ category: category._id, status: "active" })
-      .sort({ featured: -1, createdAt: -1 })
+    Item.find({ isListed: true, "listing.category": category._id, "listing.status": "active" })
+      .sort({ "listing.featured": -1, createdAt: -1 })
       .limit(8)
       .lean(),
     // Total listing count
-    Listing.countDocuments({ category: category._id, status: "active" }),
+    Item.countDocuments({ isListed: true, "listing.category": category._id, "listing.status": "active" }),
   ]);
 
   return JSON.parse(
@@ -199,12 +200,12 @@ export default async function CategoryPage({
                 <ListingCard
                   key={listing._id}
                   id={listing._id}
-                  title={listing.title}
-                  price={listing.price}
+                  title={listing.listing?.title || listing.model}
+                  price={listing.listing?.price}
                   image={listing.images[0]}
-                  category={listing.category}
-                  condition={listing.condition}
-                  location={listing.location}
+                  category={listing.listing?.category}
+                  condition={listing.listing?.condition}
+                  location={listing.listing?.location}
                   createdAt={listing.createdAt}
                 />
               ))}

@@ -21,8 +21,7 @@ import {
 } from "lucide-react";
 import { authOptions } from "@/lib/auth";
 import dbConnect from "@/lib/db";
-import Listing from "@/models/Listing";
-import Property from "@/models/Property";
+import Item from "@/models/Item";
 import TransferRequest from "@/models/TransferRequest";
 import { ListingCard } from "@/components/ListingCard";
 import { TransfersTab } from "@/components/TransfersTab";
@@ -37,7 +36,7 @@ import Conversation from "@/models/Conversation";
 
 async function getUserListings(userId: string | undefined) {
   await dbConnect();
-  const listings = await Listing.find({ seller: userId })
+  const listings = await Item.find({ owner: userId, isListed: true })
     .sort({ createdAt: -1 })
     .lean();
   return JSON.parse(JSON.stringify(listings));
@@ -45,7 +44,7 @@ async function getUserListings(userId: string | undefined) {
 
 async function getUserProperties(userId: string | undefined) {
   await dbConnect();
-  const properties = await Property.find({ owner: userId })
+  const properties = await Item.find({ owner: userId, isRegistered: true })
     .sort({ createdAt: -1 })
     .lean();
   return JSON.parse(JSON.stringify(properties));
@@ -72,7 +71,7 @@ async function getUserTransfers(userId: string | undefined) {
     status: "pending",
   })
     .populate("fromUser", "name email")
-    .populate("propertyId", "brand model images itemType")
+    .populate("itemId", "brand model images itemType")
     .sort({ createdAt: -1 })
     .lean();
   const outgoing = await TransferRequest.find({
@@ -80,7 +79,7 @@ async function getUserTransfers(userId: string | undefined) {
     status: "pending",
   })
     .populate("toUser", "name email")
-    .populate("propertyId", "brand model images itemType")
+    .populate("itemId", "brand model images itemType")
     .sort({ createdAt: -1 })
     .lean();
   return JSON.parse(JSON.stringify({ incoming, outgoing }));
@@ -109,17 +108,17 @@ export default async function DashboardPage({ searchParams }: any) {
   const properties = await getUserProperties(session.user.id);
   const details = await getUserDetails(session.user.id);
   const transfers = await getUserTransfers(session.user.id);
-  const activeListings = listings.filter((l: any) => l.status === "active");
-  const soldListings = listings.filter((l: any) => l.status === "sold");
+  const activeListings = listings.filter((l: any) => l.listing?.status === "active");
+  const soldListings = listings.filter((l: any) => l.listing?.status === "sold");
   const missingProperties = properties.filter(
-    (p: any) => p.status === "missing",
+    (p: any) => p.ownershipStatus === "missing",
   );
   const registeredProperties = properties.filter(
-    (p: any) => p.status === "registered",
+    (p: any) => p.ownershipStatus === "owned",
   );
 
   const totalViews = listings.reduce(
-    (acc: number, l: any) => acc + (l.views || 0),
+    (acc: number, l: any) => acc + (l.listing?.views || 0),
     0,
   );
   // const totalMessages = 12;
@@ -484,12 +483,12 @@ export default async function DashboardPage({ searchParams }: any) {
                           <div key={listing._id} className="relative group">
                             <ListingCard
                               id={listing._id}
-                              title={listing.title}
-                              price={listing.price}
+                              title={listing.listing?.title || listing.model}
+                              price={listing.listing?.price}
                               image={listing.images[0]}
-                              category={listing.category}
-                              condition={listing.condition}
-                              location={listing.location}
+                              category={listing.listing?.category}
+                              condition={listing.listing?.condition}
+                              location={listing.listing?.location}
                               createdAt={listing.createdAt}
                             />
                             <div className="absolute top-2 right-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -536,12 +535,12 @@ export default async function DashboardPage({ searchParams }: any) {
                           <ListingCard
                             key={listing._id}
                             id={listing._id}
-                            title={listing.title}
-                            price={listing.price}
+                            title={listing.listing?.title || listing.model}
+                            price={listing.listing?.price}
                             image={listing.images[0]}
-                            category={listing.category}
-                            condition={listing.condition}
-                            location={listing.location}
+                            category={listing.listing?.category}
+                            condition={listing.listing?.condition}
+                            location={listing.listing?.location}
                             createdAt={listing.createdAt}
                           />
                         ))}
@@ -675,21 +674,24 @@ export default async function DashboardPage({ searchParams }: any) {
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                       {properties.map((p: any) => {
                         const statusColors: Record<string, string> = {
-                          registered:
+                          owned:
                             "bg-green-500/10 text-green-600 border-green-500/20",
                           missing:
                             "bg-red-500/10 text-red-600 border-red-500/20",
                           found: "bg-red-500/10 text-red-600 border-red-500/20",
                           transferred:
                             "bg-purple-500/10 text-purple-600 border-purple-500/20",
+                          transfer_pending:
+                            "bg-yellow-500/10 text-yellow-600 border-yellow-500/20",
                         };
                         const statusIcons: Record<string, any> = {
-                          registered: CheckCircle,
+                          owned: CheckCircle,
                           missing: AlertTriangle,
                           found: Shield,
                           transferred: ArrowRight,
+                          transfer_pending: ArrowLeftRight,
                         };
-                        const StatusIcon = statusIcons[p.status] || Shield;
+                        const StatusIcon = statusIcons[p.ownershipStatus] || Shield;
 
                         return (
                           <Link key={p._id} href={`/registry/${p._id}`}>
@@ -708,10 +710,10 @@ export default async function DashboardPage({ searchParams }: any) {
                                 )}
                                 <div className="absolute top-1.5 right-1.5">
                                   <Badge
-                                    className={`text-[9px] px-1.5 py-0 border flex items-center gap-0.5 ${statusColors[p.status] || ""}`}
+                                    className={`text-[9px] px-1.5 py-0 border flex items-center gap-0.5 ${statusColors[p.ownershipStatus] || ""}`}
                                   >
                                     <StatusIcon className="h-2.5 w-2.5" />
-                                    {p.status.toUpperCase()}
+                                    {p.ownershipStatus.toUpperCase()}
                                   </Badge>
                                 </div>
                               </div>
@@ -733,18 +735,18 @@ export default async function DashboardPage({ searchParams }: any) {
                                   )}
                                 </div>
 
-                                {(p.imei ||
-                                  p.serialNumber ||
-                                  p.chassisNumber) && (
+                                {(p.registry?.imei ||
+                                  p.registry?.serialNumber ||
+                                  p.registry?.chassisNumber) && (
                                   <div className="text-[9px] font-mono bg-muted/40 px-1.5 py-0.5 rounded truncate">
                                     🔑{" "}
-                                    {p.imei ||
-                                      p.serialNumber ||
-                                      p.chassisNumber}
+                                    {p.registry?.imei ||
+                                      p.registry?.serialNumber ||
+                                      p.registry?.chassisNumber}
                                   </div>
                                 )}
 
-                                {p.status === "missing" && (
+                                {p.ownershipStatus === "missing" && (
                                   <div className="text-[9px] font-semibold text-red-600 bg-red-500/10 border border-red-500/20 px-1.5 py-0.5 rounded flex items-center gap-0.5">
                                     <AlertTriangle className="h-2.5 w-2.5" />⚠
                                     DO NOT PURCHASE

@@ -1,7 +1,7 @@
 import dbConnect from "@/lib/db";
 import "@/models/Category";
 import User from "@/models/User";
-import Listing from "@/models/Listing";
+import Item from "@/models/Item";
 import Report from "@/models/Report";
 import Transaction from "@/models/Transaction";
 import Link from "next/link";
@@ -43,8 +43,8 @@ async function getDashboardData() {
     { $sort: { "_id.year": 1, "_id.month": 1 } },
   ]);
 
-  const monthlyListings = await Listing.aggregate([
-    { $match: { createdAt: { $gte: sixMonthsAgo } } },
+  const monthlyListings = await Item.aggregate([
+    { $match: { isListed: true, createdAt: { $gte: sixMonthsAgo } } },
     {
       $group: {
         _id: { year: { $year: "$createdAt" }, month: { $month: "$createdAt" } },
@@ -67,8 +67,9 @@ async function getDashboardData() {
   ]);
 
   // Listing status breakdown
-  const listingStatusBreakdown = await Listing.aggregate([
-    { $group: { _id: "$status", count: { $sum: 1 } } },
+  const listingStatusBreakdown = await Item.aggregate([
+    { $match: { isListed: true } },
+    { $group: { _id: "$listing.status", count: { $sum: 1 } } },
   ]);
 
   // Fill in all 6 months (even empty ones)
@@ -120,16 +121,16 @@ async function getDashboardData() {
   ] = await Promise.all([
     User.countDocuments(),
     User.countDocuments({ status: "pending" }),
-    Listing.countDocuments(),
-    Listing.countDocuments({ status: "active" }),
-    Listing.countDocuments({ status: "sold" }),
+    Item.countDocuments({ isListed: true }),
+    Item.countDocuments({ isListed: true, "listing.status": "active" }),
+    Item.countDocuments({ isListed: true, "listing.status": "sold" }),
     Report.countDocuments({ status: "pending" }),
     Transaction.countDocuments(),
-    Listing.find()
+    Item.find({ isListed: true })
       .sort({ createdAt: -1 })
       .limit(5)
-      .populate("seller", "name image")
-      .populate("category", "name")
+      .populate("owner", "name image")
+      .populate("listing.category", "name")
       .lean(),
     User.find().sort({ createdAt: -1 }).limit(5).lean(),
     Report.find({ status: "pending" })
@@ -308,7 +309,7 @@ export default async function AdminDashboard() {
                   {listing.images?.[0] ? (
                     <img
                       src={listing.images[0]}
-                      alt={listing.title}
+                      alt={listing.listing?.title || listing.model}
                       className="h-full w-full object-cover"
                     />
                   ) : (
@@ -319,10 +320,10 @@ export default async function AdminDashboard() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="font-medium text-sm truncate">
-                    {listing.title}
+                    {listing.listing?.title || listing.model}
                   </p>
                   <p className="text-xs text-muted-foreground truncate">
-                    {listing.seller?.name} ·{" "}
+                    {listing.owner?.name} ·{" "}
                     {formatDistanceToNow(new Date(listing.createdAt), {
                       addSuffix: true,
                     })}
@@ -330,12 +331,12 @@ export default async function AdminDashboard() {
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
                   <span
-                    className={`text-[10px] px-2 py-0.5 rounded-full font-medium capitalize ${listingStatusColor[listing.status] || ""}`}
+                    className={`text-[10px] px-2 py-0.5 rounded-full font-medium capitalize ${listingStatusColor[listing.listing?.status] || ""}`}
                   >
-                    {listing.status}
+                    {listing.listing?.status}
                   </span>
                   <span className="text-sm font-bold text-primary">
-                    ₦{listing.price?.toLocaleString()}
+                    ₦{listing.listing?.price?.toLocaleString()}
                   </span>
                 </div>
               </Link>

@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import dbConnect from "@/lib/db";
-import Listing from "@/models/Listing";
+import Item from "@/models/Item";
 
 export async function GET(req: Request) {
   try {
@@ -13,18 +13,19 @@ export async function GET(req: Request) {
 
     await dbConnect();
     
-    const listings = await Listing.find({
-      seller: session.user.id,
-      $or: [{ propertyId: { $exists: false } }, { propertyId: null }]
+    const items = await Item.find({
+      owner: session.user.id,
+      isListed: true,
+      isRegistered: false
     })
     .sort({ createdAt: -1 })
     .lean();
 
-    return NextResponse.json(listings, { status: 200 });
+    return NextResponse.json(items, { status: 200 });
   } catch (error: any) {
-    console.error("Error fetching unregistered listings:", error);
+    console.error("Error fetching unregistered items:", error);
     return NextResponse.json(
-      { message: "Error fetching listings", error: error.message },
+      { message: "Error fetching items", error: error.message },
       { status: 500 }
     );
   }

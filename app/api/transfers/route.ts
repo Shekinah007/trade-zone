@@ -1,8 +1,6 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
-// import { authOptions } from '@/app/api/auth/[...nextauth]/route';
-// import dbConnect from '@/lib/mongoose';
-import Property from "@/models/Property";
+import Item from "@/models/Item";
 import User from "@/models/User";
 import TransferRequest from "@/models/TransferRequest";
 import Notification from "@/models/Notification";
@@ -19,11 +17,12 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json();
-    const { propertyId, receiverEmail, salePrice, notes } = body;
+    const { itemId, propertyId, receiverEmail, salePrice, notes } = body;
+    const actualItemId = itemId || propertyId;
 
-    if (!propertyId || !receiverEmail) {
+    if (!actualItemId || !receiverEmail) {
       return NextResponse.json(
-        { error: "Property ID and Receiver Email are required" },
+        { error: "Item ID and Receiver Email are required" },
         { status: 400 },
       );
     }
@@ -31,22 +30,22 @@ export async function POST(req: Request) {
     await dbConnect();
 
     // Verify property ownership
-    const property = await Property.findById(propertyId);
-    if (!property) {
+    const item = await Item.findById(actualItemId);
+    if (!item) {
       return NextResponse.json(
         { error: "Property not found" },
         { status: 404 },
       );
     }
 
-    if (property.owner.toString() !== session.user.id) {
+    if (item.owner.toString() !== session.user.id) {
       return NextResponse.json(
         { error: "Unauthorized: You do not own this property" },
         { status: 403 },
       );
     }
 
-    if (property.status === "transfer_pending") {
+    if (item.ownershipStatus === "transfer_pending") {
       return NextResponse.json(
         { error: "Property is already in a transfer pending state" },
         { status: 400 },
@@ -63,7 +62,7 @@ export async function POST(req: Request) {
     const token = receiver ? undefined : crypto.randomBytes(32).toString("hex");
 
     const transferRequest = new TransferRequest({
-      propertyId,
+      itemId: actualItemId,
       fromUser: session.user.id,
       toUser: receiver ? receiver._id : undefined,
       receiverEmail: receiverEmail.toLowerCase(),
@@ -77,24 +76,24 @@ export async function POST(req: Request) {
     await transferRequest.save();
 
     // Update Property status
-    property.status = "transfer_pending";
-    await property.save();
+    item.ownershipStatus = "transfer_pending";
+    await item.save();
 
     // Create Notification or Send Email (Simulated)
     if (receiver) {
       const notification = new Notification({
         userId: receiver._id,
         title: "New Property Transfer Request",
-        message: `${session.user.name || "A user"} wants to transfer ownership of ${property.brand} ${property.model} to you.`,
+        message: `${session.user.name || "A user"} wants to transfer ownership of ${item.brand} ${item.model} to you.`,
         type: "transfer_request",
         link: "/dashboard?tab=transfers",
       });
       await notification.save();
 
       // Send email
-      await sendTransferRequestEmail(receiverEmail, session.user.name || "A user", `${property.brand} ${property.model}`);
+      await sendTransferRequestEmail(receiverEmail, session.user.name || "A user", `${item.brand} ${item.model}`);
     } else {
-      await sendTransferClaimEmail(receiverEmail, session.user.name || "A user", `${property.brand} ${property.model}`, token as string);
+      await sendTransferClaimEmail(receiverEmail, session.user.name || "A user", `${item.brand} ${item.model}`, token as string);
     }
 
     return NextResponse.json(
@@ -124,7 +123,7 @@ export async function GET(req: Request) {
       status: "pending",
     })
       .populate("fromUser", "name email")
-      .populate("propertyId", "brand model images itemType")
+      .populate("itemId", "brand model images itemType")
       .sort({ createdAt: -1 });
 
     const outgoing = await TransferRequest.find({
@@ -132,7 +131,7 @@ export async function GET(req: Request) {
       status: "pending",
     })
       .populate("toUser", "name email")
-      .populate("propertyId", "brand model images itemType")
+      .populate("itemId", "brand model images itemType")
       .sort({ createdAt: -1 });
 
     return NextResponse.json({ incoming, outgoing }, { status: 200 });

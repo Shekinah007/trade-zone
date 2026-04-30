@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import TransferRequest from "@/models/TransferRequest";
-import Property from "@/models/Property";
+import Item from "@/models/Item";
 import Notification from "@/models/Notification";
 import dbConnect from "@/lib/db";
 import { authOptions } from "@/lib/auth";
@@ -43,8 +43,8 @@ export async function POST(
       );
     }
 
-    const property = await Property.findById(transferRequest.propertyId);
-    if (!property) {
+    const item = await Item.findById(transferRequest.itemId);
+    if (!item) {
       return NextResponse.json(
         { error: "Property not found" },
         { status: 404 },
@@ -56,14 +56,14 @@ export async function POST(
     await transferRequest.save();
 
     // Revert Property status
-    property.status = "registered";
-    await property.save();
+    item.ownershipStatus = "owned";
+    await item.save();
 
     // Notify Sender
     const notification = new Notification({
       userId: transferRequest.fromUser,
       title: "Transfer Declined",
-      message: `${session.user.name} declined the transfer of ${property.brand} ${property.model}.`,
+      message: `${session.user.name} declined the transfer of ${item.brand} ${item.model}.`,
       type: "system",
       link: "/dashboard?tab=transfers",
     });

@@ -2,17 +2,17 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import dbConnect from "@/lib/db";
-import SavedListing from "@/models/SavedListing";
+import SavedItem from "@/models/SavedItem";
 import { Heart } from "lucide-react";
 import Link from "next/link";
 import { ListingCard } from "@/components/ListingCard";
 
 async function getSavedListings(userId: string) {
   await dbConnect();
-  const saved = await SavedListing.find({ user: userId })
+  const saved = await SavedItem.find({ user: userId })
     .populate({
-      path: "listing",
-      populate: { path: "category", select: "name" },
+      path: "item",
+      populate: { path: "listing.category", select: "name" },
     })
     .sort({ createdAt: -1 })
     .lean();
@@ -20,8 +20,8 @@ async function getSavedListings(userId: string) {
   return JSON.parse(
     JSON.stringify(
       saved
-        .filter((s: any) => s.listing && s.listing.status === "active")
-        .map((s: any) => s.listing),
+        .filter((s: any) => s.item && s.item.isListed && s.item.listing?.status === "active")
+        .map((s: any) => s.item),
     ),
   );
 }
@@ -73,17 +73,17 @@ export default async function SavedListingsPage() {
           </div>
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-            {listings.map((listing: any) => (
+            {listings.map((item: any) => (
               <ListingCard
-                key={listing._id}
-                id={listing._id}
-                title={listing.title}
-                price={listing.price}
-                image={listing.images?.[0]}
-                category={listing.category?.name || listing.category}
-                condition={listing.condition}
-                location={listing.location}
-                createdAt={listing.createdAt}
+                key={item._id}
+                id={item._id}
+                title={item.listing?.title || item.model}
+                price={item.listing?.price || 0}
+                image={item.images?.[0]}
+                category={item.listing?.category?.name || item.listing?.category}
+                condition={item.listing?.condition}
+                location={item.listing?.location}
+                createdAt={item.listing?.listedAt || item.createdAt}
               />
             ))}
           </div>

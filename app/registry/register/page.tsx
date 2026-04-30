@@ -85,7 +85,7 @@ function RegisterPropertyForm() {
                 setForm((prev) => ({
                   ...prev,
                   brand: listing.brand || prev.brand,
-                  model: listing.model || listing.title || prev.model,
+                  model: listing.model || listing.listing?.title || prev.model,
                   description: listing.description || prev.description,
                   imei: listing.uniqueIdentifier || prev.imei,
                 }));
@@ -105,7 +105,7 @@ function RegisterPropertyForm() {
       setForm((prev) => ({
         ...prev,
         brand: listing.brand || prev.brand,
-        model: listing.model || listing.title || prev.model,
+        model: listing.model || listing.listing?.title || prev.model,
         description: listing.description || prev.description,
         imei: listing.uniqueIdentifier || prev.imei,
       }));
@@ -215,7 +215,7 @@ function RegisterPropertyForm() {
         }
       });
       if (selectedListingId && selectedListingId !== "none") {
-        formData.append("listingId", selectedListingId);
+        formData.append("itemId", selectedListingId);
       }
 
       const res = await fetch("/api/registry", {
@@ -312,7 +312,7 @@ function RegisterPropertyForm() {
                         value={l._id}
                         className="focus:bg-red-500/20 focus:text-black"
                       >
-                        {l.title} {l.price ? `(₦${l.price})` : ""}
+                        {l.listing?.title || l.model} {l.listing?.price ? `(₦${l.listing.price})` : ""}
                       </SelectItem>
                     ))}
                   </SelectContent>

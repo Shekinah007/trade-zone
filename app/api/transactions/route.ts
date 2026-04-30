@@ -3,7 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import dbConnect from "@/lib/db";
 import Transaction from "@/models/Transaction";
-import Listing from "@/models/Listing";
+import Item from "@/models/Item";
 
 export async function POST(req: Request) {
   const session = await getServerSession(authOptions);
@@ -14,24 +14,25 @@ export async function POST(req: Request) {
   try {
     await dbConnect();
     const body = await req.json();
-    const { listingId, price } = body;
+    const { itemId, listingId, price } = body;
+    const actualItemId = itemId || listingId;
 
-    const listing = await Listing.findById(listingId);
-    if (!listing) {
+    const item = await Item.findById(actualItemId);
+    if (!item) {
       return NextResponse.json({ message: "Listing not found" }, { status: 404 });
     }
 
     // prevent buying own item
-    if (listing.seller.toString() === session.user.id) {
+    if (item.owner.toString() === session.user.id) {
         return NextResponse.json({ message: "Cannot buy your own item" }, { status: 400 });
     }
 
     const transaction = await Transaction.create({
       buyer: session.user.id,
-      seller: listing.seller,
-      listing: listingId,
+      seller: item.owner,
+      item: actualItemId,
       price: price,
-      status: 'completed'
+      status: 'pending'
     });
     
     // Optionally update listing status to sold?

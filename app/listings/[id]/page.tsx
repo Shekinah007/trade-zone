@@ -12,10 +12,9 @@ import {
   ExternalLink,
 } from "lucide-react";
 import dbConnect from "@/lib/db";
-import Listing from "@/models/Listing";
+import Item from "@/models/Item";
 import "@/models/User"; // Ensure User model is registered
 import "@/models/Category";
-import "@/models/Property"; // Ensure Property model is registered
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -40,22 +39,21 @@ async function getListing(id: string) {
     // Validate ID format
     // if (!id.match(/^[0-9a-fA-F]{24}$/)) return null;
 
-    const listing = await Listing.findById(id)
+    const listing = await Item.findById(id)
+      .populate("owner")
       .populate("seller")
-      .populate("category")
-      .populate(
-        "propertyId",
-        "brand model itemType status serialNumber imei chassisNumber color yearOfPurchase images",
-      )
+      .populate("listing.category")
       .lean();
-    if (!listing) return null;
+    if (!listing || !listing.isListed) return null;
+
+    const sellerOrOwnerId = listing.seller?._id || listing.owner?._id;
 
     const business = await Business.findOne({
-      owner: listing.seller?._id,
+      owner: sellerOrOwnerId,
     }).lean();
 
     // Fetch History
-    const history = await Transaction.find({ listing: id })
+    const history = await Transaction.find({ item: id })
       .populate("buyer", "name image")
       .sort({ createdAt: -1 })
       .lean();
@@ -86,7 +84,7 @@ export default async function ListingPage({
   const formattedPrice = new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "NGN",
-  }).format(listing.price);
+  }).format(listing.listing?.price || 0);
 
   return (
     <div className="container mx-auto py-8 px-4">
@@ -102,7 +100,7 @@ export default async function ListingPage({
                       <div className="relative aspect-video w-full overflow-hidden rounded-lg bg-muted">
                         <img
                           src={img}
-                          alt={`${listing.title} - Image ${index + 1}`}
+                          alt={`${listing.listing?.title || listing.model} - Image ${index + 1}`}
                           className="object-contain w-full h-full"
                         />
                       </div>
@@ -148,14 +146,14 @@ export default async function ListingPage({
                   <span className="font-semibold text-muted-foreground">
                     Condition:
                   </span>
-                  <span className="ml-2">{listing.condition}</span>
+                  <span className="ml-2">{listing.listing?.condition}</span>
                 </div>
                 <div>
                   <span className="font-semibold text-muted-foreground">
                     Category:
                   </span>
                   <span className="ml-2">
-                    {listing.category?.name || "Uncategorized"}
+                    {listing.listing?.category?.name || "Uncategorized"}
                   </span>
                 </div>
                 <div>
@@ -170,7 +168,7 @@ export default async function ListingPage({
                 </div>
                 <div className="flex flex-row gap-2 items-center text-muted-foreground">
                   <Eye className="h-4 w-4" />
-                  <span className="font-semibold">{listing.views} views</span>
+                  <span className="font-semibold">{listing.listing?.views || 0} views</span>
                   <ViewTracker listingId={listing._id} />
                 </div>
                 {listing.uniqueIdentifier && (
@@ -192,7 +190,7 @@ export default async function ListingPage({
           </Card>
 
           {/* Registry Record Card */}
-          {listing.propertyId && (
+          {listing.isRegistered && (
             <Card className="border border-emerald-500/20 bg-emerald-500/5">
               <CardHeader className="pb-3">
                 <CardTitle className="text-base flex items-center gap-2 text-emerald-700 dark:text-emerald-400">
@@ -202,36 +200,36 @@ export default async function ListingPage({
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-2 gap-3 text-sm mb-4">
-                  {listing.propertyId.brand && (
+                  {listing.brand && (
                     <div>
                       <span className="font-semibold text-muted-foreground block text-xs mb-0.5">
                         Brand
                       </span>
-                      <span>{listing.propertyId.brand}</span>
+                      <span>{listing.brand}</span>
                     </div>
                   )}
-                  {listing.propertyId.model && (
+                  {listing.model && (
                     <div>
                       <span className="font-semibold text-muted-foreground block text-xs mb-0.5">
                         Model
                       </span>
-                      <span>{listing.propertyId.model}</span>
+                      <span>{listing.model}</span>
                     </div>
                   )}
-                  {listing.propertyId.color && (
+                  {listing.color && (
                     <div>
                       <span className="font-semibold text-muted-foreground block text-xs mb-0.5">
                         Color
                       </span>
-                      <span>{listing.propertyId.color}</span>
+                      <span>{listing.color}</span>
                     </div>
                   )}
-                  {listing.propertyId.yearOfPurchase && (
+                  {listing.registry?.yearOfPurchase && (
                     <div>
                       <span className="font-semibold text-muted-foreground block text-xs mb-0.5">
                         Year
                       </span>
-                      <span>{listing.propertyId.yearOfPurchase}</span>
+                      <span>{listing.registry.yearOfPurchase}</span>
                     </div>
                   )}
                   <div className="col-span-2">
@@ -240,23 +238,23 @@ export default async function ListingPage({
                     </span>
                     <span
                       className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium ${
-                        listing.propertyId.status === "registered"
+                        listing.ownershipStatus === "owned"
                           ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400"
-                          : listing.propertyId.status === "missing"
+                          : listing.ownershipStatus === "missing"
                             ? "bg-red-500/10 text-red-700 dark:text-red-400"
-                            : listing.propertyId.status === "found"
+                            : listing.ownershipStatus === "found"
                               ? "bg-blue-500/10 text-blue-700 dark:text-blue-400"
                               : "bg-muted text-muted-foreground"
                       }`}
                     >
                       <span className="w-1.5 h-1.5 rounded-full bg-current" />
-                      {listing.propertyId.status.charAt(0).toUpperCase() +
-                        listing.propertyId.status.slice(1)}
+                      {listing.ownershipStatus ? listing.ownershipStatus.charAt(0).toUpperCase() +
+                        listing.ownershipStatus.slice(1) : "Unknown"}
                     </span>
                   </div>
                 </div>
                 <Link
-                  href={`/registry/${listing.propertyId._id}`}
+                  href={`/registry/${listing._id}`}
                   className="inline-flex items-center gap-1.5 text-xs font-medium text-emerald-700 dark:text-emerald-400 hover:underline"
                 >
                   <ExternalLink className="h-3.5 w-3.5" />
@@ -273,29 +271,29 @@ export default async function ListingPage({
             <CardContent className="p-6 space-y-6">
               <div>
                 <h1 className="text-2xl font-bold leading-tight mb-2">
-                  {listing.title}
+                  {listing.listing?.title || listing.model}
                 </h1>
                 <div className="flex items-center justify-between">
                   <span className="text-3xl font-bold text-primary">
                     {formattedPrice}
                   </span>
-                  <Badge variant="outline">{listing.condition}</Badge>
+                  <Badge variant="outline">{listing.listing?.condition}</Badge>
                 </div>
               </div>
 
               <div className="flex items-center text-muted-foreground text-sm">
                 <MapPin className="h-4 w-4 mr-1" />
-                {listing.location?.city}, {listing.location?.country}
+                {listing.listing?.location?.city}, {listing.listing?.location?.country}
               </div>
 
               <div className="space-y-3">
                 <ListingActions
                   listingId={listing._id}
-                  sellerId={listing.seller?._id}
-                  listingTitle={listing.title}
-                  price={listing.price}
+                  sellerId={listing.seller?._id || listing.owner?._id}
+                  listingTitle={listing.listing?.title || listing.model}
+                  price={listing.listing?.price || 0}
                   history={listing.history}
-                  status={listing.status}
+                  status={listing.listing?.status}
                   sellerPhone={listing.business?.phone || ""}
                 />
               </div>
@@ -308,22 +306,22 @@ export default async function ListingPage({
             </CardHeader>
             <CardContent className="space-y-4">
               <Link
-                href={`/store/${listing.seller?._id}`}
+                href={`/store/${listing.seller?._id || listing.owner?._id}`}
                 className="flex items-center space-x-4 hover:bg-muted/50 p-2 rounded-lg transition-colors group"
               >
                 <Avatar className="h-12 w-12 group-hover:ring-2 ring-primary/20 transition-all">
-                  <AvatarImage src={listing.seller?.image} />
+                  <AvatarImage src={(listing.seller || listing.owner)?.image} />
                   <AvatarFallback>
-                    {listing.seller?.name?.charAt(0) || "U"}
+                    {(listing.seller || listing.owner)?.name?.charAt(0) || "U"}
                   </AvatarFallback>
                 </Avatar>
                 <div>
                   <p className="font-medium group-hover:text-primary transition-colors">
-                    {listing.seller?.name || "Unknown User"}
+                    {(listing.seller || listing.owner)?.name || "Unknown User"}
                   </p>
                   <p className="text-xs text-muted-foreground">
                     Member since{" "}
-                    {new Date(listing.seller?.createdAt).getFullYear()}
+                    {new Date((listing.seller || listing.owner)?.createdAt || new Date()).getFullYear()}
                   </p>
                 </div>
               </Link>
@@ -334,7 +332,7 @@ export default async function ListingPage({
               </div>
 
               <div className="pt-2 border-t mt-2">
-                <SellerRating sellerId={listing.seller?._id} />
+                <SellerRating sellerId={listing.seller?._id || listing.owner?._id} />
               </div>
 
               <ReportButton listingId={listing._id} />

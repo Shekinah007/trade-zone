@@ -6,7 +6,7 @@ import SearchLog from "@/models/SearchLog";
 
 // Models must be registered
 import "@/models/User";
-import "@/models/Property";
+import "@/models/Item";
 
 export async function GET(req: NextRequest) {
   try {
@@ -24,7 +24,7 @@ export async function GET(req: NextRequest) {
       .sort({ createdAt: -1 })
       .limit(500)
       .populate("user", "name email image")
-      .populate("propertyId", "itemType brand model serialNumber")
+      .populate("itemId", "itemType brand model serialNumber")
       .lean();
 
     return NextResponse.json({ logs });

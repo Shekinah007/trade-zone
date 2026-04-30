@@ -2,8 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import dbConnect from "@/lib/db";
-import Listing from "@/models/Listing";
-import Property from "@/models/Property";
+import Item from "@/models/Item";
 import { v2 as cloudinary } from 'cloudinary';
 
 cloudinary.config({
@@ -15,24 +14,24 @@ cloudinary.config({
 export async function GET(
   req: Request,
     context: { params: Promise<{ id: string }> }
-
 ) {
   try {
     const { id } = await context.params;
     await dbConnect();
-    const listing = await Listing.findById(id)
+    const item = await Item.findById(id)
       .populate("seller", "name image email createdAt")
-      .populate("category", "name slug");
+      .populate("listing.category", "name slug");
 
-    if (!listing) {
+    if (!item || !item.isListed) {
       return NextResponse.json({ message: "Listing not found" }, { status: 404 });
     }
 
     // Increment view count
-    listing.views += 1;
-    await listing.save();
+    if (!item.listing) item.listing = {};
+    item.listing.views = (item.listing.views || 0) + 1;
+    await item.save();
 
-    return NextResponse.json(listing);
+    return NextResponse.json(item);
   } catch (error) {
     return NextResponse.json({ message: "Error fetching listing" }, { status: 500 });
   }
@@ -41,7 +40,6 @@ export async function GET(
 export async function PUT(
   req: Request,
   context: { params: Promise<{ id: string }> }
-
 ) {
   const session = await getServerSession(authOptions);
   if (!session) {
@@ -51,50 +49,56 @@ export async function PUT(
   try {
     const { id } = await context.params;
     await dbConnect();
-    const listing = await Listing.findById(id);
+    const item = await Item.findById(id);
 
-    if (!listing) {
+    if (!item || !item.isListed) {
       return NextResponse.json({ message: "Listing not found" }, { status: 404 });
     }
 
-    if (listing.seller.toString() !== session.user.id && session.user.role !== 'admin') {
+    const sellerOrOwnerId = item.seller || item.owner;
+    if (sellerOrOwnerId?.toString() !== session.user.id && session.user.role !== 'admin') {
       return NextResponse.json({ message: "Forbidden" }, { status: 403 });
     }
 
     // Parse form data
     const formData = await req.formData();
     
-    if (formData.has("title")) listing.title = formData.get("title") as string;
-    if (formData.has("description")) listing.description = formData.get("description") as string;
-    if (formData.has("price")) listing.price = parseFloat(formData.get("price") as string);
-    if (formData.has("category")) listing.category = formData.get("category") as any;
-    if (formData.has("condition")) listing.condition = formData.get("condition") as string;
-    if (formData.has("uniqueIdentifier")) listing.uniqueIdentifier = formData.get("uniqueIdentifier") as string;
+    if (!item.listing) item.listing = {};
+
+    if (formData.has("title")) item.listing.title = formData.get("title") as string;
+    if (formData.has("description")) item.description = formData.get("description") as string;
+    if (formData.has("price")) item.listing.price = parseFloat(formData.get("price") as string);
+    if (formData.has("category")) item.listing.category = formData.get("category") as any;
+    if (formData.has("condition")) item.listing.condition = formData.get("condition") as string;
+    if (formData.has("uniqueIdentifier")) {
+      item.uniqueIdentifier = formData.get("uniqueIdentifier") as string;
+      if (item.isRegistered) {
+        if (!item.registry) item.registry = {};
+        item.registry.serialNumber = item.uniqueIdentifier;
+      }
+    }
     
-    // brand & model — read from formData first so we can send them to the property later
+    // brand & model — update core
     const newBrand = formData.has("brand") ? (formData.get("brand") as string) || undefined : undefined;
     const newModel = formData.has("model") ? (formData.get("model") as string) || undefined : undefined;
-    if (newBrand) listing.brand = newBrand;
-    if (newModel) (listing as any).model = newModel;
+    if (newBrand) item.brand = newBrand;
+    if (newModel) item.set('model', newModel);
 
     // Location update
     if (formData.has("city") || formData.has("country")) {
-         listing.location = {
-            city: formData.get("city") as string || listing.location.city,
-            state: formData.get("state") as string || listing.location.state,
-            country: formData.get("country") as string || listing.location.country,
+         if (!item.listing.location) item.listing.location = { city: "", country: "" };
+         item.listing.location = {
+            city: formData.get("city") as string || item.listing.location.city,
+            state: formData.get("state") as string || item.listing.location.state,
+            country: formData.get("country") as string || item.listing.location.country,
          };
     }
 
     // Status update
     if (formData.has("status")) {
-        listing.status = formData.get("status") as 'active' | 'sold' | 'expired' | 'inactive';
+        item.listing.status = formData.get("status") as 'active' | 'sold' | 'expired' | 'inactive';
     }
     
-    // Handle Images
-    // Only update images if we have explicit image data keys (even if empty, they would be present if form submitted them)
-    // ListingForm appends 'existingImages' for kept images.
-    // If we are just marking as sold, we don't send 'images' or 'existingImages'.
     const hasImageUpdates = formData.has("images") || formData.has("existingImages");
 
     if (hasImageUpdates) {
@@ -121,38 +125,11 @@ export async function PUT(
           }
         }
 
-        listing.images = [...existingImages, ...newImageUrls];
+        item.images = [...existingImages, ...newImageUrls];
     }
 
-    await listing.save();
-
-    // ── Sync relevant fields to the linked Property record ───────────────────
-    if (listing.propertyId) {
-      const propertyUpdate: Record<string, any> = {};
-
-      if (newBrand) propertyUpdate.brand = newBrand;
-      if (newModel) propertyUpdate.model = newModel;
-
-      // uniqueIdentifier on the listing maps to serialNumber on the property
-      if (formData.has("uniqueIdentifier") && formData.get("uniqueIdentifier")) {
-        propertyUpdate.serialNumber = listing.uniqueIdentifier;
-      }
-
-      // Keep property images in sync with the listing
-      if (hasImageUpdates) {
-        propertyUpdate.images = listing.images;
-      }
-
-      if (Object.keys(propertyUpdate).length > 0) {
-        await Property.findByIdAndUpdate(
-          listing.propertyId,
-          { $set: propertyUpdate },
-          { new: true }
-        );
-      }
-    }
-
-    return NextResponse.json(listing);
+    await item.save();
+    return NextResponse.json(item);
 
   } catch (error) {
     console.error(error);
@@ -163,7 +140,6 @@ export async function PUT(
 export async function DELETE(
   req: Request,
     context: { params: Promise<{ id: string }> }
-
 ) {
   const session = await getServerSession(authOptions);
   if (!session) {
@@ -173,17 +149,27 @@ export async function DELETE(
   const { id } = await context.params;
   try {
     await dbConnect();
-    const listing = await Listing.findById(id);
+    const item = await Item.findById(id);
 
-    if (!listing) {
+    if (!item || !item.isListed) {
       return NextResponse.json({ message: "Listing not found" }, { status: 404 });
     }
 
-    if (listing.seller.toString() !== session.user.id && session.user.role !== 'admin') {
+    const sellerOrOwnerId = item.seller || item.owner;
+    if (sellerOrOwnerId?.toString() !== session.user.id && session.user.role !== 'admin') {
       return NextResponse.json({ message: "Forbidden" }, { status: 403 });
     }
 
-    await Listing.findByIdAndDelete(id);
+    if (item.isRegistered) {
+      // It's registered, so we only remove the listing info
+      item.isListed = false;
+      item.seller = undefined;
+      item.listing = undefined;
+      await item.save();
+    } else {
+      // Not registered, delete entirely
+      await Item.findByIdAndDelete(id);
+    }
 
     return NextResponse.json({ message: "Listing deleted successfully" });
   } catch (error) {

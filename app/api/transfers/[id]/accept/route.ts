@@ -3,7 +3,7 @@ import { getServerSession } from "next-auth";
 // import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 // import dbConnect from '@/lib/mongoose';
 import TransferRequest from "@/models/TransferRequest";
-import Property from "@/models/Property";
+import Item from "@/models/Item";
 import Notification from "@/models/Notification";
 import dbConnect from "@/lib/db";
 import { authOptions } from "@/lib/auth";
@@ -24,7 +24,7 @@ export async function POST(
     await dbConnect();
 
     const transferRequest =
-      await TransferRequest.findById(id).populate("propertyId");
+      await TransferRequest.findById(id).populate("itemId");
     if (!transferRequest) {
       return NextResponse.json(
         { error: "Transfer request not found" },
@@ -46,8 +46,8 @@ export async function POST(
       );
     }
 
-    const property = await Property.findById(transferRequest.propertyId);
-    if (!property) {
+    const item = await Item.findById(transferRequest.itemId);
+    if (!item) {
       return NextResponse.json(
         { error: "Property not found" },
         { status: 404 },
@@ -59,7 +59,10 @@ export async function POST(
     await transferRequest.save();
 
     // Log the transfer in previousOwners
-    property.previousOwners.push({
+    if (!item.previousOwners) {
+      item.previousOwners = [];
+    }
+    item.previousOwners.push({
       fromUser: transferRequest.fromUser,
       toUser: session.user.id as any,
       dateSold: new Date(),
@@ -69,17 +72,17 @@ export async function POST(
     });
 
     // Update Property ownership
-    property.owner = session.user.id as any;
-    property.status = "registered";
-    await property.save();
+    item.owner = session.user.id as any;
+    item.ownershipStatus = "owned";
+    await item.save();
 
     // Notify Sender
     const notification = new Notification({
       userId: transferRequest.fromUser,
       title: "Transfer Accepted",
-      message: `${session.user.name} accepted the transfer of ${property.brand} ${property.model}.`,
+      message: `${session.user.name} accepted the transfer of ${item.brand} ${item.model}.`,
       type: "system",
-      link: `/registry/${property._id}`,
+      link: `/registry/${item._id}`,
     });
     await notification.save();
 

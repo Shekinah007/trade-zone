@@ -16,7 +16,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import dbConnect from "@/lib/db";
-import Listing from "@/models/Listing";
+import Item from "@/models/Item";
 import { ListingCard } from "@/components/ListingCard";
 import { Button } from "@/components/ui/button";
 import Category from "@/models/Category";
@@ -26,7 +26,7 @@ import { FloatingPaths } from "@/components/ui/background-paths";
 
 async function getRecentListings() {
   await dbConnect();
-  const listings = await Listing.find({ status: "active" })
+  const listings = await Item.find({ isListed: true, "listing.status": "active" })
     .sort({ createdAt: -1 })
     .limit(8)
     .lean();
@@ -370,12 +370,12 @@ export default async function Home() {
                   <ListingCard
                     key={listing._id}
                     id={listing._id}
-                    title={listing.title}
-                    price={listing.price}
+                    title={listing.listing?.title || listing.model}
+                    price={listing.listing?.price}
                     image={listing.images[0]}
-                    category={listing.category}
-                    condition={listing.condition}
-                    location={listing.location}
+                    category={listing.listing?.category}
+                    condition={listing.listing?.condition}
+                    location={listing.listing?.location}
                     createdAt={listing.createdAt}
                   />
                 ))}

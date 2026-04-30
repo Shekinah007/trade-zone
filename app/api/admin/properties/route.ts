@@ -1,5 +1,5 @@
 import dbConnect from "@/lib/db";
-import Property from "@/models/Property";
+import Item from "@/models/Item";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { NextResponse } from "next/server";
@@ -14,7 +14,7 @@ export async function GET(req: Request) {
 
     await dbConnect();
 
-    const properties = await Property.find({})
+    const properties = await Item.find({ isRegistered: true })
       .populate("owner", "name email image")
       .sort({ createdAt: -1 })
       .lean();

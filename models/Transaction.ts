@@ -3,7 +3,7 @@ import mongoose, { Schema, Document, Model } from 'mongoose';
 export interface ITransaction extends Document {
   buyer: mongoose.Types.ObjectId;
   seller: mongoose.Types.ObjectId;
-  listing: mongoose.Types.ObjectId;
+  item: mongoose.Types.ObjectId;
   price: number;
   status: 'pending' | 'seller_confirmed' | 'buyer_confirmed' | 'fully_confirmed' | 'cancelled';
   transferRequestId?: mongoose.Types.ObjectId;
@@ -14,7 +14,7 @@ const TransactionSchema = new Schema<ITransaction>(
   {
     buyer: { type: Schema.Types.ObjectId, ref: 'User', required: true },
     seller: { type: Schema.Types.ObjectId, ref: 'User', required: true },
-    listing: { type: Schema.Types.ObjectId, ref: 'Listing', required: true },
+    item: { type: Schema.Types.ObjectId, ref: 'Item', required: true },
     price: { type: Number, required: true },
     status: {
       type: String,

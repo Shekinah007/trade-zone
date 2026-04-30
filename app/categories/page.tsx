@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Grid3X3 } from "lucide-react";
 import dbConnect from "@/lib/db";
 import Category from "@/models/Category";
-import Listing from "@/models/Listing";
+import Item from "@/models/Item";
 
 export async function getCategoriesWithCounts() {
   await dbConnect();
@@ -13,7 +13,7 @@ export async function getCategoriesWithCounts() {
   const categoriesWithCounts = await Promise.all(
     categories.map(async (cat: any) => {
       const [count, subcategoryCount] = await Promise.all([
-        Listing.countDocuments({ category: cat._id, status: "active" }),
+        Item.countDocuments({ isListed: true, "listing.category": cat._id, "listing.status": "active" }),
         Category.countDocuments({ parent: cat._id }),
       ]);
       return { ...cat, count, subcategoryCount };

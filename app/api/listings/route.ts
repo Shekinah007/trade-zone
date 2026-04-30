@@ -2,10 +2,9 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import dbConnect from "@/lib/db";
-import Listing from "@/models/Listing";
+import Item from "@/models/Item";
 import { v2 as cloudinary } from 'cloudinary';
 
-import Property from "@/models/Property";
 import Category from "@/models/Category";
 import User from "@/models/User";
 
@@ -22,20 +21,18 @@ export async function GET(req: Request) {
     
     // Basic Filtering
     const category = searchParams.get("category");
-    const query = {};
+    const query: any = { isListed: true, "listing.status": "active" };
     
     if (category) {
-      Object.assign(query, { category });
+      query["listing.category"] = category;
     }
-    
-    Object.assign(query, { status: "active" });
 
-    const listings = await Listing.find(query)
+    const items = await Item.find(query)
       .populate("seller", "name image")
-      .populate("category", "name slug")
+      .populate("listing.category", "name slug")
       .sort({ createdAt: -1 });
 
-    return NextResponse.json(listings);
+    return NextResponse.json(items);
   } catch (error) {
     return NextResponse.json({ message: "Error fetching listings" }, { status: 500 });
   }
@@ -63,97 +60,112 @@ export async function POST(req: Request) {
     const brand = formData.get("brand") as string;
     const model = formData.get("model") as string;
 
-    
     const imageFiles = formData.getAll("images") as File[];
     const imageUrls: string[] = [];
 
     // Upload images to Cloudinary
     if (imageFiles && imageFiles.length > 0) {
        for (const file of imageFiles) {
-          const arrayBuffer = await file.arrayBuffer();
-          const buffer = Buffer.from(arrayBuffer);
-          
-          const uploadResult: any = await new Promise((resolve, reject) => {
-            cloudinary.uploader.upload_stream(
-              { folder: "trade-zone" },
-              (error, result) => {
-                if (error) reject(error);
-                else resolve(result);
-              }
-            ).end(buffer);
-          });
-          
-          imageUrls.push(uploadResult.secure_url);
+          if (file instanceof File && file.size > 0) {
+            const arrayBuffer = await file.arrayBuffer();
+            const buffer = Buffer.from(arrayBuffer);
+            
+            const uploadResult: any = await new Promise((resolve, reject) => {
+              cloudinary.uploader.upload_stream(
+                { folder: "trade-zone" },
+                (error, result) => {
+                  if (error) reject(error);
+                  else resolve(result);
+                }
+              ).end(buffer);
+            });
+            
+            imageUrls.push(uploadResult.secure_url);
+          }
        }
     }
 
-    let propertyId = undefined;
-
     const dbUser = await User.findById(session.user.id);
+    let existingItem: any = null;
 
     if (uniqueIdentifier) {
-      const existingProperty = await Property.findOne({
+      existingItem = await Item.findOne({
         $or: [
-          { serialNumber: uniqueIdentifier },
-          { imei: uniqueIdentifier },
-          { chassisNumber: uniqueIdentifier },
+          { 'registry.serialNumber': uniqueIdentifier },
+          { 'registry.imei': uniqueIdentifier },
+          { 'registry.chassisNumber': uniqueIdentifier },
+          { uniqueIdentifier: uniqueIdentifier }
         ]
       });
-
-      if (!existingProperty) {
-        // Only auto-create property if user has unlimited registrations
-        if (dbUser && dbUser.unlimitedRegistrations) {
-          const categoryDoc = await Category.findById(category).lean();
-          const catName = categoryDoc?.name?.toLowerCase() || "";
-          
-          let itemType = 'other';
-          if (catName.includes('phone') || catName.includes('mobile')) itemType = 'phone';
-          else if (catName.includes('laptop') || catName.includes('mac')) itemType = 'laptop';
-          else if (catName.includes('tablet') || catName.includes('ipad')) itemType = 'tablet';
-          else if (catName.includes('car') || catName.includes('vehicle')) itemType = 'vehicle';
-          else if (catName.includes('motorcycle') || catName.includes('bike')) itemType = 'motorcycle';
-          else if (catName.includes('generator')) itemType = 'generator';
-          else if (catName.includes('electronic')) itemType = 'electronics';
-
-          const newProperty = await Property.create({
-            owner: session.user.id,
-            itemType,
-            brand: brand || 'Unknown',
-            model: model || title, // Fallback to title if model is not selected
-            serialNumber: uniqueIdentifier, 
-            images: imageUrls,
-            status: 'registered'
-          });
-          propertyId = newProperty._id;
-        }
-      } else {
-        propertyId = existingProperty._id;
-      }
     }
 
-    const newListing = await Listing.create({
+    const listingData = {
       title,
-      description,
       price,
-      category,
+      category: category as any,
       condition,
       location: { city, state, country },
-      uniqueIdentifier,
-      brand,
-      model,
-      propertyId,
-      images: imageUrls,
-      seller: session.user.id,
-      status: "active",
+      status: "active" as const,
       featured: false,
-      views: 0
-    });
+      views: 0,
+      listedAt: new Date(),
+    };
 
-    if (propertyId) {
-      await Property.findByIdAndUpdate(propertyId, { listingId: newListing._id });
+    if (existingItem) {
+      existingItem.isListed = true;
+      existingItem.seller = session.user.id;
+      existingItem.listing = listingData;
+      if (!existingItem.brand || existingItem.brand === 'Unknown') existingItem.brand = brand || 'Unknown';
+      if (!existingItem.model || existingItem.model === 'Unknown') existingItem.model = model || title;
+      if (!existingItem.images || existingItem.images.length === 0) existingItem.images = imageUrls;
+      
+      await existingItem.save();
+      return NextResponse.json(existingItem, { status: 201 });
     }
 
-    return NextResponse.json(newListing, { status: 201 });
+    // New item creation
+    let isRegistered = false;
+    let registryData: any = undefined;
+    let itemTypeData = 'other';
+    
+    if (uniqueIdentifier && dbUser && dbUser.unlimitedRegistrations) {
+      isRegistered = true;
+      const categoryDoc = await Category.findById(category).lean();
+      const catName = categoryDoc?.name?.toLowerCase() || "";
+      
+      if (catName.includes('phone') || catName.includes('mobile')) itemTypeData = 'phone';
+      else if (catName.includes('laptop') || catName.includes('mac')) itemTypeData = 'laptop';
+      else if (catName.includes('tablet') || catName.includes('ipad')) itemTypeData = 'tablet';
+      else if (catName.includes('car') || catName.includes('vehicle')) itemTypeData = 'vehicle';
+      else if (catName.includes('motorcycle') || catName.includes('bike')) itemTypeData = 'motorcycle';
+      else if (catName.includes('generator')) itemTypeData = 'generator';
+      else if (catName.includes('electronic')) itemTypeData = 'electronics';
+
+      registryData = {
+        serialNumber: uniqueIdentifier,
+      };
+    }
+
+    const newItem = await Item.create({
+      owner: session.user.id,
+      brand: brand || 'Unknown',
+      model: model || title,
+      description,
+      images: imageUrls,
+      uniqueIdentifier,
+      itemType: isRegistered ? itemTypeData : undefined,
+      
+      isRegistered,
+      registeredAt: isRegistered ? new Date() : undefined,
+      registry: registryData,
+      ownershipStatus: isRegistered ? 'owned' : undefined,
+      
+      isListed: true,
+      seller: session.user.id,
+      listing: listingData
+    });
+
+    return NextResponse.json(newItem, { status: 201 });
   } catch (error: any) {
     console.error("Listing creation error:", error);
     return NextResponse.json({ message: error.message || "Something went wrong" }, { status: 500 });

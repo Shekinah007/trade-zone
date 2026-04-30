@@ -80,18 +80,18 @@ export default function AdminListingsPage() {
       const q = search.toLowerCase();
       result = result.filter(
         (l) =>
-          l.title?.toLowerCase().includes(q) ||
-          l.seller?.name?.toLowerCase().includes(q) ||
-          l.seller?.email?.toLowerCase().includes(q)
+          (l.listing?.title || l.model || "").toLowerCase().includes(q) ||
+          l.owner?.name?.toLowerCase().includes(q) ||
+          l.owner?.email?.toLowerCase().includes(q)
       );
     }
 
     if (statusFilter !== "all") {
-      result = result.filter((l) => l.status === statusFilter);
+      result = result.filter((l) => l.listing?.status === statusFilter);
     }
 
-    if (minPrice) result = result.filter((l) => l.price >= Number(minPrice));
-    if (maxPrice) result = result.filter((l) => l.price <= Number(maxPrice));
+    if (minPrice) result = result.filter((l) => l.listing?.price >= Number(minPrice));
+    if (maxPrice) result = result.filter((l) => l.listing?.price <= Number(maxPrice));
 
     if (dateFrom) result = result.filter((l) => new Date(l.createdAt) >= new Date(dateFrom));
     if (dateTo) {
@@ -107,9 +107,13 @@ export default function AdminListingsPage() {
         valA = new Date(valA).getTime();
         valB = new Date(valB).getTime();
       }
+      if (sortField === "price") {
+        valA = a.listing?.price || 0;
+        valB = b.listing?.price || 0;
+      }
       if (sortField === "title") {
-        valA = valA?.toLowerCase() ?? "";
-        valB = valB?.toLowerCase() ?? "";
+        valA = (a.listing?.title || a.model || "").toLowerCase();
+        valB = (b.listing?.title || b.model || "").toLowerCase();
       }
       if (valA < valB) return sortDir === "asc" ? -1 : 1;
       if (valA > valB) return sortDir === "asc" ? 1 : -1;
@@ -256,7 +260,7 @@ export default function AdminListingsPage() {
         {filtered.map((listing: any) => (
           <div key={listing._id} className="rounded-xl border bg-card p-4 space-y-3">
             <div className="flex items-start justify-between gap-2">
-              <p className="font-semibold text-sm leading-snug line-clamp-2">{listing.title}</p>
+              <p className="font-semibold text-sm leading-snug line-clamp-2">{listing.listing?.title || listing.model}</p>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="h-8 w-8 p-0 shrink-0">
@@ -276,18 +280,18 @@ export default function AdminListingsPage() {
             </div>
 
             <div className="text-xs text-muted-foreground">
-              <span className="font-medium text-foreground">{listing.seller?.name || "Unknown"}</span>
-              {listing.seller?.email && <span> · {listing.seller.email}</span>}
+              <span className="font-medium text-foreground">{listing.owner?.name || "Unknown"}</span>
+              {listing.owner?.email && <span> · {listing.owner.email}</span>}
             </div>
 
             <div className="flex items-center gap-2 flex-wrap">
-              <Badge variant={listing.status === "active" ? "default" : "secondary"}>
-                {listing.status}
+              <Badge variant={listing.listing?.status === "active" ? "default" : "secondary"}>
+                {listing.listing?.status}
               </Badge>
-              {listing.category?.name && (
-                <Badge variant="outline" className="text-xs">{listing.category.name}</Badge>
+              {listing.listing?.category?.name && (
+                <Badge variant="outline" className="text-xs">{listing.listing.category.name}</Badge>
               )}
-              <span className="text-sm font-semibold text-primary ml-auto">₦{listing.price}</span>
+              <span className="text-sm font-semibold text-primary ml-auto">₦{listing.listing?.price?.toLocaleString() || 0}</span>
             </div>
 
             <p className="text-xs text-muted-foreground">
@@ -333,20 +337,20 @@ export default function AdminListingsPage() {
             )}
             {filtered.map((listing: any) => (
               <TableRow key={listing._id}>
-                <TableCell className="font-medium max-w-[200px] truncate" title={listing.title}>
-                  {listing.title}
+                <TableCell className="font-medium max-w-[200px] truncate" title={listing.listing?.title || listing.model}>
+                  {listing.listing?.title || listing.model}
                 </TableCell>
                 <TableCell>
                   <div className="flex flex-col">
-                    <span className="text-sm">{listing.seller?.name || "Unknown"}</span>
-                    <span className="text-xs text-muted-foreground">{listing.seller?.email}</span>
+                    <span className="text-sm">{listing.owner?.name || "Unknown"}</span>
+                    <span className="text-xs text-muted-foreground">{listing.owner?.email}</span>
                   </div>
                 </TableCell>
-                <TableCell>₦{listing.price}</TableCell>
-                <TableCell>{listing.category?.name || "N/A"}</TableCell>
+                <TableCell>₦{listing.listing?.price?.toLocaleString() || 0}</TableCell>
+                <TableCell>{listing.listing?.category?.name || "N/A"}</TableCell>
                 <TableCell>
-                  <Badge variant={listing.status === "active" ? "default" : "secondary"}>
-                    {listing.status}
+                  <Badge variant={listing.listing?.status === "active" ? "default" : "secondary"}>
+                    {listing.listing?.status}
                   </Badge>
                 </TableCell>
                 <TableCell>{new Date(listing.createdAt).toLocaleDateString()}</TableCell>

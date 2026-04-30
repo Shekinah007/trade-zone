@@ -4,7 +4,7 @@ import { authOptions } from "@/lib/auth";
 import dbConnect from "@/lib/db";
 import Conversation from "@/models/Conversation";
 import "@/models/User";
-import "@/models/Listing";
+import "@/models/Item";
 
 export async function POST(req: Request) {
   const session = await getServerSession(authOptions);
@@ -28,13 +28,13 @@ export async function POST(req: Request) {
     // Check if conversation exists
     let conversation = await Conversation.findOne({
       participants: { $all: [session.user.id, sellerId] },
-      listing: listingId,
+      item: listingId,
     });
 
     if (!conversation) {
       conversation = await Conversation.create({
         participants: [session.user.id, sellerId],
-        listing: listingId,
+        item: listingId,
         unreadCount: {
             [session.user.id as string]: 0,
             [sellerId as string]: 0
@@ -63,7 +63,7 @@ export async function GET(req: Request) {
       participants: session.user.id
     })
     .populate("participants", "name image")
-    .populate("listing", "title images price")
+    .populate("item", "model listing.title listing.price images")
     .sort({ updatedAt: -1 });
 
     return NextResponse.json(conversations);

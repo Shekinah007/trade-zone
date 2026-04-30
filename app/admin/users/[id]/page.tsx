@@ -3,7 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import dbConnect from "@/lib/db";
 import User from "@/models/User";
-import Listing from "@/models/Listing";
+import Item from "@/models/Item";
 import Business from "@/models/Business";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -32,7 +32,7 @@ async function getUserData(id: string) {
   await dbConnect();
   const [user, listings, business] = await Promise.all([
     User.findById(id).lean(),
-    Listing.find({ seller: id }).sort({ createdAt: -1 }).lean(),
+    Item.find({ owner: id, isListed: true }).sort({ createdAt: -1 }).lean(),
     Business.findOne({ owner: id }).lean(),
   ]);
   if (!user) return null;
@@ -81,8 +81,8 @@ export default async function UserDetailPage({
   if (!data) notFound();
 
   const { user, listings, business } = data;
-  const activeListings = listings.filter((l: any) => l.status === "active");
-  const soldListings = listings.filter((l: any) => l.status === "sold");
+  const activeListings = listings.filter((l: any) => l.listing?.status === "active");
+  const soldListings = listings.filter((l: any) => l.listing?.status === "sold");
 
   return (
     <div className="space-y-6 max-w-5xl">
@@ -427,7 +427,7 @@ export default async function UserDetailPage({
                     {listing.images?.[0] ? (
                       <img
                         src={listing.images[0]}
-                        alt={listing.title}
+                        alt={listing.listing?.title || listing.model}
                         className="h-full w-full object-cover"
                       />
                     ) : (
@@ -438,7 +438,7 @@ export default async function UserDetailPage({
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="font-medium text-sm truncate">
-                      {listing.title}
+                      {listing.listing?.title || listing.model}
                     </p>
                     <p className="text-xs text-muted-foreground">
                       {new Date(listing.createdAt).toLocaleDateString()}
@@ -447,17 +447,17 @@ export default async function UserDetailPage({
                   <div className="flex items-center gap-3 shrink-0">
                     <span
                       className={`text-xs px-2 py-0.5 rounded-full font-medium capitalize ${
-                        listing.status === "active"
+                        listing.listing?.status === "active"
                           ? "bg-green-500/10 text-green-600"
-                          : listing.status === "sold"
+                          : listing.listing?.status === "sold"
                             ? "bg-blue-500/10 text-blue-600"
                             : "bg-muted text-muted-foreground"
                       }`}
                     >
-                      {listing.status}
+                      {listing.listing?.status}
                     </span>
                     <span className="font-bold text-sm text-primary">
-                      ₦{listing.price?.toLocaleString()}
+                      ₦{listing.listing?.price?.toLocaleString()}
                     </span>
                   </div>
                 </Link>

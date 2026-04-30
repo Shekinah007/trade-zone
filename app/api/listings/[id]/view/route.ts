@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import dbConnect from "@/lib/db";
-import Listing from "@/models/Listing";
+import Item from "@/models/Item";
 import { cookies } from "next/headers";
 
 export async function POST(
@@ -16,8 +16,8 @@ export async function POST(
   // Don't count if the seller is viewing their own listing
   const session = await getServerSession(authOptions);
   if (session?.user?.id) {
-    const listing = await Listing.findById(id).select("seller").lean() as any;
-    if (listing?.seller?.toString() === session.user.id) {
+    const item = await Item.findById(id).select("seller").lean() as any;
+    if (item?.seller?.toString() === session.user.id) {
       return NextResponse.json({ skipped: true });
     }
   }
@@ -29,7 +29,7 @@ export async function POST(
     return NextResponse.json({ skipped: true });
   }
 
-  await Listing.findByIdAndUpdate(id, { $inc: { views: 1 } });
+  await Item.findByIdAndUpdate(id, { $inc: { "listing.views": 1 } });
 
   const res = NextResponse.json({ success: true });
   res.cookies.set(cookieKey, "1", {

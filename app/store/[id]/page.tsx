@@ -219,7 +219,7 @@ import {
 import dbConnect from "@/lib/db";
 import User from "@/models/User";
 import Business from "@/models/Business";
-import Listing from "@/models/Listing";
+import Item from "@/models/Item";
 import Review from "@/models/Review";
 import { ListingCard } from "@/components/ListingCard";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -233,12 +233,12 @@ async function getStoreData(sellerId: string) {
   const [business, user, listings, reviews] = await Promise.all([
     Business.findOne({ owner: sellerId }).lean(),
     User.findById(sellerId).select("-password").lean(),
-    Listing.find({ seller: sellerId, status: "active" })
+    Item.find({ owner: sellerId, isListed: true, "listing.status": "active" })
       .sort({ createdAt: -1 })
       .lean(),
     Review.find({ reviewee: sellerId })
       .populate("reviewer", "name image")
-      .populate("listing", "title")
+      .populate("item")
       .sort({ createdAt: -1 })
       .lean(),
   ]);
@@ -532,12 +532,12 @@ export default async function StorePage({
                     <ListingCard
                       key={listing._id}
                       id={listing._id}
-                      title={listing.title}
-                      price={listing.price}
+                      title={listing.listing?.title || listing.model}
+                      price={listing.listing?.price}
                       image={listing.images?.[0]}
-                      category={listing.category}
-                      condition={listing.condition}
-                      location={listing.location}
+                      category={listing.listing?.category}
+                      condition={listing.listing?.condition}
+                      location={listing.listing?.location}
                       createdAt={listing.createdAt}
                     />
                   ))}
@@ -624,9 +624,9 @@ export default async function StorePage({
                               <p className="text-sm font-semibold leading-none">
                                 {review.reviewer?.name || "User"}
                               </p>
-                              {review.listing?.title && (
+                              {review.item && (
                                 <p className="text-xs text-muted-foreground truncate max-w-[140px]">
-                                  re: {review.listing.title}
+                                  re: {review.item.listing?.title || review.item.model}
                                 </p>
                               )}
                             </div>

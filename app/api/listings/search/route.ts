@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import dbConnect from "@/lib/db";
-import Listing from "@/models/Listing";
+import Item from "@/models/Item";
 
 export async function GET(req: NextRequest) {
   await dbConnect();
@@ -14,31 +14,33 @@ export async function GET(req: NextRequest) {
   const page = parseInt(searchParams.get("page") || "1");
   const limit = 12;
 
-  const filter: any = { status: "active" };
+  const filter: any = { isListed: true, "listing.status": "active" };
 
   if (q) {
     filter.$or = [
-      { title: { $regex: q, $options: "i" } },
+      { "listing.title": { $regex: q, $options: "i" } },
       { description: { $regex: q, $options: "i" } },
+      { brand: { $regex: q, $options: "i" } },
+      { model: { $regex: q, $options: "i" } },
     ];
   }
 
   if (category) {
-    filter.category = category;
+    filter["listing.category"] = category;
   }
 
   if (minPrice || maxPrice) {
-    filter.price = {};
-    if (minPrice) filter.price.$gte = Number(minPrice);
-    if (maxPrice) filter.price.$lte = Number(maxPrice);
+    filter["listing.price"] = {};
+    if (minPrice) filter["listing.price"].$gte = Number(minPrice);
+    if (maxPrice) filter["listing.price"].$lte = Number(maxPrice);
   }
 
   if (condition) {
-    filter.condition = condition;
+    filter["listing.condition"] = condition;
   }
 
-  const total = await Listing.countDocuments(filter);
-  const listings = await Listing.find(filter)
+  const total = await Item.countDocuments(filter);
+  const listings = await Item.find(filter)
     .sort({ createdAt: -1 })
     .skip((page - 1) * limit)
     .limit(limit)

@@ -18,7 +18,7 @@ export async function POST(req: Request) {
     const review = await Review.create({
       reviewer: session.user.id,
       reviewee: revieweeId,
-      listing: listingId,
+      item: listingId,
       rating,
       comment
     });

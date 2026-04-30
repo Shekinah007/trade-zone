@@ -2,7 +2,7 @@ import { notFound, redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import dbConnect from "@/lib/db";
-import Listing from "@/models/Listing";
+import Item from "@/models/Item";
 import {
   Card,
   CardContent,
@@ -18,7 +18,7 @@ async function getListing(id: string) {
   // Validate ID format if necessary, mongoose usually handles it but lean might crash
   if (!id.match(/^[0-9a-fA-F]{24}$/)) return null;
 
-  const listing = await Listing.findById(id).populate("category").lean();
+  const listing = await Item.findById(id).populate("listing.category").lean();
   return listing ? JSON.parse(JSON.stringify(listing)) : null;
 }
 
@@ -49,8 +49,9 @@ export default async function EditListingPage({
   }
 
   // Check ownership
+  const sellerOrOwnerId = listing.seller || listing.owner;
   if (
-    listing.seller.toString() !== session.user.id &&
+    sellerOrOwnerId?.toString() !== session.user.id &&
     session.user.role !== "admin"
   ) {
     return (

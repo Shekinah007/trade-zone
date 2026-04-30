@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import dbConnect from '@/lib/db';
-import Property from '@/models/Property';
+import Item from '@/models/Item';
 import SearchLog from '@/models/SearchLog';
 
 export async function GET(
@@ -17,13 +17,13 @@ export async function GET(
   await dbConnect();
   const { id } = await params;
 
-  const property = await Property.findById(id).lean();
+  const item = await Item.findById(id).lean();
 
-  if (!property) {
+  if (!item || !item.isRegistered) {
     return NextResponse.json({ error: 'Property not found.' }, { status: 404 });
   }
 
-  const isOwner = property.owner.toString() === session.user.id;
+  const isOwner = item.owner.toString() === session.user.id;
   const isAdmin = session.user.role === 'admin';
 
   if (!isOwner && !isAdmin) {
@@ -31,7 +31,7 @@ export async function GET(
   }
 
   try {
-    const logs = await SearchLog.find({ propertyId: id })
+    const logs = await SearchLog.find({ itemId: id })
       .populate('user', 'name email image')
       .sort({ createdAt: -1 })
       .lean();
