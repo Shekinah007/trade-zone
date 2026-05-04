@@ -78,7 +78,6 @@ export async function GET(req: NextRequest) {
       ipAddress !== "::1" &&
       ipAddress !== "127.0.0.1"
     ) {
-      console.log("Hello");
       try {
         const geoRes = await fetch(`http://ip-api.com/json/${ipAddress}`);
         const geoData = await geoRes.json();
@@ -86,12 +85,19 @@ export async function GET(req: NextRequest) {
           resolvedLat = geoData.lat;
           resolvedLng = geoData.lon;
         }
-        console.log("Hello Geo Res", geoRes);
-        console.log("Geo Data", geoData);
+        if (geoData && geoData.status !== "success") {
+          resolvedLat = 8.978799828054317;
+          resolvedLng = 7.4409076812946855;
+        }
       } catch (err) {
         console.error("IP Geolocation fallback failed:", err);
       }
     }
+
+    // if (ipAddress && (ipAddress == "::1" || ipAddress == "127.0.0.1")) {
+    //   resolvedLat = 8.978799828054317;
+    //   resolvedLng = 7.4409076812946855;
+    // }
 
     SearchLog.create({
       query: q,

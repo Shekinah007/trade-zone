@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import Link from "next/link";
 import { formatDistanceToNow } from "date-fns";
@@ -18,8 +18,14 @@ interface ListingCardProps {
 }
 
 export function ListingCard({
-  id, title, price, image, category,
-  condition, location, createdAt,
+  id,
+  title,
+  price,
+  image,
+  category,
+  condition,
+  location,
+  createdAt,
 }: ListingCardProps) {
   const formattedPrice = new Intl.NumberFormat("en-NG", {
     style: "currency",
@@ -29,8 +35,7 @@ export function ListingCard({
 
   return (
     <Link href={`/listings/${id}`} className="block group">
-      <div className="rounded-2xl border bg-card overflow-hidden hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300">
-        
+      <div className=" border bg-card overflow-hidden hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300">
         {/* Image */}
         <div className="relative aspect-[4/3] overflow-hidden bg-muted">
           {image ? (
@@ -47,14 +52,19 @@ export function ListingCard({
 
           {/* Condition badge */}
           <div className="absolute top-2 left-2">
-            <Badge variant="secondary" className="bg-background/90 backdrop-blur-sm text-[10px] px-1.5 py-0.5 border-0 shadow-sm">
+            <Badge
+              variant="secondary"
+              className="bg-background/90 backdrop-blur-sm text-[10px] px-1.5 py-0.5 border-0 shadow-sm"
+            >
               {condition}
             </Badge>
           </div>
 
           {/* Save button */}
-          <div className="absolute top-2 right-2  group-hover:opacity-100 transition-opacity"
-          onClick={(e) => e.preventDefault()}>
+          <div
+            className="absolute top-2 right-2  group-hover:opacity-100 transition-opacity"
+            onClick={(e) => e.preventDefault()}
+          >
             <SaveButton listingId={id} />
           </div>
 

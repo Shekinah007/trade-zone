@@ -146,12 +146,12 @@ export default function RegistrySearchPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-slate-50">
+    <div className="min-h-screen bg-linear-to-b from-slate-50 via-white to-slate-50">
       {/* Decorative background pattern */}
       <div className="fixed inset-0 pointer-events-none">
         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiMyMTIxMjEiIGZpbGwtb3BhY2l0eT0iMC4wMSI+PHBhdGggZD0iTTM2IDE4YzAgMS0xIDItMiAyczItMSAyLTJ6TTE4IDM2YzAgMS0xIDItMiAyczItMSAyLTJ6TTAgMGg2MHY2MEgweiIvPjwvZz48L2c+PC9zdmc+')] opacity-50" />
-        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-gradient-to-bl from-red-100/40 to-purple-100/20 rounded-full blur-3xl" />
-        <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-gradient-to-tr from-emerald-100/30 to-teal-100/20 rounded-full blur-3xl" />
+        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-linear-to-bl from-red-100/40 to-purple-100/20 rounded-full blur-3xl" />
+        <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-linear-to-tr from-emerald-100/30 to-teal-100/20 rounded-full blur-3xl" />
       </div>
 
       {/* Header */}
@@ -160,7 +160,7 @@ export default function RegistrySearchPage() {
           {/* Top badge */}
           <div className="flex justify-center mb-8">
             <div className="inline-flex items-center gap-3 px-5 py-2.5 rounded-2xl bg-white/80 backdrop-blur-sm border border-slate-200 shadow-sm">
-              <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-gradient-to-r from-red-500 to-purple-600 text-white text-xs font-bold">
+              <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-linear-to-r from-red-500 to-purple-600 text-white text-xs font-bold">
                 <Zap className="h-3 w-3" />
                 LIVE
               </div>
@@ -173,11 +173,11 @@ export default function RegistrySearchPage() {
           {/* Main heading */}
           <div className="text-center mb-12">
             <h1 className="text-3xl md:text-4xl lg:text-5xl font-black tracking-tight mb-6">
-              <span className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-700 bg-clip-text text-transparent">
+              <span className="bg-linear-to-r from-slate-900 via-slate-800 to-slate-700 bg-clip-text text-transparent">
                 Property Registry
               </span>
               <br />
-              <span className="bg-gradient-to-r from-red-600 to-purple-600 bg-clip-text text-transparent">
+              <span className="bg-linear-to-r from-red-600 to-purple-600 bg-clip-text text-transparent">
                 Search & Verification
               </span>
             </h1>
@@ -201,7 +201,7 @@ export default function RegistrySearchPage() {
                 {/* Glow effect on focus */}
                 <div
                   className={`
-                  absolute inset-0 rounded-3xl bg-gradient-to-r from-red-500 to-purple-600 opacity-0 transition-opacity duration-300 blur-xl
+                  absolute inset-0 rounded-3xl bg-linear-to-r from-red-500 to-purple-600 opacity-0 transition-opacity duration-300 blur-xl
                   ${focused ? "opacity-20" : ""}
                 `}
                 />
@@ -229,7 +229,7 @@ export default function RegistrySearchPage() {
                   <Button
                     type="submit"
                     size="lg"
-                    className="rounded-2xl px-8 h-14 bg-gradient-to-r from-red-600 to-purple-600 hover:from-red-700 hover:to-purple-700 text-white font-bold shadow-lg shadow-red-500/25 hover:shadow-red-500/40 transition-all duration-300"
+                    className="rounded-2xl px-8 h-14 bg-linear-to-r from-red-600 to-purple-600 hover:from-red-700 hover:to-purple-700 text-white font-bold shadow-lg shadow-red-500/25 hover:shadow-red-500/40 transition-all duration-300"
                     disabled={loading}
                   >
                     {loading ? (
@@ -253,7 +253,7 @@ export default function RegistrySearchPage() {
                       onClick={() => handleQuickSearch(item.placeholder)}
                       className="group flex items-center gap-3 px-4 py-3 rounded-2xl bg-white/60 backdrop-blur-sm border border-slate-200 hover:border-red-300 hover:bg-white hover:shadow-md transition-all duration-200"
                     >
-                      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-red-50 to-purple-50 flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <div className="w-10 h-10 rounded-xl bg-linear-to-br from-red-50 to-purple-50 flex items-center justify-center group-hover:scale-110 transition-transform">
                         <item.icon className="h-5 w-5 text-red-600" />
                       </div>
                       <div className="text-left">
@@ -296,10 +296,10 @@ export default function RegistrySearchPage() {
                 },
               ].map((stat, i) => (
                 <div key={i} className="relative group">
-                  <div className="absolute inset-0 bg-gradient-to-r opacity-0 group-hover:opacity-10 rounded-2xl transition-opacity duration-300" />
+                  <div className="absolute inset-0 bg-linear-to-r opacity-0 group-hover:opacity-10 rounded-2xl transition-opacity duration-300" />
                   <div className="relative px-6 py-4 rounded-2xl bg-white/60 backdrop-blur-sm border border-slate-200 text-center">
                     <div
-                      className={`text-3xl font-black bg-gradient-to-r ${stat.color} bg-clip-text text-transparent`}
+                      className={`text-3xl font-black bg-linear-to-r ${stat.color} bg-clip-text text-transparent`}
                     >
                       {stat.value}
                     </div>
@@ -319,7 +319,7 @@ export default function RegistrySearchPage() {
         {loading && (
           <div className="flex flex-col items-center justify-center py-24">
             <div className="relative">
-              <div className="w-24 h-24 rounded-full bg-gradient-to-r from-red-500 to-purple-600 animate-pulse" />
+              <div className="w-24 h-24 rounded-full bg-linear-to-r from-red-500 to-purple-600 animate-pulse" />
               <Loader2 className="absolute inset-0 m-auto h-12 w-12 animate-spin text-white" />
             </div>
             <p className="mt-6 text-lg font-medium text-slate-600">
@@ -334,7 +334,7 @@ export default function RegistrySearchPage() {
         {!loading && searched && results.length === 0 && (
           <div className="flex flex-col items-center justify-center py-20">
             <div className="relative mb-8">
-              <div className="w-32 h-32 rounded-full bg-gradient-to-br from-emerald-100 to-teal-100 flex items-center justify-center">
+              <div className="w-32 h-32 rounded-full bg-linear-to-br from-emerald-100 to-teal-100 flex items-center justify-center">
                 <Shield className="h-16 w-16 text-emerald-600" />
               </div>
               <div className="absolute -top-2 -right-2 w-12 h-12 rounded-full bg-emerald-500 flex items-center justify-center">
@@ -352,7 +352,7 @@ export default function RegistrySearchPage() {
               <Button
                 asChild
                 size="lg"
-                className="rounded-2xl bg-gradient-to-r from-red-600 to-purple-600 hover:from-red-700 hover:to-purple-700 text-white shadow-lg shadow-red-500/25"
+                className="rounded-2xl bg-linear-to-r from-red-600 to-purple-600 hover:from-red-700 hover:to-purple-700 text-white shadow-lg shadow-red-500/25"
               >
                 <Link href="/registry/register">
                   <Shield className="mr-2 h-5 w-5" />
@@ -412,7 +412,7 @@ export default function RegistrySearchPage() {
                 >
                   {/* Status indicator bar */}
                   <div
-                    className={`absolute top-0 left-6 right-6 h-1 rounded-full bg-gradient-to-r ${cfg.gradient}`}
+                    className={`absolute top-0 left-6 right-6 h-1 rounded-full bg-linear-to-r ${cfg.gradient}`}
                   />
 
                   <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
@@ -482,8 +482,8 @@ export default function RegistrySearchPage() {
 
                       {/* Owner info */}
                       {session && item.owner ? (
-                        <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-gradient-to-r from-red-50 to-purple-50 border border-red-100">
-                          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-red-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm">
+                        <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-linear-to-r from-red-50 to-purple-50 border border-red-100">
+                          <div className="w-10 h-10 rounded-full bg-linear-to-br from-red-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm">
                             {item.owner.name?.charAt(0) || "?"}
                           </div>
                           <div>
@@ -506,7 +506,7 @@ export default function RegistrySearchPage() {
                     {/* Actions */}
                     <div className="flex flex-col gap-3 lg:self-start">
                       {item.status === "missing" && (
-                        <div className="flex items-center gap-3 px-5 py-3 rounded-2xl bg-gradient-to-r from-red-500 to-rose-500 text-white shadow-lg shadow-red-500/25">
+                        <div className="flex items-center gap-3 px-5 py-3 rounded-2xl bg-linear-to-r from-red-500 to-rose-500 text-white shadow-lg shadow-red-500/25">
                           <AlertTriangle className="h-5 w-5" />
                           <div>
                             <div className="font-bold text-sm">STOLEN ITEM</div>
@@ -539,7 +539,7 @@ export default function RegistrySearchPage() {
         {!searched && (
           <div className="flex flex-col items-center justify-center py-16">
             <div className="relative mb-8">
-              <div className="w-24 h-24 rounded-full bg-gradient-to-br from-red-100 to-purple-100 flex items-center justify-center">
+              <div className="w-24 h-24 rounded-full bg-linear-to-br from-red-100 to-purple-100 flex items-center justify-center">
                 <Search className="h-12 w-12 text-red-600" />
               </div>
               <div className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-red-600 flex items-center justify-center">

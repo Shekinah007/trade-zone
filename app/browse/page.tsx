@@ -76,7 +76,10 @@ function BrowseContent() {
   return (
     <div className="container mx-auto px-4 py-10">
       {/* Search Bar */}
-      <form onSubmit={handleSearch} className="flex gap-3 mb-6 flex-col md:flex-row">
+      <form
+        onSubmit={handleSearch}
+        className="flex gap-3 mb-6 flex-col md:flex-row"
+      >
         <div className="relative flex-1">
           <Search className="absolute left-4 top-3.5 h-5 w-5 text-muted-foreground" />
           <Input
@@ -140,7 +143,10 @@ function BrowseContent() {
             />
           </div>
           <div className="flex items-end gap-2">
-            <Button onClick={() => fetchListings(true)} className="flex-1 rounded-lg">
+            <Button
+              onClick={() => fetchListings(true)}
+              className="flex-1 rounded-lg"
+            >
               Apply
             </Button>
             <Button variant="ghost" size="icon" onClick={clearFilters}>
@@ -152,8 +158,15 @@ function BrowseContent() {
 
       {/* Results count */}
       <p className="text-sm text-muted-foreground mb-6">
-        {loading ? "Searching..." : `${total} listing${total !== 1 ? "s" : ""} found`}
-        {query && <span> for <strong>"{query}"</strong></span>}
+        {loading
+          ? "Searching..."
+          : `${total} listing${total !== 1 ? "s" : ""} found`}
+        {query && (
+          <span>
+            {" "}
+            for <strong>"{query}"</strong>
+          </span>
+        )}
       </p>
 
       {/* Results Grid */}
@@ -161,20 +174,22 @@ function BrowseContent() {
         <div className="text-center py-20 border-2 border-dashed rounded-3xl">
           <Search className="h-10 w-10 mx-auto text-muted-foreground mb-4" />
           <p className="text-lg font-medium">No listings found</p>
-          <p className="text-muted-foreground">Try different keywords or filters</p>
+          <p className="text-muted-foreground">
+            Try different keywords or filters
+          </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {listings.map((listing: any) => (
             <ListingCard
               key={listing._id}
               id={listing._id}
               title={listing.title}
-              price={listing.price}
+              price={listing.listing?.price}
               image={listing.images[0]}
-              category={listing.category}
-              condition={listing.condition}
-              location={listing.location}
+              category={listing.listing?.category}
+              condition={listing.listing?.condition}
+              location={listing.listing?.location}
               createdAt={listing.createdAt}
             />
           ))}
