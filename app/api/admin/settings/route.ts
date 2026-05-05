@@ -41,7 +41,12 @@ export async function PUT(req: NextRequest) {
   try {
     await dbConnect();
     const body = await req.json();
-    const { registrationCreditCost, unlimitedRegistrationPriceNGN } = body;
+    const { 
+      registrationCreditCost, 
+      unlimitedRegistrationPriceNGN, 
+      freeListingQuota, 
+      globalListingExpiryDays 
+    } = body;
 
     let settings = await SystemSettings.findOne();
     if (!settings) {
@@ -54,6 +59,14 @@ export async function PUT(req: NextRequest) {
     
     if (unlimitedRegistrationPriceNGN !== undefined) {
       settings.unlimitedRegistrationPriceNGN = Number(unlimitedRegistrationPriceNGN);
+    }
+
+    if (freeListingQuota !== undefined) {
+      settings.freeListingQuota = Number(freeListingQuota);
+    }
+
+    if (globalListingExpiryDays !== undefined) {
+      settings.globalListingExpiryDays = Number(globalListingExpiryDays);
     }
 
     await settings.save();

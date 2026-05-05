@@ -7,6 +7,8 @@ import { v2 as cloudinary } from 'cloudinary';
 
 import Category from "@/models/Category";
 import User from "@/models/User";
+import SystemSettings from "@/models/SystemSettings";
+import Notification from "@/models/Notification";
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -86,6 +88,36 @@ export async function POST(req: Request) {
     }
 
     const dbUser = await User.findById(session.user.id);
+    if (!dbUser) {
+      return NextResponse.json({ message: "User not found" }, { status: 404 });
+    }
+
+    const settings = await SystemSettings.findOne() || await SystemSettings.create({});
+
+    // Apply free quota for existing users if undefined
+    if (dbUser.listingQuota === undefined) {
+      dbUser.listingQuota = settings.freeListingQuota;
+    }
+
+    // Check listing quota
+    if (dbUser.listingQuota <= 0) {
+      return NextResponse.json({ message: "Listing quota exhausted. Please purchase a listing pack." }, { status: 403 });
+    }
+
+    // Decrement quota
+    dbUser.listingQuota -= 1;
+    await dbUser.save();
+
+    if (dbUser.listingQuota === 1) {
+      await Notification.create({
+        userId: dbUser._id,
+        title: "Listing Quota Low",
+        message: "You have 1 listing quota remaining. Purchase a listing pack to continue posting.",
+        type: "system",
+        link: "/dashboard/tokens",
+      });
+    }
+
     let existingItem: any = null;
 
     if (uniqueIdentifier) {
@@ -99,6 +131,8 @@ export async function POST(req: Request) {
       });
     }
 
+    const expiresAt = new Date(Date.now() + settings.globalListingExpiryDays * 24 * 60 * 60 * 1000);
+
     const listingData = {
       title,
       price,
@@ -109,6 +143,8 @@ export async function POST(req: Request) {
       featured: false,
       views: 0,
       listedAt: new Date(),
+      expiresAt,
+      isGrandfathered: false,
     };
 
     if (existingItem) {

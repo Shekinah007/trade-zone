@@ -32,12 +32,15 @@ export default async function AdminLayout({
       {/* Sidebar */}
       <aside className="hidden w-64 border-r bg-background lg:block">
         <div className="flex h-full flex-col bg-white">
-          {/* <div className="flex h-16 items-center border-b px-6">
-            <Link href="/" className="flex items-center gap-2 font-bold text-lg text-primary">
+          <div className="flex h-16 items-center border-b px-6">
+            <Link
+              href="/"
+              className="flex items-center gap-2 font-bold text-lg text-primary"
+            >
               <ShoppingBag className="h-6 w-6" />
               <span>Admin Panel</span>
             </Link>
-          </div> */}
+          </div>
 
           <div className="flex-1 px-3 py-6 overflow-y-auto">
             <AdminSidebarLinks />

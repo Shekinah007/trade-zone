@@ -41,7 +41,7 @@ export async function GET(req: NextRequest) {
 
   const total = await Item.countDocuments(filter);
   const listings = await Item.find(filter)
-    .sort({ createdAt: -1 })
+    .sort({ "listing.boostStatus": 1, createdAt: -1 })
     .skip((page - 1) * limit)
     .limit(limit)
     .lean();

@@ -15,6 +15,7 @@ import {
   Coins,
   History,
   CreditCard,
+  ShoppingCart,
 } from "lucide-react";
 import { format } from "date-fns";
 import { useSession } from "next-auth/react";
@@ -24,7 +25,9 @@ import { toast } from "sonner";
 export default function UserTokensPage() {
   const { data: session } = useSession();
   const [tokensInfo, setTokensInfo] = useState<any>(null);
+  const [listingPacks, setListingPacks] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [purchasingPack, setPurchasingPack] = useState(false);
 
   // Redeem form state
   const [tokenCode, setTokenCode] = useState("");
@@ -34,13 +37,14 @@ export default function UserTokensPage() {
     text: string;
   } | null>(null);
 
-  const fetchMyTokens = async () => {
+  const fetchData = async () => {
     try {
-      const res = await fetch("/api/tokens/my-tokens");
-      if (res.ok) {
-        const data = await res.json();
-        setTokensInfo(data);
-      }
+      const [tokensRes, packsRes] = await Promise.all([
+        fetch("/api/tokens/my-tokens"),
+        fetch("/api/admin/listing-packs")
+      ]);
+      if (tokensRes.ok) setTokensInfo(await tokensRes.json());
+      if (packsRes.ok) setListingPacks(await packsRes.json());
     } catch (err) {
       console.error(err);
     } finally {
@@ -49,7 +53,7 @@ export default function UserTokensPage() {
   };
 
   useEffect(() => {
-    fetchMyTokens();
+    fetchData();
   }, []);
 
   const handleRedeem = async (e: React.FormEvent) => {
@@ -73,7 +77,7 @@ export default function UserTokensPage() {
         });
         setTokenCode("");
         toast.success("Recharge successful");
-        fetchMyTokens();
+        fetchData();
       } else {
         setResultMsg({
           type: "error",
@@ -84,6 +88,28 @@ export default function UserTokensPage() {
       setResultMsg({ type: "error", text: "A network error occurred." });
     } finally {
       setRedeeming(false);
+    }
+  };
+
+  const handleBuyPack = async (packId: string) => {
+    setPurchasingPack(true);
+    try {
+      const res = await fetch("/api/user/buy-listing-pack", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ packId, paymentMethod: 'credit' }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        toast.success("Listing pack purchased successfully!");
+        fetchData();
+      } else {
+        toast.error(data.error || "Failed to purchase pack");
+      }
+    } catch (err) {
+      toast.error("A network error occurred.");
+    } finally {
+      setPurchasingPack(false);
     }
   };
 
@@ -200,6 +226,16 @@ export default function UserTokensPage() {
                 </div>
               )}
 
+              <div className="flex items-center justify-between p-3 rounded-xl bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm border border-emerald-500/10 mt-3">
+                <div className="flex items-center gap-2">
+                  <Ticket className="h-4 w-4 text-emerald-500" />
+                  <span className="text-sm font-medium">Listing Quota</span>
+                </div>
+                <span className="font-bold text-lg bg-gradient-to-r from-emerald-600 to-emerald-400 bg-clip-text text-transparent">
+                  {limitInfo?.listingQuota ?? 3}
+                </span>
+              </div>
+
               <div className="flex items-center justify-between p-3 rounded-xl bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm border border-emerald-500/10">
                 <div className="flex items-center gap-2">
                   <History className="h-4 w-4 text-red-500" />
@@ -291,6 +327,45 @@ export default function UserTokensPage() {
               </button>
             </form>
           </div>
+        </div>
+      </div>
+
+      {/* Listing Packs Area */}
+      <div className="mt-10 pt-6 border-t border-gray-200 dark:border-gray-800" />
+      <div className="relative">
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="font-bold text-xl flex items-center gap-2">
+            <div className="p-1.5 bg-gradient-to-br from-blue-500 to-indigo-500 rounded-lg">
+              <ShoppingCart className="h-4 w-4 text-white" />
+            </div>
+            <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+              Buy Listing Packs
+            </span>
+          </h3>
+        </div>
+        
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {listingPacks.map(pack => (
+             <div key={pack._id} className="p-6 rounded-2xl border bg-white dark:bg-gray-900 shadow-sm hover:shadow-md transition-shadow">
+               <h4 className="font-bold text-lg">{pack.name}</h4>
+               <p className="text-3xl font-black text-blue-600 my-4">+{pack.slotCount} <span className="text-sm font-medium text-gray-500">slots</span></p>
+               <p className="text-sm text-gray-500 mb-6 flex justify-between">
+                 <span>Credits: {pack.creditCost}</span>
+                 <span>Naira: ₦{pack.priceNGN}</span>
+               </p>
+               <button 
+                 onClick={() => handleBuyPack(pack._id)}
+                 disabled={purchasingPack}
+                 className="w-full py-2.5 bg-blue-50 hover:bg-blue-100 text-blue-700 font-medium rounded-xl transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+               >
+                 {purchasingPack ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+                 Buy with Credits
+               </button>
+             </div>
+          ))}
+          {listingPacks.length === 0 && (
+             <p className="text-muted-foreground text-sm col-span-full">No listing packs available right now.</p>
+          )}
         </div>
       </div>
 

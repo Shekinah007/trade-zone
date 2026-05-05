@@ -158,15 +158,15 @@ export default function AdminTokensPage() {
         });
         const data = await res.json();
         if (data.success) {
-          alert(`Successfully generated ${data.count} tokens.`);
+          toast.success(`Successfully generated ${data.count} tokens.`);
         } else {
-          alert(data.error);
+          toast.error(data.error);
         }
       }
       fetchStats();
       fetchTokens();
     } catch (err) {
-      alert("Error generating tokens");
+      toast.error("Error generating tokens");
     } finally {
       setGenerating(false);
     }

@@ -3,6 +3,8 @@ import mongoose, { Schema, Document, Model } from 'mongoose';
 export interface ISystemSettings extends Document {
   registrationCreditCost: number;
   unlimitedRegistrationPriceNGN: number;
+  freeListingQuota: number;
+  globalListingExpiryDays: number;
   updatedAt: Date;
 }
 
@@ -10,6 +12,8 @@ const SystemSettingsSchema = new Schema<ISystemSettings>(
   {
     registrationCreditCost: { type: Number, default: 10 },
     unlimitedRegistrationPriceNGN: { type: Number, default: 10000 },
+    freeListingQuota: { type: Number, default: 3 },
+    globalListingExpiryDays: { type: Number, default: 60 },
   },
   { timestamps: true }
 );

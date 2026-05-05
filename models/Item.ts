@@ -58,6 +58,10 @@ export interface IItem {
     views?: number;
     buyerId?: mongoose.Types.ObjectId;
     listedAt?: Date;
+    expiresAt?: Date;
+    boostStatus?: 'none' | 'active';
+    boostExpiry?: Date;
+    isGrandfathered?: boolean;
   };
 
   createdAt: Date;
@@ -144,6 +148,10 @@ const ItemSchema = new Schema<IItem>(
       views: { type: Number, default: 0 },
       buyerId: { type: Schema.Types.ObjectId, ref: 'User' },
       listedAt: { type: Date },
+      expiresAt: { type: Date },
+      boostStatus: { type: String, enum: ['none', 'active'], default: 'none' },
+      boostExpiry: { type: Date },
+      isGrandfathered: { type: Boolean, default: true },
     },
   },
   { timestamps: true }

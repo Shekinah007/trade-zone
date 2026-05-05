@@ -29,10 +29,6 @@ const navItems = [
   { href: "/admin/monetization", label: "Monetization", icon: Settings },
 ];
 
-// const settingsItems = [
-//   { href: "/admin/settings", label: "General", icon: Settings },
-// ];
-
 export default function AdminSidebarLinks() {
   const pathname = usePathname();
   const [pendingCount, setPendingCount] = useState(0);
@@ -54,10 +50,10 @@ export default function AdminSidebarLinks() {
               key={href}
               href={href}
               className={cn(
-                "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all",
+                "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200",
                 isActive
-                  ? "bg-primary text-primary-foreground shadow-sm"
-                  : "text-foreground/70 hover:text-foreground hover:bg-muted",
+                  ? "bg-gradient-to-r from-red-600 to-rose-600 text-white shadow-md"
+                  : "text-gray-700 dark:text-gray-200 hover:bg-red-50 dark:hover:bg-red-950/40 hover:text-red-700 dark:hover:text-red-300",
               )}
             >
               <Icon className="h-4 w-4 shrink-0" />
@@ -65,48 +61,26 @@ export default function AdminSidebarLinks() {
             </Link>
           );
         })}
+
+        {/* Registrations item with badge */}
         <Link
           href="/admin/registrations"
           className={cn(
-            "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all",
+            "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200",
             pathname === "/admin/registrations"
-              ? "bg-primary text-primary-foreground shadow-sm"
-              : "text-foreground/70 hover:text-foreground hover:bg-muted",
+              ? "bg-gradient-to-r from-red-600 to-rose-600 text-white shadow-md"
+              : "text-gray-700 dark:text-gray-200 hover:bg-red-50 dark:hover:bg-red-950/40 hover:text-red-700 dark:hover:text-red-300",
           )}
         >
           <UserCheck className="h-4 w-4 shrink-0" />
           Registrations
           {pendingCount > 0 && (
-            <span className="ml-auto text-white bg-destructive text-destructive-foreground text-xs font-bold px-1.5 py-0.5 rounded-full">
+            <span className="ml-auto bg-red-100 text-red-700 dark:bg-red-900/60 dark:text-red-200 text-xs font-bold px-2 py-0.5 rounded-full shadow-sm">
               {pendingCount}
             </span>
           )}
         </Link>
       </div>
-
-      {/* <div className="border-t pt-4">
-        <p className="px-3 mb-2 text-xs font-semibold text-muted-foreground uppercase tracking-widest">
-          Settings
-        </p>
-        {settingsItems.map(({ href, label, icon: Icon }) => {
-          const isActive = pathname === href;
-          return (
-            <Link
-              key={href}
-              href={href}
-              className={cn(
-                "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all",
-                isActive
-                  ? "bg-primary text-primary-foreground shadow-sm"
-                  : "text-foreground/70 hover:text-foreground hover:bg-muted",
-              )}
-            >
-              <Icon className="h-4 w-4 shrink-0" />
-              {label}
-            </Link>
-          );
-        })}
-      </div> */}
     </div>
   );
 }

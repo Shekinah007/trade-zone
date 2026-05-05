@@ -17,6 +17,7 @@ import {
   ChevronRight,
   LogOut,
   Menu,
+  DollarSign,
 } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -31,6 +32,7 @@ const navItems = [
   { href: "/admin/reports", label: "Reports", icon: AlertTriangle },
   { href: "/admin/tokens", label: "Token Management", icon: Coins },
   { href: "/admin/search-logs", label: "Search Logs", icon: Search },
+  { href: "/admin/monetization", label: "Monetization", icon: DollarSign },
   { href: "/admin/properties", label: "Property Registry", icon: Shield },
 ];
 

@@ -18,6 +18,7 @@ import {
   Database,
   Zap,
   Coins,
+  ArrowUpCircle,
 } from "lucide-react";
 import { authOptions } from "@/lib/auth";
 import dbConnect from "@/lib/db";
@@ -494,8 +495,20 @@ export default async function DashboardPage({ searchParams }: any) {
                               condition={listing.listing?.condition}
                               location={listing.listing?.location}
                               createdAt={listing.createdAt}
+                              boostStatus={listing.listing?.boostStatus}
                             />
                             <div className="absolute top-2 right-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                              <Button
+                                size="icon"
+                                variant="secondary"
+                                className="h-7 w-7 text-amber-600 bg-amber-50 hover:bg-amber-100 border border-amber-200"
+                                title="Boost Listing"
+                                asChild
+                              >
+                                <Link href={`/dashboard/boosts?listingId=${listing._id}`}>
+                                  <ArrowUpCircle className="h-4 w-4" />
+                                </Link>
+                              </Button>
                               <Button
                                 size="icon"
                                 variant="secondary"
@@ -546,6 +559,7 @@ export default async function DashboardPage({ searchParams }: any) {
                             condition={listing.listing?.condition}
                             location={listing.listing?.location}
                             createdAt={listing.createdAt}
+                            boostStatus={listing.listing?.boostStatus}
                           />
                         ))}
                       </div>
