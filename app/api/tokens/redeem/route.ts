@@ -37,10 +37,25 @@ export async function POST(req: NextRequest) {
     }
 
     if (token.status !== "active") {
-      return NextResponse.json(
-        { error: `Token is already ${token.status}` },
-        { status: 400 },
-      );
+      if (token.status === "used") {
+        return NextResponse.json(
+          { error: `This token has already been used` },
+          { status: 400 },
+        );
+      }
+      if (token.status === "expired") {
+        return NextResponse.json(
+          { error: `This token has already expired` },
+          { status: 400 },
+        );
+      }
+      if (token.status === "revoked") {
+        return NextResponse.json(
+          { error: `This token has been revoked` },
+          { status: 400 },
+        );
+      }
+      return NextResponse.json({ error: `Token is invalid` }, { status: 400 });
     }
 
     if (new Date() > new Date(token.expiresAt)) {

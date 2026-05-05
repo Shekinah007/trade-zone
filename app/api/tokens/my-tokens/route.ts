@@ -16,7 +16,7 @@ export async function GET(req: NextRequest) {
     await dbConnect();
     
     // Get user details for current limit and redeemed array
-    const user = await User.findById(session.user.id).select('registrationLimit unlimitedRegistrations totalTokensRedeemed');
+    const user = await User.findById(session.user.id).select('creditBalance unlimitedRegistrations totalTokensRedeemed');
     if (!user) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
@@ -29,7 +29,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ 
       success: true, 
       limitInfo: {
-        registrationLimit: user.registrationLimit,
+        creditBalance: user.creditBalance,
         unlimitedRegistrations: user.unlimitedRegistrations,
         totalTokensRedeemed: user.totalTokensRedeemed
       },
