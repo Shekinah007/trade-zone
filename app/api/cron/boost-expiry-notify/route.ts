@@ -1,7 +1,9 @@
 import { NextResponse } from "next/server";
 import dbConnect from "@/lib/db";
 import Item from "@/models/Item";
+import User from "@/models/User";
 import Notification from "@/models/Notification";
+import { sendBoostExpiryEmail } from "@/lib/mail";
 
 export async function GET() {
   try {
@@ -16,7 +18,7 @@ export async function GET() {
       isListed: true,
       'listing.boostStatus': 'active',
       'listing.boostExpiry': { $gte: now, $lt: tomorrow }
-    });
+    }).populate('seller', 'name email');
 
     // Also, handle expired boosts: if boostExpiry < now, reset boostStatus to 'none'
     const expiredBoosts = await Item.find({
@@ -26,7 +28,16 @@ export async function GET() {
     });
 
     const expireUpdates = expiredBoosts.map(item => {
-      item.listing!.boostStatus = 'none';
+      const queue = item.listing?.boostQueue || [];
+      if (queue.length > 0) {
+        const nextBoost = queue.shift();
+        item.listing!.boostStatus = 'active';
+        item.listing!.boostedAt = now;
+        item.listing!.boostExpiry = new Date(now.getTime() + (nextBoost?.durationInDays || 0) * 24 * 60 * 60 * 1000);
+      } else {
+        item.listing!.boostStatus = 'none';
+        item.listing!.boostedAt = undefined;
+      }
       return item.save();
     });
 
@@ -37,15 +48,34 @@ export async function GET() {
     }
 
     if (expiringBoosts.length > 0) {
-      const notifications = expiringBoosts.map(item => ({
-        userId: item.seller,
-        title: "Boost Expiring Soon",
-        message: `Your boost for "${item.listing!.title}" is expiring in less than 24 hours.`,
-        type: "system",
-        link: `/dashboard/listings`,
-      }));
+      const notificationsToInsert = [];
+      for (const item of expiringBoosts) {
+        const queue = item.listing?.boostQueue || [];
+        if (queue.length === 0) {
+          const sellerId = (item.seller as any)?._id || item.seller;
+          notificationsToInsert.push({
+            userId: sellerId,
+            title: "Boost Expiring Soon",
+            message: `Your boost for "${item.listing!.title}" is expiring in less than 24 hours.`,
+            type: "system",
+            link: `/dashboard/boosts`,
+          });
 
-      await Notification.insertMany(notifications);
+          const sellerEmail = (item.seller as any)?.email;
+          const sellerName = (item.seller as any)?.name;
+          if (sellerEmail) {
+            await sendBoostExpiryEmail(
+              sellerEmail,
+              sellerName || "User",
+              item.listing!.title || "your item"
+            );
+          }
+        }
+      }
+
+      if (notificationsToInsert.length > 0) {
+        await Notification.insertMany(notificationsToInsert);
+      }
     }
 
     return NextResponse.json({ 

@@ -73,12 +73,23 @@ export async function POST(req: NextRequest) {
        return NextResponse.json({ error: "Invalid payment method" }, { status: 400 });
     }
 
-    // Apply boosts
-    const boostExpiry = new Date(Date.now() + tier.durationInDays * 24 * 60 * 60 * 1000);
+    const now = new Date();
+    
     const updates = listings.map(item => {
+      if (item.listing?.boostStatus === 'active') {
+        // Queue the boost
+        if (!item.listing.boostQueue) item.listing.boostQueue = [];
+        item.listing.boostQueue.push({
+          durationInDays: tier.durationInDays,
+          purchasedAt: now
+        });
+      } else {
+        // Activate the boost
         item.listing!.boostStatus = 'active';
-        item.listing!.boostExpiry = boostExpiry;
-        return item.save();
+        item.listing!.boostedAt = now;
+        item.listing!.boostExpiry = new Date(now.getTime() + tier.durationInDays * 24 * 60 * 60 * 1000);
+      }
+      return item.save();
     });
 
     await Promise.all(updates);

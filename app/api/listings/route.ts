@@ -32,7 +32,7 @@ export async function GET(req: Request) {
     const items = await Item.find(query)
       .populate("seller", "name image")
       .populate("listing.category", "name slug")
-      .sort({ createdAt: -1 });
+      .sort({ "listing.boostStatus": 1, "listing.boostedAt": -1, createdAt: -1 });
 
     return NextResponse.json(items);
   } catch (error) {

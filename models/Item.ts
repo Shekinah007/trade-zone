@@ -61,6 +61,8 @@ export interface IItem {
     expiresAt?: Date;
     boostStatus?: 'none' | 'active';
     boostExpiry?: Date;
+    boostedAt?: Date;
+    boostQueue?: Array<{ durationInDays: number; purchasedAt: Date }>;
     isGrandfathered?: boolean;
   };
 
@@ -151,6 +153,8 @@ const ItemSchema = new Schema<IItem>(
       expiresAt: { type: Date },
       boostStatus: { type: String, enum: ['none', 'active'], default: 'none' },
       boostExpiry: { type: Date },
+      boostedAt: { type: Date },
+      boostQueue: [{ durationInDays: Number, purchasedAt: Date }],
       isGrandfathered: { type: Boolean, default: true },
     },
   },

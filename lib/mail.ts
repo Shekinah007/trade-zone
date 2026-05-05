@@ -290,3 +290,41 @@ export async function sendAccountRejectedEmail(
     console.error("Error sending account rejection email: ", error);
   }
 }
+
+export async function sendBoostExpiryEmail(
+  email: string,
+  userName: string,
+  listingTitle: string
+) {
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+  const dashboardLink = `${appUrl}/dashboard/boosts`;
+
+  const mailOptions = {
+    from: `"FindMaster" <${process.env.SMTP_USER}>`,
+    to: email,
+    subject: "Your Listing Boost is Expiring Soon",
+    html: `
+      <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <h2 style="color: #f59e0b;">Boost Expiring Soon</h2>
+        <p>Hi ${userName},</p>
+        <p>Your boost for the listing <strong>"${listingTitle}"</strong> is expiring in less than 24 hours.</p>
+        <p>To maintain your premium visibility in searches and categories, consider extending your boost.</p>
+        <div style="margin: 30px 0;">
+          <a href="${dashboardLink}" style="background-color: #f59e0b; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">
+            Manage Boosts
+          </a>
+        </div>
+        <p style="margin-top: 30px; font-size: 14px; color: #666;">
+          If you've already queued another boost, you can ignore this email.
+        </p>
+      </div>
+    `,
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log(`Boost expiry email sent to ${email}`);
+  } catch (error) {
+    console.error("Error sending boost expiry email: ", error);
+  }
+}

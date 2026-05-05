@@ -15,7 +15,7 @@ interface ListingCardProps {
   condition: string;
   location: { city: string; country: string };
   createdAt: string;
-  boostStatus?: 'none' | 'active';
+  boostStatus?: "none" | "active";
 }
 
 export function ListingCard({
@@ -53,14 +53,14 @@ export function ListingCard({
           )}
 
           {/* Condition badge */}
-          <div className="absolute top-2 left-2 flex gap-1">
+          <div className="absolute bottom-2 left-2 flex gap-1">
             <Badge
               variant="secondary"
               className="bg-background/90 backdrop-blur-sm text-[10px] px-1.5 py-0.5 border-0 shadow-sm"
             >
               {condition}
             </Badge>
-            {boostStatus === 'active' && (
+            {boostStatus === "active" && (
               <Badge
                 variant="default"
                 className="bg-amber-500 hover:bg-amber-600 text-[10px] px-1.5 py-0.5 border-0 shadow-sm"

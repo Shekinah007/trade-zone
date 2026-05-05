@@ -109,8 +109,12 @@ export default async function DashboardPage({ searchParams }: any) {
   const properties = await getUserProperties(session.user.id);
   const details = await getUserDetails(session.user.id);
   const transfers = await getUserTransfers(session.user.id);
-  const activeListings = listings.filter((l: any) => l.listing?.status === "active");
-  const soldListings = listings.filter((l: any) => l.listing?.status === "sold");
+  const activeListings = listings.filter(
+    (l: any) => l.listing?.status === "active",
+  );
+  const soldListings = listings.filter(
+    (l: any) => l.listing?.status === "sold",
+  );
   const missingProperties = properties.filter(
     (p: any) => p.ownershipStatus === "missing",
   );
@@ -127,69 +131,101 @@ export default async function DashboardPage({ searchParams }: any) {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
       <div className="container mx-auto py-6 px-4 max-w-7xl">
-        {/* Welcome Header - Compact */}
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold tracking-tight">
-            Welcome back, {session.user.name?.split(" ")[0]}!
-          </h1>
-          <p className="text-sm text-muted-foreground mt-0.5">
-            Manage your marketplace listings and protected assets
-          </p>
-        </div>
+        {/* Welcome & High Priority Actions */}
+        <div className="mb-8 flex flex-col md:flex-row gap-6">
+          <div className="flex-1 bg-gradient-to-br from-emerald-600 to-teal-800 rounded-3xl p-6 md:p-8 text-white shadow-xl relative overflow-hidden flex flex-col justify-between">
+            <div className="absolute top-0 right-0 -mr-8 -mt-8 opacity-10 pointer-events-none">
+              <Zap className="w-64 h-64" />
+            </div>
+            <div className="relative z-10 mb-6">
+              <h1 className="text-3xl md:text-4xl font-black tracking-tight mb-2">
+                Welcome back, {session.user.name?.split(" ")[0]}!
+              </h1>
+              <p className="text-emerald-100/90 text-sm md:text-base max-w-md">
+                Manage your marketplace listings, protected assets, and credits
+                all in one place.
+              </p>
+            </div>
+            <div className="relative z-10 flex flex-wrap gap-3">
+              <Button
+                asChild
+                size="lg"
+                className="bg-white text-emerald-800 hover:bg-gray-100 shadow-md font-semibold rounded-full border-0"
+              >
+                <Link href="/listings/create">
+                  <PlusCircle className="mr-2 h-5 w-5" />
+                  Post New Ad
+                </Link>
+              </Button>
+              <Button
+                asChild
+                size="lg"
+                className="bg-red-500 text-white hover:bg-red-600 shadow-md font-semibold rounded-full border-0"
+              >
+                <Link href="/registry/register">
+                  <Shield className="mr-2 h-5 w-5" />
+                  Register Asset
+                </Link>
+              </Button>
+            </div>
+          </div>
 
-        {/* Stats Overview - Compact */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
-          <Card className="border-l-4 border-l-emerald-500">
-            <CardContent className="p-3">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs text-muted-foreground">
-                    Active Listings
-                  </p>
-                  <h2 className="text-xl font-bold">{activeListings.length}</h2>
+          <div className="w-full md:w-[320px] lg:w-[380px] grid grid-cols-2 gap-3">
+            {/* Quick Stat Cards */}
+            <Card className="border-none shadow-md bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-gray-800/80 rounded-2xl">
+              <CardContent className="p-4 flex flex-col items-center justify-center h-full text-center">
+                <div className="p-2.5 bg-emerald-100 dark:bg-emerald-900/40 rounded-full mb-2">
+                  <Package className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
                 </div>
-                <Package className="h-6 w-6 text-emerald-500 opacity-50" />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="border-l-4 border-l-red-500">
-            <CardContent className="p-3">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs text-muted-foreground">
-                    Registered Items
-                  </p>
-                  <h2 className="text-xl font-bold">{properties.length}</h2>
+                <h2 className="text-2xl font-black text-emerald-700 dark:text-emerald-400">
+                  {activeListings.length}
+                </h2>
+                <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-semibold">
+                  Active Ads
+                </p>
+              </CardContent>
+            </Card>
+            <Card className="border-none shadow-md bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-gray-800/80 rounded-2xl">
+              <CardContent className="p-4 flex flex-col items-center justify-center h-full text-center">
+                <div className="p-2.5 bg-red-100 dark:bg-red-900/40 rounded-full mb-2">
+                  <Shield className="h-5 w-5 text-red-600 dark:text-red-400" />
                 </div>
-                <Shield className="h-6 w-6 text-red-500 opacity-50" />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="border-l-4 border-l-purple-500">
-            <CardContent className="p-3">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs text-muted-foreground">Total Views</p>
-                  <h2 className="text-xl font-bold">{totalViews}</h2>
+                <h2 className="text-2xl font-black text-red-700 dark:text-red-400">
+                  {properties.length}
+                </h2>
+                <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-semibold">
+                  Protected
+                </p>
+              </CardContent>
+            </Card>
+            <Card className="border-none shadow-md bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-gray-800/80 rounded-2xl col-span-2">
+              <CardContent className="p-4 flex items-center justify-between h-full">
+                <div className="flex items-center gap-3">
+                  <div className="p-2.5 bg-amber-100 dark:bg-amber-900/40 rounded-full">
+                    <Coins className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+                  </div>
+                  <div className="text-left">
+                    <h2 className="text-xl font-black text-amber-700 dark:text-amber-400">
+                      {details.creditBalance || 0}
+                    </h2>
+                    <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-semibold">
+                      Available Credits
+                    </p>
+                  </div>
                 </div>
-                <TrendingUp className="h-6 w-6 text-purple-500 opacity-50" />
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* <Card className="border-l-4 border-l-orange-500">
-            <CardContent className="p-3">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs text-muted-foreground">Messages</p>
-                  <h2 className="text-xl font-bold">{totalMessages}</h2>
-                </div>
-                <MessageCircle className="h-6 w-6 text-orange-500 opacity-50" />
-              </div>
-            </CardContent>
-          </Card> */}
+                <Button
+                  asChild
+                  size="sm"
+                  variant="ghost"
+                  className="text-amber-600 hover:text-amber-700 hover:bg-amber-50 dark:hover:bg-amber-900/20 text-xs"
+                >
+                  <Link href="/dashboard/tokens">
+                    Recharge <ArrowRight className="ml-1 h-3 w-3" />
+                  </Link>
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
@@ -273,55 +309,45 @@ export default async function DashboardPage({ searchParams }: any) {
                 <div className="flex flex-col gap-2 mt-1">
                   <Button
                     size="sm"
-                    className="w-full justify-start bg-emerald-600 hover:bg-emerald-700 text-xs h-8"
-                    asChild
-                  >
-                    <Link href="/listings/create">
-                      <PlusCircle className="mr-2 h-3 w-3" />
-                      Post New Listing
-                    </Link>
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="w-full justify-start text-xs h-8 bg-red-500 text-white"
-                    asChild
-                  >
-                    <Link href="/registry/register">
-                      <Shield className="mr-2 h-3 w-3" />
-                      Register Property
-                    </Link>
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="w-full justify-start text-xs h-8"
-                    asChild
-                  >
-                    <Link href="/messages">
-                      <MessageCircle className="mr-2 h-3 w-3" />
-                      View Messages
-                      {/* {totalMessages > 0 && (
-                      <Badge variant="destructive" className="ml-auto text-[10px] px-1">
-                        {totalMessages}
-                      </Badge>
-                    )} */}
-                    </Link>
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="w-full justify-start text-xs h-8"
+                    className="w-full justify-start bg-blue-600 hover:bg-blue-700 text-white shadow-sm text-xs h-9 rounded-lg"
                     asChild
                   >
                     <Link href="/dashboard/tokens">
-                      <Coins className="mr-2 h-3 w-3" />
+                      <ShoppingBag className="mr-2 h-4 w-4" />
+                      Increase Listing Quota
+                    </Link>
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="w-full justify-start border-amber-200 text-amber-700 hover:bg-amber-50 dark:border-amber-800 dark:text-amber-400 dark:hover:bg-amber-950/30 text-xs h-9 rounded-lg shadow-sm"
+                    asChild
+                  >
+                    <Link href="/dashboard/boosts">
+                      <Zap className="mr-2 h-4 w-4" />
+                      Manage Boosts
+                    </Link>
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="w-full justify-start text-xs h-9 rounded-lg"
+                    asChild
+                  >
+                    <Link href="/messages">
+                      <MessageCircle className="mr-2 h-4 w-4" />
+                      View Messages
+                    </Link>
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="w-full justify-start text-xs h-9 rounded-lg"
+                    asChild
+                  >
+                    <Link href="/dashboard/tokens">
+                      <Coins className="mr-2 h-4 w-4" />
                       My Credits
-                      {/* {totalMessages > 0 && (
-                      <Badge variant="destructive" className="ml-auto text-[10px] px-1">
-                        {totalMessages}
-                      </Badge>
-                    )} */}
                     </Link>
                   </Button>
                 </div>
@@ -483,7 +509,7 @@ export default async function DashboardPage({ searchParams }: any) {
 
                   <TabsContent value="active" className="mt-4">
                     {activeListings.length > 0 ? (
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         {activeListings.map((listing: any) => (
                           <div key={listing._id} className="relative group">
                             <ListingCard
@@ -505,7 +531,9 @@ export default async function DashboardPage({ searchParams }: any) {
                                 title="Boost Listing"
                                 asChild
                               >
-                                <Link href={`/dashboard/boosts?listingId=${listing._id}`}>
+                                <Link
+                                  href={`/dashboard/boosts?listingId=${listing._id}`}
+                                >
                                   <ArrowUpCircle className="h-4 w-4" />
                                 </Link>
                               </Button>
@@ -710,7 +738,8 @@ export default async function DashboardPage({ searchParams }: any) {
                           transferred: ArrowRight,
                           transfer_pending: ArrowLeftRight,
                         };
-                        const StatusIcon = statusIcons[p.ownershipStatus] || Shield;
+                        const StatusIcon =
+                          statusIcons[p.ownershipStatus] || Shield;
 
                         return (
                           <Link key={p._id} href={`/registry/${p._id}`}>
