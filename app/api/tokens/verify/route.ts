@@ -64,8 +64,8 @@ export async function GET(req: NextRequest) {
 
     // Check tiers
     if (amount === 100000) {
-      // Tier 1: 1000 NGN for +5 registrations
-      user.registrationLimit = (user.registrationLimit || 1) + 5;
+      // Tier 1: 1000 NGN for +50 Credits
+      user.creditBalance = (user.creditBalance || 0) + 50;
       limitIncreased = true;
     } else if (amount === 1000000) {
       // Tier 2: 10000 NGN for unlimited

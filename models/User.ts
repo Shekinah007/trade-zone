@@ -20,6 +20,7 @@ export interface IUser extends Document {
     value: number;
   }[];
   totalTokensRedeemed: number;
+  creditBalance: number;
 }
 
 const UserSchema = new Schema<IUser>(
@@ -45,6 +46,7 @@ const UserSchema = new Schema<IUser>(
       value: { type: Number }
     }],
     totalTokensRedeemed: { type: Number, default: 0 },
+    creditBalance: { type: Number, default: 0 },
   },
   { timestamps: true }
 );

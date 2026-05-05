@@ -161,7 +161,7 @@ export default function TokenPrintPreview({ tokens, onClose }: Props) {
 
                   {/* Card Content - Fixed height */}
                   <div
-                    className="relative overflow-hidden border-2 border-gray-200 rounded-xl bg-white p-4 transition-all duration-200 hover:shadow-md"
+                    className="relative overflow-hidden border-2 border-gray-200 bg-white p-4 transition-all duration-200 hover:shadow-md"
                     style={{
                       height: "45mm", // Fixed height
                       width: "100%",
@@ -211,7 +211,7 @@ export default function TokenPrintPreview({ tokens, onClose }: Props) {
                           >
                             {token.tokenType === "unlimited"
                               ? "♾️ UNLIMITED"
-                              : `+${token.value} PROPS`}
+                              : `+${token.value} CREDITS`}
                           </span>
                         </div>
                       </div>
@@ -238,7 +238,7 @@ export default function TokenPrintPreview({ tokens, onClose }: Props) {
                       {/* Footer Section */}
                       <div className="flex justify-between items-end pt-1">
                         <div>
-                          <p className="text-[7px] text-gray-400 font-medium">
+                          <p className="text-[7px] text-gray-400 font-medium tracking-wider">
                             ID: {token._id.slice(-8)}
                           </p>
                           <p className="text-[7px] text-gray-400 mt-0.5">
@@ -246,9 +246,11 @@ export default function TokenPrintPreview({ tokens, onClose }: Props) {
                           </p>
                         </div>
                         <div className="text-right">
-                          <p className="text-[7px] text-gray-500">Redeem at</p>
-                          <p className="text-[8px] font-semibold text-red-600">
-                            findmaster.com/redeem
+                          <p className="text-[7px] text-gray-500 tracking-wider">
+                            Redeem at
+                          </p>
+                          <p className="text-[8px] font-semibold text-red-600 tracking-wider">
+                            findmaster.com
                           </p>
                         </div>
                       </div>

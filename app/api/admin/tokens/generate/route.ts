@@ -20,9 +20,9 @@ export async function POST(req: NextRequest) {
   try {
     await dbConnect();
     const body = await req.json();
-    const { tokenType, quantity, batchId, notes, expiryDays } = body;
+    const { tokenType, quantity, batchId, notes, expiryDays, creditValue } = body;
 
-    if (!tokenType || !["basic", "unlimited"].includes(tokenType)) {
+    if (!tokenType || !["basic", "unlimited", "credit"].includes(tokenType)) {
       return NextResponse.json({ error: "Invalid tokenType" }, { status: 400 });
     }
 
@@ -33,7 +33,10 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const value = tokenType === "basic" ? 5 : -1;
+    let value = creditValue || 10;
+    if (tokenType === "unlimited") value = 9999;
+    else if (tokenType === "basic" && !creditValue) value = 10;
+    
     const expDays = expiryDays || 365;
     const expiresAt = new Date();
     expiresAt.setDate(expiresAt.getDate() + expDays);

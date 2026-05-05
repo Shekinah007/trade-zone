@@ -27,6 +27,7 @@ import {
 import { format, formatDistanceToNow } from "date-fns";
 import { cn } from "@/lib/utils";
 import TokenPrintPreview from "@/components/admin/TokenPrintPreview";
+import { toast } from "sonner";
 
 interface RechargeToken {
   _id: string;
@@ -53,6 +54,7 @@ export default function AdminTokensPage() {
   const [quantity, setQuantity] = useState(1);
   const [tokenType, setTokenType] = useState("basic");
   const [batchId, setBatchId] = useState("");
+  const [creditValue, setCreditValue] = useState<number | "">(100);
   const [generating, setGenerating] = useState(false);
   const [bulkMode, setBulkMode] = useState(false);
 
@@ -118,7 +120,12 @@ export default function AdminTokensPage() {
         const res = await fetch("/api/admin/tokens/bulk-generate", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ tokenType, quantity, batchName: batchId }),
+          body: JSON.stringify({
+            tokenType,
+            quantity,
+            batchName: batchId,
+            creditValue: creditValue || undefined,
+          }),
         });
         const data = await res.json();
         if (data.success) {
@@ -142,7 +149,12 @@ export default function AdminTokensPage() {
         const res = await fetch("/api/admin/tokens/generate", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ tokenType, quantity, batchId }),
+          body: JSON.stringify({
+            tokenType,
+            quantity,
+            batchId,
+            creditValue: creditValue || undefined,
+          }),
         });
         const data = await res.json();
         if (data.success) {
@@ -179,7 +191,7 @@ export default function AdminTokensPage() {
 
   const copyToClipboard = (code: string) => {
     navigator.clipboard.writeText(code);
-    alert("Token code copied to clipboard!");
+    toast.success("Token code copied to clipboard!");
   };
 
   const statusConfig = {
@@ -335,11 +347,11 @@ export default function AdminTokensPage() {
                         }`}
                       >
                         <div className="font-medium text-sm">Basic</div>
-                        <div className="text-xs text-muted-foreground mt-1">
+                        {/* <div className="text-xs text-muted-foreground mt-1">
                           +5 Properties
-                        </div>
+                        </div> */}
                       </button>
-                      <button
+                      {/* <button
                         type="button"
                         onClick={() => setTokenType("unlimited")}
                         className={`p-3 text-left rounded-lg border-2 transition-all ${
@@ -352,8 +364,31 @@ export default function AdminTokensPage() {
                         <div className="text-xs text-muted-foreground mt-1">
                           No restrictions
                         </div>
-                      </button>
+                      </button> */}
                     </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold mb-2 text-muted-foreground uppercase tracking-wider">
+                      Credit Value
+                    </label>
+                    <input
+                      type="number"
+                      min="1"
+                      placeholder="e.g. 10"
+                      name="creditValue"
+                      value={creditValue}
+                      onChange={(e) =>
+                        setCreditValue(
+                          e.target.value === "" ? "" : Number(e.target.value),
+                        )
+                      }
+                      className="w-full text-sm p-2.5 bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-red-500/20 focus:border-red-500 outline-none transition-all"
+                    />
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Number of credits this token adds to the user's balance.
+                      (Basic default is 10).
+                    </p>
                   </div>
 
                   <div>
@@ -545,7 +580,7 @@ export default function AdminTokensPage() {
                           >
                             {token.tokenType === "unlimited"
                               ? "♾️ Unlimited"
-                              : `+${token.value} Props`}
+                              : `+${token.value} Credits`}
                           </Badge>
                           <div>{getStatusBadge(token.status)}</div>
                         </div>
@@ -759,7 +794,7 @@ export default function AdminTokensPage() {
                             >
                               {token.tokenType === "unlimited"
                                 ? "♾️ Unlimited"
-                                : `+${token.value} Props`}
+                                : `+${token.value} Credits`}
                             </Badge>
                           </td>
                           <td className="px-4 py-3">

@@ -229,10 +229,14 @@ export default async function DashboardPage({ searchParams }: any) {
                         Protected
                       </div>
                     </div>
-                    {/* <div className="text-center">
-                      <div className="font-bold text-orange-600">{totalMessages}</div>
-                      <div className="text-muted-foreground text-[10px]">Messages</div>
-                    </div> */}
+                    <div className="text-center">
+                      <div className="font-bold text-amber-600">
+                        {details.creditBalance || 0}
+                      </div>
+                      <div className="text-muted-foreground text-[10px]">
+                        Credits
+                      </div>
+                    </div>
                   </div>
                 </div>
 
@@ -311,7 +315,7 @@ export default async function DashboardPage({ searchParams }: any) {
                   >
                     <Link href="/dashboard/tokens">
                       <Coins className="mr-2 h-3 w-3" />
-                      My Tokens
+                      My Credits
                       {/* {totalMessages > 0 && (
                       <Badge variant="destructive" className="ml-auto text-[10px] px-1">
                         {totalMessages}
@@ -634,7 +638,7 @@ export default async function DashboardPage({ searchParams }: any) {
                           <p className="text-xs text-muted-foreground">
                             {details.unlimitedRegistrations
                               ? "You have unlimited property registrations."
-                              : `You have registered ${properties.length} out of ${details.registrationLimit || 1} properties.`}
+                              : `Used ${properties.length} / ${details.registrationLimit || 1} quota. You have ${details.creditBalance || 0} credits.`}
                           </p>
                         </div>
                       </div>
@@ -642,6 +646,7 @@ export default async function DashboardPage({ searchParams }: any) {
                         <TokenPurchaseButton
                           size="sm"
                           className="h-7 text-xs"
+                          creditBalance={details.creditBalance || 0}
                         />
                       )}
                     </div>

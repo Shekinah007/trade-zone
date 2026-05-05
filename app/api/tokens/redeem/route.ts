@@ -1,15 +1,15 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
-import dbConnect from '@/lib/db';
-import RechargeToken from '@/models/RechargeToken';
-import User from '@/models/User';
+import { NextRequest, NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import dbConnect from "@/lib/db";
+import RechargeToken from "@/models/RechargeToken";
+import User from "@/models/User";
 
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
-  
+
   if (!session?.user?.id) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   try {
@@ -18,37 +18,49 @@ export async function POST(req: NextRequest) {
     let { code } = body;
 
     if (!code) {
-      return NextResponse.json({ error: 'Token code is required' }, { status: 400 });
+      return NextResponse.json(
+        { error: "Token code is required" },
+        { status: 400 },
+      );
     }
-    
+
     code = code.trim().toUpperCase();
 
     // Fetch token
     const token = await RechargeToken.findOne({ code });
 
     if (!token) {
-      return NextResponse.json({ error: 'Invalid token code' }, { status: 404 });
+      return NextResponse.json(
+        { error: "Invalid token code" },
+        { status: 404 },
+      );
     }
 
-    if (token.status !== 'active') {
-      return NextResponse.json({ error: `Token is ${token.status}` }, { status: 400 });
+    if (token.status !== "active") {
+      return NextResponse.json(
+        { error: `Token is already ${token.status}` },
+        { status: 400 },
+      );
     }
 
     if (new Date() > new Date(token.expiresAt)) {
-      token.status = 'expired';
+      token.status = "expired";
       await token.save();
-      return NextResponse.json({ error: 'Token has expired' }, { status: 400 });
+      return NextResponse.json({ error: "Token has expired" }, { status: 400 });
     }
 
     // Atomic update to avoid race conditions
     const updatedToken = await RechargeToken.findOneAndUpdate(
-      { _id: token._id, status: 'active' },
-      { $set: { status: 'used', usedBy: session.user.id, usedAt: new Date() } },
-      { new: true }
+      { _id: token._id, status: "active" },
+      { $set: { status: "used", usedBy: session.user.id, usedAt: new Date() } },
+      { new: true },
     );
 
     if (!updatedToken) {
-      return NextResponse.json({ error: 'Token was already used or revoked' }, { status: 400 });
+      return NextResponse.json(
+        { error: "Token was already used or revoked" },
+        { status: 400 },
+      );
     }
 
     // Now update the user
@@ -59,34 +71,35 @@ export async function POST(req: NextRequest) {
           tokenId: updatedToken._id,
           usedAt: updatedToken.usedAt,
           tokenType: updatedToken.tokenType,
-          value: updatedToken.value
-        }
-      }
+          value: updatedToken.value,
+        },
+      },
     };
 
-    if (updatedToken.tokenType === 'unlimited') {
+    if (updatedToken.tokenType === "unlimited") {
       userUpdate.$set = { unlimitedRegistrations: true };
-    } else if (updatedToken.tokenType === 'basic') {
-      // increase current limit by token value (e.g. 10)
-      userUpdate.$inc.registrationLimit = updatedToken.value;
+    } else {
+      userUpdate.$inc.creditBalance = updatedToken.value;
     }
 
     const updatedUser = await User.findByIdAndUpdate(
       session.user.id,
       userUpdate,
-      { new: true }
+      { new: true },
     );
 
-    return NextResponse.json({ 
-      success: true, 
-      message: 'Token redeemed successfully',
+    return NextResponse.json({
+      success: true,
+      message: "Token redeemed successfully",
       tokenType: updatedToken.tokenType,
-      newLimit: updatedUser?.registrationLimit,
-      unlimited: updatedUser?.unlimitedRegistrations
+      newCreditBalance: updatedUser?.creditBalance,
+      unlimited: updatedUser?.unlimitedRegistrations,
     });
-
   } catch (error: any) {
     console.error("Token redeem error:", error);
-    return NextResponse.json({ error: error.message || 'Error redeeming token' }, { status: 500 });
+    return NextResponse.json(
+      { error: error.message || "Error redeeming token" },
+      { status: 500 },
+    );
   }
 }

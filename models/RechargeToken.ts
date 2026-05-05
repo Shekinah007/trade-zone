@@ -2,8 +2,8 @@ import mongoose, { Schema, Document, Model } from 'mongoose';
 
 export interface IRechargeToken extends Document {
   code: string;
-  tokenType: 'basic' | 'unlimited';
-  value: number; // 10 for basic, -1 for unlimited
+  tokenType: 'basic' | 'unlimited' | 'credit';
+  value: number; // 10 for basic, -1 for unlimited, or credit amount
   status: 'active' | 'used' | 'expired' | 'revoked';
   generatedBy?: mongoose.Types.ObjectId;
   usedBy?: mongoose.Types.ObjectId;
@@ -18,7 +18,7 @@ export interface IRechargeToken extends Document {
 const RechargeTokenSchema = new Schema<IRechargeToken>(
   {
     code: { type: String, required: true, unique: true, index: true },
-    tokenType: { type: String, enum: ['basic', 'unlimited'], required: true },
+    tokenType: { type: String, enum: ['basic', 'unlimited', 'credit'], required: true },
     value: { type: Number, required: true },
     status: { 
       type: String, 

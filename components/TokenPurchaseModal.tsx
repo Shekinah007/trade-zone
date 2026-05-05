@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { usePaystackPayment } from "react-paystack";
 import {
@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Check, Shield, Zap, Ticket, Loader2 } from "lucide-react";
+import { Check, Shield, Zap, Ticket, Loader2, Coins } from "lucide-react";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -22,15 +22,46 @@ import { useRouter } from "next/navigation";
 export function TokenPurchaseModal({
   isOpen,
   onClose,
+  initialCreditBalance = 0,
 }: {
   isOpen: boolean;
   onClose: () => void;
+  initialCreditBalance?: number;
 }) {
   const { data: session, update } = useSession();
   const router = useRouter();
   const [loadingTier, setLoadingTier] = useState<number | null>(null);
   const [tokenCode, setTokenCode] = useState("");
   const [redeeming, setRedeeming] = useState(false);
+  const [buyingQuota, setBuyingQuota] = useState(false);
+  
+  const [settings, setSettings] = useState({
+    registrationCreditCost: 10,
+    unlimitedRegistrationPriceNGN: 10000
+  });
+
+  const [creditBalance, setCreditBalance] = useState(initialCreditBalance);
+
+  useEffect(() => {
+    setCreditBalance(initialCreditBalance);
+  }, [initialCreditBalance]);
+
+  useEffect(() => {
+    if (isOpen) {
+      // Fetch settings
+      fetch('/api/settings')
+        .then(res => res.ok ? res.json() : null)
+        .then(data => {
+          if (data && data.success) {
+            setSettings({
+              registrationCreditCost: data.registrationCreditCost || 10,
+              unlimitedRegistrationPriceNGN: data.unlimitedRegistrationPriceNGN || 10000
+            });
+          }
+        })
+        .catch(console.error);
+    }
+  }, [isOpen]);
 
   const config = {
     reference:
@@ -112,32 +143,81 @@ export function TokenPurchaseModal({
     }
   };
 
+  const handleBuyQuota = async () => {
+    setBuyingQuota(true);
+    try {
+      const res = await fetch("/api/user/buy-quota", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      });
+      const data = await res.json();
+
+      if (res.ok) {
+        toast.success(data.message || "Quota purchased successfully!");
+        setCreditBalance(data.newCreditBalance);
+        await update();
+        onClose();
+        router.refresh();
+      } else {
+        toast.error(data.error || "Failed to purchase quota");
+      }
+    } catch (err) {
+      toast.error("An error occurred during purchase.");
+    } finally {
+      setBuyingQuota(false);
+    }
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-xl">
+      <DialogContent className="sm:max-w-4xl">
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold flex items-center gap-2">
             <Shield className="h-6 w-6 text-blue-600" />
             Upgrade Registration Limits
           </DialogTitle>
           <DialogDescription>
-            You have reached your free property registration limit. Purchase a
-            token to secure more of your valuable assets.
+            You have reached your free property registration limit. Purchase credits or unlimited access to secure more of your valuable assets.
           </DialogDescription>
         </DialogHeader>
 
-        <div className="grid md:grid-cols-2 gap-4 mt-4">
+        <div className="grid md:grid-cols-3 gap-4 mt-4">
+          {/* Buy Quota Card */}
+          <Card className="border-2 hover:border-emerald-500 transition-colors bg-gradient-to-br from-emerald-50 to-transparent dark:from-emerald-950/20">
+            <CardContent className="p-6 flex flex-col h-full">
+              <h3 className="font-bold text-lg">1x Quota</h3>
+              <div className="my-4">
+                <span className="text-3xl font-black">{settings.registrationCreditCost}</span>
+                <span className="text-sm text-muted-foreground ml-1">Credits</span>
+              </div>
+              <ul className="space-y-2 mb-6 flex-1 text-sm text-muted-foreground">
+                <li className="flex items-center gap-2">
+                  <Check className="h-4 w-4 text-green-500" /> +1 Property Registration
+                </li>
+                <li className="flex items-center gap-2">
+                  <Coins className="h-4 w-4 text-amber-500" /> You have {creditBalance} credits
+                </li>
+              </ul>
+              <Button
+                onClick={handleBuyQuota}
+                disabled={buyingQuota || creditBalance < settings.registrationCreditCost}
+                className="w-full bg-emerald-600 hover:bg-emerald-700"
+              >
+                {buyingQuota ? "Processing..." : "Buy Quota"}
+              </Button>
+            </CardContent>
+          </Card>
+
           {/* Tier 1 */}
           <Card className="border-2 hover:border-blue-500 transition-colors bg-gradient-to-br from-blue-50 to-transparent dark:from-blue-950/20">
             <CardContent className="p-6 flex flex-col h-full">
-              <h3 className="font-bold text-lg">Bundle Pack</h3>
+              <h3 className="font-bold text-lg">Credits Bundle</h3>
               <div className="my-4">
                 <span className="text-3xl font-black">₦1,000</span>
               </div>
               <ul className="space-y-2 mb-6 flex-1 text-sm text-muted-foreground">
                 <li className="flex items-center gap-2">
-                  <Check className="h-4 w-4 text-green-500" /> +5 Property
-                  Registrations
+                  <Check className="h-4 w-4 text-green-500" /> +50 Credits
                 </li>
                 {/* <li className="flex items-center gap-2">
                   <Check className="h-4 w-4 text-green-500" /> Ownership Certificates

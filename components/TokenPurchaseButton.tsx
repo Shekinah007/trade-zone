@@ -9,12 +9,14 @@ export function TokenPurchaseButton({
   className, 
   variant = "outline",
   label = "Upgrade Limit",
-  size = "default"
+  size = "default",
+  creditBalance = 0
 }: { 
   className?: string;
   variant?: "default" | "destructive" | "outline" | "secondary" | "ghost" | "link";
   label?: string;
   size?: "default" | "sm" | "lg" | "icon";
+  creditBalance?: number;
 }) {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -33,6 +35,7 @@ export function TokenPurchaseButton({
       <TokenPurchaseModal 
         isOpen={isOpen} 
         onClose={() => setIsOpen(false)} 
+        initialCreditBalance={creditBalance}
       />
     </>
   );

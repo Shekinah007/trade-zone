@@ -26,6 +26,7 @@ const navItems = [
   { href: "/admin/properties", label: "Property Registry", icon: Shield },
   { href: "/admin/search-logs", label: "Search Logs", icon: History },
   { href: "/admin/tokens", label: "Tokens", icon: Coins },
+  { href: "/admin/monetization", label: "Monetization", icon: Settings },
 ];
 
 // const settingsItems = [
