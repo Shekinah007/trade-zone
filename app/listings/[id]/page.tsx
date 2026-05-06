@@ -168,7 +168,9 @@ export default async function ListingPage({
                 </div>
                 <div className="flex flex-row gap-2 items-center text-muted-foreground">
                   <Eye className="h-4 w-4" />
-                  <span className="font-semibold">{listing.listing?.views || 0} views</span>
+                  <span className="font-semibold">
+                    {listing.listing?.views || 0} views
+                  </span>
                   <ViewTracker listingId={listing._id} />
                 </div>
                 {listing.uniqueIdentifier && (
@@ -248,8 +250,10 @@ export default async function ListingPage({
                       }`}
                     >
                       <span className="w-1.5 h-1.5 rounded-full bg-current" />
-                      {listing.ownershipStatus ? listing.ownershipStatus.charAt(0).toUpperCase() +
-                        listing.ownershipStatus.slice(1) : "Unknown"}
+                      {listing.ownershipStatus
+                        ? listing.ownershipStatus.charAt(0).toUpperCase() +
+                          listing.ownershipStatus.slice(1)
+                        : "Unknown"}
                     </span>
                   </div>
                 </div>
@@ -283,7 +287,8 @@ export default async function ListingPage({
 
               <div className="flex items-center text-muted-foreground text-sm">
                 <MapPin className="h-4 w-4 mr-1" />
-                {listing.listing?.location?.city}, {listing.listing?.location?.country}
+                {listing.listing?.location?.city},{" "}
+                {listing.listing?.location?.country}
               </div>
 
               <div className="space-y-3">
@@ -321,7 +326,10 @@ export default async function ListingPage({
                   </p>
                   <p className="text-xs text-muted-foreground">
                     Member since{" "}
-                    {new Date((listing.seller || listing.owner)?.createdAt || new Date()).getFullYear()}
+                    {new Date(
+                      (listing.seller || listing.owner)?.createdAt ||
+                        new Date(),
+                    ).getFullYear()}
                   </p>
                 </div>
               </Link>
@@ -332,7 +340,9 @@ export default async function ListingPage({
               </div>
 
               <div className="pt-2 border-t mt-2">
-                <SellerRating sellerId={listing.seller?._id || listing.owner?._id} />
+                <SellerRating
+                  sellerId={listing.seller?._id || listing.owner?._id}
+                />
               </div>
 
               <ReportButton listingId={listing._id} />

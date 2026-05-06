@@ -18,7 +18,7 @@ async function getSellerReviews(id: string) {
     User.findById(id).lean(),
     Review.find({ reviewee: id })
       .populate("reviewer", "name image")
-      .populate("listing", "title")
+      .populate("item", "brand model")
       .sort({ createdAt: -1 })
       .lean(),
   ]);

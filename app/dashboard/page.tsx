@@ -172,20 +172,114 @@ export default async function DashboardPage({ searchParams }: any) {
 
           <div className="w-full md:w-[320px] lg:w-[380px] grid grid-cols-2 gap-3">
             {/* Quick Stat Cards */}
-            <Card className="border-none shadow-md bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-gray-800/80 rounded-2xl">
-              <CardContent className="p-4 flex flex-col items-center justify-center h-full text-center">
-                <div className="p-2.5 bg-emerald-100 dark:bg-emerald-900/40 rounded-full mb-2">
+            {/* <Card className="border-none py-2 shadow-md bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-gray-800/80 rounded-2xl">
+              <CardContent className="p-3 flex flex-col items-center justify-center h-full text-center">
+                <div className="p-2.5 bg-emerald-100 dark:bg-emerald-900/40 rounded-full mb-1">
                   <Package className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
                 </div>
                 <h2 className="text-2xl font-black text-emerald-700 dark:text-emerald-400">
                   {activeListings.length}
                 </h2>
-                <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-semibold">
+                <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-semibold mb-1">
                   Active Ads
                 </p>
+
+                <div className="w-full space-y-1">
+                  <div className="flex justify-between text-[11px] font-medium text-gray-600 dark:text-gray-400">
+                    <span>Quota</span>
+                    <span>
+                      {activeListings.length} / {details.listingQuota}
+                    </span>
+                  </div>
+                  <div className="h-1.5 w-full bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-emerald-500 dark:bg-emerald-400 rounded-full transition-all duration-300"
+                      style={{
+                        width: `${(activeListings.length / details.listingQuota) * 100}%`,
+                      }}
+                    />
+                  </div>
+                  <p className="text-[10px] text-gray-500 dark:text-gray-500">
+                    {details.listingQuota - activeListings.length} remaining
+                  </p>
+                </div>
+              </CardContent>
+            </Card> */}
+            <Card className="border-none shadow-md bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-gray-800/80 rounded-2xl">
+              <CardContent className="p-3 sm:p-4 flex flex-col items-center justify-center text-center">
+                {/* Top row: icon + big number + label (more compact on mobile) */}
+                <div className="flex items-center gap-2 mb-1 sm:mb-2">
+                  <div className="p-1.5 sm:p-2.5 bg-emerald-100 dark:bg-emerald-900/40 rounded-full">
+                    <Package className="h-4 w-4 sm:h-5 sm:w-5 text-emerald-600 dark:text-emerald-400" />
+                  </div>
+                  <h2 className="text-xl sm:text-2xl font-black text-emerald-700 dark:text-emerald-400">
+                    {activeListings.length}
+                  </h2>
+                  <p className="text-[10px] sm:text-[11px] uppercase tracking-wider text-muted-foreground font-semibold">
+                    Active Ads
+                  </p>
+                </div>
+
+                {/* Quota section with progress bar – compact but fully preserved */}
+                <div className="w-full max-w-[180px] sm:max-w-none mt-1 space-y-0.5 sm:space-y-1">
+                  <div className="flex justify-between text-[10px] sm:text-[11px] font-medium text-gray-600 dark:text-gray-400">
+                    <span>Quota</span>
+                    <span>
+                      {activeListings.length} / {details.listingQuota}
+                    </span>
+                  </div>
+                  <div className="h-1 sm:h-1.5 w-full bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-emerald-500 dark:bg-emerald-400 rounded-full transition-all duration-300"
+                      style={{
+                        width: `${(activeListings.length / details.listingQuota) * 100}%`,
+                      }}
+                    />
+                  </div>
+                  <p className="text-[9px] sm:text-[10px] text-gray-500 dark:text-gray-500">
+                    {details.listingQuota - activeListings.length} left
+                  </p>
+                </div>
               </CardContent>
             </Card>
             <Card className="border-none shadow-md bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-gray-800/80 rounded-2xl">
+              <CardContent className="p-3 sm:p-4 flex flex-col items-center justify-center text-center">
+                {/* Top row: icon + big number + label (more compact on mobile) */}
+                <div className="flex items-center gap-2 mb-1 sm:mb-2">
+                  <div className="p-1.5 sm:p-2.5 bg-emerald-100 dark:bg-emerald-900/40 rounded-full">
+                    <Package className="h-4 w-4 sm:h-5 sm:w-5 text-emerald-600 dark:text-emerald-400" />
+                  </div>
+                  <h2 className="text-xl sm:text-2xl font-black text-emerald-700 dark:text-emerald-400">
+                    {properties.length}
+                  </h2>
+                  <p className="text-[10px] sm:text-[11px] uppercase tracking-wider text-muted-foreground font-semibold">
+                    Protected
+                  </p>
+                </div>
+
+                {/* Quota section with progress bar – compact but fully preserved */}
+                <div className="w-full max-w-[180px] sm:max-w-none mt-1 space-y-0.5 sm:space-y-1">
+                  <div className="flex justify-between text-[10px] sm:text-[11px] font-medium text-gray-600 dark:text-gray-400">
+                    <span>Quota</span>
+                    <span>
+                      {properties.length} / {details.registrationLimit}
+                    </span>
+                  </div>
+                  <div className="h-1 sm:h-1.5 w-full bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-emerald-500 dark:bg-emerald-400 rounded-full transition-all duration-300"
+                      style={{
+                        width: `${(properties.length / details.registrationLimit) * 100}%`,
+                      }}
+                    />
+                  </div>
+                  <p className="text-[9px] sm:text-[10px] text-gray-500 dark:text-gray-500">
+                    {details.registrationLimit - properties.length} left
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+            {/* <Card className="border-none shadow-md py-2 bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-gray-800/80 rounded-2xl">
               <CardContent className="p-4 flex flex-col items-center justify-center h-full text-center">
                 <div className="p-2.5 bg-red-100 dark:bg-red-900/40 rounded-full mb-2">
                   <Shield className="h-5 w-5 text-red-600 dark:text-red-400" />
@@ -196,8 +290,28 @@ export default async function DashboardPage({ searchParams }: any) {
                 <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-semibold">
                   Protected
                 </p>
+
+                <div className="w-full space-y-1">
+                  <div className="flex justify-between text-[11px] font-medium text-gray-600 dark:text-gray-400">
+                    <span>Quota</span>
+                    <span>
+                      {properties.length} / {details.registrationLimit}
+                    </span>
+                  </div>
+                  <div className="h-1.5 w-full bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-emerald-500 dark:bg-emerald-400 rounded-full transition-all duration-300"
+                      style={{
+                        width: `${(properties.length / details.registrationLimit) * 100}%`,
+                      }}
+                    />
+                  </div>
+                  <p className="text-[10px] text-gray-500 dark:text-gray-500">
+                    {details.registrationLimit - properties.length} remaining
+                  </p>
+                </div>
               </CardContent>
-            </Card>
+            </Card> */}
             <Card className="border-none shadow-md bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-gray-800/80 rounded-2xl col-span-2">
               <CardContent className="p-4 flex items-center justify-between h-full">
                 <div className="flex items-center gap-3">
