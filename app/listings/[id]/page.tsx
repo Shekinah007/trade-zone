@@ -335,14 +335,18 @@ export default async function ListingPage({
                   className="flex items-center space-x-4 hover:bg-muted/50 p-2 rounded-lg transition-colors group"
                 >
                   <Avatar className="h-12 w-12 group-hover:ring-2 ring-primary/20 transition-all">
-                    <AvatarImage src={(listing.seller || listing.owner)?.image} />
+                    <AvatarImage
+                      src={(listing.seller || listing.owner)?.image}
+                    />
                     <AvatarFallback>
-                      {(listing.seller || listing.owner)?.name?.charAt(0) || "U"}
+                      {(listing.seller || listing.owner)?.name?.charAt(0) ||
+                        "U"}
                     </AvatarFallback>
                   </Avatar>
                   <div>
                     <p className="font-medium group-hover:text-primary transition-colors">
-                      {(listing.seller || listing.owner)?.name || "Unknown User"}
+                      {(listing.seller || listing.owner)?.name ||
+                        "Unknown User"}
                     </p>
                     <p className="text-xs text-muted-foreground">
                       Member since{" "}

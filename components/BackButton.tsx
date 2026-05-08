@@ -14,12 +14,12 @@ interface BackButtonProps {
   showIcon?: boolean;
 }
 
-export function BackButton({ 
-  className, 
-  variant = "ghost", 
+export function BackButton({
+  className,
+  variant = "ghost",
   size = "sm",
   label = "Back",
-  showIcon = true
+  showIcon = true,
 }: BackButtonProps) {
   const router = useRouter();
 
@@ -32,7 +32,7 @@ export function BackButton({
       variant={variant}
       size={size}
       onClick={handleBack}
-      className={cn("gap-2", className)}
+      className={cn("gap-2 text-gray-700", className)}
     >
       {showIcon && <ArrowLeft className="h-4 w-4" />}
       {label}

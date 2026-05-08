@@ -80,7 +80,6 @@ export default function UserFeaturedPage() {
     method: "credits" | "naira",
     reference?: string,
   ) => {
-    console.log("payment method", method);
     try {
       const res = await fetch("/api/user/featured-listings", {
         method: "POST",

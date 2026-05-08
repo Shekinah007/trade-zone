@@ -1,9 +1,9 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import dbConnect from "@/lib/db";
+import { v2 as cloudinary } from "cloudinary";
 import Item from "@/models/Item";
-import { v2 as cloudinary } from 'cloudinary';
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -13,7 +13,7 @@ cloudinary.config({
 
 export async function GET(
   req: Request,
-    context: { params: Promise<{ id: string }> }
+  context: { params: Promise<{ id: string }> },
 ) {
   try {
     const { id } = await context.params;
@@ -23,7 +23,10 @@ export async function GET(
       .populate("listing.category", "name slug");
 
     if (!item || !item.isListed) {
-      return NextResponse.json({ message: "Listing not found" }, { status: 404 });
+      return NextResponse.json(
+        { message: "Listing not found" },
+        { status: 404 },
+      );
     }
 
     // Increment view count
@@ -33,13 +36,16 @@ export async function GET(
 
     return NextResponse.json(item);
   } catch (error) {
-    return NextResponse.json({ message: "Error fetching listing" }, { status: 500 });
+    return NextResponse.json(
+      { message: "Error fetching listing" },
+      { status: 500 },
+    );
   }
 }
 
 export async function PUT(
   req: Request,
-  context: { params: Promise<{ id: string }> }
+  context: { params: Promise<{ id: string }> },
 ) {
   const session = await getServerSession(authOptions);
   if (!session) {
@@ -52,24 +58,35 @@ export async function PUT(
     const item = await Item.findById(id);
 
     if (!item || !item.isListed) {
-      return NextResponse.json({ message: "Listing not found" }, { status: 404 });
+      return NextResponse.json(
+        { message: "Listing not found" },
+        { status: 404 },
+      );
     }
 
     const sellerOrOwnerId = item.seller || item.owner;
-    if (sellerOrOwnerId?.toString() !== session.user.id && session.user.role !== 'admin') {
+    if (
+      sellerOrOwnerId?.toString() !== session.user.id &&
+      session.user.role !== "admin"
+    ) {
       return NextResponse.json({ message: "Forbidden" }, { status: 403 });
     }
 
     // Parse form data
     const formData = await req.formData();
-    
+
     if (!item.listing) item.listing = {};
 
-    if (formData.has("title")) item.listing.title = formData.get("title") as string;
-    if (formData.has("description")) item.description = formData.get("description") as string;
-    if (formData.has("price")) item.listing.price = parseFloat(formData.get("price") as string);
-    if (formData.has("category")) item.listing.category = formData.get("category") as any;
-    if (formData.has("condition")) item.listing.condition = formData.get("condition") as string;
+    if (formData.has("title"))
+      item.listing.title = formData.get("title") as string;
+    if (formData.has("description"))
+      item.description = formData.get("description") as string;
+    if (formData.has("price"))
+      item.listing.price = parseFloat(formData.get("price") as string);
+    if (formData.has("category"))
+      item.listing.category = formData.get("category") as any;
+    if (formData.has("condition"))
+      item.listing.condition = formData.get("condition") as string;
     if (formData.has("uniqueIdentifier")) {
       item.uniqueIdentifier = formData.get("uniqueIdentifier") as string;
       if (item.isRegistered) {
@@ -77,69 +94,81 @@ export async function PUT(
         item.registry.serialNumber = item.uniqueIdentifier;
       }
     }
-    
+
     // brand & model — update core
-    const newBrand = formData.has("brand") ? (formData.get("brand") as string) || undefined : undefined;
-    const newModel = formData.has("model") ? (formData.get("model") as string) || undefined : undefined;
+    const newBrand = formData.has("brand")
+      ? (formData.get("brand") as string) || undefined
+      : undefined;
+    const newModel = formData.has("model")
+      ? (formData.get("model") as string) || undefined
+      : undefined;
     if (newBrand) item.brand = newBrand;
-    if (newModel) item.set('model', newModel);
+    if (newModel) item.set("model", newModel);
 
     // Location update
     if (formData.has("city") || formData.has("country")) {
-         if (!item.listing.location) item.listing.location = { city: "", country: "" };
-         item.listing.location = {
-            city: formData.get("city") as string || item.listing.location.city,
-            state: formData.get("state") as string || item.listing.location.state,
-            country: formData.get("country") as string || item.listing.location.country,
-         };
+      if (!item.listing.location)
+        item.listing.location = { city: "", country: "" };
+      item.listing.location = {
+        city: (formData.get("city") as string) || item.listing.location.city,
+        state: (formData.get("state") as string) || item.listing.location.state,
+        country:
+          (formData.get("country") as string) || item.listing.location.country,
+      };
     }
 
     // Status update
     if (formData.has("status")) {
-        item.listing.status = formData.get("status") as 'active' | 'sold' | 'expired' | 'inactive';
+      item.listing.status = formData.get("status") as
+        | "active"
+        | "sold"
+        | "expired"
+        | "inactive";
     }
-    
-    const hasImageUpdates = formData.has("images") || formData.has("existingImages");
+
+    const hasImageUpdates =
+      formData.has("images") || formData.has("existingImages");
 
     if (hasImageUpdates) {
-        const existingImages = formData.getAll("existingImages") as string[];
-        const newFiles = formData.getAll("images") as File[];
-        const newImageUrls: string[] = [];
+      const existingImages = formData.getAll("existingImages") as string[];
+      const newFiles = formData.getAll("images") as File[];
+      const newImageUrls: string[] = [];
 
-        for (const file of newFiles) {
-          if (file instanceof File && file.size > 0) {
-            const arrayBuffer = await file.arrayBuffer();
-            const buffer = Buffer.from(arrayBuffer);
+      for (const file of newFiles) {
+        if (file instanceof File && file.size > 0) {
+          const arrayBuffer = await file.arrayBuffer();
+          const buffer = Buffer.from(arrayBuffer);
 
-            const uploadResult: any = await new Promise((resolve, reject) => {
-              cloudinary.uploader.upload_stream(
-                { folder: "trade-zone" },
-                (error, result) => {
-                  if (error) reject(error);
-                  else resolve(result);
-                }
-              ).end(buffer);
-            });
+          const uploadResult: any = await new Promise((resolve, reject) => {
+            cloudinary.uploader
+              .upload_stream({ folder: "trade-zone" }, (error, result) => {
+                if (error) reject(error);
+                else resolve(result);
+              })
+              .end(buffer);
+          });
 
-            newImageUrls.push(uploadResult.secure_url);
-          }
+          newImageUrls.push(uploadResult.secure_url);
         }
+      }
 
-        item.images = [...existingImages, ...newImageUrls];
+      item.images = [...existingImages, ...newImageUrls];
     }
 
     await item.save();
     return NextResponse.json(item);
-
   } catch (error) {
     console.error(error);
-    return NextResponse.json({ message: "Error updating listing" }, { status: 500 });
+    return NextResponse.json(
+      { message: "Error updating listing" },
+      { status: 500 },
+    );
   }
 }
 
 export async function DELETE(
   req: Request,
-    context: { params: Promise<{ id: string }> }
+  context: { params: Promise<{ id: string }> },
 ) {
   const session = await getServerSession(authOptions);
   if (!session) {
@@ -152,11 +181,17 @@ export async function DELETE(
     const item = await Item.findById(id);
 
     if (!item || !item.isListed) {
-      return NextResponse.json({ message: "Listing not found" }, { status: 404 });
+      return NextResponse.json(
+        { message: "Listing not found" },
+        { status: 404 },
+      );
     }
 
     const sellerOrOwnerId = item.seller || item.owner;
-    if (sellerOrOwnerId?.toString() !== session.user.id && session.user.role !== 'admin') {
+    if (
+      sellerOrOwnerId?.toString() !== session.user.id &&
+      session.user.role !== "admin"
+    ) {
       return NextResponse.json({ message: "Forbidden" }, { status: 403 });
     }
 
@@ -173,6 +208,38 @@ export async function DELETE(
 
     return NextResponse.json({ message: "Listing deleted successfully" });
   } catch (error) {
-    return NextResponse.json({ message: "Error deleting listing" }, { status: 500 });
+    return NextResponse.json(
+      { message: "Error deleting listing" },
+      { status: 500 },
+    );
   }
+}
+
+// UPDATE LISTING STATUS ONLY
+export async function PATCH(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
+) {
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  await dbConnect();
+  const { id } = await params;
+  const body = await req.json();
+
+  const item = await Item.findById(id);
+  if (!item) {
+    return NextResponse.json({ error: "Item not found" }, { status: 404 });
+  }
+
+  if (item.listing?.status) item.listing.status = body.status;
+  else {
+    return NextResponse.json({ error: "Listing not found" }, { status: 404 });
+  }
+
+  await item.save();
+
+  return NextResponse.json({ item });
 }

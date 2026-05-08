@@ -146,7 +146,9 @@ export function SellerListingPanel({
               <div className="flex items-center justify-center gap-1 text-muted-foreground mb-1">
                 <MessageCircle className="h-3.5 w-3.5" />
               </div>
-              <p className="text-lg font-bold leading-none">{conversationCount}</p>
+              <p className="text-lg font-bold leading-none">
+                {conversationCount}
+              </p>
               <p className="text-[10px] text-muted-foreground mt-0.5">Chats</p>
             </div>
             <div className="bg-muted/40 rounded-lg p-3">
@@ -168,7 +170,8 @@ export function SellerListingPanel({
                   <Zap className="h-3.5 w-3.5 shrink-0" />
                   <span className="font-medium">Boosted</span>
                   <span className="text-muted-foreground ml-auto">
-                    expires {formatDistanceToNow(boostExpiry, { addSuffix: true })}
+                    expires{" "}
+                    {formatDistanceToNow(boostExpiry, { addSuffix: true })}
                   </span>
                 </div>
               )}
@@ -177,7 +180,8 @@ export function SellerListingPanel({
                   <Star className="h-3.5 w-3.5 shrink-0" />
                   <span className="font-medium">Featured</span>
                   <span className="text-muted-foreground ml-auto">
-                    expires {formatDistanceToNow(featuredExpiry, { addSuffix: true })}
+                    expires{" "}
+                    {formatDistanceToNow(featuredExpiry, { addSuffix: true })}
                   </span>
                 </div>
               )}
@@ -224,9 +228,7 @@ export function SellerListingPanel({
               </Link>
 
               {/* Boost */}
-              <Link
-                href={`/dashboard/boosts?listing=${listing._id}`}
-              >
+              <Link href={`/dashboard/boosts?listing=${listing._id}`}>
                 <div className="flex items-center gap-2.5 p-3 rounded-lg border border-border/60 hover:border-orange-400/40 hover:bg-orange-500/5 transition-all cursor-pointer group">
                   <div className="h-8 w-8 rounded-lg bg-orange-500/10 flex items-center justify-center shrink-0 relative">
                     <Zap className="h-3.5 w-3.5 text-orange-500" />
@@ -246,9 +248,7 @@ export function SellerListingPanel({
               </Link>
 
               {/* Feature */}
-              <Link
-                href={`/dashboard/featured?listing=${listing._id}`}
-              >
+              <Link href={`/dashboard/featured?listing=${listing._id}`}>
                 <div className="flex items-center gap-2.5 p-3 rounded-lg border border-border/60 hover:border-purple-400/40 hover:bg-purple-500/5 transition-all cursor-pointer group">
                   <div className="h-8 w-8 rounded-lg bg-purple-500/10 flex items-center justify-center shrink-0 relative">
                     <Star className="h-3.5 w-3.5 text-purple-500" />
@@ -268,7 +268,7 @@ export function SellerListingPanel({
               </Link>
 
               {/* Messages */}
-              <Link href="/messages">
+              <Link href={`/messages`}>
                 <div className="flex items-center gap-2.5 p-3 rounded-lg border border-border/60 hover:border-green-400/40 hover:bg-green-500/5 transition-all cursor-pointer group">
                   <div className="h-8 w-8 rounded-lg bg-green-500/10 flex items-center justify-center shrink-0 relative">
                     <MessageCircle className="h-3.5 w-3.5 text-green-500" />
@@ -283,7 +283,8 @@ export function SellerListingPanel({
                       Chats
                     </p>
                     <p className="text-[10px] text-muted-foreground mt-0.5 truncate">
-                      {conversationCount} conversation{conversationCount !== 1 ? "s" : ""}
+                      {conversationCount} conversation
+                      {conversationCount !== 1 ? "s" : ""}
                     </p>
                   </div>
                 </div>
@@ -393,7 +394,9 @@ export function SellerListingPanel({
               </p>
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium">Final Sale Price (₦)</label>
+              <label className="text-sm font-medium">
+                Final Sale Price (₦)
+              </label>
               <input
                 type="number"
                 className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"

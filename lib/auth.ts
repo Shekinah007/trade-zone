@@ -95,7 +95,6 @@ export const authOptions: NextAuthOptions = {
             `${process.env.ACD_API}/users/${user.email}`,
           );
           const { data } = await externalData.json();
-          console.log("ACD Response Data:", data);
           if (data.business) {
             await Business.create({
               owner: dbUser._id,

@@ -181,25 +181,15 @@ export default function TokenPrintPreview({ tokens, onClose }: Props) {
                     <div className="relative z-10 flex flex-col h-full">
                       {/* Header Section */}
                       <div className="flex items-start justify-between mb-2">
-                        <div className="flex items-center gap-2">
-                          <div className="p-1.5 bg-white rounded-lg flex items-center justify-center">
-                            <Image
-                              src="/LOGO_DESIGN/Logo Resources/Transparent/Mark Only.png" // or "/logo.png" depending on your file
-                              alt="FindMaster"
-                              width={15}
-                              height={15}
-                              className="object-contain"
-                              priority
-                            />
-                          </div>
-                          <div>
-                            <h3 className="font-bold text-gray-900 leading-tight text-xs">
-                              FindMaster
-                            </h3>
-                            <p className="text-[6px] text-gray-500 font-medium uppercase tracking-wider">
-                              Property Registry
-                            </p>
-                          </div>
+                        <div className="w-[100px] mt-2">
+                          <Image
+                            src="/LOGO_DESIGN/Logo Resources/Transparent/Combo.png" // or "/logo.png" depending on your file
+                            alt="FindMaster"
+                            width={100}
+                            height={100}
+                            className="object-contain"
+                            priority
+                          />
                         </div>
                         <div className="text-right">
                           <span

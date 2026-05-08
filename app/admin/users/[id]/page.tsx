@@ -27,6 +27,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import UserStatusManager from "@/components/admin/UserStatusManager";
+import { BackButton } from "@/components/BackButton";
 
 async function getUserData(id: string) {
   await dbConnect();
@@ -81,18 +82,16 @@ export default async function UserDetailPage({
   if (!data) notFound();
 
   const { user, listings, business } = data;
-  const activeListings = listings.filter((l: any) => l.listing?.status === "active");
-  const soldListings = listings.filter((l: any) => l.listing?.status === "sold");
+  const activeListings = listings.filter(
+    (l: any) => l.listing?.status === "active",
+  );
+  const soldListings = listings.filter(
+    (l: any) => l.listing?.status === "sold",
+  );
 
   return (
     <div className="space-y-6 max-w-5xl">
-      {/* Back */}
-      <Link
-        href="/admin/users"
-        className="inline-flex items-center text-sm text-muted-foreground hover:text-primary transition-colors"
-      >
-        <ArrowLeft className="h-4 w-4 mr-1" /> Back to Users
-      </Link>
+      <BackButton />
 
       {/* Profile header */}
       <div className="rounded-2xl border bg-card p-6">

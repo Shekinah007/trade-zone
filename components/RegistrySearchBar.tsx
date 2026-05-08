@@ -1,69 +1,3 @@
-// "use client";
-
-// import { useEffect, useState } from "react";
-// import { useRouter } from "next/navigation";
-// import { Search } from "lucide-react";
-// import { Input } from "@/components/ui/input";
-// import { Button } from "@/components/ui/button";
-// // import LocationDisplay from "./LocationDisplay";
-
-// export function RegistrySearchBar() {
-//   const [query, setQuery] = useState("");
-//   const router = useRouter();
-//   const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(
-//     null,
-//   );
-
-//   useEffect(() => {
-//     if (typeof navigator !== "undefined" && "geolocation" in navigator) {
-//       navigator.geolocation.getCurrentPosition(
-//         (pos) => {
-//           console.log("Latitude", pos.coords.latitude);
-//           console.log("Longitude:", pos.coords.longitude);
-//           setCoords({
-//             lat: pos.coords.latitude,
-//             lng: pos.coords.longitude,
-//           });
-//         },
-//         (err) => console.warn("Geolocation permission denied/failed", err),
-//         { timeout: 10000, maximumAge: 60000 },
-//       );
-//     }
-//   }, []);
-
-//   const handleSearch = (e: React.FormEvent) => {
-//     e.preventDefault();
-//     const q = query.trim();
-//     console.log("q", q);
-//     if (!q) return;
-//     router.push(`/registry/search?q=${encodeURIComponent(q)}`);
-//   };
-
-//   return (
-//     <form onSubmit={handleSearch} className="flex gap-2 w-full">
-//       {/* <LocationDisplay /> */}
-//       <div className="relative flex-1">
-//         <Search className="absolute left-4 top-3 h-5 w-5 text-muted-foreground" />
-//         <Input
-//           id="registry-search-input"
-//           type="search"
-//           placeholder="Enter IMEI, Serial Number, or Chassis Number..."
-//           value={query}
-//           onChange={(e) => setQuery(e.target.value)}
-//           className="pl-12 h-12 text-base rounded-full bg-muted/50 border-transparent focus:bg-background focus:border-primary/50 transition-all"
-//         />
-//       </div>
-//       <Button
-//         type="submit"
-//         size="lg"
-//         className="rounded-full z-1 px-6 bg-gradient-to-r from-primary to-blue-600 hover:opacity-90 border-0"
-//       >
-//         Search
-//       </Button>
-//     </form>
-//   );
-// }
-
 "use client";
 
 import { useEffect, useState } from "react";
@@ -88,8 +22,6 @@ export function RegistrySearchBar() {
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         setCoords({ lat: pos.coords.latitude, lng: pos.coords.longitude });
-        console.log("Latitude", pos.coords.latitude);
-        console.log("Longitude:", pos.coords.longitude);
         setLocating(false);
       },
       (err) => {
@@ -102,12 +34,9 @@ export function RegistrySearchBar() {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("search query: ", query);
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         setCoords({ lat: pos.coords.latitude, lng: pos.coords.longitude });
-        console.log("Latitude", pos.coords.latitude);
-        console.log("Longitude:", pos.coords.longitude);
       },
       (err) => {
         console.warn("Geolocation denied/failed:", err);
@@ -121,7 +50,6 @@ export function RegistrySearchBar() {
     if (coords) {
       url += `&lat=${coords.lat}&lng=${coords.lng}`;
     }
-    console.log("URL: ", url);
     router.push(url);
   };
 

@@ -38,7 +38,6 @@ export async function POST(req: Request) {
     const externalData: any = await fetch(
       `${process.env.ACD_API}/users/${user.email}`,
     );
-    console.log("Hellow:", externalData)
     const { data } = await externalData.json();
 
     if (data?.business) {

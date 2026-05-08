@@ -189,7 +189,6 @@ export async function sendAccountActivatedEmail(
 
   try {
     await transporter.sendMail(mailOptions);
-    console.log(`Account activation email sent to ${email}`);
   } catch (error) {
     console.error("Error sending account activation email: ", error);
   }
@@ -294,7 +293,7 @@ export async function sendAccountRejectedEmail(
 export async function sendBoostExpiryEmail(
   email: string,
   userName: string,
-  listingTitle: string
+  listingTitle: string,
 ) {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
   const dashboardLink = `${appUrl}/dashboard/boosts`;
@@ -333,7 +332,7 @@ export async function sendFeaturedWaitlistEmail(
   email: string,
   userName: string,
   listingTitle: string,
-  waitlistId: string
+  waitlistId: string,
 ) {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
   const checkoutLink = `${appUrl}/dashboard/featured/checkout?waitlistId=${waitlistId}`;
@@ -368,7 +367,7 @@ export async function sendFeaturedWaitlistEmail(
 export async function sendFeaturedExpiryEmail(
   email: string,
   userName: string,
-  listingTitle: string
+  listingTitle: string,
 ) {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
   const dashboardLink = `${appUrl}/dashboard/featured`;
