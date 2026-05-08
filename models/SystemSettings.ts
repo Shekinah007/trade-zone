@@ -5,6 +5,7 @@ export interface ISystemSettings extends Document {
   unlimitedRegistrationPriceNGN: number;
   freeListingQuota: number;
   globalListingExpiryDays: number;
+  maxFeaturedSlots: number;
   updatedAt: Date;
 }
 
@@ -14,6 +15,7 @@ const SystemSettingsSchema = new Schema<ISystemSettings>(
     unlimitedRegistrationPriceNGN: { type: Number, default: 10000 },
     freeListingQuota: { type: Number, default: 3 },
     globalListingExpiryDays: { type: Number, default: 60 },
+    maxFeaturedSlots: { type: Number, default: 5 },
   },
   { timestamps: true }
 );

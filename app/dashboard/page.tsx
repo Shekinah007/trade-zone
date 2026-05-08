@@ -19,6 +19,7 @@ import {
   Zap,
   Coins,
   ArrowUpCircle,
+  Star,
 } from "lucide-react";
 import { authOptions } from "@/lib/auth";
 import dbConnect from "@/lib/db";
@@ -171,8 +172,7 @@ export default async function DashboardPage({ searchParams }: any) {
           </div>
 
           <div className="w-full md:w-[320px] lg:w-[380px] grid grid-cols-2 gap-3">
-            {/* Quick Stat Cards */}
-            {/* <Card className="border-none py-2 shadow-md bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-gray-800/80 rounded-2xl">
+            <Card className="border py-2 shadow-md bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-gray-800/80 rounded-2xl">
               <CardContent className="p-3 flex flex-col items-center justify-center h-full text-center">
                 <div className="p-2.5 bg-emerald-100 dark:bg-emerald-900/40 rounded-full mb-1">
                   <Package className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
@@ -204,10 +204,9 @@ export default async function DashboardPage({ searchParams }: any) {
                   </p>
                 </div>
               </CardContent>
-            </Card> */}
-            <Card className="border-none shadow-md bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-gray-800/80 rounded-2xl">
+            </Card>
+            {/* <Card className="border-none shadow-md bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-gray-800/80 rounded-2xl">
               <CardContent className="p-3 sm:p-4 flex flex-col items-center justify-center text-center">
-                {/* Top row: icon + big number + label (more compact on mobile) */}
                 <div className="flex items-center gap-2 mb-1 sm:mb-2">
                   <div className="p-1.5 sm:p-2.5 bg-emerald-100 dark:bg-emerald-900/40 rounded-full">
                     <Package className="h-4 w-4 sm:h-5 sm:w-5 text-emerald-600 dark:text-emerald-400" />
@@ -220,7 +219,6 @@ export default async function DashboardPage({ searchParams }: any) {
                   </p>
                 </div>
 
-                {/* Quota section with progress bar – compact but fully preserved */}
                 <div className="w-full max-w-[180px] sm:max-w-none mt-1 space-y-0.5 sm:space-y-1">
                   <div className="flex justify-between text-[10px] sm:text-[11px] font-medium text-gray-600 dark:text-gray-400">
                     <span>Quota</span>
@@ -244,7 +242,6 @@ export default async function DashboardPage({ searchParams }: any) {
             </Card>
             <Card className="border-none shadow-md bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-gray-800/80 rounded-2xl">
               <CardContent className="p-3 sm:p-4 flex flex-col items-center justify-center text-center">
-                {/* Top row: icon + big number + label (more compact on mobile) */}
                 <div className="flex items-center gap-2 mb-1 sm:mb-2">
                   <div className="p-1.5 sm:p-2.5 bg-emerald-100 dark:bg-emerald-900/40 rounded-full">
                     <Package className="h-4 w-4 sm:h-5 sm:w-5 text-emerald-600 dark:text-emerald-400" />
@@ -257,7 +254,6 @@ export default async function DashboardPage({ searchParams }: any) {
                   </p>
                 </div>
 
-                {/* Quota section with progress bar – compact but fully preserved */}
                 <div className="w-full max-w-[180px] sm:max-w-none mt-1 space-y-0.5 sm:space-y-1">
                   <div className="flex justify-between text-[10px] sm:text-[11px] font-medium text-gray-600 dark:text-gray-400">
                     <span>Quota</span>
@@ -278,8 +274,8 @@ export default async function DashboardPage({ searchParams }: any) {
                   </p>
                 </div>
               </CardContent>
-            </Card>
-            {/* <Card className="border-none shadow-md py-2 bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-gray-800/80 rounded-2xl">
+            </Card> */}
+            <Card className="border shadow-md py-2 bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-gray-800/80 rounded-2xl">
               <CardContent className="p-4 flex flex-col items-center justify-center h-full text-center">
                 <div className="p-2.5 bg-red-100 dark:bg-red-900/40 rounded-full mb-2">
                   <Shield className="h-5 w-5 text-red-600 dark:text-red-400" />
@@ -311,7 +307,7 @@ export default async function DashboardPage({ searchParams }: any) {
                   </p>
                 </div>
               </CardContent>
-            </Card> */}
+            </Card>
             <Card className="border-none shadow-md bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-gray-800/80 rounded-2xl col-span-2">
               <CardContent className="p-4 flex items-center justify-between h-full">
                 <div className="flex items-center gap-3">
@@ -440,6 +436,17 @@ export default async function DashboardPage({ searchParams }: any) {
                     <Link href="/dashboard/boosts">
                       <Zap className="mr-2 h-4 w-4" />
                       Manage Boosts
+                    </Link>
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="w-full justify-start border-purple-200 text-purple-700 hover:bg-purple-50 dark:border-purple-800 dark:text-purple-400 dark:hover:bg-purple-950/30 text-xs h-9 rounded-lg shadow-sm"
+                    asChild
+                  >
+                    <Link href="/dashboard/featured">
+                      <Star className="mr-2 h-4 w-4" />
+                      Manage Featured
                     </Link>
                   </Button>
                   <Button
@@ -637,6 +644,14 @@ export default async function DashboardPage({ searchParams }: any) {
                               createdAt={listing.createdAt}
                               boostStatus={listing.listing?.boostStatus}
                             />
+                            {listing.listing?.featuredStatus === "active" && (
+                              <div className="absolute top-2 left-2 z-10">
+                                <Badge className="bg-gradient-to-r from-purple-500 to-indigo-500 text-white border-0 shadow-lg px-2 py-0.5 text-[10px] font-bold flex items-center gap-1">
+                                  <Star className="h-3 w-3 fill-current" />{" "}
+                                  Featured
+                                </Badge>
+                              </div>
+                            )}
                             <div className="absolute top-2 right-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                               <Button
                                 size="icon"
@@ -832,7 +847,7 @@ export default async function DashboardPage({ searchParams }: any) {
                 {/* Properties Grid - Compact */}
                 <div className="mt-4">
                   {properties.length > 0 ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                    <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-3">
                       {properties.map((p: any) => {
                         const statusColors: Record<string, string> = {
                           owned:

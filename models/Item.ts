@@ -59,6 +59,9 @@ export interface IItem {
     buyerId?: mongoose.Types.ObjectId;
     listedAt?: Date;
     expiresAt?: Date;
+    featuredStatus?: 'none' | 'active';
+    featuredExpiry?: Date;
+    featuredAt?: Date;
     boostStatus?: 'none' | 'active';
     boostExpiry?: Date;
     boostedAt?: Date;
@@ -151,6 +154,9 @@ const ItemSchema = new Schema<IItem>(
       buyerId: { type: Schema.Types.ObjectId, ref: 'User' },
       listedAt: { type: Date },
       expiresAt: { type: Date },
+      featuredStatus: { type: String, enum: ['none', 'active'], default: 'none' },
+      featuredExpiry: { type: Date },
+      featuredAt: { type: Date },
       boostStatus: { type: String, enum: ['none', 'active'], default: 'none' },
       boostExpiry: { type: Date },
       boostedAt: { type: Date },

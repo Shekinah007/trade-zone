@@ -434,10 +434,12 @@ export default function OwnerSearchLogs({
                       </div>
                     </div>
 
-                    <MapDropdownButton
-                      lat={log?.location!.lat}
-                      lng={log?.location!.lng}
-                    />
+                    {log.location && log?.location?.lat && (
+                      <MapDropdownButton
+                        lat={log?.location?.lat}
+                        lng={log?.location?.lng}
+                      />
+                    )}
 
                     {/* Search Query and Expand Button */}
                     <div className="flex items-center gap-2 shrink-0">

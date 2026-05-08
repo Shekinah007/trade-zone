@@ -21,13 +21,15 @@ import { format } from "date-fns";
 import { useSession } from "next-auth/react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { usePaystackPayment } from "react-paystack";
 
 export default function UserTokensPage() {
   const { data: session } = useSession();
   const [tokensInfo, setTokensInfo] = useState<any>(null);
   const [listingPacks, setListingPacks] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [purchasingPack, setPurchasingPack] = useState(false);
+  const [purchasingPackId, setPurchasingPackId] = useState<string | null>(null);
+  const [purchasingMethod, setPurchasingMethod] = useState<"credit" | "paystack" | null>(null);
 
   // Redeem form state
   const [tokenCode, setTokenCode] = useState("");
@@ -36,6 +38,14 @@ export default function UserTokensPage() {
     type: "success" | "error";
     text: string;
   } | null>(null);
+
+  const paystackConfig = {
+    reference: new Date().getTime().toString() + Math.floor(Math.random() * 1000),
+    email: session?.user?.email || "anonymous@trade-zone.com",
+    publicKey: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY || "pk_test_placeholder123",
+  };
+
+  const initializePayment = usePaystackPayment({ ...paystackConfig, amount: 0 });
 
   const fetchData = async () => {
     try {
@@ -92,7 +102,8 @@ export default function UserTokensPage() {
   };
 
   const handleBuyPack = async (packId: string) => {
-    setPurchasingPack(true);
+    setPurchasingPackId(packId);
+    setPurchasingMethod("credit");
     try {
       const res = await fetch("/api/user/buy-listing-pack", {
         method: "POST",
@@ -109,8 +120,55 @@ export default function UserTokensPage() {
     } catch (err) {
       toast.error("A network error occurred.");
     } finally {
-      setPurchasingPack(false);
+      setPurchasingPackId(null);
+      setPurchasingMethod(null);
     }
+  };
+
+  const handleBuyPackPaystack = (pack: any) => {
+    setPurchasingPackId(pack._id);
+    setPurchasingMethod("paystack");
+
+    const onSuccess = async (referenceInfo: any) => {
+      try {
+        const res = await fetch("/api/user/buy-listing-pack", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            packId: pack._id,
+            paymentMethod: "paystack",
+            reference: referenceInfo.reference,
+          }),
+        });
+        const data = await res.json();
+        if (data.success) {
+          toast.success("Listing pack purchased successfully!");
+          fetchData();
+        } else {
+          toast.error(data.error || "Failed to purchase pack");
+        }
+      } catch (err) {
+        toast.error("A network error occurred.");
+      } finally {
+        setPurchasingPackId(null);
+        setPurchasingMethod(null);
+      }
+    };
+
+    const onClose = () => {
+      toast.error("Payment cancelled");
+      setPurchasingPackId(null);
+      setPurchasingMethod(null);
+    };
+
+    initializePayment({
+      onSuccess: (val: any) => onSuccess(val),
+      onClose,
+      config: {
+        ...paystackConfig,
+        amount: pack.priceNGN * 100, // Convert NGN to Kobo
+      },
+    } as any);
   };
 
   // Loading skeleton for better UX
@@ -353,14 +411,24 @@ export default function UserTokensPage() {
                  <span>Credits: {pack.creditCost}</span>
                  <span>Naira: ₦{pack.priceNGN}</span>
                </p>
-               <button 
-                 onClick={() => handleBuyPack(pack._id)}
-                 disabled={purchasingPack}
-                 className="w-full py-2.5 bg-blue-50 hover:bg-blue-100 text-blue-700 font-medium rounded-xl transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
-               >
-                 {purchasingPack ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
-                 Buy with Credits
-               </button>
+               <div className="flex flex-col gap-2">
+                 <button 
+                   onClick={() => handleBuyPack(pack._id)}
+                   disabled={purchasingPackId !== null}
+                   className="w-full py-2.5 bg-blue-50 hover:bg-blue-100 text-blue-700 font-medium rounded-xl transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                 >
+                   {purchasingPackId === pack._id && purchasingMethod === 'credit' ? <Loader2 className="w-4 h-4 animate-spin" /> : <Coins className="w-4 h-4" />}
+                   Buy with Credits
+                 </button>
+                 <button 
+                   onClick={() => handleBuyPackPaystack(pack)}
+                   disabled={purchasingPackId !== null}
+                   className="w-full py-2.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-medium rounded-xl transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                 >
+                   {purchasingPackId === pack._id && purchasingMethod === 'paystack' ? <Loader2 className="w-4 h-4 animate-spin" /> : <CreditCard className="w-4 h-4" />}
+                   Pay with Naira
+                 </button>
+               </div>
              </div>
           ))}
           {listingPacks.length === 0 && (

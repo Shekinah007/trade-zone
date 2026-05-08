@@ -3,12 +3,15 @@ import mongoose, { Schema, Document, Model } from "mongoose";
 export interface IPurchase extends Document {
   user: mongoose.Types.ObjectId;
   tier: mongoose.Types.ObjectId;
+  tierModel: "ListingPack" | "BoostTier" | "FeaturedTier";
   type: "pack" | "boost" | "featured";
   item?: mongoose.Types.ObjectId;
-  paymentMethod: "naira" | "token";
+  paymentMethod: "naira" | "token" | "credits" | "paystack";
   amountPaid: number;
   status: "pending" | "success" | "failed";
   reference?: string;
+  startDate?: Date;
+  endDate?: Date;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -16,9 +19,14 @@ export interface IPurchase extends Document {
 const PurchaseSchema = new Schema<IPurchase>(
   {
     user: { type: Schema.Types.ObjectId, ref: "User", required: true },
+    tierModel: {
+      type: String,
+      enum: ["ListingPack", "BoostTier", "FeaturedTier"],
+      default: "BoostTier",
+    },
     tier: {
       type: Schema.Types.ObjectId,
-      ref: "MonetizationTier",
+      refPath: "tierModel",
       required: true,
     },
     type: { type: String, enum: ["pack", "boost", "featured"], required: true },
@@ -31,6 +39,8 @@ const PurchaseSchema = new Schema<IPurchase>(
       default: "pending",
     },
     reference: { type: String },
+    startDate: { type: Date },
+    endDate: { type: Date },
   },
   { timestamps: true },
 );

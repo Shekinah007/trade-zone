@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, Suspense } from "react";
+import { useState, useEffect, Suspense, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
@@ -22,11 +22,12 @@ import {
   Zap,
   Package,
   AlertCircle,
+  Check,
+  Lock,
+  Fingerprint,
+  ArrowLeft,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -34,7 +35,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import dynamic from "next/dynamic";
 
 const TokenPurchaseModal = dynamic(
@@ -42,21 +42,25 @@ const TokenPurchaseModal = dynamic(
     import("@/components/TokenPurchaseModal").then(
       (mod) => mod.TokenPurchaseModal,
     ),
-  {
-    ssr: false,
-    loading: () => null,
-  },
+  { ssr: false, loading: () => null },
 );
 
 const ITEM_TYPES = [
-  { value: "phone", label: "Phone / Smartphone", icon: Smartphone },
+  { value: "phone", label: "Phone", icon: Smartphone },
   { value: "tablet", label: "Tablet", icon: Tablet },
   { value: "laptop", label: "Laptop / PC", icon: Laptop },
-  { value: "vehicle", label: "Car / Vehicle", icon: Car },
+  { value: "vehicle", label: "Vehicle", icon: Car },
   { value: "motorcycle", label: "Motorcycle", icon: Zap },
   { value: "generator", label: "Generator", icon: Zap },
   { value: "electronics", label: "Electronics", icon: Cpu },
   { value: "other", label: "Other", icon: Package },
+];
+
+const SECTIONS = [
+  { num: "01", label: "Link Listing", hint: "Optional" },
+  { num: "02", label: "Item Details", hint: "Required" },
+  { num: "03", label: "Identifiers", hint: "Min. 1" },
+  { num: "04", label: "Photos", hint: "Optional" },
 ];
 
 function RegisterPropertyForm() {
@@ -66,6 +70,14 @@ function RegisterPropertyForm() {
   const defaultListingId = searchParams?.get("listingId");
   const [submitting, setSubmitting] = useState(false);
   const [showTokenModal, setShowTokenModal] = useState(false);
+  const [activeSection, setActiveSection] = useState(0);
+
+  const sectionRefs = [
+    useRef<HTMLDivElement>(null),
+    useRef<HTMLDivElement>(null),
+    useRef<HTMLDivElement>(null),
+    useRef<HTMLDivElement>(null),
+  ];
 
   const [unregisteredListings, setUnregisteredListings] = useState<any[]>([]);
   const [selectedListingId, setSelectedListingId] = useState(
@@ -75,19 +87,19 @@ function RegisterPropertyForm() {
   useEffect(() => {
     if (session) {
       fetch("/api/user/unregistered-listings")
-        .then((res) => res.json())
+        .then((r) => r.json())
         .then((data) => {
           if (Array.isArray(data)) {
             setUnregisteredListings(data);
             if (defaultListingId) {
               const listing = data.find((l) => l._id === defaultListingId);
               if (listing) {
-                setForm((prev) => ({
-                  ...prev,
-                  brand: listing.brand || prev.brand,
-                  model: listing.model || listing.listing?.title || prev.model,
-                  description: listing.description || prev.description,
-                  imei: listing.uniqueIdentifier || prev.imei,
+                setForm((p) => ({
+                  ...p,
+                  brand: listing.brand || p.brand,
+                  model: listing.model || listing.listing?.title || p.model,
+                  description: listing.description || p.description,
+                  imei: listing.uniqueIdentifier || p.imei,
                 }));
               }
             }
@@ -97,17 +109,35 @@ function RegisterPropertyForm() {
     }
   }, [session, defaultListingId]);
 
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const idx = sectionRefs.findIndex(
+              (r) => r.current === entry.target,
+            );
+            if (idx !== -1) setActiveSection(idx);
+          }
+        });
+      },
+      { rootMargin: "-20% 0px -60% 0px" },
+    );
+    sectionRefs.forEach((r) => r.current && observer.observe(r.current));
+    return () => observer.disconnect();
+  }, []);
+
   const handleListingSelect = (listingId: string) => {
     setSelectedListingId(listingId);
     if (!listingId || listingId === "none") return;
     const listing = unregisteredListings.find((l) => l._id === listingId);
     if (listing) {
-      setForm((prev) => ({
-        ...prev,
-        brand: listing.brand || prev.brand,
-        model: listing.model || listing.listing?.title || prev.model,
-        description: listing.description || prev.description,
-        imei: listing.uniqueIdentifier || prev.imei,
+      setForm((p) => ({
+        ...p,
+        brand: listing.brand || p.brand,
+        model: listing.model || listing.listing?.title || p.model,
+        description: listing.description || p.description,
+        imei: listing.uniqueIdentifier || p.imei,
       }));
     }
   };
@@ -135,102 +165,48 @@ function RegisterPropertyForm() {
         toast.error("Maximum 5 images allowed");
         return;
       }
-      const newItems = files.map((file) => ({
-        url: URL.createObjectURL(file),
-        file,
-      }));
-      setImageItems((prev) => [...prev, ...newItems]);
+      setImageItems((p) => [
+        ...p,
+        ...files.map((file) => ({ url: URL.createObjectURL(file), file })),
+      ]);
     }
   };
 
-  const removeImageItem = (index: number) => {
-    setImageItems((prev) => prev.filter((_, i) => i !== index));
-  };
-
-  if (status === "loading") {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-red-950 via-red-900 to-rose-950 flex items-center justify-center">
-        <div className="text-center">
-          <Loader2 className="h-12 w-12 animate-spin text-gray-900 mx-auto" />
-          <p className="mt-4 text-gray-900/60">Loading your session...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (!session) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-red-950 via-red-900 to-rose-950 flex flex-col items-center justify-center gap-6 text-center px-4">
-        <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-red-500 to-rose-600 flex items-center justify-center shadow-lg shadow-red-500/20">
-          <Shield className="h-10 w-10 text-black" />
-        </div>
-        <div>
-          <h1 className="text-3xl font-bold text-black mb-2">
-            Sign In Required
-          </h1>
-          <p className="text-gray-900/60 max-w-sm">
-            You need to be signed in to register a property on FindMaster.
-          </p>
-        </div>
-        <Button
-          asChild
-          className="rounded-full bg-gradient-to-r from-red-500 to-rose-600 hover:from-red-600 hover:to-rose-700 text-black shadow-lg shadow-red-500/20 border-0 px-8 py-6 text-lg"
-        >
-          <Link href="/auth/signin?callbackUrl=/registry/register">
-            Sign In to Continue <ArrowRight className="ml-2 h-5 w-5" />
-          </Link>
-        </Button>
-      </div>
-    );
-  }
-
   const set = (key: string, val: string) =>
-    setForm((prev) => ({ ...prev, [key]: val }));
+    setForm((p) => ({ ...p, [key]: val }));
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
     if (!form.itemType || !form.brand || !form.model) {
       toast.error("Please fill in item type, brand, and model.");
       return;
     }
     if (!form.serialNumber && !form.imei && !form.chassisNumber) {
-      toast.error(
-        "Please provide at least one identifier: Serial Number, IMEI, or Chassis Number.",
-      );
+      toast.error("Please provide at least one identifier.");
       return;
     }
-
     setSubmitting(true);
     try {
       const formData = new FormData();
-      Object.entries(form).forEach(([key, value]) => {
-        if (value) {
-          formData.append(key, value);
-        }
+      Object.entries(form).forEach(([k, v]) => {
+        if (v) formData.append(k, v);
       });
       imageItems.forEach((item) => {
-        if (item.file) {
-          formData.append("images", item.file);
-        }
+        if (item.file) formData.append("images", item.file);
       });
-      if (selectedListingId && selectedListingId !== "none") {
+      if (selectedListingId && selectedListingId !== "none")
         formData.append("itemId", selectedListingId);
-      }
 
       const res = await fetch("/api/registry", {
         method: "POST",
         body: formData,
       });
-
       const data = await res.json();
       if (!res.ok) {
         if (data.code === "LIMIT_EXCEEDED") {
           toast.error(data.error);
           setShowTokenModal(true);
-        } else {
-          toast.error(data.error || "Failed to register property.");
-        }
+        } else toast.error(data.error || "Failed to register property.");
         return;
       }
       toast.success("Property registered successfully!");
@@ -242,382 +218,608 @@ function RegisterPropertyForm() {
     }
   };
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-white via-white to-white">
-      {/* Hero Section */}
-      <section className="relative border-b border-red-500/20 py-16 md:py-20">
-        <div className="absolute inset-0 bg-gradient-to-b from-red-500/5 to-transparent" />
-        <div className="container mx-auto px-4 max-w-2xl text-center relative">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-red-500/10 border border-red-500/20 text-sm font-medium text-gray-900 mb-6 backdrop-blur-sm">
-            <Shield className="h-4 w-4" /> Property Registry
+  const hasIdentifier = !!(
+    form.serialNumber ||
+    form.imei ||
+    form.chassisNumber
+  );
+  const sectionComplete = [
+    true,
+    !!(form.itemType && form.brand && form.model),
+    hasIdentifier,
+    true,
+  ];
+
+  if (status === "loading") {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center space-y-3">
+          <div className="w-14 h-14 rounded-2xl bg-red-500 flex items-center justify-center mx-auto shadow-lg shadow-red-200">
+            <Loader2 className="h-6 w-6 animate-spin text-white" />
           </div>
-          <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight mb-4 bg-gradient-to-r from-red-200 via-black to-red-200 bg-clip-text text-transparent">
-            Register a Property
+          <p className="text-gray-400 text-sm tracking-wide">Loading…</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!session) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center gap-8 text-center px-4">
+        <div className="relative">
+          <div className="absolute inset-0 bg-red-100 blur-3xl rounded-full scale-150" />
+          <div className="relative w-24 h-24 rounded-3xl bg-white border-2 border-red-100 flex items-center justify-center shadow-xl">
+            <Lock className="h-10 w-10 text-red-500" />
+          </div>
+        </div>
+        <div>
+          <h1 className="text-4xl font-black text-gray-900 mb-3 tracking-tight">
+            Sign In Required
           </h1>
-          <p className="text-gray-900/60 text-lg max-w-xl mx-auto">
-            Add your item to the FindMaster registry. This creates a permanent
-            record of ownership under your account.
+          <p className="text-gray-500 max-w-sm leading-relaxed">
+            You need to be signed in to register a property on FindMaster.
           </p>
         </div>
-      </section>
+        <Button
+          asChild
+          className="rounded-full bg-red-500 hover:bg-red-600 text-white px-8 py-6 text-base font-semibold shadow-lg shadow-red-200 border-0"
+        >
+          <Link href="/auth/signin?callbackUrl=/registry/register">
+            Sign In to Continue <ArrowRight className="ml-2 h-4 w-4" />
+          </Link>
+        </Button>
+      </div>
+    );
+  }
 
-      <div className="container mx-auto px-4 py-8 md:py-12 max-w-2xl">
-        {/* Alert Box */}
-        <div className="flex items-start gap-3 p-4 rounded-2xl bg-red-500/10 border border-red-500/20 text-gray-900 backdrop-blur-sm mb-8">
-          <AlertCircle className="h-5 w-5 mt-0.5 shrink-0 text-gray-900" />
-          <div className="flex-1">
-            <p className="text-sm">
-              At least one identifier (Serial Number, IMEI, or Chassis Number)
-              is required. This is used for registry searches.
-            </p>
+  return (
+    <div className="min-h-screen bg-[#fafaf9]">
+      {/* ── Top bar ── */}
+      <div className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-200/80 shadow-sm">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-lg bg-red-500 flex items-center justify-center shadow-sm shadow-red-200">
+              <Shield className="h-4 w-4 text-white" />
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-bold text-gray-800">
+                Property Registry
+              </span>
+              <span className="text-gray-300">/</span>
+              <span className="text-xs text-gray-400 font-mono bg-gray-100 px-2 py-0.5 rounded-md">
+                NEW ENTRY
+              </span>
+            </div>
           </div>
           <Link
             href="/dashboard"
-            className="shrink-0 px-4 py-2 rounded-lg bg-red-500/20 hover:bg-red-500/30 text-gray-900 text-sm font-medium border border-red-500/20 transition-colors"
+            className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-gray-700 transition-colors font-medium"
           >
-            Cancel
+            <ArrowLeft className="h-3.5 w-3.5" /> Cancel
           </Link>
         </div>
+      </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {unregisteredListings.length > 0 && (
-            <Card className="bg-black/[0.03] backdrop-blur-sm border-red-500/20 shadow-xl shadow-red-500/5">
-              <CardHeader className="border-b border-red-500/10 pb-4">
-                <CardTitle className="text-lg text-black flex items-center gap-2">
-                  <Package className="h-5 w-5 text-gray-900" />
-                  Select from Existing Listings
-                  <span className="text-gray-800 font-normal text-sm ml-2">
-                    (Optional)
-                  </span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="pt-5">
-                <Select
-                  value={selectedListingId}
-                  onValueChange={handleListingSelect}
-                >
-                  <SelectTrigger className="bg-black/[0.05] border-red-500/20 text-black hover:bg-black/[0.08] transition-colors rounded-xl h-11">
-                    <SelectValue placeholder="Link an existing listing to autofill details..." />
-                  </SelectTrigger>
-                  <SelectContent className="bg-white border-red-500/20 text-black max-h-60">
-                    <SelectItem
-                      value="none"
-                      className="focus:bg-red-500/20 focus:text-black italic"
-                    >
-                      -- Do not link to a listing --
-                    </SelectItem>
-                    {unregisteredListings.map((l) => (
-                      <SelectItem
-                        key={l._id}
-                        value={l._id}
-                        className="focus:bg-red-500/20 focus:text-black"
-                      >
-                        {l.listing?.title || l.model} {l.listing?.price ? `(₦${l.listing.price})` : ""}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Item Details Card */}
-          <Card className="bg-black/[0.03] backdrop-blur-sm border-red-500/20 shadow-xl shadow-red-500/5">
-            <CardHeader className="border-b border-red-500/10 pb-4">
-              <CardTitle className="text-lg text-black flex items-center gap-2">
-                <Package className="h-5 w-5 text-gray-900" />
-                Item Details
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-5 pt-5">
-              <div className="space-y-2">
-                <Label htmlFor="itemType" className="text-gray-900/80 text-sm">
-                  Item Type <span className="text-gray-900">*</span>
-                </Label>
-                <Select
-                  value={form.itemType}
-                  onValueChange={(v) => set("itemType", v)}
-                >
-                  <SelectTrigger
-                    id="itemType"
-                    className="bg-black/[0.05] border-red-500/20 text-black hover:bg-black/[0.08] transition-colors rounded-xl h-11"
-                  >
-                    <SelectValue placeholder="Select item type..." />
-                  </SelectTrigger>
-                  <SelectContent className="bg-white border-red-500/20 text-black">
-                    {ITEM_TYPES.map((t) => {
-                      const IconComponent = t.icon;
-                      return (
-                        <SelectItem
-                          key={t.value}
-                          value={t.value}
-                          className="focus:bg-red-500/20 focus:text-black"
-                        >
-                          <span className="flex items-center gap-2">
-                            <IconComponent className="h-4 w-4 text-gray-900" />
-                            {t.label}
-                          </span>
-                        </SelectItem>
-                      );
-                    })}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="brand" className="text-gray-900/80 text-sm">
-                    Brand / Make <span className="text-gray-900">*</span>
-                  </Label>
-                  <Input
-                    id="brand"
-                    placeholder="e.g. Samsung, Toyota, HP"
-                    value={form.brand}
-                    onChange={(e) => set("brand", e.target.value)}
-                    className="bg-black/[0.05] border-red-500/20 text-black placeholder:text-gray-900/30 focus:border-red-400/50 rounded-xl h-11"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="model" className="text-gray-900/80 text-sm">
-                    Model <span className="text-gray-900">*</span>
-                  </Label>
-                  <Input
-                    id="model"
-                    placeholder="e.g. Galaxy S24, Camry 2020"
-                    value={form.model}
-                    onChange={(e) => set("model", e.target.value)}
-                    className="bg-black/[0.05] border-red-500/20 text-black placeholder:text-gray-900/30 focus:border-red-400/50 rounded-xl h-11"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="color" className="text-gray-900/80 text-sm">
-                    Color
-                  </Label>
-                  <Input
-                    id="color"
-                    placeholder="e.g. Black, Silver"
-                    value={form.color}
-                    onChange={(e) => set("color", e.target.value)}
-                    className="bg-black/[0.05] border-red-500/20 text-black placeholder:text-gray-900/30 focus:border-red-400/50 rounded-xl h-11"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="year" className="text-gray-900/80 text-sm">
-                    Year of Purchase
-                  </Label>
-                  <Input
-                    id="year"
-                    type="number"
-                    placeholder="e.g. 2023"
-                    min={1990}
-                    max={new Date().getFullYear()}
-                    value={form.yearOfPurchase}
-                    onChange={(e) => set("yearOfPurchase", e.target.value)}
-                    className="bg-black/[0.05] border-red-500/20 text-black placeholder:text-gray-900/30 focus:border-red-400/50 rounded-xl h-11"
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label
-                  htmlFor="description"
-                  className="text-gray-900/80 text-sm"
-                >
-                  Description{" "}
-                  <span className="text-gray-900/60">(optional)</span>
-                </Label>
-                <Textarea
-                  id="description"
-                  placeholder="Any additional details about the item..."
-                  className="resize-none min-h-[100px] bg-black/[0.05] border-red-500/20 text-black placeholder:text-gray-900/30 focus:border-red-400/50 rounded-xl"
-                  value={form.description}
-                  onChange={(e) => set("description", e.target.value)}
-                />
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Identifiers Card */}
-          <Card className="bg-black/[0.03] backdrop-blur-sm border-red-500/20 shadow-xl shadow-red-500/5">
-            <CardHeader className="border-b border-red-500/10 pb-4">
-              <CardTitle className="text-lg text-black flex items-center gap-2">
-                <Shield className="h-5 w-5 text-gray-900" />
-                Unique Identifiers
-                <span className="text-gray-800 font-normal text-sm ml-2">
-                  (at least one required)
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-10 lg:py-14">
+        <div className="lg:grid lg:grid-cols-[280px_1fr] lg:gap-14">
+          {/* ── LEFT sticky spine ── */}
+          <aside className="hidden lg:block">
+            <div className="sticky top-24">
+              {/* Hero */}
+              <div className="mb-10">
+                <span className="inline-flex items-center gap-1.5 text-xs font-bold text-red-500 uppercase tracking-widest mb-4">
+                  <span className="w-4 h-0.5 bg-red-400 rounded-full inline-block" />
+                  Secure Registry
                 </span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-5 pt-5">
-              <div className="space-y-2">
-                <Label htmlFor="imei" className="text-gray-900/80 text-sm">
-                  IMEI Number
-                  <span className="text-gray-900/60 text-xs ml-1">
-                    (for phones/tablets)
-                  </span>
-                </Label>
-                <Input
-                  id="imei"
-                  placeholder="15-digit IMEI e.g. 359876054321234"
-                  value={form.imei}
-                  onChange={(e) => set("imei", e.target.value)}
-                  className="font-mono bg-black/[0.05] border-red-500/20 text-black placeholder:text-gray-900/30 focus:border-red-400/50 rounded-xl h-11"
-                />
-                <p className="text-xs text-gray-900/40">
-                  Dial *#06# on your phone to find the IMEI
+                <h1 className="text-4xl font-black text-gray-900 leading-none tracking-tight">
+                  Register
+                  <br />
+                  <span className="text-red-500">Property</span>
+                </h1>
+                <p className="mt-4 text-sm text-gray-500 leading-relaxed max-w-[200px]">
+                  Create a permanent ownership record. Searchable and protected.
                 </p>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="serial" className="text-gray-900/80 text-sm">
-                  Serial Number
-                </Label>
-                <Input
-                  id="serial"
-                  placeholder="e.g. C02X12ABCDEF"
-                  value={form.serialNumber}
-                  onChange={(e) => set("serialNumber", e.target.value)}
-                  className="font-mono bg-black/[0.05] border-red-500/20 text-black placeholder:text-gray-900/30 focus:border-red-400/50 rounded-xl h-11"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="chassis" className="text-gray-900/80 text-sm">
-                  Chassis Number
-                  <span className="text-gray-900/60 text-xs ml-1">
-                    (for vehicles)
-                  </span>
-                </Label>
-                <Input
-                  id="chassis"
-                  placeholder="17-character VIN e.g. 1HGBH41JXMN109186"
-                  value={form.chassisNumber}
-                  onChange={(e) => set("chassisNumber", e.target.value)}
-                  className="font-mono bg-black/[0.05] border-red-500/20 text-black placeholder:text-gray-900/30 focus:border-red-400/50 rounded-xl h-11"
-                />
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Photos Card */}
-          <Card className="bg-black/[0.03] backdrop-blur-sm border-red-500/20 shadow-xl shadow-red-500/5">
-            <CardHeader className="border-b border-red-500/10 pb-4">
-              <CardTitle className="text-lg text-black flex items-center gap-2">
-                <Camera className="h-5 w-5 text-gray-900" />
-                Photos
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="pt-5">
-              {selectedListingId && selectedListingId !== "none" ? (
-                (() => {
-                  const selectedListing = unregisteredListings.find(
-                    (l) => l._id === selectedListingId,
-                  );
+              {/* Steps */}
+              <nav className="space-y-1.5 border-l-2 border-gray-100 pl-5 ml-1">
+                {SECTIONS.map((s, i) => {
+                  const done = sectionComplete[i] && activeSection > i;
+                  const active = activeSection === i;
                   return (
-                    <div className="space-y-4">
-                      <div className="p-4 rounded-xl bg-orange-500/10 border border-orange-500/20 text-orange-900 text-sm">
-                        <Info className="h-4 w-4 inline mr-2" />
-                        We will securely import photos directly from your
-                        listing! You do not need to upload new photos.
+                    <button
+                      key={i}
+                      onClick={() =>
+                        sectionRefs[i].current?.scrollIntoView({
+                          behavior: "smooth",
+                          block: "start",
+                        })
+                      }
+                      className={`w-full flex items-center gap-3.5 py-3 px-3.5 rounded-xl transition-all text-left group -ml-5 pl-[calc(1.25rem+0.875rem)] border ${
+                        active
+                          ? "bg-red-50 border-red-100 -ml-[2px] border-l-[3px] border-l-red-500 rounded-l-none"
+                          : "border-transparent hover:bg-gray-50"
+                      }`}
+                    >
+                      <div
+                        className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 text-xs font-black font-mono transition-all ${
+                          done
+                            ? "bg-green-500 text-white shadow-sm shadow-green-200"
+                            : active
+                              ? "bg-red-500 text-white shadow-md shadow-red-200"
+                              : "bg-gray-100 text-gray-400"
+                        }`}
+                      >
+                        {done ? <Check className="h-3.5 w-3.5" /> : s.num}
                       </div>
-                      {selectedListing?.images &&
-                        selectedListing.images.length > 0 && (
-                          <div className="grid grid-cols-3 sm:grid-cols-5 gap-3">
-                            {selectedListing.images.map(
-                              (url: string, idx: number) => (
-                                <div
-                                  key={idx}
-                                  className="relative aspect-square rounded-xl overflow-hidden border border-red-500/20 bg-red-500/5"
-                                >
-                                  <img
-                                    src={url}
-                                    alt="Listing Photo"
-                                    className="h-full w-full object-cover"
-                                  />
-                                </div>
-                              ),
-                            )}
+                      <div>
+                        <p
+                          className={`text-sm font-semibold ${active ? "text-red-600" : done ? "text-green-600" : "text-gray-500 group-hover:text-gray-700"}`}
+                        >
+                          {s.label}
+                        </p>
+                        <p
+                          className={`text-[11px] ${active ? "text-red-400" : done ? "text-green-400" : "text-gray-400"}`}
+                        >
+                          {s.hint}
+                        </p>
+                      </div>
+                    </button>
+                  );
+                })}
+              </nav>
+
+              {/* Trust badge */}
+              <div className="mt-8 p-4 rounded-2xl bg-white border border-gray-100 shadow-sm">
+                <div className="flex items-center gap-2.5 mb-2">
+                  <div className="w-7 h-7 rounded-lg bg-red-50 flex items-center justify-center">
+                    <Fingerprint className="h-4 w-4 text-red-500" />
+                  </div>
+                  <span className="text-xs font-bold text-gray-700 uppercase tracking-wider">
+                    Protected
+                  </span>
+                </div>
+                <p className="text-[11px] text-gray-400 leading-relaxed">
+                  Registry entries are permanent and tied to your verified
+                  account.
+                </p>
+              </div>
+            </div>
+          </aside>
+
+          {/* ── RIGHT form ── */}
+          <form onSubmit={handleSubmit} className="space-y-5">
+            {/* Mobile header */}
+            <div className="lg:hidden mb-8">
+              <span className="inline-flex items-center gap-1.5 text-xs font-bold text-red-500 uppercase tracking-widest mb-3">
+                <span className="w-4 h-0.5 bg-red-400 rounded-full inline-block" />{" "}
+                Secure Registry
+              </span>
+              <h1 className="text-3xl font-black text-gray-900 tracking-tight">
+                Register <span className="text-red-500">Property</span>
+              </h1>
+              <p className="mt-2 text-sm text-gray-500">
+                Create a permanent ownership record for your item.
+              </p>
+            </div>
+
+            {/* SECTION 01 — Link Listing */}
+            {unregisteredListings.length > 0 && (
+              <section ref={sectionRefs[0]} className="scroll-mt-24">
+                <SectionHeader
+                  num="01"
+                  title="Link Listing"
+                  subtitle="Optional — autofill details from an existing ad"
+                />
+                <div className="mt-4 bg-white rounded-2xl border border-gray-200 shadow-sm p-5">
+                  <Select
+                    value={selectedListingId}
+                    onValueChange={handleListingSelect}
+                  >
+                    <SelectTrigger className="h-12 rounded-xl border-gray-200 bg-gray-50 text-gray-700 focus:ring-1 focus:ring-red-400 focus:border-red-400 hover:bg-gray-100 transition-colors">
+                      <SelectValue placeholder="Select a listing to link…" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-white border-gray-200 text-gray-700 shadow-xl rounded-xl">
+                      <SelectItem
+                        value="none"
+                        className="focus:bg-gray-50 text-gray-400 italic"
+                      >
+                        — Don't link to a listing —
+                      </SelectItem>
+                      {unregisteredListings.map((l) => (
+                        <SelectItem
+                          key={l._id}
+                          value={l._id}
+                          className="focus:bg-red-50 focus:text-red-700"
+                        >
+                          {l.listing?.title || l.model}
+                          {l.listing?.price
+                            ? ` · ₦${l.listing.price.toLocaleString()}`
+                            : ""}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </section>
+            )}
+
+            {/* SECTION 02 — Item Details */}
+            <section
+              ref={sectionRefs[unregisteredListings.length > 0 ? 1 : 0]}
+              className="scroll-mt-24"
+            >
+              <SectionHeader
+                num="02"
+                title="Item Details"
+                subtitle="Describe the property you're registering"
+              />
+              <div className="mt-4 bg-white rounded-2xl border border-gray-200 shadow-sm p-5 space-y-5">
+                {/* Item type grid */}
+                <div>
+                  <BrightLabel>
+                    Item Type <Req />
+                  </BrightLabel>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mt-2.5">
+                    {ITEM_TYPES.map(({ value, label, icon: Icon }) => {
+                      const selected = form.itemType === value;
+                      return (
+                        <button
+                          key={value}
+                          type="button"
+                          onClick={() => set("itemType", value)}
+                          className={`flex flex-col items-center gap-2 py-4 px-2 rounded-xl border-2 text-center transition-all text-xs font-semibold ${
+                            selected
+                              ? "bg-red-50 border-red-400 text-red-600 shadow-md shadow-red-100"
+                              : "bg-gray-50 border-gray-200 text-gray-500 hover:bg-white hover:border-gray-300 hover:text-gray-700 hover:shadow-sm"
+                          }`}
+                        >
+                          <Icon
+                            className={`h-5 w-5 ${selected ? "text-red-500" : "text-gray-400"}`}
+                          />
+                          {label.split(" / ")[0]}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <BrightField label="Brand / Make" required id="brand">
+                    <BrightInput
+                      id="brand"
+                      placeholder="e.g. Samsung, Toyota, HP"
+                      value={form.brand}
+                      onChange={(e) => set("brand", e.target.value)}
+                    />
+                  </BrightField>
+                  <BrightField label="Model" required id="model">
+                    <BrightInput
+                      id="model"
+                      placeholder="e.g. Galaxy S24, Camry"
+                      value={form.model}
+                      onChange={(e) => set("model", e.target.value)}
+                    />
+                  </BrightField>
+                  <BrightField label="Color" id="color">
+                    <BrightInput
+                      id="color"
+                      placeholder="e.g. Midnight Black"
+                      value={form.color}
+                      onChange={(e) => set("color", e.target.value)}
+                    />
+                  </BrightField>
+                  <BrightField label="Year of Purchase" id="year">
+                    <BrightInput
+                      id="year"
+                      type="number"
+                      placeholder={String(new Date().getFullYear() - 1)}
+                      min={1990}
+                      max={new Date().getFullYear()}
+                      value={form.yearOfPurchase}
+                      onChange={(e) => set("yearOfPurchase", e.target.value)}
+                    />
+                  </BrightField>
+                </div>
+
+                <BrightField
+                  label="Description"
+                  id="desc"
+                  hint="Optional — distinguishing features, accessories, etc."
+                >
+                  <textarea
+                    id="desc"
+                    placeholder="Describe the item in detail…"
+                    value={form.description}
+                    onChange={(e) => set("description", e.target.value)}
+                    rows={3}
+                    className="w-full resize-none bg-gray-50 border border-gray-200 text-gray-800 placeholder:text-gray-400 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-red-300 focus:border-red-400 transition-all hover:border-gray-300"
+                  />
+                </BrightField>
+              </div>
+            </section>
+
+            {/* SECTION 03 — Identifiers */}
+            <section
+              ref={sectionRefs[unregisteredListings.length > 0 ? 2 : 1]}
+              className="scroll-mt-24"
+            >
+              <SectionHeader
+                num="03"
+                title="Unique Identifiers"
+                subtitle="At least one is required for registry search"
+              />
+
+              {/* Alert */}
+              <div className="mt-3 flex items-start gap-3 p-3.5 rounded-xl bg-amber-50 border border-amber-200">
+                <AlertCircle className="h-4 w-4 text-amber-500 shrink-0 mt-0.5" />
+                <p className="text-xs text-amber-700 leading-relaxed">
+                  Phones/tablets → IMEI &nbsp;·&nbsp; Laptops/electronics →
+                  Serial Number &nbsp;·&nbsp; Vehicles → Chassis Number
+                </p>
+              </div>
+
+              <div className="mt-3 bg-white rounded-2xl border border-gray-200 shadow-sm p-5 space-y-4">
+                <BrightField
+                  label="IMEI Number"
+                  id="imei"
+                  hint="Phones & tablets · Dial *#06# to find it"
+                >
+                  <BrightInput
+                    id="imei"
+                    mono
+                    placeholder="359876054321234"
+                    value={form.imei}
+                    onChange={(e) => set("imei", e.target.value)}
+                    maxLength={17}
+                    suffix={
+                      form.imei.length > 0 && (
+                        <span
+                          className={`text-[10px] font-mono font-bold ${form.imei.length === 15 ? "text-green-500" : "text-gray-400"}`}
+                        >
+                          {form.imei.length}/15
+                        </span>
+                      )
+                    }
+                  />
+                </BrightField>
+
+                <BrightField
+                  label="Serial Number"
+                  id="serial"
+                  hint="Check device settings, box, or bottom sticker"
+                >
+                  <BrightInput
+                    id="serial"
+                    mono
+                    placeholder="C02X12ABCDEF"
+                    value={form.serialNumber}
+                    onChange={(e) => set("serialNumber", e.target.value)}
+                  />
+                </BrightField>
+
+                <BrightField
+                  label="Chassis / VIN Number"
+                  id="chassis"
+                  hint="For vehicles — 17-character VIN"
+                >
+                  <BrightInput
+                    id="chassis"
+                    mono
+                    placeholder="1HGBH41JXMN109186"
+                    value={form.chassisNumber}
+                    onChange={(e) => set("chassisNumber", e.target.value)}
+                    maxLength={17}
+                    suffix={
+                      form.chassisNumber.length > 0 && (
+                        <span
+                          className={`text-[10px] font-mono font-bold ${form.chassisNumber.length === 17 ? "text-green-500" : "text-gray-400"}`}
+                        >
+                          {form.chassisNumber.length}/17
+                        </span>
+                      )
+                    }
+                  />
+                </BrightField>
+
+                {/* Identifier status */}
+                <div
+                  className={`flex items-center gap-2.5 p-3 rounded-xl text-xs font-semibold border transition-all ${
+                    hasIdentifier
+                      ? "bg-green-50 border-green-200 text-green-700"
+                      : "bg-gray-50 border-gray-200 text-gray-400"
+                  }`}
+                >
+                  {hasIdentifier ? (
+                    <>
+                      <div className="w-5 h-5 rounded-full bg-green-500 flex items-center justify-center shrink-0">
+                        <Check className="h-3 w-3 text-white" />
+                      </div>{" "}
+                      Identifier captured — item is searchable in the registry
+                    </>
+                  ) : (
+                    <>
+                      <div className="w-5 h-5 rounded-full border-2 border-gray-300 shrink-0" />{" "}
+                      Fill in at least one identifier above
+                    </>
+                  )}
+                </div>
+              </div>
+            </section>
+
+            {/* SECTION 04 — Photos */}
+            <section
+              ref={sectionRefs[unregisteredListings.length > 0 ? 3 : 2]}
+              className="scroll-mt-24"
+            >
+              <SectionHeader
+                num="04"
+                title="Photos"
+                subtitle="Up to 5 images · Optional but recommended"
+              />
+              <div className="mt-4 bg-white rounded-2xl border border-gray-200 shadow-sm p-5">
+                {selectedListingId && selectedListingId !== "none" ? (
+                  (() => {
+                    const sel = unregisteredListings.find(
+                      (l) => l._id === selectedListingId,
+                    );
+                    return (
+                      <div className="space-y-4">
+                        <div className="flex items-start gap-2.5 p-3.5 rounded-xl bg-blue-50 border border-blue-200 text-blue-700 text-sm">
+                          <Info className="h-4 w-4 mt-0.5 shrink-0 text-blue-500" />
+                          Photos will be imported automatically from your linked
+                          listing.
+                        </div>
+                        {sel?.images?.length > 0 && (
+                          <div className="grid grid-cols-4 sm:grid-cols-5 gap-2">
+                            {sel.images.map((url: string, idx: number) => (
+                              <div
+                                key={idx}
+                                className="aspect-square rounded-xl overflow-hidden border border-gray-200"
+                              >
+                                <img
+                                  src={url}
+                                  alt=""
+                                  className="h-full w-full object-cover"
+                                />
+                              </div>
+                            ))}
                           </div>
                         )}
-                    </div>
-                  );
-                })()
-              ) : (
-                <>
-                  <div className="flex items-center justify-between mb-4">
-                    <Label className="text-gray-900/80 text-sm">
-                      Property Images
-                    </Label>
-                    <span className="text-xs px-3 py-1 rounded-full bg-red-500/10 border border-red-500/20 text-gray-900">
-                      {imageItems.length}/5
-                    </span>
-                  </div>
-                  <div className="grid grid-cols-3 sm:grid-cols-5 gap-3">
-                    {imageItems.map((item, index) => (
-                      <div
-                        key={index}
-                        className="relative aspect-square rounded-xl overflow-hidden border border-red-500/20 bg-red-500/5 group hover:border-red-400/40 transition-all"
+                      </div>
+                    );
+                  })()
+                ) : (
+                  <>
+                    <div className="flex items-center justify-between mb-4">
+                      <p className="text-sm text-gray-500">
+                        Add photos for identification purposes
+                      </p>
+                      <span
+                        className={`text-xs font-mono font-bold px-2.5 py-1 rounded-lg ${
+                          imageItems.length >= 5
+                            ? "bg-red-100 text-red-600"
+                            : "bg-gray-100 text-gray-500"
+                        }`}
                       >
-                        <img
-                          src={item.url}
-                          alt="Preview"
-                          className="h-full w-full object-cover"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => removeImageItem(index)}
-                          className="absolute top-2 right-2 rounded-full bg-white/40 text-white p-1.5 group-hover:opacity-100 transition-all hover:bg-red-600 shadow-lg"
+                        {imageItems.length}/5
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-3 sm:grid-cols-5 gap-3">
+                      {imageItems.map((item, index) => (
+                        <div
+                          key={index}
+                          className="relative aspect-square rounded-xl overflow-hidden border border-gray-200 group shadow-sm"
                         >
-                          <X className="h-3 w-3" />
-                        </button>
+                          <img
+                            src={item.url}
+                            alt="Preview"
+                            className="h-full w-full object-cover"
+                          />
+                          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all" />
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setImageItems((p) =>
+                                p.filter((_, i) => i !== index),
+                              )
+                            }
+                            className="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-red-500 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-md"
+                          >
+                            <X className="h-3 w-3" />
+                          </button>
+                        </div>
+                      ))}
+                      {imageItems.length < 5 && (
+                        <label className="aspect-square rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 hover:bg-red-50 hover:border-red-300 transition-all cursor-pointer flex flex-col items-center justify-center gap-2 group shadow-sm">
+                          <div className="w-9 h-9 rounded-xl bg-white group-hover:bg-red-100 border border-gray-200 group-hover:border-red-200 flex items-center justify-center transition-all shadow-sm">
+                            <Upload className="h-4 w-4 text-gray-400 group-hover:text-red-500 transition-colors" />
+                          </div>
+                          <span className="text-[10px] text-gray-400 group-hover:text-red-500 transition-colors font-semibold">
+                            Add Photo
+                          </span>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            multiple
+                            className="hidden"
+                            onChange={handleImageChange}
+                          />
+                        </label>
+                      )}
+                    </div>
+                  </>
+                )}
+              </div>
+            </section>
+
+            {/* ── Submit ── */}
+            <div className="pt-2 pb-12">
+              <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 space-y-4">
+                {/* Checklist */}
+                <div>
+                  <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">
+                    Checklist
+                  </p>
+                  <div className="grid grid-cols-2 gap-2">
+                    {[
+                      { label: "Item type selected", ok: !!form.itemType },
+                      {
+                        label: "Brand & model filled",
+                        ok: !!(form.brand && form.model),
+                      },
+                      { label: "Identifier provided", ok: hasIdentifier },
+                      {
+                        label: "Photos added",
+                        ok:
+                          imageItems.length > 0 ||
+                          (!!selectedListingId && selectedListingId !== "none"),
+                      },
+                    ].map((v, i) => (
+                      <div
+                        key={i}
+                        className={`flex items-center gap-2 text-xs px-3 py-2.5 rounded-xl border font-medium transition-all ${
+                          v.ok
+                            ? "bg-green-50 border-green-200 text-green-700"
+                            : "bg-gray-50 border-gray-200 text-gray-400"
+                        }`}
+                      >
+                        {v.ok ? (
+                          <div className="w-4 h-4 rounded-full bg-green-500 flex items-center justify-center shrink-0">
+                            <Check className="h-2.5 w-2.5 text-white" />
+                          </div>
+                        ) : (
+                          <div className="w-4 h-4 rounded-full border-2 border-gray-300 shrink-0" />
+                        )}
+                        {v.label}
                       </div>
                     ))}
-
-                    {imageItems.length < 5 && (
-                      <label className="flex aspect-square cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-red-500/30 bg-red-500/[0.02] hover:bg-red-500/[0.08] hover:border-red-400/50 transition-all group">
-                        <Upload className="h-6 w-6 text-gray-900/60 group-hover:text-gray-900 transition-colors" />
-                        <span className="mt-2 text-xs text-gray-900/60 group-hover:text-gray-900 transition-colors">
-                          Add Photo
-                        </span>
-                        <input
-                          type="file"
-                          accept="image/*"
-                          multiple
-                          className="hidden"
-                          onChange={handleImageChange}
-                        />
-                      </label>
-                    )}
                   </div>
-                </>
-              )}
-            </CardContent>
-          </Card>
+                </div>
 
-          {/* Submit Button */}
-          <Button
-            type="submit"
-            size="lg"
-            className="w-full rounded-2xl bg-gradient-to-r from-red-500 via-rose-500 to-red-600 hover:from-red-600 hover:via-rose-600 hover:to-red-700 text-black shadow-xl shadow-red-500/20 border-0 py-7 text-lg font-semibold transition-all duration-300 hover:scale-[1.02]"
-            disabled={submitting}
-          >
-            {submitting ? (
-              <>
-                <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                Registering...
-              </>
-            ) : (
-              <>
-                <Shield className="mr-2 h-5 w-5" />
-                Register Property
-                <ChevronRight className="ml-2 h-5 w-5" />
-              </>
-            )}
-          </Button>
-        </form>
+                {/* CTA */}
+                <button
+                  type="submit"
+                  disabled={submitting}
+                  className="w-full flex items-center justify-center gap-3 py-4 rounded-xl bg-red-500 hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold text-base transition-all hover:shadow-xl hover:shadow-red-200 active:scale-[0.99] group"
+                >
+                  {submitting ? (
+                    <>
+                      <Loader2 className="h-5 w-5 animate-spin" /> Registering
+                      Property…
+                    </>
+                  ) : (
+                    <>
+                      <Shield className="h-5 w-5" />
+                      Register Property
+                      <ChevronRight className="h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
       </div>
 
       <TokenPurchaseModal
@@ -628,14 +830,106 @@ function RegisterPropertyForm() {
   );
 }
 
+/* ── Sub-components ─────────────────────────────── */
+
+function SectionHeader({
+  num,
+  title,
+  subtitle,
+}: {
+  num: string;
+  title: string;
+  subtitle: string;
+}) {
+  return (
+    <div className="flex items-start gap-4">
+      <div className="w-10 h-10 rounded-xl bg-red-500 flex items-center justify-center shrink-0 shadow-md shadow-red-200 mt-0.5">
+        <span className="text-white text-xs font-black font-mono">{num}</span>
+      </div>
+      <div>
+        <h2 className="text-lg font-black text-gray-900 tracking-tight leading-tight">
+          {title}
+        </h2>
+        <p className="text-xs text-gray-400 mt-0.5">{subtitle}</p>
+      </div>
+    </div>
+  );
+}
+
+function BrightLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">
+      {children}
+    </p>
+  );
+}
+
+function Req() {
+  return <span className="text-red-500 ml-0.5">*</span>;
+}
+
+function BrightField({
+  label,
+  id,
+  required,
+  hint,
+  children,
+}: {
+  label: string;
+  id: string;
+  required?: boolean;
+  hint?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="space-y-1.5">
+      <label
+        htmlFor={id}
+        className="text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center gap-1"
+      >
+        {label}
+        {required && <span className="text-red-500">*</span>}
+      </label>
+      {children}
+      {hint && <p className="text-[11px] text-gray-400">{hint}</p>}
+    </div>
+  );
+}
+
+function BrightInput({
+  mono,
+  suffix,
+  className = "",
+  ...props
+}: React.InputHTMLAttributes<HTMLInputElement> & {
+  mono?: boolean;
+  suffix?: React.ReactNode;
+}) {
+  const base = `w-full bg-gray-50 border border-gray-200 text-gray-800 placeholder:text-gray-400 rounded-xl px-4 py-3 h-12 text-sm focus:outline-none focus:ring-2 focus:ring-red-300 focus:border-red-400 transition-all hover:border-gray-300 ${mono ? "font-mono tracking-wider" : ""}`;
+
+  if (suffix) {
+    return (
+      <div className="relative">
+        <input {...props} className={`${base} pr-14 ${className}`} />
+        <div className="absolute right-3.5 top-1/2 -translate-y-1/2">
+          {suffix}
+        </div>
+      </div>
+    );
+  }
+  return <input {...props} className={`${base} ${className}`} />;
+}
+
 export default function RegisterPropertyPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen bg-gradient-to-br from-white via-white to-white flex items-center justify-center">
-          <div className="text-center">
-            <Loader2 className="h-12 w-12 animate-spin text-red-500 mx-auto" />
-            <p className="mt-4 text-gray-500">Loading form...</p>
+        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+          <div className="text-center space-y-3">
+            <div className="w-14 h-14 rounded-2xl bg-red-500 flex items-center justify-center mx-auto shadow-lg shadow-red-200">
+              <Loader2 className="h-6 w-6 animate-spin text-white" />
+            </div>
+            <p className="text-gray-400 text-sm">Loading form…</p>
           </div>
         </div>
       }

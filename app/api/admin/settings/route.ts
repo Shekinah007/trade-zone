@@ -45,7 +45,8 @@ export async function PUT(req: NextRequest) {
       registrationCreditCost, 
       unlimitedRegistrationPriceNGN, 
       freeListingQuota, 
-      globalListingExpiryDays 
+      globalListingExpiryDays,
+      maxFeaturedSlots 
     } = body;
 
     let settings = await SystemSettings.findOne();
@@ -67,6 +68,10 @@ export async function PUT(req: NextRequest) {
 
     if (globalListingExpiryDays !== undefined) {
       settings.globalListingExpiryDays = Number(globalListingExpiryDays);
+    }
+
+    if (maxFeaturedSlots !== undefined) {
+      settings.maxFeaturedSlots = Number(maxFeaturedSlots);
     }
 
     await settings.save();

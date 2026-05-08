@@ -36,6 +36,18 @@ async function getRecentListings() {
   return JSON.parse(JSON.stringify(listings));
 }
 
+async function getFeaturedListings() {
+  await dbConnect();
+  const listings = await Item.find({
+    isListed: true,
+    "listing.status": "active",
+    "listing.featuredStatus": "active"
+  })
+    .sort({ "listing.featuredAt": -1 })
+    .lean();
+  return JSON.parse(JSON.stringify(listings));
+}
+
 async function getCategories() {
   await dbConnect();
   const categories = await Category.find().sort({ name: 1 }).lean();
@@ -44,6 +56,7 @@ async function getCategories() {
 
 export default async function Home() {
   const recentListings = await getRecentListings();
+  const featuredListings = await getFeaturedListings();
   const categories = await getCategories();
 
   return (
@@ -346,6 +359,49 @@ export default async function Home() {
               ))}
             </div>
           </div>
+
+          {featuredListings.length > 0 && (
+            <div className="mb-14">
+              <div className="flex flex-col md:flex-row gap-4 justify-between items-end mb-6">
+                <div className="flex items-center gap-2">
+                  <div className="p-2 bg-gradient-to-r from-purple-500 to-indigo-500 rounded-xl shadow-lg">
+                    <Star className="h-6 w-6 text-white fill-current" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-indigo-600">
+                      Featured Items
+                    </h3>
+                    <p className="text-sm text-muted-foreground mt-1 font-medium">
+                      Premium selections from trusted sellers.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-2 lg:gap-4">
+                {featuredListings.map((listing: any) => (
+                  <div key={listing._id} className="relative group rounded-xl overflow-hidden ring-2 ring-purple-500/50 shadow-[0_0_15px_rgba(168,85,247,0.2)]">
+                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-purple-500 to-indigo-500 z-20" />
+                    <ListingCard
+                      id={listing._id}
+                      title={listing.listing?.title || listing.model}
+                      price={listing.listing?.price}
+                      image={listing.images[0]}
+                      category={listing.listing?.category}
+                      condition={listing.listing?.condition}
+                      location={listing.listing?.location}
+                      createdAt={listing.createdAt}
+                    />
+                    <div className="absolute top-3 left-3 z-10">
+                      <span className="bg-gradient-to-r from-purple-500 to-indigo-500 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-md flex items-center gap-1">
+                        <Star className="h-3 w-3 fill-current" /> Featured
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           <div>
             <div className="flex flex-col md:flex-row gap-4 justify-between items-end mb-6">

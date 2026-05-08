@@ -328,3 +328,74 @@ export async function sendBoostExpiryEmail(
     console.error("Error sending boost expiry email: ", error);
   }
 }
+
+export async function sendFeaturedWaitlistEmail(
+  email: string,
+  userName: string,
+  listingTitle: string,
+  waitlistId: string
+) {
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+  const checkoutLink = `${appUrl}/dashboard/featured/checkout?waitlistId=${waitlistId}`;
+
+  const mailOptions = {
+    from: `"FindMaster" <${process.env.SMTP_USER}>`,
+    to: email,
+    subject: "A Featured Slot is Available! (Action Required within 24h)",
+    html: `
+      <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <h2 style="color: #10b981;">Your Wait is Over!</h2>
+        <p>Hi ${userName},</p>
+        <p>A featured slot on the FindMaster homepage has just become available for your listing: <strong>"${listingTitle}"</strong>.</p>
+        <p><strong>You have exactly 24 hours to claim this slot before it is offered to the next person on the waitlist.</strong></p>
+        <div style="margin: 30px 0;">
+          <a href="${checkoutLink}" style="background-color: #10b981; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">
+            Confirm & Pay Now
+          </a>
+        </div>
+      </div>
+    `,
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log(`Featured waitlist email sent to ${email}`);
+  } catch (error) {
+    console.error("Error sending featured waitlist email: ", error);
+  }
+}
+
+export async function sendFeaturedExpiryEmail(
+  email: string,
+  userName: string,
+  listingTitle: string
+) {
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+  const dashboardLink = `${appUrl}/dashboard/featured`;
+
+  const mailOptions = {
+    from: `"FindMaster" <${process.env.SMTP_USER}>`,
+    to: email,
+    subject: "Your Featured Listing is Expiring Soon",
+    html: `
+      <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <h2 style="color: #f59e0b;">Featured Slot Expiring Soon</h2>
+        <p>Hi ${userName},</p>
+        <p>Your homepage featured slot for the listing <strong>"${listingTitle}"</strong> is expiring in less than 24 hours.</p>
+        <p>You can purchase a new featured slot from your dashboard if you want to stay on the homepage.</p>
+        <div style="margin: 30px 0;">
+          <a href="${dashboardLink}" style="background-color: #f59e0b; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">
+            Manage Featured Listings
+          </a>
+        </div>
+      </div>
+    `,
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log(`Featured expiry email sent to ${email}`);
+  } catch (error) {
+    console.error("Error sending featured expiry email: ", error);
+  }
+}

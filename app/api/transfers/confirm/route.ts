@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 // import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 // import dbConnect from '@/lib/mongoose';
-import Property from "@/models/Property";
 import User from "@/models/User";
 import TransferRequest from "@/models/TransferRequest";
 import Notification from "@/models/Notification";

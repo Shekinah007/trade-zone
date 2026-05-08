@@ -6,6 +6,7 @@ import Item from "@/models/Item";
 import SearchLog from "@/models/SearchLog";
 import User from "@/models/User";
 import { v2 as cloudinary } from "cloudinary";
+import { longFormatters } from "date-fns";
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -20,6 +21,9 @@ export async function GET(req: NextRequest) {
   const q = searchParams.get("q")?.trim();
   const lat = searchParams.get("lat");
   const lng = searchParams.get("lng");
+
+  console.log("Latitude ", lat);
+  console.log("Longitude: ", lng);
 
   if (!q || q.length < 3) {
     return NextResponse.json(
@@ -115,28 +119,228 @@ export async function GET(req: NextRequest) {
 }
 
 // POST /api/registry — register a new property (auth required)
-export async function POST(req: NextRequest) {
-  const session = await getServerSession(authOptions);
-  console.log("SessionDetails", session);
-  if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+// export async function POST(req: NextRequest) {
+//   const session = await getServerSession(authOptions);
+//   if (!session?.user?.id) {
+//     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+//   }
 
+//   try {
+//     await dbConnect();
+
+//     // Check user registration limits
+//     const dbUser = await User.findById(session.user.id);
+//     if (!dbUser) {
+//       return NextResponse.json({ error: "User not found" }, { status: 404 });
+//     }
+
+//     if (!dbUser.unlimitedRegistrations) {
+//       const propertyCount = await Item.countDocuments({
+//         owner: dbUser._id,
+//         isRegistered: true,
+//       });
+//       if (propertyCount >= (dbUser.registrationLimit || 1)) {
+//         return NextResponse.json(
+//           {
+//             error:
+//               "Registration limit reached. Please purchase a token to register more properties.",
+//             code: "LIMIT_EXCEEDED",
+//           },
+//           { status: 403 },
+//         );
+//       }
+//     }
+
+//     const formData = await req.formData();
+//     console.log("Form data: ", formData);
+//     const itemType = formData.get("itemType") as string;
+//     const brand = formData.get("brand") as string;
+//     const model = formData.get("model") as string;
+//     const description = formData.get("description") as string;
+//     const serialNumber = formData.get("serialNumber") as string;
+//     const imei = formData.get("imei") as string;
+//     const chassisNumber = formData.get("chassisNumber") as string;
+//     const color = formData.get("color") as string;
+//     const yearOfPurchaseStr = formData.get("yearOfPurchase") as string;
+//     const yearOfPurchase = yearOfPurchaseStr
+//       ? Number(yearOfPurchaseStr)
+//       : undefined;
+
+//     // const listingId = formData.get("listingId") as string; // in the new world, this would be an Item ID where isListed=true but isRegistered=false
+//     // const itemId = formData.get("itemId") as string;
+
+//     // const actualItemId = itemId || listingId;
+
+//     if (!itemType || !brand || !model) {
+//       return NextResponse.json(
+//         { error: "itemType, brand, and model are required." },
+//         { status: 400 },
+//       );
+//     }
+
+//     if (!serialNumber && !imei && !chassisNumber) {
+//       return NextResponse.json(
+//         {
+//           error:
+//             "At least one identifier (serial number, IMEI, or chassis number) is required.",
+//         },
+//         { status: 400 },
+//       );
+//     }
+
+//     // Check for duplicate identifier
+//     const orConditions = [];
+//     if (serialNumber)
+//       orConditions.push({ "registry.serialNumber": serialNumber });
+//     if (imei) orConditions.push({ "registry.imei": imei });
+//     if (chassisNumber)
+//       orConditions.push({ "registry.chassisNumber": chassisNumber });
+
+//     if (orConditions.length > 0) {
+//       const duplicate = await Item.findOne({
+//         isRegistered: true,
+//         $or: orConditions,
+//       });
+
+//       if (duplicate) {
+//         return NextResponse.json(
+//           { error: "A property with this identifier is already registered." },
+//           { status: 409 },
+//         );
+//       }
+//     }
+
+//     let existingItemImages: string[] = [];
+//     let existingItem: any = null;
+
+//     // if (actualItemId) {
+//     //   existingItem = await Item.findById(actualItemId);
+//     //   if (existingItem && Array.isArray(existingItem.images)) {
+//     //     existingItemImages = existingItem.images;
+//     //   }
+//     // }
+
+//     const imageFiles = formData.getAll("images") as File[];
+//     const imageUrls: string[] = [...existingItemImages];
+
+//     // Upload images to Cloudinary
+//     if (imageFiles && imageFiles.length > 0) {
+//       for (const file of imageFiles) {
+//         if (file instanceof File && file.size > 0) {
+//           const arrayBuffer = await file.arrayBuffer();
+//           const buffer = Buffer.from(arrayBuffer);
+
+//           const uploadResult: any = await new Promise((resolve, reject) => {
+//             cloudinary.uploader
+//               .upload_stream({ folder: "trade-zone" }, (error, result) => {
+//                 if (error) reject(error);
+//                 else resolve(result);
+//               })
+//               .end(buffer);
+//           });
+
+//           imageUrls.push(uploadResult.secure_url);
+//         }
+//       }
+//     }
+
+//     if (existingItem) {
+//       // Convert existing listed-only item to a registered item
+//       existingItem.isRegistered = true;
+//       existingItem.registeredAt = new Date();
+//       existingItem.ownershipStatus = "owned";
+//       existingItem.itemType = itemType;
+//       existingItem.brand = brand;
+//       existingItem.model = model;
+//       if (description) existingItem.description = description;
+//       if (color) existingItem.color = color;
+//       existingItem.images = imageUrls;
+
+//       existingItem.registry = {
+//         serialNumber: serialNumber || undefined,
+//         imei: imei || undefined,
+//         chassisNumber: chassisNumber || undefined,
+//         yearOfPurchase,
+//       };
+
+//       if (serialNumber) existingItem.uniqueIdentifier = serialNumber;
+
+//       await existingItem.save();
+//       return NextResponse.json({ property: existingItem }, { status: 201 });
+//     } else {
+//       // Create entirely new item
+//       console.log("Creating new item...");
+//       const newItem = await Item.create({
+//         owner: session.user.id,
+//         itemType,
+//         brand,
+//         model,
+//         description,
+//         color,
+//         images: imageUrls,
+//         uniqueIdentifier: serialNumber || undefined,
+
+//         isRegistered: true,
+//         registeredAt: new Date(),
+//         ownershipStatus: "owned",
+//         registry: {
+//           serialNumber: serialNumber || undefined,
+//           imei: imei || undefined,
+//           chassisNumber: chassisNumber || undefined,
+//           yearOfPurchase,
+//         },
+
+//         isListed: false,
+//       });
+
+//       console.log("New item created:", newItem);
+
+//       return NextResponse.json({ property: newItem }, { status: 201 });
+//     }
+//   } catch (error: any) {
+//     console.error("Property creation error:", error);
+//     return NextResponse.json(
+//       { error: error.message || "Something went wrong" },
+//       { status: 500 },
+//     );
+//   }
+// }
+
+// POST /api/registry
+
+export async function POST(req: NextRequest) {
   try {
+    const session = await getServerSession(authOptions);
+
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     await dbConnect();
 
-    // Check user registration limits
+    // =========================
+    // CHECK USER
+    // =========================
+
     const dbUser = await User.findById(session.user.id);
+
     if (!dbUser) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
+
+    // =========================
+    // REGISTRATION LIMIT
+    // =========================
 
     if (!dbUser.unlimitedRegistrations) {
       const propertyCount = await Item.countDocuments({
         owner: dbUser._id,
         isRegistered: true,
       });
-      if (propertyCount >= (dbUser.registrationLimit || 1)) {
+
+      const limit = dbUser.registrationLimit || 1;
+
+      if (propertyCount >= limit) {
         return NextResponse.json(
           {
             error:
@@ -148,28 +352,46 @@ export async function POST(req: NextRequest) {
       }
     }
 
+    // =========================
+    // FORM DATA
+    // =========================
+
     const formData = await req.formData();
 
-    const itemType = formData.get("itemType") as string;
-    const brand = formData.get("brand") as string;
-    const model = formData.get("model") as string;
-    const description = formData.get("description") as string;
-    const serialNumber = formData.get("serialNumber") as string;
-    const imei = formData.get("imei") as string;
-    const chassisNumber = formData.get("chassisNumber") as string;
-    const color = formData.get("color") as string;
-    const yearOfPurchaseStr = formData.get("yearOfPurchase") as string;
-    const yearOfPurchase = yearOfPurchaseStr
-      ? Number(yearOfPurchaseStr)
-      : undefined;
-    const listingId = formData.get("listingId") as string; // in the new world, this would be an Item ID where isListed=true but isRegistered=false
-    const itemId = formData.get("itemId") as string;
+    const normalize = (value: FormDataEntryValue | null) => {
+      if (!value || typeof value !== "string") return undefined;
 
-    const actualItemId = itemId || listingId;
+      const trimmed = value.trim();
+
+      return trimmed.length ? trimmed : undefined;
+    };
+
+    const itemType = normalize(formData.get("itemType"));
+    const brand = normalize(formData.get("brand"));
+    const model = normalize(formData.get("model"));
+    const description = normalize(formData.get("description"));
+    const serialNumber = normalize(formData.get("serialNumber"))?.toUpperCase();
+    const imei = normalize(formData.get("imei"));
+    const chassisNumber = normalize(
+      formData.get("chassisNumber"),
+    )?.toUpperCase();
+    const color = normalize(formData.get("color"));
+
+    const yearOfPurchaseRaw = normalize(formData.get("yearOfPurchase"));
+
+    const yearOfPurchase = yearOfPurchaseRaw
+      ? Number(yearOfPurchaseRaw)
+      : undefined;
+
+    // =========================
+    // VALIDATION
+    // =========================
 
     if (!itemType || !brand || !model) {
       return NextResponse.json(
-        { error: "itemType, brand, and model are required." },
+        {
+          error: "itemType, brand, and model are required.",
+        },
         { status: 400 },
       );
     }
@@ -184,117 +406,148 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Check for duplicate identifier
-    const orConditions = [];
-    if (serialNumber)
-      orConditions.push({ "registry.serialNumber": serialNumber });
-    if (imei) orConditions.push({ "registry.imei": imei });
-    if (chassisNumber)
-      orConditions.push({ "registry.chassisNumber": chassisNumber });
-
-    if (orConditions.length > 0) {
-      const duplicate = await Item.findOne({
-        isRegistered: true,
-        $or: orConditions,
-      });
-
-      if (duplicate) {
-        return NextResponse.json(
-          { error: "A property with this identifier is already registered." },
-          { status: 409 },
-        );
-      }
-    }
-
-    let existingItemImages: string[] = [];
-    let existingItem: any = null;
-
-    if (actualItemId) {
-      existingItem = await Item.findById(actualItemId);
-      if (existingItem && Array.isArray(existingItem.images)) {
-        existingItemImages = existingItem.images;
-      }
-    }
-
-    const imageFiles = formData.getAll("images") as File[];
-    const imageUrls: string[] = [...existingItemImages];
-
-    // Upload images to Cloudinary
-    if (imageFiles && imageFiles.length > 0) {
-      for (const file of imageFiles) {
-        if (file instanceof File && file.size > 0) {
-          const arrayBuffer = await file.arrayBuffer();
-          const buffer = Buffer.from(arrayBuffer);
-
-          const uploadResult: any = await new Promise((resolve, reject) => {
-            cloudinary.uploader
-              .upload_stream({ folder: "trade-zone" }, (error, result) => {
-                if (error) reject(error);
-                else resolve(result);
-              })
-              .end(buffer);
-          });
-
-          imageUrls.push(uploadResult.secure_url);
-        }
-      }
-    }
-
-    if (existingItem) {
-      // Convert existing listed-only item to a registered item
-      existingItem.isRegistered = true;
-      existingItem.registeredAt = new Date();
-      existingItem.ownershipStatus = "owned";
-
-      existingItem.itemType = itemType;
-      existingItem.brand = brand;
-      existingItem.model = model;
-      if (description) existingItem.description = description;
-      if (color) existingItem.color = color;
-      existingItem.images = imageUrls;
-
-      existingItem.registry = {
-        serialNumber: serialNumber || undefined,
-        imei: imei || undefined,
-        chassisNumber: chassisNumber || undefined,
-        yearOfPurchase,
-      };
-
-      if (serialNumber) existingItem.uniqueIdentifier = serialNumber;
-
-      await existingItem.save();
-      return NextResponse.json({ property: existingItem }, { status: 201 });
-    } else {
-      // Create entirely new item
-      const newItem = await Item.create({
-        owner: session.user.id,
-        itemType,
-        brand,
-        model,
-        description,
-        color,
-        images: imageUrls,
-        uniqueIdentifier: serialNumber || undefined,
-
-        isRegistered: true,
-        registeredAt: new Date(),
-        ownershipStatus: "owned",
-        registry: {
-          serialNumber: serialNumber || undefined,
-          imei: imei || undefined,
-          chassisNumber: chassisNumber || undefined,
-          yearOfPurchase,
+    if (
+      yearOfPurchase &&
+      (isNaN(yearOfPurchase) ||
+        yearOfPurchase < 1900 ||
+        yearOfPurchase > new Date().getFullYear())
+    ) {
+      return NextResponse.json(
+        {
+          error: "Invalid year of purchase.",
         },
+        { status: 400 },
+      );
+    }
 
-        isListed: false,
+    // =========================
+    // DUPLICATE CHECK
+    // =========================
+
+    const orConditions = [];
+
+    if (serialNumber) {
+      orConditions.push({
+        "registry.serialNumber": serialNumber,
+      });
+    }
+
+    if (imei) {
+      orConditions.push({
+        "registry.imei": imei,
+      });
+    }
+
+    if (chassisNumber) {
+      orConditions.push({
+        "registry.chassisNumber": chassisNumber,
+      });
+    }
+
+    const duplicate = await Item.findOne({
+      isRegistered: true,
+      $or: orConditions,
+    });
+
+    if (duplicate) {
+      return NextResponse.json(
+        {
+          error: "A property with this identifier is already registered.",
+        },
+        { status: 409 },
+      );
+    }
+
+    // =========================
+    // IMAGE UPLOADS
+    // =========================
+
+    const imageFiles = formData.getAll("images");
+
+    const imageUrls: string[] = [];
+
+    for (const file of imageFiles) {
+      if (!file || typeof file === "string" || !("arrayBuffer" in file)) {
+        continue;
+      }
+
+      if (file.size <= 0) continue;
+
+      const arrayBuffer = await file.arrayBuffer();
+
+      const buffer = Buffer.from(arrayBuffer);
+
+      const uploadResult = await new Promise<any>((resolve, reject) => {
+        cloudinary.uploader
+          .upload_stream(
+            {
+              folder: "trade-zone",
+            },
+            (error, result) => {
+              if (error) {
+                reject(error);
+              } else {
+                resolve(result);
+              }
+            },
+          )
+          .end(buffer);
       });
 
-      return NextResponse.json({ property: newItem }, { status: 201 });
+      imageUrls.push(uploadResult.secure_url);
     }
+
+    // =========================
+    // CREATE ITEM
+    // =========================
+
+    const uniqueIdentifier = serialNumber || imei || chassisNumber;
+
+    const newItem = await Item.create({
+      owner: dbUser._id,
+
+      brand,
+      model,
+      description,
+      color,
+
+      images: imageUrls,
+
+      uniqueIdentifier,
+
+      // Registry
+      isRegistered: true,
+      registeredAt: new Date(),
+
+      itemType,
+
+      ownershipStatus: "owned",
+
+      registry: {
+        serialNumber,
+        imei,
+        chassisNumber,
+        yearOfPurchase,
+        color,
+      },
+
+      // Marketplace
+      isListed: false,
+    });
+
+    return NextResponse.json(
+      {
+        property: newItem,
+      },
+      { status: 201 },
+    );
   } catch (error: any) {
     console.error("Property creation error:", error);
+
     return NextResponse.json(
-      { error: error.message || "Something went wrong" },
+      {
+        error: error?.message || "Something went wrong",
+      },
       { status: 500 },
     );
   }

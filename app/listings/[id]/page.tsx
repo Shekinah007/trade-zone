@@ -1,5 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 import { formatDistanceToNow } from "date-fns";
 import {
   MapPin,
@@ -27,17 +29,16 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ListingActions, ReportButton } from "@/components/ListingActions";
 import { SellerRating } from "@/components/SellerRating";
+import { SellerListingPanel } from "@/components/SellerListingPanel";
 
 import Transaction from "@/models/Transaction";
-import "@/models/User"; // Ensure User model is registered
+import Conversation from "@/models/Conversation";
 import Business from "@/models/Business";
 import { ViewTracker } from "@/components/ViewTracker";
 
 async function getListing(id: string) {
   try {
     await dbConnect();
-    // Validate ID format
-    // if (!id.match(/^[0-9a-fA-F]{24}$/)) return null;
 
     const listing = await Item.findById(id)
       .populate("owner")
@@ -58,10 +59,14 @@ async function getListing(id: string) {
       .sort({ createdAt: -1 })
       .lean();
 
+    // Fetch conversation count for the item
+    const conversationCount = await Conversation.countDocuments({ item: id });
+
     return {
       ...JSON.parse(JSON.stringify(listing)),
       history: JSON.parse(JSON.stringify(history)),
       business: JSON.parse(JSON.stringify(business)),
+      conversationCount,
     };
   } catch (error) {
     console.error("Error fetching listing:", error);
@@ -75,7 +80,10 @@ export default async function ListingPage({
   params: { id: string };
 }) {
   const { id } = await params;
-  const listing = await getListing(id);
+  const [listing, session] = await Promise.all([
+    getListing(id),
+    getServerSession(authOptions),
+  ]);
 
   if (!listing) {
     notFound();
@@ -85,6 +93,10 @@ export default async function ListingPage({
     style: "currency",
     currency: "NGN",
   }).format(listing.listing?.price || 0);
+
+  const sellerId =
+    listing.seller?._id?.toString() || listing.owner?._id?.toString();
+  const isOwner = session?.user?.id === sellerId;
 
   return (
     <div className="container mx-auto py-8 px-4">
@@ -305,49 +317,58 @@ export default async function ListingPage({
             </CardContent>
           </Card>
 
-          <Card className="gap-1">
-            <CardHeader className="">
-              <CardTitle className="text-lg">Seller Information</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <Link
-                href={`/store/${listing.seller?._id || listing.owner?._id}`}
-                className="flex items-center space-x-4 hover:bg-muted/50 p-2 rounded-lg transition-colors group"
-              >
-                <Avatar className="h-12 w-12 group-hover:ring-2 ring-primary/20 transition-all">
-                  <AvatarImage src={(listing.seller || listing.owner)?.image} />
-                  <AvatarFallback>
-                    {(listing.seller || listing.owner)?.name?.charAt(0) || "U"}
-                  </AvatarFallback>
-                </Avatar>
-                <div>
-                  <p className="font-medium group-hover:text-primary transition-colors">
-                    {(listing.seller || listing.owner)?.name || "Unknown User"}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    Member since{" "}
-                    {new Date(
-                      (listing.seller || listing.owner)?.createdAt ||
-                        new Date(),
-                    ).getFullYear()}
-                  </p>
+          {/* ── Seller Management Panel (only visible to the seller) ── */}
+          <SellerListingPanel
+            listing={listing}
+            conversationCount={listing.conversationCount}
+          />
+
+          {/* ── Public Seller Info (hidden from seller themselves) ── */}
+          {!isOwner && (
+            <Card className="gap-1">
+              <CardHeader className="">
+                <CardTitle className="text-lg">Seller Information</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <Link
+                  href={`/store/${listing.seller?._id || listing.owner?._id}`}
+                  className="flex items-center space-x-4 hover:bg-muted/50 p-2 rounded-lg transition-colors group"
+                >
+                  <Avatar className="h-12 w-12 group-hover:ring-2 ring-primary/20 transition-all">
+                    <AvatarImage src={(listing.seller || listing.owner)?.image} />
+                    <AvatarFallback>
+                      {(listing.seller || listing.owner)?.name?.charAt(0) || "U"}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <p className="font-medium group-hover:text-primary transition-colors">
+                      {(listing.seller || listing.owner)?.name || "Unknown User"}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      Member since{" "}
+                      {new Date(
+                        (listing.seller || listing.owner)?.createdAt ||
+                          new Date(),
+                      ).getFullYear()}
+                    </p>
+                  </div>
+                </Link>
+
+                <div className="flex items-center text-sm text-muted-foreground">
+                  <ShieldCheck className="h-4 w-4 mr-2 text-green-600" />
+                  <span>Verified Email</span>
                 </div>
-              </Link>
 
-              <div className="flex items-center text-sm text-muted-foreground">
-                <ShieldCheck className="h-4 w-4 mr-2 text-green-600" />
-                <span>Verified Email</span>
-              </div>
+                <div className="pt-2 border-t mt-2">
+                  <SellerRating
+                    sellerId={listing.seller?._id || listing.owner?._id}
+                  />
+                </div>
 
-              <div className="pt-2 border-t mt-2">
-                <SellerRating
-                  sellerId={listing.seller?._id || listing.owner?._id}
-                />
-              </div>
-
-              <ReportButton listingId={listing._id} />
-            </CardContent>
-          </Card>
+                <ReportButton listingId={listing._id} />
+              </CardContent>
+            </Card>
+          )}
 
           <Card className="bg-muted/30">
             <CardContent className="p-4">

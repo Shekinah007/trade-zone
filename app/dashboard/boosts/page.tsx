@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Loader2, ArrowUpCircle, CheckCircle2, AlertCircle, ShoppingCart } from "lucide-react";
+import { Loader2, ArrowUpCircle, CheckCircle2, AlertCircle, ShoppingCart, CreditCard, Coins } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { toast } from "sonner";
+import { usePaystackPayment } from "react-paystack";
 import { useRouter, useSearchParams } from "next/navigation";
 
 export default function BoostListingsPage() {
@@ -18,6 +19,15 @@ export default function BoostListingsPage() {
   const [selectedListings, setSelectedListings] = useState<string[]>([]);
   const [selectedTier, setSelectedTier] = useState<string>("");
   const [boosting, setBoosting] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState<"credit" | "paystack" | null>(null);
+
+  const paystackConfig = {
+    reference: new Date().getTime().toString() + Math.floor(Math.random() * 1000),
+    email: session?.user?.email || "anonymous@trade-zone.com",
+    publicKey: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY || "pk_test_placeholder123",
+  };
+
+  const initializePayment = usePaystackPayment({ ...paystackConfig, amount: 0 });
 
   useEffect(() => {
     if (initialListingId && !selectedListings.includes(initialListingId)) {
@@ -56,6 +66,7 @@ export default function BoostListingsPage() {
   const handleBoost = async () => {
     if (selectedListings.length === 0 || !selectedTier) return;
     setBoosting(true);
+    setPaymentMethod("credit");
     try {
       const res = await fetch("/api/user/boost-listings", {
         method: "POST",
@@ -77,7 +88,61 @@ export default function BoostListingsPage() {
       toast.error("A network error occurred.");
     } finally {
       setBoosting(false);
+      setPaymentMethod(null);
     }
+  };
+
+  const handleBoostPaystack = () => {
+    if (selectedListings.length === 0 || !selectedTier) return;
+    const tierData = tiers.find(t => t._id === selectedTier);
+    if (!tierData) return;
+
+    setBoosting(true);
+    setPaymentMethod("paystack");
+
+    const totalNairaCost = tierData.priceNGN * selectedListings.length;
+
+    const onSuccess = async (referenceInfo: any) => {
+      try {
+        const res = await fetch("/api/user/boost-listings", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            listingIds: selectedListings,
+            boostTierId: selectedTier,
+            paymentMethod: "paystack",
+            reference: referenceInfo.reference,
+          }),
+        });
+        const data = await res.json();
+        if (data.success) {
+          toast.success(data.message || "Listings boosted successfully!");
+          router.push("/dashboard");
+        } else {
+          toast.error(data.error || "Failed to boost listings");
+        }
+      } catch (err) {
+        toast.error("A network error occurred.");
+      } finally {
+        setBoosting(false);
+        setPaymentMethod(null);
+      }
+    };
+
+    const onClose = () => {
+      toast.error("Payment cancelled");
+      setBoosting(false);
+      setPaymentMethod(null);
+    };
+
+    initializePayment({
+      onSuccess: (val: any) => onSuccess(val),
+      onClose,
+      config: {
+        ...paystackConfig,
+        amount: totalNairaCost * 100, // Convert NGN to Kobo
+      },
+    } as any);
   };
 
   if (loading) {
@@ -186,17 +251,24 @@ export default function BoostListingsPage() {
               </div>
             </div>
 
-            <button
-              onClick={handleBoost}
-              disabled={selectedListings.length === 0 || !selectedTier || boosting}
-              className="w-full py-3 rounded-xl bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-md flex justify-center items-center gap-2"
-            >
-              {boosting ? <Loader2 className="w-5 h-5 animate-spin" /> : <ArrowUpCircle className="w-5 h-5" />}
-              Pay {totalCost} Credits
-            </button>
-            <p className="text-xs text-center text-muted-foreground mt-3">
-              Credits will be deducted from your account.
-            </p>
+            <div className="flex flex-col gap-3">
+              <button
+                onClick={handleBoost}
+                disabled={selectedListings.length === 0 || !selectedTier || boosting}
+                className="w-full py-3 rounded-xl bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-md flex justify-center items-center gap-2"
+              >
+                {boosting && paymentMethod === 'credit' ? <Loader2 className="w-5 h-5 animate-spin" /> : <Coins className="w-5 h-5" />}
+                Pay {totalCost} Credits
+              </button>
+              <button
+                onClick={handleBoostPaystack}
+                disabled={selectedListings.length === 0 || !selectedTier || boosting}
+                className="w-full py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-md flex justify-center items-center gap-2"
+              >
+                {boosting && paymentMethod === 'paystack' ? <Loader2 className="w-5 h-5 animate-spin" /> : <CreditCard className="w-5 h-5" />}
+                Pay ₦{selectedTierData ? (selectedTierData.priceNGN * selectedListings.length).toLocaleString() : 0} directly
+              </button>
+            </div>
           </div>
         </div>
       </div>
