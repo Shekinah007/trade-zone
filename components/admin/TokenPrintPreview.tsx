@@ -176,7 +176,7 @@ export default function TokenPrintPreview({ tokens, onClose }: Props) {
                     </div>
 
                     {/* Decorative strip */}
-                    <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-red-500 via-red-600 to-green-500" />
+                    <div className="absolute top-0 left-0 right-0 h-1 bg-linear -to-r from-red-500 via-red-600 to-green-500" />
 
                     <div className="relative z-10 flex flex-col h-full">
                       {/* Header Section */}
@@ -240,7 +240,7 @@ export default function TokenPrintPreview({ tokens, onClose }: Props) {
                             Redeem at
                           </p>
                           <p className="text-[8px] font-semibold text-red-600 tracking-wider">
-                            findmaster.com
+                            findmaster.org
                           </p>
                         </div>
                       </div>

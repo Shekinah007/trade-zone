@@ -148,7 +148,6 @@ const ReportDetails = () => {
       setLoading(false);
     }
   };
-  console.log("Report:", report);
   useEffect(() => {
     if (params.id) fetchReport();
   }, [params.id]);

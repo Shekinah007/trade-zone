@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document, Model } from 'mongoose';
+import mongoose, { Schema, Document, Model } from "mongoose";
 
 export interface ITransferRecord {
   fromUser: mongoose.Types.ObjectId;
@@ -23,7 +23,15 @@ export interface IItem {
   // Registry namespace
   isRegistered: boolean;
   registeredAt?: Date;
-  itemType?: 'phone' | 'laptop' | 'tablet' | 'vehicle' | 'motorcycle' | 'generator' | 'electronics' | 'other';
+  itemType?:
+    | "phone"
+    | "laptop"
+    | "tablet"
+    | "vehicle"
+    | "motorcycle"
+    | "generator"
+    | "electronics"
+    | "other";
   registry?: {
     serialNumber?: string;
     imei?: string;
@@ -31,7 +39,12 @@ export interface IItem {
     yearOfPurchase?: number;
     color?: string;
   };
-  ownershipStatus?: 'owned' | 'missing' | 'found' | 'transferred' | 'transfer_pending';
+  ownershipStatus?:
+    | "owned"
+    | "missing"
+    | "found"
+    | "transferred"
+    | "transfer_pending";
   previousOwners?: ITransferRecord[];
   reportedMissingAt?: Date;
   reportedFoundAt?: Date;
@@ -53,16 +66,16 @@ export interface IItem {
       phone?: boolean;
       email?: boolean;
     };
-    status?: 'active' | 'sold' | 'expired' | 'inactive';
+    status?: "active" | "sold" | "expired" | "inactive";
     featured?: boolean;
     views?: number;
     buyerId?: mongoose.Types.ObjectId;
     listedAt?: Date;
     expiresAt?: Date;
-    featuredStatus?: 'none' | 'active';
+    featuredStatus?: "none" | "active";
     featuredExpiry?: Date;
     featuredAt?: Date;
-    boostStatus?: 'none' | 'active';
+    boostStatus?: "none" | "active";
     boostExpiry?: Date;
     boostedAt?: Date;
     boostQueue?: Array<{ durationInDays: number; purchasedAt: Date }>;
@@ -75,21 +88,21 @@ export interface IItem {
 
 const TransferRecordSchema = new Schema<ITransferRecord>(
   {
-    fromUser: { type: Schema.Types.ObjectId, ref: 'User', required: true },
-    toUser: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+    fromUser: { type: Schema.Types.ObjectId, ref: "User", required: true },
+    toUser: { type: Schema.Types.ObjectId, ref: "User", required: true },
     dateSold: { type: Date },
     salePrice: { type: Number },
     location: { type: String },
     notes: { type: String },
     transferredAt: { type: Date, default: Date.now },
   },
-  { _id: false }
+  { _id: false },
 );
 
 const ItemSchema = new Schema<IItem>(
   {
     // Core identity
-    owner: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+    owner: { type: Schema.Types.ObjectId, ref: "User", required: true },
     brand: { type: String, required: true },
     model: { type: String, required: true },
     description: { type: String },
@@ -103,14 +116,14 @@ const ItemSchema = new Schema<IItem>(
     itemType: {
       type: String,
       enum: [
-        'phone',
-        'laptop',
-        'tablet',
-        'vehicle',
-        'motorcycle',
-        'generator',
-        'electronics',
-        'other',
+        "phone",
+        "laptop",
+        "tablet",
+        "vehicle",
+        "motorcycle",
+        "generator",
+        "electronics",
+        "other",
       ],
     },
     registry: {
@@ -122,7 +135,7 @@ const ItemSchema = new Schema<IItem>(
     },
     ownershipStatus: {
       type: String,
-      enum: ['owned', 'missing', 'found', 'transferred', 'transfer_pending'],
+      enum: ["owned", "missing", "found", "transferred", "transfer_pending"],
     },
     previousOwners: [TransferRecordSchema],
     reportedMissingAt: { type: Date },
@@ -130,11 +143,11 @@ const ItemSchema = new Schema<IItem>(
 
     // Marketplace namespace
     isListed: { type: Boolean, default: false },
-    seller: { type: Schema.Types.ObjectId, ref: 'User' },
+    seller: { type: Schema.Types.ObjectId, ref: "User" },
     listing: {
       title: { type: String },
       price: { type: Number },
-      category: { type: Schema.Types.ObjectId, ref: 'Category' },
+      category: { type: Schema.Types.ObjectId, ref: "Category" },
       condition: { type: String },
       location: {
         city: String,
@@ -147,36 +160,41 @@ const ItemSchema = new Schema<IItem>(
       },
       status: {
         type: String,
-        enum: ['active', 'sold', 'expired', 'inactive'],
+        enum: [],
       },
       featured: { type: Boolean, default: false },
       views: { type: Number, default: 0 },
-      buyerId: { type: Schema.Types.ObjectId, ref: 'User' },
+      buyerId: { type: Schema.Types.ObjectId, ref: "User" },
       listedAt: { type: Date },
       expiresAt: { type: Date },
-      featuredStatus: { type: String, enum: ['none', 'active'], default: 'none' },
+      featuredStatus: {
+        type: String,
+        enum: ["none", "active"],
+        default: "none",
+      },
       featuredExpiry: { type: Date },
       featuredAt: { type: Date },
-      boostStatus: { type: String, enum: ['none', 'active'], default: 'none' },
+      boostStatus: { type: String, enum: ["none", "active"], default: "none" },
       boostExpiry: { type: Date },
       boostedAt: { type: Date },
       boostQueue: [{ durationInDays: Number, purchasedAt: Date }],
       isGrandfathered: { type: Boolean, default: true },
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 // Indexes
-ItemSchema.index({ isListed: 1, 'listing.status': 1 });
+ItemSchema.index({ isListed: 1, "listing.status": 1 });
 ItemSchema.index({ isRegistered: 1, ownershipStatus: 1 });
-ItemSchema.index({ 'registry.serialNumber': 1 }, { sparse: true });
-ItemSchema.index({ 'registry.imei': 1 }, { sparse: true });
-ItemSchema.index({ 'registry.chassisNumber': 1 }, { sparse: true });
+ItemSchema.index({ "registry.serialNumber": 1 }, { sparse: true });
+ItemSchema.index({ "registry.imei": 1 }, { sparse: true });
+ItemSchema.index({ "registry.chassisNumber": 1 }, { sparse: true });
 ItemSchema.index({ uniqueIdentifier: 1 }, { sparse: true });
 ItemSchema.index({ owner: 1 });
 ItemSchema.index({ seller: 1 });
 
-const Item: Model<IItem> = mongoose.models?.Item || mongoose.model('Item', ItemSchema);
+const Item: Model<IItem> =
+  mongoose.models?.Item || mongoose.model("Item", ItemSchema);
 
 export default Item;
