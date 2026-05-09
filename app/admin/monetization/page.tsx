@@ -19,6 +19,7 @@ export default function AdminMonetizationPage() {
   const [saving, setSaving] = useState(false);
 
   const [registrationCreditCost, setRegistrationCreditCost] = useState(10);
+  const [registrationPriceNGN, setRegistrationPriceNGN] = useState(1000);
   const [unlimitedRegistrationPriceNGN, setUnlimitedRegistrationPriceNGN] =
     useState(10000);
   const [freeListingQuota, setFreeListingQuota] = useState(3);
@@ -64,6 +65,7 @@ export default function AdminMonetizationPage() {
         const data = await settingsRes.json();
         if (data.settings) {
           setRegistrationCreditCost(data.settings.registrationCreditCost || 10);
+          setRegistrationPriceNGN(data.settings.registrationPriceNGN || 1000);
           setUnlimitedRegistrationPriceNGN(
             data.settings.unlimitedRegistrationPriceNGN || 10000,
           );
@@ -97,6 +99,7 @@ export default function AdminMonetizationPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           registrationCreditCost,
+          registrationPriceNGN,
           unlimitedRegistrationPriceNGN,
           freeListingQuota,
           globalListingExpiryDays,
@@ -238,6 +241,19 @@ export default function AdminMonetizationPage() {
                       value={registrationCreditCost}
                       onChange={(e) =>
                         setRegistrationCreditCost(Number(e.target.value))
+                      }
+                      className="w-full text-sm p-2 bg-gray-50 border rounded-lg"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-2">
+                      Registration Price (NGN)
+                    </label>
+                    <input
+                      type="number"
+                      value={registrationPriceNGN}
+                      onChange={(e) =>
+                        setRegistrationPriceNGN(Number(e.target.value))
                       }
                       className="w-full text-sm p-2 bg-gray-50 border rounded-lg"
                     />

@@ -25,7 +25,10 @@ export async function POST(req: NextRequest) {
       settings = await SystemSettings.create({});
     }
 
-    const cost = settings.registrationCreditCost;
+    const body = await req.json().catch(() => ({}));
+    const quantity = Math.max(1, Number(body.quantity) || 1);
+
+    const cost = settings.registrationCreditCost * quantity;
 
     if (user.creditBalance < cost) {
       return NextResponse.json({ error: "Insufficient credits" }, { status: 400 });
@@ -33,7 +36,7 @@ export async function POST(req: NextRequest) {
 
     // Deduct credits and add registration limit
     user.creditBalance -= cost;
-    user.registrationLimit = (user.registrationLimit || 0) + 1;
+    user.registrationLimit = (user.registrationLimit || 0) + quantity;
     await user.save();
 
     return NextResponse.json({

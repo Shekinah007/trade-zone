@@ -43,9 +43,11 @@ export function TokenPurchaseModal({
   const [tokenCode, setTokenCode] = useState("");
   const [redeeming, setRedeeming] = useState(false);
   const [buyingQuota, setBuyingQuota] = useState(false);
+  const [quotaQuantity, setQuotaQuantity] = useState(1);
 
   const [settings, setSettings] = useState({
     registrationCreditCost: 10,
+    registrationPriceNGN: 1000,
     unlimitedRegistrationPriceNGN: 10000,
   });
 
@@ -64,6 +66,7 @@ export function TokenPurchaseModal({
           if (data && data.success) {
             setSettings({
               registrationCreditCost: data.registrationCreditCost || 10,
+              registrationPriceNGN: data.registrationPriceNGN || 1000,
               unlimitedRegistrationPriceNGN:
                 data.unlimitedRegistrationPriceNGN || 10000,
             });
@@ -121,6 +124,34 @@ export function TokenPurchaseModal({
     } as any);
   };
 
+  const handlePurchaseQuotaNaira = (quantity: number, amountNGN: number) => {
+    setLoadingTier(-1);
+    onClose();
+
+    initializePayment({
+      onSuccess: (val: any) => handleSuccess(val.reference),
+      onClose: handleClosePaystack,
+      config: {
+        ...config,
+        amount: amountNGN * 100, // in kobo
+        metadata: {
+          custom_fields: [
+            {
+              display_name: "Purchase Type",
+              variable_name: "purchase_type",
+              value: "quota",
+            },
+            {
+              display_name: "Quantity",
+              variable_name: "quantity",
+              value: quantity.toString(),
+            },
+          ],
+        },
+      },
+    } as any);
+  };
+
   const handleRedeem = async () => {
     if (!tokenCode.trim()) {
       toast.error("Please enter a token code");
@@ -157,6 +188,7 @@ export function TokenPurchaseModal({
       const res = await fetch("/api/user/buy-quota", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ quantity: quotaQuantity }),
       });
       const data = await res.json();
 
@@ -198,51 +230,80 @@ export function TokenPurchaseModal({
             <Card className="border-2 hover:border-emerald-500 transition-all duration-200 bg-gradient-to-br from-emerald-50/60 to-transparent dark:from-emerald-950/20 overflow-hidden">
               <CardContent className="p-5 flex flex-col h-full">
                 <div className="flex items-center justify-between">
-                  <h3 className="font-bold text-lg">Single Quota</h3>
-                  <Coins className="h-5 w-5 text-amber-500" />
+                  <h3 className="font-bold text-lg">Purchase Quotas</h3>
+                  <Coins className="h-5 w-5 text-emerald-500" />
                 </div>
-                <div className="my-3">
-                  <span className="text-3xl font-black">
-                    {settings.registrationCreditCost}
+                
+                <div className="my-3 flex items-center justify-between bg-white dark:bg-gray-800/50 rounded-lg border border-emerald-500/20 p-1 shadow-inner">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 text-emerald-600 rounded-md hover:bg-emerald-100 dark:hover:bg-emerald-900"
+                    onClick={() => setQuotaQuantity(Math.max(1, quotaQuantity - 1))}
+                  >
+                    -
+                  </Button>
+                  <span className="font-bold text-lg text-center min-w-[3ch]">
+                    {quotaQuantity}
                   </span>
-                  <span className="text-sm text-muted-foreground ml-1">
-                    Credits
-                  </span>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 text-emerald-600 rounded-md hover:bg-emerald-100 dark:hover:bg-emerald-900"
+                    onClick={() => setQuotaQuantity(quotaQuantity + 1)}
+                  >
+                    +
+                  </Button>
                 </div>
-                <ul className="space-y-2 mb-5 flex-1 text-sm">
-                  <li className="flex items-center gap-2">
-                    <Check className="h-4 w-4 text-green-500 shrink-0" />
-                    <span>+1 Property Registration</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <Coins className="h-4 w-4 text-amber-500 shrink-0" />
-                    <span className="font-medium">
-                      Balance: {creditBalance} credits
-                    </span>
-                  </li>
-                </ul>
-                <Button
-                  onClick={handleBuyQuota}
-                  disabled={
-                    buyingQuota ||
-                    creditBalance < settings.registrationCreditCost
-                  }
-                  className="w-full bg-emerald-600 hover:bg-emerald-700 transition-all mt-2"
-                >
-                  {buyingQuota ? (
-                    <>
-                      <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                      Processing...
-                    </>
-                  ) : (
-                    "Buy 1 Quota"
-                  )}
-                </Button>
-                {creditBalance < settings.registrationCreditCost && (
-                  <p className="text-xs text-red-500 mt-2 text-center">
-                    Insufficient credits. Purchase a bundle below.
-                  </p>
-                )}
+                
+                <div className="flex items-center justify-between mb-4 mt-2">
+                  <div className="text-sm">
+                    <div className="font-semibold">{quotaQuantity * settings.registrationCreditCost} Credits</div>
+                  </div>
+                  <div className="text-xs text-right text-muted-foreground flex flex-col items-end">
+                    <div className="flex items-center gap-1">
+                      <Coins className="w-3 h-3 text-amber-500" />
+                      Balance: {creditBalance}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-auto space-y-2">
+                  <Button
+                    onClick={handleBuyQuota}
+                    disabled={
+                      buyingQuota ||
+                      creditBalance < quotaQuantity * settings.registrationCreditCost ||
+                      loadingTier !== null
+                    }
+                    className="w-full bg-emerald-600 hover:bg-emerald-700 transition-all text-xs sm:text-sm py-2 h-auto"
+                  >
+                    {buyingQuota ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                        Processing...
+                      </>
+                    ) : (
+                      <>Pay with Credits</>
+                    )}
+                  </Button>
+                  
+                  <Button
+                    onClick={() => handlePurchaseQuotaNaira(quotaQuantity, quotaQuantity * settings.registrationPriceNGN)}
+                    disabled={loadingTier !== null || buyingQuota}
+                    variant="outline"
+                    className="w-full border-emerald-600 text-emerald-600 hover:bg-emerald-50 transition-all text-xs sm:text-sm py-2 h-auto"
+                  >
+                    {loadingTier === -1 ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                        Processing...
+                      </>
+                    ) : (
+                      <>Pay with Naira (₦{quotaQuantity * settings.registrationPriceNGN})</>
+                    )}
+                  </Button>
+                </div>
               </CardContent>
             </Card>
 

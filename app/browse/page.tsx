@@ -191,6 +191,7 @@ function BrowseContent() {
               condition={listing.listing?.condition}
               location={listing.listing?.location}
               createdAt={listing.createdAt}
+              boostStatus={listing.listing?.boostStatus}
             />
           ))}
         </div>

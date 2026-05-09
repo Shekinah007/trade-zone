@@ -28,6 +28,21 @@ async function getRecentListings() {
   return JSON.parse(JSON.stringify(listings));
 }
 
+async function getFeaturedListings() {
+  await dbConnect();
+  const now = new Date();
+  const listings = await Item.find({
+    isListed: true,
+    "listing.status": "active",
+    "listing.featuredStatus": "active",
+    "listing.featuredExpiry": { $gt: now },
+  })
+    .sort({ "listing.featuredAt": -1 })
+    .limit(4) // Highlight up to 4 featured listings
+    .lean();
+  return JSON.parse(JSON.stringify(listings));
+}
+
 async function getCategories() {
   await dbConnect();
   const categories = await Category.find().sort({ name: 1 }).lean();
@@ -36,6 +51,7 @@ async function getCategories() {
 
 export default async function MarketHome() {
   const recentListings = await getRecentListings();
+  const featuredListings = await getFeaturedListings();
   const categories = await getCategories();
 
   return (
@@ -91,6 +107,66 @@ export default async function MarketHome() {
           </div>
         </div>
       </section>
+
+      {/* Featured Section */}
+      {featuredListings.length > 0 && (
+        <section className="py-16 md:py-24 relative overflow-hidden bg-emerald-950 border-b border-emerald-900/50">
+          <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-10 mix-blend-overlay pointer-events-none" />
+          <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-emerald-500/20 rounded-full blur-[120px] pointer-events-none" />
+          <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-teal-500/20 rounded-full blur-[120px] pointer-events-none" />
+
+          <div className="container mx-auto px-4 relative z-10">
+            <div className="flex flex-col md:flex-row gap-4 justify-between items-end mb-10">
+              <div>
+                <div className="inline-flex items-center px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-xs font-bold uppercase tracking-wider mb-4 shadow-sm">
+                  <Zap className="w-4 h-4 mr-1.5 fill-emerald-300" />
+                  Featured
+                </div>
+                <h2 className="text-3xl md:text-5xl font-extrabold tracking-tight text-white">
+                  Premium Selections
+                </h2>
+                <p className="text-sm md:text-lg text-emerald-100/80 mt-3 font-medium max-w-2xl">
+                  Hand-picked, high-quality listings from our most trusted sellers. Don't miss out on these exclusive deals.
+                </p>
+              </div>
+              <Button
+                variant="outline"
+                className="rounded-full border-emerald-500/30 text-emerald-50 hover:bg-emerald-500/20 hover:text-white bg-emerald-950/50 backdrop-blur-md"
+                size="sm"
+                asChild
+              >
+                <Link href="/browse?featured=true">
+                  View All Featured <ArrowRight className="w-4 h-4 ml-2" />
+                </Link>
+              </Button>
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
+              {featuredListings.map((listing: any) => (
+                <div key={listing._id} className="group relative rounded-xl overflow-hidden ring-1 ring-emerald-500/30 hover:ring-emerald-400 transition-all shadow-xl hover:shadow-2xl hover:-translate-y-1 duration-300 bg-background">
+                  <div className="absolute top-3 right-3 z-20 pointer-events-none">
+                     <span className="px-2.5 py-1 bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-[10px] font-bold uppercase tracking-wider rounded-full shadow-lg flex items-center gap-1 border border-white/20">
+                        <Zap className="w-3 h-3 fill-white" />
+                        Premium
+                     </span>
+                  </div>
+                  <ListingCard
+                    id={listing._id}
+                    title={listing.listing?.title || listing.model}
+                    price={listing.listing?.price}
+                    image={listing.images[0]}
+                    category={listing.listing?.category}
+                    condition={listing.listing?.condition}
+                    location={listing.listing?.location}
+                    createdAt={listing.createdAt}
+                    boostStatus={listing.listing?.boostStatus}
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Categories Zone */}
       <section className="py-16 bg-muted/20 relative">

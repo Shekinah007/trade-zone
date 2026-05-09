@@ -41,7 +41,7 @@ async function getFeaturedListings() {
   const listings = await Item.find({
     isListed: true,
     "listing.status": "active",
-    "listing.featuredStatus": "active"
+    "listing.featuredStatus": "active",
   })
     .sort({ "listing.featuredAt": -1 })
     .lean();
@@ -380,7 +380,10 @@ export default async function Home() {
 
               <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-2 lg:gap-4">
                 {featuredListings.map((listing: any) => (
-                  <div key={listing._id} className="relative group rounded-xl overflow-hidden ring-2 ring-purple-500/50 shadow-[0_0_15px_rgba(168,85,247,0.2)]">
+                  <div
+                    key={listing._id}
+                    className="relative group rounded-xl overflow-hidden ring-2 ring-purple-500/50 shadow-[0_0_15px_rgba(168,85,247,0.2)]"
+                  >
                     <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-purple-500 to-indigo-500 z-20" />
                     <ListingCard
                       id={listing._id}

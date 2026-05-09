@@ -1,10 +1,11 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, ChevronRight, Tag } from "lucide-react";
+import { ChevronRight, Tag } from "lucide-react";
 import dbConnect from "@/lib/db";
 import Category from "@/models/Category";
 import Item from "@/models/Item";
-import { ListingCard } from "@/components/ListingCard";
+import { CategoryPageClient } from "../CategoryPageClient";
+// import { CategoryPageClient } from "@/components/CategoryPageClient";
 
 async function getCategoryData(slug: string) {
   await dbConnect();
@@ -16,8 +17,7 @@ async function getCategoryData(slug: string) {
     ? await Category.findById(category.parent).lean()
     : null;
 
-  const [subcategories, featuredListings, totalCount] = await Promise.all([
-    // Subcategories with their listing counts
+  const [subcategories, allListings, totalCount] = await Promise.all([
     Category.find({ parent: category._id })
       .sort({ name: 1 })
       .lean()
@@ -33,20 +33,31 @@ async function getCategoryData(slug: string) {
           }),
         ),
       ),
-    // Featured listings in this category
-    Item.find({ isListed: true, "listing.category": category._id, "listing.status": "active" })
-      .sort({ "listing.featured": -1, createdAt: -1 })
-      .limit(8)
+
+    // Fetch ALL active listings — JS sorting below ensures boosted items
+    // always stay at the top regardless of whatever sort the user picks.
+    Item.find({
+      isListed: true,
+      "listing.category": category._id,
+      "listing.status": "active",
+    })
+      .select(
+        "brand model images listing.title listing.price listing.condition listing.location listing.boostStatus listing.boostedAt listing.boostExpiry listing.featuredStatus listing.featuredAt listing.views createdAt",
+      )
       .lean(),
-    // Total listing count
-    Item.countDocuments({ isListed: true, "listing.category": category._id, "listing.status": "active" }),
+
+    Item.countDocuments({
+      isListed: true,
+      "listing.category": category._id,
+      "listing.status": "active",
+    }),
   ]);
 
   return JSON.parse(
     JSON.stringify({
       category,
       subcategories,
-      featuredListings,
+      allListings,
       totalCount,
       parent,
     }),
@@ -62,16 +73,14 @@ export default async function CategoryPage({
   const data = await getCategoryData(slug);
   if (!data) notFound();
 
-  const { category, subcategories, featuredListings, totalCount, parent } =
-    data;
+  const { category, subcategories, allListings, totalCount, parent } = data;
 
   return (
     <div className="min-h-screen bg-background">
-      <section className="relative py-4 overflow-hidden border-b">
-        <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-primary/10 rounded-full blur-3xl -z-10" />
+      <section className="relative py-5 overflow-hidden border-b bg-gradient-to-br from-background to-muted/30">
+        <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-primary/5 rounded-full blur-3xl -z-10" />
         <div className="container mx-auto px-4">
-          {/* Breadcrumbs */}
-          <nav className="flex items-center gap-1.5 text-sm text-muted-foreground mb-6 flex-wrap">
+          <nav className="flex items-center gap-1.5 text-sm text-muted-foreground mb-5 flex-wrap">
             <Link href="/" className="hover:text-primary transition-colors">
               Home
             </Link>
@@ -82,20 +91,20 @@ export default async function CategoryPage({
             >
               Categories
             </Link>
-
             {parent && (
               <>
                 <ChevronRight className="h-3.5 w-3.5 shrink-0" />
                 <Link
-                  href={`/categories/${parent.slug}`}
+                  href={`/categories/${(parent as any).slug}`}
                   className="hover:text-primary transition-colors"
                 >
-                  {parent.icon && <span className="mr-1">{parent.icon}</span>}
-                  {parent.name}
+                  {(parent as any).icon && (
+                    <span className="mr-1">{(parent as any).icon}</span>
+                  )}
+                  {(parent as any).name}
                 </Link>
               </>
             )}
-
             <ChevronRight className="h-3.5 w-3.5 shrink-0" />
             <span className="text-foreground font-medium">
               {category.icon && <span className="mr-1">{category.icon}</span>}
@@ -103,16 +112,15 @@ export default async function CategoryPage({
             </span>
           </nav>
 
-          {/* Category header */}
           <div className="flex items-center gap-5">
             <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-3xl bg-primary/10 shadow-sm shrink-0">
               {category.icon || "📦"}
             </div>
             <div>
-              <h1 className="text-2xl md:text-2xl font-extrabold tracking-tight mb-1">
+              <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight mb-1">
                 {category.name}
               </h1>
-              <p className="text-muted-foreground">
+              <p className="text-muted-foreground text-sm">
                 {totalCount.toLocaleString()} active listing
                 {totalCount !== 1 ? "s" : ""}
                 {subcategories.length > 0 &&
@@ -122,10 +130,10 @@ export default async function CategoryPage({
                     {" "}
                     · in{" "}
                     <Link
-                      href={`/categories/${parent.slug}`}
+                      href={`/categories/${(parent as any).slug}`}
                       className="text-primary hover:underline"
                     >
-                      {parent.name}
+                      {(parent as any).name}
                     </Link>
                   </span>
                 )}
@@ -135,13 +143,12 @@ export default async function CategoryPage({
         </div>
       </section>
 
-      <div className="container mx-auto px-4 py-4 space-y-16">
-        {/* Subcategories */}
+      <div className="container mx-auto px-4 py-6 space-y-10">
         {subcategories.length > 0 && (
           <section>
-            <div className="flex items-center gap-2 mb-6">
-              <Tag className="h-5 w-5 text-primary" />
-              <h2 className="text-xl font-bold">Subcategories</h2>
+            <div className="flex items-center gap-2 mb-4">
+              <Tag className="h-4 w-4 text-primary" />
+              <h2 className="text-base font-bold">Browse Subcategories</h2>
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
               {subcategories.map((sub: any) => (
@@ -150,14 +157,14 @@ export default async function CategoryPage({
                   href={`/categories/${sub.slug}`}
                   className="group"
                 >
-                  <div className="bg-card hover:bg-background border border-transparent hover:border-primary/20 transition-all p-2 rounded-xl text-center group-hover:-translate-y-0.5 duration-200 shadow-sm hover:shadow-md">
+                  <div className="bg-card hover:bg-background border border-transparent hover:border-primary/20 transition-all p-3 rounded-xl text-center group-hover:-translate-y-0.5 duration-200 shadow-sm hover:shadow-md">
                     <div className="text-2xl mb-2 group-hover:scale-110 transition-transform inline-block">
                       {sub.icon || "📦"}
                     </div>
-                    <p className="text-xs font-semibold text-foreground/80 group-hover:text-foreground transition-colors">
+                    <p className="text-xs font-semibold text-foreground/80 group-hover:text-foreground leading-tight">
                       {sub.name}
                     </p>
-                    <p className="text-xs text-muted-foreground mt-0.5">
+                    <p className="text-[11px] text-muted-foreground mt-0.5">
                       {sub.count.toLocaleString()}
                     </p>
                   </div>
@@ -167,51 +174,11 @@ export default async function CategoryPage({
           </section>
         )}
 
-        {/* Featured Listings */}
-        <section>
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-bold">
-              {subcategories.length > 0 ? "Featured Listings" : "Listings"}
-            </h2>
-            {/* <Link
-              href={`/browse?category=${encodeURIComponent(category.name)}`}
-              className="text-sm text-primary hover:underline font-medium"
-            >
-              View all {totalCount} →
-            </Link> */}
-          </div>
-
-          {featuredListings.length === 0 ? (
-            <div className="text-center py-16 border-2 border-dashed rounded-3xl">
-              <p className="text-lg font-medium">No listings yet</p>
-              <p className="text-muted-foreground mb-6">
-                Be the first to post in this category!
-              </p>
-              <Link
-                href="/listings/create"
-                className="inline-flex items-center px-6 py-2.5 rounded-full bg-primary text-primary-foreground font-medium hover:bg-primary/90 transition-all"
-              >
-                Post an Ad
-              </Link>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-              {featuredListings.map((listing: any) => (
-                <ListingCard
-                  key={listing._id}
-                  id={listing._id}
-                  title={listing.listing?.title || listing.model}
-                  price={listing.listing?.price}
-                  image={listing.images[0]}
-                  category={listing.listing?.category}
-                  condition={listing.listing?.condition}
-                  location={listing.listing?.location}
-                  createdAt={listing.createdAt}
-                />
-              ))}
-            </div>
-          )}
-        </section>
+        <CategoryPageClient
+          listings={allListings}
+          categoryName={category.name}
+          hasSubcategories={subcategories.length > 0}
+        />
       </div>
     </div>
   );

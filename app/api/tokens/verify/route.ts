@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import User from "@/models/User";
 import dbConnect from "@/lib/db";
+import SystemSettings from "@/models/SystemSettings";
 
 export async function GET(req: NextRequest) {
   const session = await getServerSession(authOptions);
@@ -62,20 +63,47 @@ export async function GET(req: NextRequest) {
 
     let limitIncreased = false;
 
-    // Check tiers
-    if (amount === 100000) {
-      // Tier 1: 1000 NGN for +50 Credits
-      user.creditBalance = (user.creditBalance || 0) + 50;
-      limitIncreased = true;
-    } else if (amount === 1000000) {
-      // Tier 2: 10000 NGN for unlimited
-      user.unlimitedRegistrations = true;
-      limitIncreased = true;
-    } else {
-      return NextResponse.json(
-        { error: `Unrecognized transaction amount: ${amount} kobo` },
-        { status: 400 },
+    const metadata = data.data?.metadata;
+    let isQuotaPurchase = false;
+
+    if (metadata && metadata.custom_fields) {
+      const typeField = metadata.custom_fields.find(
+        (f: any) => f.variable_name === "purchase_type"
       );
+      if (typeField?.value === "quota") {
+        isQuotaPurchase = true;
+        const qtyField = metadata.custom_fields.find(
+          (f: any) => f.variable_name === "quantity"
+        );
+        const qty = Number(qtyField?.value || 1);
+        user.registrationLimit = (user.registrationLimit || 0) + qty;
+        limitIncreased = true;
+      }
+    }
+
+    if (!isQuotaPurchase) {
+      let settings = await SystemSettings.findOne();
+      if (!settings) settings = { unlimitedRegistrationPriceNGN: 10000 };
+
+      // Check tiers
+      if (amount === 100000) {
+        // Tier 1: 1000 NGN for +50 Credits
+        user.creditBalance = (user.creditBalance || 0) + 50;
+        limitIncreased = true;
+      } else if (amount === settings.unlimitedRegistrationPriceNGN * 100) {
+        // Tier 2: Unlimited
+        user.unlimitedRegistrations = true;
+        limitIncreased = true;
+      } else if (amount === 1000000) {
+         // Fallback for hardcoded 10k unlimited
+        user.unlimitedRegistrations = true;
+        limitIncreased = true;
+      } else {
+        return NextResponse.json(
+          { error: `Unrecognized transaction amount: ${amount} kobo` },
+          { status: 400 },
+        );
+      }
     }
 
     if (limitIncreased) {

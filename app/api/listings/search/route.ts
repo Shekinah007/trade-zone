@@ -40,11 +40,75 @@ export async function GET(req: NextRequest) {
   }
 
   const total = await Item.countDocuments(filter);
-  const listings = await Item.find(filter)
-    .sort({ "listing.boostStatus": 1, "listing.boostedAt": -1, createdAt: -1 })
-    .skip((page - 1) * limit)
-    .limit(limit)
-    .lean();
+  // const listings = await Item.find(filter)
+  //   .sort({ "listing.boostStatus": 1, "listing.featuredStatus": 1, "listing.boostedAt": -1, "listing.featuredAt": -1, createdAt: -1 })
+  //   .skip((page - 1) * limit)
+  //   .limit(limit)
+  //   .lean();
+
+  const now = new Date();
+
+  const listings = await Item.aggregate([
+    {
+      $match: filter,
+    },
+
+    // computed priorities
+    {
+      $addFields: {
+        boostPriority: {
+          $cond: [
+            {
+              $and: [
+                { $eq: ["$listing.boostStatus", "active"] },
+                { $gt: ["$listing.boostExpiry", now] },
+              ],
+            },
+            1,
+            0,
+          ],
+        },
+
+        featuredPriority: {
+          $cond: [
+            {
+              $and: [
+                { $eq: ["$listing.featuredStatus", "active"] },
+                { $gt: ["$listing.featuredExpiry", now] },
+              ],
+            },
+            1,
+            0,
+          ],
+        },
+      },
+    },
+
+    // sort
+    {
+      $sort: {
+        boostPriority: -1,
+        featuredPriority: -1,
+
+        // newest boosted first
+        "listing.boostedAt": -1,
+
+        // newest featured first
+        "listing.featuredAt": -1,
+
+        // newest listings
+        createdAt: -1,
+      },
+    },
+
+    {
+      $skip: (page - 1) * limit,
+    },
+
+    {
+      $limit: limit,
+    },
+  ]);
 
   return NextResponse.json({
     listings: JSON.parse(JSON.stringify(listings)),

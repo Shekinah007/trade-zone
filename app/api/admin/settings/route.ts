@@ -43,6 +43,7 @@ export async function PUT(req: NextRequest) {
     const body = await req.json();
     const { 
       registrationCreditCost, 
+      registrationPriceNGN,
       unlimitedRegistrationPriceNGN, 
       freeListingQuota, 
       globalListingExpiryDays,
@@ -56,6 +57,10 @@ export async function PUT(req: NextRequest) {
 
     if (registrationCreditCost !== undefined) {
       settings.registrationCreditCost = Number(registrationCreditCost);
+    }
+    
+    if (registrationPriceNGN !== undefined) {
+      settings.registrationPriceNGN = Number(registrationPriceNGN);
     }
     
     if (unlimitedRegistrationPriceNGN !== undefined) {

@@ -13,6 +13,7 @@ export async function GET() {
     return NextResponse.json({
       success: true,
       registrationCreditCost: settings.registrationCreditCost,
+      registrationPriceNGN: settings.registrationPriceNGN,
       unlimitedRegistrationPriceNGN: settings.unlimitedRegistrationPriceNGN,
     });
   } catch (error: any) {
