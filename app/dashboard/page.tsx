@@ -205,76 +205,7 @@ export default async function DashboardPage({ searchParams }: any) {
                 </div>
               </CardContent>
             </Card>
-            {/* <Card className="border-none shadow-md bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-gray-800/80 rounded-2xl">
-              <CardContent className="p-3 sm:p-4 flex flex-col items-center justify-center text-center">
-                <div className="flex items-center gap-2 mb-1 sm:mb-2">
-                  <div className="p-1.5 sm:p-2.5 bg-emerald-100 dark:bg-emerald-900/40 rounded-full">
-                    <Package className="h-4 w-4 sm:h-5 sm:w-5 text-emerald-600 dark:text-emerald-400" />
-                  </div>
-                  <h2 className="text-xl sm:text-2xl font-black text-emerald-700 dark:text-emerald-400">
-                    {activeListings.length}
-                  </h2>
-                  <p className="text-[10px] sm:text-[11px] uppercase tracking-wider text-muted-foreground font-semibold">
-                    Active Ads
-                  </p>
-                </div>
 
-                <div className="w-full max-w-[180px] sm:max-w-none mt-1 space-y-0.5 sm:space-y-1">
-                  <div className="flex justify-between text-[10px] sm:text-[11px] font-medium text-gray-600 dark:text-gray-400">
-                    <span>Quota</span>
-                    <span>
-                      {activeListings.length} / {details.listingQuota}
-                    </span>
-                  </div>
-                  <div className="h-1 sm:h-1.5 w-full bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-emerald-500 dark:bg-emerald-400 rounded-full transition-all duration-300"
-                      style={{
-                        width: `${(activeListings.length / details.listingQuota) * 100}%`,
-                      }}
-                    />
-                  </div>
-                  <p className="text-[9px] sm:text-[10px] text-gray-500 dark:text-gray-500">
-                    {details.listingQuota - activeListings.length} left
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-            <Card className="border-none shadow-md bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-gray-800/80 rounded-2xl">
-              <CardContent className="p-3 sm:p-4 flex flex-col items-center justify-center text-center">
-                <div className="flex items-center gap-2 mb-1 sm:mb-2">
-                  <div className="p-1.5 sm:p-2.5 bg-emerald-100 dark:bg-emerald-900/40 rounded-full">
-                    <Package className="h-4 w-4 sm:h-5 sm:w-5 text-emerald-600 dark:text-emerald-400" />
-                  </div>
-                  <h2 className="text-xl sm:text-2xl font-black text-emerald-700 dark:text-emerald-400">
-                    {properties.length}
-                  </h2>
-                  <p className="text-[10px] sm:text-[11px] uppercase tracking-wider text-muted-foreground font-semibold">
-                    Protected
-                  </p>
-                </div>
-
-                <div className="w-full max-w-[180px] sm:max-w-none mt-1 space-y-0.5 sm:space-y-1">
-                  <div className="flex justify-between text-[10px] sm:text-[11px] font-medium text-gray-600 dark:text-gray-400">
-                    <span>Quota</span>
-                    <span>
-                      {properties.length} / {details.registrationLimit}
-                    </span>
-                  </div>
-                  <div className="h-1 sm:h-1.5 w-full bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-emerald-500 dark:bg-emerald-400 rounded-full transition-all duration-300"
-                      style={{
-                        width: `${(properties.length / details.registrationLimit) * 100}%`,
-                      }}
-                    />
-                  </div>
-                  <p className="text-[9px] sm:text-[10px] text-gray-500 dark:text-gray-500">
-                    {details.registrationLimit - properties.length} left
-                  </p>
-                </div>
-              </CardContent>
-            </Card> */}
             <Card className="border shadow-md py-2 bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-gray-800/80 rounded-2xl">
               <CardContent className="p-4 flex flex-col items-center justify-center h-full text-center">
                 <div className="p-2.5 bg-red-100 dark:bg-red-900/40 rounded-full mb-2">
@@ -581,8 +512,8 @@ export default async function DashboardPage({ searchParams }: any) {
                 </div>
 
                 {/* Messages Link Card - Compact */}
-                <Card className="border border-emerald-200 dark:border-emerald-800 bg-gradient-to-r from-emerald-50/50 to-transparent dark:from-emerald-950/20">
-                  <CardContent className="p-3">
+                <Card className="border border-emerald-200 dark:border-emerald-800 bg-linear-to-r from-emerald-50/50 to-transparent dark:from-emerald-950/20">
+                  <CardContent className="py-0 px-3">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <div className="p-1.5 bg-emerald-100 dark:bg-emerald-900/50 rounded-full">
@@ -607,6 +538,31 @@ export default async function DashboardPage({ searchParams }: any) {
                           View All <ArrowRight className="ml-1 h-3 w-3" />
                         </Link>
                       </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Registry Options - Upgrade Limit */}
+                <Card className="border border-red-200 dark:border-red-800 bg-linear-to-r from-red-50/50 to-transparent dark:from-red-950/20 mb-4 mt-4">
+                  <CardContent className="py-0 px-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <div className="p-1.5 bg-red-100 dark:bg-red-900/50 rounded-full">
+                          <Zap className="h-3.5 w-3.5 text-red-600" />
+                        </div>
+                        <div>
+                          <p className="font-semibold text-sm">Listing Quota</p>
+                          <p className="text-xs text-muted-foreground">
+                            {`Used ${activeListings.length} / ${details.listingQuota || 1} quota. You have ${details.creditBalance || 0} credits.`}
+                          </p>
+                        </div>
+                      </div>
+                      <Link
+                        href={"/dashboard/tokens"}
+                        className="text-xs  bg-emerald-600 hover:bg-emerald-700 text-white px-2 py-1 rounded-lg"
+                      >
+                        Get More
+                      </Link>
                     </div>
                   </CardContent>
                 </Card>
@@ -646,7 +602,7 @@ export default async function DashboardPage({ searchParams }: any) {
                             />
                             {listing.listing?.featuredStatus === "active" && (
                               <div className="absolute top-2 left-2 z-10">
-                                <Badge className="bg-gradient-to-r from-purple-500 to-indigo-500 text-white border-0 shadow-lg px-2 py-0.5 text-[10px] font-bold flex items-center gap-1">
+                                <Badge className="bg-linear-to-r from-purple-500 to-indigo-500 text-white border-0 shadow-lg px-2 py-0.5 text-[10px] font-bold flex items-center gap-1">
                                   <Star className="h-3 w-3 fill-current" />{" "}
                                   Featured
                                 </Badge>
@@ -747,7 +703,7 @@ export default async function DashboardPage({ searchParams }: any) {
                 </div>
                 {/* Registry Stats - Compact */}
                 <div className="grid grid-cols-3 gap-3">
-                  <Card className="bg-gradient-to-br from-red-50 to-red-100 dark:from-red-950/30 dark:to-red-900/20 border-red-200 dark:border-red-800">
+                  <Card className="bg-linear-to-br from-red-50 to-red-100 dark:from-red-950/30 dark:to-red-900/20 border-red-200 dark:border-red-800">
                     <CardContent className="p-3">
                       <div className="flex items-center justify-between">
                         <div>
@@ -762,7 +718,7 @@ export default async function DashboardPage({ searchParams }: any) {
                       </div>
                     </CardContent>
                   </Card>
-                  <Card className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-950/30 dark:to-green-900/20 border-green-200 dark:border-green-800">
+                  <Card className="bg-linear-to-br from-green-50 to-green-100 dark:from-green-950/30 dark:to-green-900/20 border-green-200 dark:border-green-800">
                     <CardContent className="p-3">
                       <div className="flex items-center justify-between">
                         <div>
@@ -777,7 +733,7 @@ export default async function DashboardPage({ searchParams }: any) {
                       </div>
                     </CardContent>
                   </Card>
-                  <Card className="bg-gradient-to-br from-red-50 to-red-100 dark:from-red-950/30 dark:to-red-900/20 border-red-200 dark:border-red-800">
+                  <Card className="bg-linear-to-br from-red-50 to-red-100 dark:from-red-950/30 dark:to-red-900/20 border-red-200 dark:border-red-800">
                     <CardContent className="p-3">
                       <div className="flex items-center justify-between">
                         <div>
@@ -795,7 +751,7 @@ export default async function DashboardPage({ searchParams }: any) {
                 </div>
 
                 {/* Registry Options - Upgrade Limit */}
-                <Card className="border border-red-200 dark:border-red-800 bg-gradient-to-r from-red-50/50 to-transparent dark:from-red-950/20 mb-4 mt-4">
+                <Card className="border border-red-200 dark:border-red-800 bg-linear-to-r from-red-50/50 to-transparent dark:from-red-950/20 mb-4 mt-4">
                   <CardContent className="p-3">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
@@ -826,7 +782,7 @@ export default async function DashboardPage({ searchParams }: any) {
 
                 {/* Security Tips - Compact */}
                 {properties.length === 0 && (
-                  <Card className="border border-red-200 dark:border-red-800 bg-gradient-to-r from-red-50/50 to-transparent dark:from-red-950/20">
+                  <Card className="border border-red-200 dark:border-red-800 bg-linear-to-r from-red-50/50 to-transparent dark:from-red-950/20">
                     <CardContent className="p-3">
                       <div className="flex items-start gap-2">
                         <Shield className="h-4 w-4 text-red-600 mt-0.5" />
@@ -949,7 +905,7 @@ export default async function DashboardPage({ searchParams }: any) {
                         <Button
                           size="sm"
                           asChild
-                          className="rounded-full mt-1 bg-gradient-to-r from-red-600 to-red-700 border-0 text-xs h-8"
+                          className="rounded-full mt-1 bg-linear-to-r from-red-600 to-red-700 border-0 text-xs h-8"
                         >
                           <Link href="/registry/register">
                             Register Your First Property

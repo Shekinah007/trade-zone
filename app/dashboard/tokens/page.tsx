@@ -29,7 +29,9 @@ export default function UserTokensPage() {
   const [listingPacks, setListingPacks] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [purchasingPackId, setPurchasingPackId] = useState<string | null>(null);
-  const [purchasingMethod, setPurchasingMethod] = useState<"credit" | "paystack" | null>(null);
+  const [purchasingMethod, setPurchasingMethod] = useState<
+    "credit" | "paystack" | null
+  >(null);
 
   // Redeem form state
   const [tokenCode, setTokenCode] = useState("");
@@ -40,18 +42,23 @@ export default function UserTokensPage() {
   } | null>(null);
 
   const paystackConfig = {
-    reference: new Date().getTime().toString() + Math.floor(Math.random() * 1000),
+    reference:
+      new Date().getTime().toString() + Math.floor(Math.random() * 1000),
     email: session?.user?.email || "anonymous@trade-zone.com",
-    publicKey: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY || "pk_test_placeholder123",
+    publicKey:
+      process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY || "pk_test_placeholder123",
   };
 
-  const initializePayment = usePaystackPayment({ ...paystackConfig, amount: 0 });
+  const initializePayment = usePaystackPayment({
+    ...paystackConfig,
+    amount: 0,
+  });
 
   const fetchData = async () => {
     try {
       const [tokensRes, packsRes] = await Promise.all([
         fetch("/api/tokens/my-tokens"),
-        fetch("/api/admin/listing-packs")
+        fetch("/api/admin/listing-packs"),
       ]);
       if (tokensRes.ok) setTokensInfo(await tokensRes.json());
       if (packsRes.ok) setListingPacks(await packsRes.json());
@@ -108,7 +115,7 @@ export default function UserTokensPage() {
       const res = await fetch("/api/user/buy-listing-pack", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ packId, paymentMethod: 'credit' }),
+        body: JSON.stringify({ packId, paymentMethod: "credit" }),
       });
       const data = await res.json();
       if (data.success) {
@@ -176,7 +183,7 @@ export default function UserTokensPage() {
     return (
       <div className="space-y-8 p-4 md:p-8 max-w-5xl mx-auto">
         <div className="flex items-center gap-3">
-          <div className="p-3 bg-gradient-to-br from-emerald-500/20 to-red-500/20 rounded-2xl animate-pulse">
+          <div className="p-3 bg-linear-to-br from-emerald-500/20 to-red-500/20 rounded-2xl animate-pulse">
             <Ticket className="h-7 w-7 text-emerald-600/50" />
           </div>
           <div>
@@ -202,14 +209,14 @@ export default function UserTokensPage() {
 
   return (
     <div className="space-y-8 p-4 md:p-8 max-w-5xl mx-auto">
-      {/* Header with gradient text */}
+      {/* Header with linear text */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="p-3 bg-gradient-to-br from-emerald-500/20 via-emerald-400/10 to-red-500/20 rounded-2xl shadow-sm">
+          <div className="p-3 bg-linear-to-br from-emerald-500/20 via-emerald-400/10 to-red-500/20 rounded-2xl shadow-sm">
             <Ticket className="h-7 w-7 text-emerald-600 dark:text-emerald-400" />
           </div>
           <div>
-            <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-emerald-700 via-emerald-600 to-red-600 dark:from-emerald-400 dark:via-emerald-300 dark:to-red-400 bg-clip-text text-transparent">
+            <h1 className="text-2xl md:text-3xl font-bold bg-linear-to-r from-emerald-700 via-emerald-600 to-red-600 dark:from-emerald-400 dark:via-emerald-300 dark:to-red-400 bg-clip-text text-transparent">
               Recharge Credits
             </h1>
             <p className="text-sm text-muted-foreground mt-1">
@@ -233,24 +240,24 @@ export default function UserTokensPage() {
             </div>
 
             <h3 className="font-semibold text-lg flex items-center gap-2 mb-6">
-              <div className="p-1.5 bg-gradient-to-br from-emerald-500 to-red-500 rounded-lg">
+              <div className="p-1.5 bg-linear-to-br from-emerald-500 to-red-500 rounded-lg">
                 <Zap className="h-4 w-4 text-white" />
               </div>
-              <span className="bg-gradient-to-r from-emerald-700 to-red-700 dark:from-emerald-300 dark:to-red-300 bg-clip-text text-transparent">
+              <span className="bg-linear-to-r from-emerald-700 to-red-700 dark:from-emerald-300 dark:to-red-300 bg-clip-text text-transparent">
                 Current Balance
               </span>
             </h3>
 
             <div className="flex flex-col gap-5">
               {limitInfo?.unlimitedRegistrations ? (
-                <div className="relative overflow-hidden rounded-xl bg-gradient-to-r from-emerald-500/10 via-emerald-400/5 to-red-500/10 border border-emerald-500/20 p-4">
-                  <div className="absolute -top-12 -right-12 w-32 h-32 bg-gradient-to-br from-emerald-500/20 to-red-500/20 rounded-full blur-2xl" />
+                <div className="relative overflow-hidden rounded-xl bg-linear-to-r from-emerald-500/10 via-emerald-400/5 to-red-500/10 border border-emerald-500/20 p-4">
+                  <div className="absolute -top-12 -right-12 w-32 h-32 bg-linear-to-br from-emerald-500/20 to-red-500/20 rounded-full blur-2xl" />
                   <div className="flex items-center gap-4 relative z-10">
-                    <div className="p-2 bg-gradient-to-br from-emerald-500 to-red-500 rounded-full shadow-lg">
+                    <div className="p-2 bg-linear-to-br from-emerald-500 to-red-500 rounded-full shadow-lg">
                       <Infinity className="w-6 h-6 text-white" />
                     </div>
                     <div>
-                      <p className="font-bold text-xl bg-gradient-to-r from-emerald-600 to-red-600 dark:from-emerald-400 dark:to-red-400 bg-clip-text text-transparent">
+                      <p className="font-bold text-xl bg-linear-to-r from-emerald-600 to-red-600 dark:from-emerald-400 dark:to-red-400 bg-clip-text text-transparent">
                         Unlimited Registration
                       </p>
                       <p className="text-sm text-muted-foreground">
@@ -261,16 +268,16 @@ export default function UserTokensPage() {
                   </div>
                 </div>
               ) : (
-                <div className="flex items-center justify-between gap-4 p-4 rounded-xl bg-gradient-to-br from-emerald-500/5 to-red-500/5 border border-emerald-500/10">
+                <div className="flex items-center justify-between gap-4 p-4 rounded-xl bg-linear-to-br from-emerald-500/5 to-red-500/5 border border-emerald-500/10">
                   <div className="flex items-center gap-4">
-                    <div className="p-3 bg-gradient-to-br from-emerald-500 to-red-500 rounded-xl shadow-md">
+                    <div className="p-3 bg-linear-to-br from-emerald-500 to-red-500 rounded-xl shadow-md">
                       <Coins className="w-6 h-6 text-white" />
                     </div>
                     <div>
                       <p className="text-sm text-muted-foreground uppercase tracking-wide">
                         Available Credits
                       </p>
-                      <p className="text-4xl font-black bg-gradient-to-r from-emerald-600 to-red-600 dark:from-emerald-400 dark:to-red-400 bg-clip-text text-transparent">
+                      <p className="text-4xl font-black bg-linear-to-r from-emerald-600 to-red-600 dark:from-emerald-400 dark:to-red-400 bg-clip-text text-transparent">
                         {limitInfo?.creditBalance || 0}
                       </p>
                     </div>
@@ -289,7 +296,7 @@ export default function UserTokensPage() {
                   <Ticket className="h-4 w-4 text-emerald-500" />
                   <span className="text-sm font-medium">Listing Quota</span>
                 </div>
-                <span className="font-bold text-lg bg-gradient-to-r from-emerald-600 to-emerald-400 bg-clip-text text-transparent">
+                <span className="font-bold text-lg bg-linear-to-r from-emerald-600 to-emerald-400 bg-clip-text text-transparent">
                   {limitInfo?.listingQuota ?? 3}
                 </span>
               </div>
@@ -301,7 +308,7 @@ export default function UserTokensPage() {
                     Total Tokens Redeemed
                   </span>
                 </div>
-                <span className="font-bold text-lg bg-gradient-to-r from-emerald-600 to-red-600 bg-clip-text text-transparent">
+                <span className="font-bold text-lg bg-linear-to-r from-emerald-600 to-red-600 bg-clip-text text-transparent">
                   {limitInfo?.totalTokensRedeemed || 0}
                 </span>
               </div>
@@ -311,17 +318,17 @@ export default function UserTokensPage() {
 
         {/* Redeem Form Card - red/Green Accents */}
         <div className="relative group">
-          <div className="absolute inset-0 bg-gradient-to-r from-red-500/10 via-indigo-400/5 to-emerald-500/10 rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-500" />
-          <div className="relative p-6 rounded-2xl border border-red-500/20 bg-gradient-to-br from-white via-red-50/30 to-emerald-50/20 dark:from-gray-900 dark:via-red-950/20 dark:to-emerald-950/10 backdrop-blur-sm shadow-lg hover:shadow-xl transition-all duration-300">
+          <div className="absolute inset-0 bg-linear-to-r from-red-500/10 via-indigo-400/5 to-emerald-500/10 rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-500" />
+          <div className="relative p-6 rounded-2xl border border-red-500/20 bg-linear-to-br from-white via-red-50/30 to-emerald-50/20 dark:from-gray-900 dark:via-red-950/20 dark:to-emerald-950/10 backdrop-blur-sm shadow-lg hover:shadow-xl transition-all duration-300">
             <div className="absolute top-4 right-4">
               <CreditCard className="h-16 w-16 text-red-500/10 dark:text-red-400/5" />
             </div>
 
             <h3 className="font-semibold text-lg flex items-center gap-2 mb-4">
-              <div className="p-1.5 bg-gradient-to-br from-red-500 to-emerald-500 rounded-lg">
+              <div className="p-1.5 bg-linear-to-br from-red-500 to-emerald-500 rounded-lg">
                 <Ticket className="h-4 w-4 text-white" />
               </div>
-              <span className="bg-gradient-to-r from-red-700 to-emerald-700 dark:from-red-300 dark:to-emerald-300 bg-clip-text text-transparent">
+              <span className="bg-linear-to-r from-red-700 to-emerald-700 dark:from-red-300 dark:to-emerald-300 bg-clip-text text-transparent">
                 Redeem New Token
               </span>
             </h3>
@@ -338,8 +345,8 @@ export default function UserTokensPage() {
                 className={cn(
                   "p-3 rounded-xl mb-5 text-sm flex items-start gap-2 backdrop-blur-sm border animate-in fade-in slide-in-from-top-1 duration-300",
                   resultMsg.type === "success"
-                    ? "bg-gradient-to-r from-emerald-50/90 to-green-50/90 border-emerald-200 dark:from-emerald-950/50 dark:to-green-950/50 dark:border-emerald-800"
-                    : "bg-gradient-to-r from-red-50/90 to-rose-50/90 border-red-200 dark:from-red-950/50 dark:to-rose-950/50 dark:border-red-800",
+                    ? "bg-linear-to-r from-emerald-50/90 to-green-50/90 border-emerald-200 dark:from-emerald-950/50 dark:to-green-950/50 dark:border-emerald-800"
+                    : "bg-linear-to-r from-red-50/90 to-rose-50/90 border-red-200 dark:from-red-950/50 dark:to-rose-950/50 dark:border-red-800",
                 )}
               >
                 {resultMsg.type === "success" ? (
@@ -389,7 +396,7 @@ export default function UserTokensPage() {
       </div>
 
       {/* Listing Packs Area */}
-      <div className="mt-10 pt-6 border-t border-gray-200 dark:border-gray-800" />
+      <div className="mt-2 pt-2 border-t border-gray-200 dark:border-gray-800" />
       <div className="relative">
         <div className="flex items-center justify-between mb-6">
           <h3 className="font-bold text-xl flex items-center gap-2">
@@ -401,38 +408,56 @@ export default function UserTokensPage() {
             </span>
           </h3>
         </div>
-        
+
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {listingPacks.map(pack => (
-             <div key={pack._id} className="p-6 rounded-2xl border bg-white dark:bg-gray-900 shadow-sm hover:shadow-md transition-shadow">
-               <h4 className="font-bold text-lg">{pack.name}</h4>
-               <p className="text-3xl font-black text-blue-600 my-4">+{pack.slotCount} <span className="text-sm font-medium text-gray-500">slots</span></p>
-               <p className="text-sm text-gray-500 mb-6 flex justify-between">
-                 <span>Credits: {pack.creditCost}</span>
-                 <span>Naira: ₦{pack.priceNGN}</span>
-               </p>
-               <div className="flex flex-col gap-2">
-                 <button 
-                   onClick={() => handleBuyPack(pack._id)}
-                   disabled={purchasingPackId !== null}
-                   className="w-full py-2.5 bg-blue-50 hover:bg-blue-100 text-blue-700 font-medium rounded-xl transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
-                 >
-                   {purchasingPackId === pack._id && purchasingMethod === 'credit' ? <Loader2 className="w-4 h-4 animate-spin" /> : <Coins className="w-4 h-4" />}
-                   Buy with Credits
-                 </button>
-                 <button 
-                   onClick={() => handleBuyPackPaystack(pack)}
-                   disabled={purchasingPackId !== null}
-                   className="w-full py-2.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-medium rounded-xl transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
-                 >
-                   {purchasingPackId === pack._id && purchasingMethod === 'paystack' ? <Loader2 className="w-4 h-4 animate-spin" /> : <CreditCard className="w-4 h-4" />}
-                   Pay with Naira
-                 </button>
-               </div>
-             </div>
+          {listingPacks.map((pack) => (
+            <div
+              key={pack._id}
+              className="p-6 rounded-2xl border bg-white dark:bg-gray-900 shadow-sm hover:shadow-md transition-shadow"
+            >
+              <h4 className="font-bold text-lg">{pack.name}</h4>
+              <p className="text-3xl font-black text-blue-600 my-4">
+                +{pack.slotCount}{" "}
+                <span className="text-sm font-medium text-gray-500">slots</span>
+              </p>
+              <p className="text-sm text-gray-500 mb-6 flex justify-between">
+                <span>Credits: {pack.creditCost}</span>
+                <span>Naira: ₦{pack.priceNGN}</span>
+              </p>
+              <div className="flex flex-col gap-2">
+                <button
+                  onClick={() => handleBuyPack(pack._id)}
+                  disabled={purchasingPackId !== null}
+                  className="w-full py-2.5 bg-blue-50 hover:bg-blue-100 text-blue-700 font-medium rounded-xl transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                >
+                  {purchasingPackId === pack._id &&
+                  purchasingMethod === "credit" ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Coins className="w-4 h-4" />
+                  )}
+                  Buy with Credits
+                </button>
+                <button
+                  onClick={() => handleBuyPackPaystack(pack)}
+                  disabled={purchasingPackId !== null}
+                  className="w-full py-2.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-medium rounded-xl transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                >
+                  {purchasingPackId === pack._id &&
+                  purchasingMethod === "paystack" ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <CreditCard className="w-4 h-4" />
+                  )}
+                  Pay with Naira
+                </button>
+              </div>
+            </div>
           ))}
           {listingPacks.length === 0 && (
-             <p className="text-muted-foreground text-sm col-span-full">No listing packs available right now.</p>
+            <p className="text-muted-foreground text-sm col-span-full">
+              No listing packs available right now.
+            </p>
           )}
         </div>
       </div>

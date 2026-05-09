@@ -75,6 +75,11 @@ const STATUS_BADGE: Record<
     color: "bg-green-500/10 text-green-600 border-green-500/20",
     icon: CheckCircle2,
   },
+  owned: {
+    label: "Registered",
+    color: "bg-green-500/10 text-green-600 border-green-500/20",
+    icon: CheckCircle2,
+  },
   missing: {
     label: "MISSING / STOLEN",
     color: "bg-red-500/10 text-red-600 border-red-500/20",
@@ -200,7 +205,7 @@ export default function PropertyDetailPage() {
     );
   }
 
-  const cfg = STATUS_BADGE[property.status] || STATUS_BADGE.registered;
+  const cfg = STATUS_BADGE[property.ownershipStatus] || STATUS_BADGE.registered;
   const StatusIcon = cfg.icon;
   const hasImages = property?.images?.length > 0;
 
@@ -301,7 +306,7 @@ export default function PropertyDetailPage() {
               )}
 
               {/* Missing Alert */}
-              {property.status === "missing" && (
+              {property.ownershipStatus === "missing" && (
                 <div className="flex items-start gap-3 p-5 rounded-xl bg-red-500/10 border-2 border-red-500/30">
                   <AlertTriangle className="h-6 w-6 text-red-600 shrink-0 mt-0.5" />
                   <div className="space-y-1">
@@ -494,7 +499,7 @@ export default function PropertyDetailPage() {
                       Edit Property
                     </Button>
 
-                    {property.status !== "missing" && (
+                    {property.ownershipStatus !== "missing" && (
                       <Button
                         variant="destructive"
                         className="w-full rounded-xl"
@@ -509,7 +514,7 @@ export default function PropertyDetailPage() {
                         Report as Missing/Stolen
                       </Button>
                     )}
-                    {property.status === "missing" && (
+                    {property.ownershipStatus === "missing" && (
                       <Button
                         variant="outline"
                         className="w-full rounded-xl text-green-600 border-green-500/30 hover:bg-green-500/10"

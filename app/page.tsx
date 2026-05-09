@@ -361,49 +361,102 @@ export default async function Home() {
           </div>
 
           {featuredListings.length > 0 && (
-            <div className="mb-14">
-              <div className="flex flex-col md:flex-row gap-4 justify-between items-end mb-6">
-                <div className="flex items-center gap-2">
-                  <div className="p-2 bg-gradient-to-r from-purple-500 to-indigo-500 rounded-xl shadow-lg">
-                    <Star className="h-6 w-6 text-white fill-current" />
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-indigo-600">
-                      Featured Items
-                    </h3>
-                    <p className="text-sm text-muted-foreground mt-1 font-medium">
-                      Premium selections from trusted sellers.
-                    </p>
-                  </div>
-                </div>
+            <section className="relative mb-20 overflow-hidden rounded-[2rem] border border-purple-500/20 bg-[#0b0613] p-6 md:p-10">
+              {/* Background Effects */}
+              <div className="absolute inset-0 overflow-hidden">
+                <div className="absolute top-0 left-0 h-72 w-72 rounded-full bg-purple-500/20 blur-3xl" />
+                <div className="absolute bottom-0 right-0 h-72 w-72 rounded-full bg-indigo-500/20 blur-3xl" />
+
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(168,85,247,0.15),transparent_30%)]" />
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_left,rgba(99,102,241,0.12),transparent_30%)]" />
               </div>
 
-              <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-2 lg:gap-4">
-                {featuredListings.map((listing: any) => (
-                  <div
-                    key={listing._id}
-                    className="relative group rounded-xl overflow-hidden ring-2 ring-purple-500/50 shadow-[0_0_15px_rgba(168,85,247,0.2)]"
-                  >
-                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-purple-500 to-indigo-500 z-20" />
-                    <ListingCard
-                      id={listing._id}
-                      title={listing.listing?.title || listing.model}
-                      price={listing.listing?.price}
-                      image={listing.images[0]}
-                      category={listing.listing?.category}
-                      condition={listing.listing?.condition}
-                      location={listing.listing?.location}
-                      createdAt={listing.createdAt}
-                    />
-                    <div className="absolute top-3 left-3 z-10">
-                      <span className="bg-gradient-to-r from-purple-500 to-indigo-500 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-md flex items-center gap-1">
-                        <Star className="h-3 w-3 fill-current" /> Featured
+              <div className="relative z-10">
+                {/* Header */}
+                <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6 mb-10">
+                  <div className="max-w-2xl">
+                    <div className="inline-flex items-center gap-2 rounded-full border border-purple-500/30 bg-purple-500/10 px-4 py-1.5 mb-5">
+                      <Star className="h-4 w-4 text-yellow-400 fill-yellow-400" />
+                      <span className="text-sm font-semibold text-purple-200 tracking-wide">
+                        PREMIUM MARKETPLACE
                       </span>
                     </div>
+
+                    <h2 className="text-4xl md:text-5xl font-black tracking-tight text-white leading-tight">
+                      Featured
+                      <span className="bg-gradient-to-r from-purple-400 via-fuchsia-300 to-indigo-400 bg-clip-text text-transparent">
+                        {" "}
+                        Listings
+                      </span>
+                    </h2>
+
+                    <p className="mt-4 text-base md:text-lg text-zinc-400 leading-relaxed">
+                      Handpicked premium listings from trusted sellers.
+                      Verified, boosted, and highlighted for maximum visibility.
+                    </p>
                   </div>
-                ))}
+
+                  <Button
+                    asChild
+                    size="lg"
+                    className="rounded-full bg-white text-black hover:bg-zinc-200 font-semibold shadow-xl"
+                  >
+                    <Link href="/browse?featured=true">
+                      Explore Featured
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </Link>
+                  </Button>
+                </div>
+
+                {/* Featured Grid */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
+                  {featuredListings.map((listing: any, index: number) => (
+                    <div
+                      key={listing._id}
+                      className="group relative overflow-hidden rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl transition-all duration-500 hover:-translate-y-2 hover:border-purple-400/40 hover:bg-white/[0.08] hover:shadow-[0_20px_60px_-15px_rgba(168,85,247,0.45)]"
+                    >
+                      {/* Glow */}
+                      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-gradient-to-br from-purple-500/10 via-transparent to-indigo-500/10" />
+
+                      {/* Premium Badge */}
+                      <div className="absolute left-4 top-4 z-30">
+                        <div className="flex items-center gap-1 rounded-full bg-gradient-to-r from-purple-500 to-indigo-500 px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-white shadow-lg">
+                          <Star className="h-3 w-3 fill-current" />
+                          Featured
+                        </div>
+                      </div>
+
+                      {/* Ranking Number */}
+                      <div className="absolute right-4 top-4 z-30">
+                        <div className="flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-black/40 text-sm font-bold text-white backdrop-blur-md">
+                          #{index + 1}
+                        </div>
+                      </div>
+
+                      {/* Top Accent */}
+                      <div className="absolute top-0 left-0 h-1.5 w-full bg-gradient-to-r from-purple-500 via-fuchsia-500 to-indigo-500" />
+
+                      {/* Listing */}
+                      <div className="relative">
+                        <ListingCard
+                          id={listing._id}
+                          title={listing.listing?.title || listing.model}
+                          price={listing.listing?.price}
+                          image={listing.images[0]}
+                          category={listing.listing?.category}
+                          condition={listing.listing?.condition}
+                          location={listing.listing?.location}
+                          createdAt={listing.createdAt}
+                        />
+                      </div>
+
+                      {/* Bottom Glow */}
+                      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-purple-900/20 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
+            </section>
           )}
 
           <div>
