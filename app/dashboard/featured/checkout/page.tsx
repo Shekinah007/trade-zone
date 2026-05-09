@@ -1,15 +1,13 @@
-// @ts-nocheck
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Loader2, Star, CreditCard, Coins, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import PaystackPop from "@paystack/inline-js";
 
-export default function WaitlistCheckoutPage() {
+function WaitlistCheckoutContent() {
   const { data: session } = useSession();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -56,6 +54,7 @@ export default function WaitlistCheckoutPage() {
     setProcessing(true);
 
     if (method === "paystack") {
+      const { default: PaystackPop } = await import("@paystack/inline-js");
       const paystack = new PaystackPop();
       paystack.newTransaction({
         key: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY!,
@@ -215,5 +214,19 @@ export default function WaitlistCheckoutPage() {
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+export default function WaitlistCheckoutPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <Loader2 className="w-8 h-8 animate-spin text-purple-500" />
+        </div>
+      }
+    >
+      <WaitlistCheckoutContent />
+    </Suspense>
   );
 }

@@ -17,7 +17,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import PaystackPop from "@paystack/inline-js";
+// import PaystackPop from "@paystack/inline-js";
 
 export default function UserFeaturedPage() {
   const { data: session } = useSession();
@@ -58,6 +58,8 @@ export default function UserFeaturedPage() {
     setProcessing(true);
 
     if (method === "paystack") {
+      // const paystack = new PaystackPop();
+      const { default: PaystackPop } = await import("@paystack/inline-js");
       const paystack = new PaystackPop();
       paystack.newTransaction({
         key: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY!,
