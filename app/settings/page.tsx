@@ -2,13 +2,22 @@ import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import {
-  User, Building2, ChevronRight, Settings,
-  Shield, Bell, CreditCard, LogOut
+  User,
+  Building2,
+  ChevronRight,
+  Settings,
+  Shield,
+  Bell,
+  CreditCard,
+  LogOut,
 } from "lucide-react";
 import { authOptions } from "@/lib/auth";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { Button } from "@/components/ui/button";
+import { signOut } from "next-auth/react";
+import Logout from "./Logout";
 
 const settingsSections = [
   {
@@ -78,8 +87,12 @@ export default async function SettingsPage() {
               </AvatarFallback>
             </Avatar>
             <div>
-              <h1 className="text-2xl font-bold tracking-tight">{session.user?.name}</h1>
-              <p className="text-muted-foreground text-sm">{session.user?.email}</p>
+              <h1 className="text-2xl font-bold tracking-tight">
+                {session.user?.name}
+              </h1>
+              <p className="text-muted-foreground text-sm">
+                {session.user?.email}
+              </p>
               <Badge variant="secondary" className="mt-1 capitalize text-xs">
                 {(session.user as any)?.role || "member"}
               </Badge>
@@ -109,7 +122,9 @@ export default async function SettingsPage() {
                     <p className="font-medium text-sm group-hover:text-primary transition-colors">
                       {item.title}
                     </p>
-                    <p className="text-xs text-muted-foreground truncate">{item.description}</p>
+                    <p className="text-xs text-muted-foreground truncate">
+                      {item.description}
+                    </p>
                   </div>
                   <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0 group-hover:text-primary group-hover:translate-x-0.5 transition-all" />
                 </Link>
@@ -124,19 +139,7 @@ export default async function SettingsPage() {
             Danger Zone
           </p>
           <div className="rounded-2xl border border-destructive/20 bg-destructive/5 overflow-hidden">
-            <Link
-              href="/auth/signout"
-              className="flex items-center gap-4 p-4 hover:bg-destructive/10 transition-colors group"
-            >
-              <div className="p-2.5 rounded-xl shrink-0 bg-destructive/10 text-destructive">
-                <LogOut className="h-5 w-5" />
-              </div>
-              <div className="flex-1">
-                <p className="font-medium text-sm text-destructive">Sign Out</p>
-                <p className="text-xs text-muted-foreground">Sign out of your account</p>
-              </div>
-              <ChevronRight className="h-4 w-4 text-destructive/50 shrink-0 group-hover:translate-x-0.5 transition-all" />
-            </Link>
+            <Logout />
           </div>
         </div>
       </div>

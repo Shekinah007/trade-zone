@@ -234,7 +234,7 @@ export default function AdminMonetizationPage() {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium mb-2">
-                      Registration Credit Cost
+                      Property Registration Credit Cost
                     </label>
                     <input
                       type="number"
@@ -247,7 +247,7 @@ export default function AdminMonetizationPage() {
                   </div>
                   <div>
                     <label className="block text-sm font-medium mb-2">
-                      Registration Price (NGN)
+                      Property Registration Price (NGN)
                     </label>
                     <input
                       type="number"

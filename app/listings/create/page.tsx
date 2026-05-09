@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { Suspense, useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { Clock, Loader2, PlusCircle, ArrowLeft } from "lucide-react";
@@ -10,7 +10,7 @@ import { ListingForm } from "@/components/ListingForm";
 import { Button } from "@/components/ui/button";
 import { ReapplyButton } from "@/components/Reapply";
 
-export default function CreateListingPage() {
+function CreateListingContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { data: session, status } = useSession();
@@ -41,9 +41,9 @@ export default function CreateListingPage() {
       setIsLoadingRegistry(false);
     }
   }, [searchParams]);
+
   const registryId = searchParams?.get("registryId");
-  console.log("Registry item: ", registryItem);
-  console.log("Registry ID: ", registryId);
+
   if (status === "loading" || isLoadingRegistry) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
@@ -84,11 +84,11 @@ export default function CreateListingPage() {
       </div>
     );
   }
+
   if (session?.user?.status === "rejected") {
     return (
       <div className="min-h-screen bg-gradient-to-b from-red-50/50 to-background dark:from-red-950/10 dark:to-background flex items-center justify-center px-4">
         <div className="text-center max-w-lg w-full">
-          {/* Status Icon */}
           <div className="relative mx-auto w-fit mb-8">
             <div className="absolute inset-0 bg-red-500/20 rounded-full blur-2xl animate-pulse" />
             <div className="relative p-6 rounded-full bg-gradient-to-br from-red-50 to-red-100 dark:from-red-950/50 dark:to-red-900/30 border-2 border-red-200 dark:border-red-800">
@@ -108,7 +108,6 @@ export default function CreateListingPage() {
             </div>
           </div>
 
-          {/* Title & Description */}
           <h1 className="text-3xl font-bold mb-3 bg-gradient-to-r from-red-600 to-rose-600 bg-clip-text text-transparent">
             Account Activation Rejected
           </h1>
@@ -121,7 +120,6 @@ export default function CreateListingPage() {
             </p>
           </div>
 
-          {/* Possible Issues Card */}
           <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl p-6 mb-8 shadow-sm text-left">
             <h3 className="font-semibold text-lg mb-4 flex items-center gap-2 text-gray-900 dark:text-white">
               <svg
@@ -139,114 +137,39 @@ export default function CreateListingPage() {
               </svg>
               Common Issues to Rectify Before Reapplying
             </h3>
-
             <div className="space-y-3">
               {[
-                {
-                  icon: (
-                    <svg
-                      className="h-5 w-5 text-red-400 mt-0.5 flex-shrink-0"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M6 18L18 6M6 6l12 12"
-                      />
-                    </svg>
-                  ),
-                  text: "Incomplete or inaccurate profile information",
-                },
-                {
-                  icon: (
-                    <svg
-                      className="h-5 w-5 text-red-400 mt-0.5 flex-shrink-0"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M6 18L18 6M6 6l12 12"
-                      />
-                    </svg>
-                  ),
-                  text: "Invalid or unclear identification documents",
-                },
-                {
-                  icon: (
-                    <svg
-                      className="h-5 w-5 text-red-400 mt-0.5 flex-shrink-0"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M6 18L18 6M6 6l12 12"
-                      />
-                    </svg>
-                  ),
-                  text: "Business documentation doesn't meet requirements",
-                },
-                {
-                  icon: (
-                    <svg
-                      className="h-5 w-5 text-red-400 mt-0.5 flex-shrink-0"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M6 18L18 6M6 6l12 12"
-                      />
-                    </svg>
-                  ),
-                  text: "Mismatch between provided information and documents",
-                },
-                {
-                  icon: (
-                    <svg
-                      className="h-5 w-5 text-red-400 mt-0.5 flex-shrink-0"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M6 18L18 6M6 6l12 12"
-                      />
-                    </svg>
-                  ),
-                  text: "Potential duplicate or multiple accounts detected",
-                },
-              ].map((issue, index) => (
+                "Incomplete or inaccurate profile information",
+                "Invalid or unclear identification documents",
+                "Business documentation doesn't meet requirements",
+                "Mismatch between provided information and documents",
+                "Potential duplicate or multiple accounts detected",
+              ].map((text, index) => (
                 <div
                   key={index}
                   className="flex items-start gap-3 p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/20 transition-colors"
                 >
-                  {issue.icon}
+                  <svg
+                    className="h-5 w-5 text-red-400 mt-0.5 flex-shrink-0"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
                   <span className="text-sm text-gray-600 dark:text-gray-400">
-                    {issue.text}
+                    {text}
                   </span>
                 </div>
               ))}
             </div>
           </div>
 
-          {/* Action Steps */}
           <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-xl p-4 mb-8">
             <h4 className="font-semibold text-amber-800 dark:text-amber-200 mb-2 flex items-center gap-2">
               <svg
@@ -275,7 +198,6 @@ export default function CreateListingPage() {
             </ol>
           </div>
 
-          {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <ReapplyButton />
             <Button
@@ -301,7 +223,6 @@ export default function CreateListingPage() {
             </Button>
           </div>
 
-          {/* Browse Link */}
           <div className="mt-6">
             <Link
               href="/browse"
@@ -330,7 +251,6 @@ export default function CreateListingPage() {
 
   return (
     <div className="min-h-screen bg-muted/20">
-      {/* Header */}
       <div className="border-b bg-background">
         <div className="container mx-auto px-4 py-6 max-w-3xl">
           <Link
@@ -356,9 +276,7 @@ export default function CreateListingPage() {
         </div>
       </div>
 
-      {/* Form */}
       <div className="container mx-auto px-1 md:px-4 py-4 max-w-3xl">
-        {/* Progress hint */}
         <div className="grid grid-cols-3 gap-3 mb-4">
           {[
             { label: "Item Details", desc: "Title, category, condition" },
@@ -378,12 +296,10 @@ export default function CreateListingPage() {
           ))}
         </div>
 
-        {/* Form card */}
         <div className="rounded-2xl border bg-background shadow-sm p-6 md:p-8">
           <ListingForm categories={categories} initialData={registryItem} />
         </div>
 
-        {/* Footer note */}
         <p className="text-xs text-center text-muted-foreground mt-6">
           By posting, you agree to our{" "}
           <Link
@@ -402,5 +318,19 @@ export default function CreateListingPage() {
         </p>
       </div>
     </div>
+  );
+}
+
+export default function CreateListingPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <Loader2 className="animate-spin h-6 w-6 text-muted-foreground" />
+        </div>
+      }
+    >
+      <CreateListingContent />
+    </Suspense>
   );
 }

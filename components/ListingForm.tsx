@@ -296,7 +296,7 @@ export function ListingForm({ initialData, categories }: ListingFormProps) {
               )}
             />
 
-            {!session?.user?.unlimitedRegistrations && (
+            {/* {!session?.user?.unlimitedRegistrations && (
               <div className="flex items-start gap-3 p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-900 dark:text-amber-400 mt-2">
                 <Info className="h-5 w-5 mt-0.5 shrink-0" />
                 <div className="flex-1">
@@ -309,7 +309,7 @@ export function ListingForm({ initialData, categories }: ListingFormProps) {
                   </p>
                 </div>
               </div>
-            )}
+            )} */}
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <FormField
