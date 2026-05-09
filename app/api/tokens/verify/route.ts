@@ -68,12 +68,12 @@ export async function GET(req: NextRequest) {
 
     if (metadata && metadata.custom_fields) {
       const typeField = metadata.custom_fields.find(
-        (f: any) => f.variable_name === "purchase_type"
+        (f: any) => f.variable_name === "purchase_type",
       );
       if (typeField?.value === "quota") {
         isQuotaPurchase = true;
         const qtyField = metadata.custom_fields.find(
-          (f: any) => f.variable_name === "quantity"
+          (f: any) => f.variable_name === "quantity",
         );
         const qty = Number(qtyField?.value || 1);
         user.registrationLimit = (user.registrationLimit || 0) + qty;
@@ -83,19 +83,25 @@ export async function GET(req: NextRequest) {
 
     if (!isQuotaPurchase) {
       let settings = await SystemSettings.findOne();
-      if (!settings) settings = { unlimitedRegistrationPriceNGN: 10000 };
+
+      const fallbackSettings = { unlimitedRegistrationPriceNGN: 10000 };
+      const effectiveSettings = settings ?? fallbackSettings;
+      // if (!settings) settings = { unlimitedRegistrationPriceNGN: 10000 };
 
       // Check tiers
       if (amount === 100000) {
         // Tier 1: 1000 NGN for +50 Credits
         user.creditBalance = (user.creditBalance || 0) + 50;
         limitIncreased = true;
-      } else if (amount === settings.unlimitedRegistrationPriceNGN * 100) {
+      } else if (
+        amount ===
+        effectiveSettings.unlimitedRegistrationPriceNGN * 100
+      ) {
         // Tier 2: Unlimited
         user.unlimitedRegistrations = true;
         limitIncreased = true;
       } else if (amount === 1000000) {
-         // Fallback for hardcoded 10k unlimited
+        // Fallback for hardcoded 10k unlimited
         user.unlimitedRegistrations = true;
         limitIncreased = true;
       } else {
