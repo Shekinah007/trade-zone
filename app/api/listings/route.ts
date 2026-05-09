@@ -193,6 +193,7 @@ export async function POST(req: Request) {
     const model = formData.get("model") as string;
 
     const imageFiles = formData.getAll("images") as File[];
+    const existingImages = formData.getAll("existingImages") as string[];
     const imageUrls: string[] = [];
 
     // Upload images to Cloudinary
@@ -284,6 +285,13 @@ export async function POST(req: Request) {
     };
 
     if (existingItem) {
+      if (existingItem.owner && existingItem.owner.toString() !== session.user.id) {
+        return NextResponse.json(
+          { message: "You do not have permission to list this item." },
+          { status: 403 },
+        );
+      }
+      
       existingItem.isListed = true;
       existingItem.seller = session.user.id;
       existingItem.listing = listingData;
@@ -291,8 +299,11 @@ export async function POST(req: Request) {
         existingItem.brand = brand || "Unknown";
       if (!existingItem.model || existingItem.model === "Unknown")
         existingItem.model = model || title;
-      if (!existingItem.images || existingItem.images.length === 0)
-        existingItem.images = imageUrls;
+      
+      const combinedImages = [...existingImages, ...imageUrls];
+      if (combinedImages.length > 0) {
+        existingItem.images = combinedImages;
+      }
 
       await existingItem.save();
       return NextResponse.json(existingItem, { status: 201 });
@@ -331,7 +342,7 @@ export async function POST(req: Request) {
       brand: brand || "Unknown",
       model: model || title,
       description,
-      images: imageUrls,
+      images: [...existingImages, ...imageUrls],
       uniqueIdentifier,
       itemType: isRegistered ? itemTypeData : undefined,
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { Clock, Loader2, PlusCircle, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
@@ -12,17 +12,39 @@ import { ReapplyButton } from "@/components/Reapply";
 
 export default function CreateListingPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { data: session, status } = useSession();
   const [categories, setCategories] = useState<any[]>([]);
+  const registryIdParam = searchParams?.get("registryId");
+  const [registryItem, setRegistryItem] = useState<any>(null);
+  const [isLoadingRegistry, setIsLoadingRegistry] = useState(!!registryIdParam);
 
   useEffect(() => {
     fetch("/api/categories")
       .then((r) => r.json())
       .then(setCategories)
       .catch(() => toast.error("Failed to load categories"));
-  }, []);
 
-  if (status === "loading") {
+    const registryId = searchParams?.get("registryId");
+    if (registryId) {
+      setIsLoadingRegistry(true);
+      fetch(`/api/registry/${registryId}`)
+        .then((r) => r.json())
+        .then((data) => {
+          if (data?.property?._id) {
+            setRegistryItem(data.property);
+          }
+        })
+        .catch(() => toast.error("Failed to load registry item"))
+        .finally(() => setIsLoadingRegistry(false));
+    } else {
+      setIsLoadingRegistry(false);
+    }
+  }, [searchParams]);
+  const registryId = searchParams?.get("registryId");
+  console.log("Registry item: ", registryItem);
+  console.log("Registry ID: ", registryId);
+  if (status === "loading" || isLoadingRegistry) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <Loader2 className="animate-spin h-6 w-6 text-muted-foreground" />
@@ -358,7 +380,7 @@ export default function CreateListingPage() {
 
         {/* Form card */}
         <div className="rounded-2xl border bg-background shadow-sm p-6 md:p-8">
-          <ListingForm categories={categories} />
+          <ListingForm categories={categories} initialData={registryItem} />
         </div>
 
         {/* Footer note */}

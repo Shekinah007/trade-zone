@@ -96,7 +96,10 @@ export function ListingForm({ initialData, categories }: ListingFormProps) {
       title: initialData?.listing?.title || initialData?.model || "",
       description: initialData?.description || "",
       price: initialData?.listing?.price || 0,
-      category: initialData?.listing?.category?._id || initialData?.listing?.category || "",
+      category:
+        initialData?.listing?.category?._id ||
+        initialData?.listing?.category ||
+        "",
       condition: initialData?.listing?.condition || "",
       city: initialData?.listing?.location?.city || "",
       state: initialData?.listing?.location?.state || "",
@@ -151,10 +154,11 @@ export function ListingForm({ initialData, categories }: ListingFormProps) {
           formData.append("images", i.file!);
         });
 
-      const url = initialData
+      const isEditingListing = initialData && initialData.isListed;
+      const url = isEditingListing
         ? `/api/listings/${initialData._id}`
         : "/api/listings";
-      const method = initialData ? "PUT" : "POST";
+      const method = isEditingListing ? "PUT" : "POST";
 
       const res = await fetch(url, { method, body: formData });
 
@@ -165,7 +169,7 @@ export function ListingForm({ initialData, categories }: ListingFormProps) {
 
       const data = await res.json();
       toast.success(
-        initialData ? "Listing updated!" : "Listing created successfully!",
+        isEditingListing ? "Listing updated!" : "Listing created successfully!",
       );
       router.push(`/listings/${data._id}`);
       router.refresh();
@@ -277,7 +281,11 @@ export function ListingForm({ initialData, categories }: ListingFormProps) {
                     </span>
                   </FormLabel>
                   <FormControl>
-                    <Input placeholder="e.g. SN123456789" {...field} />
+                    <Input
+                      placeholder="e.g. SN123456789"
+                      {...field}
+                      disabled={!!initialData?.uniqueIdentifier}
+                    />
                   </FormControl>
                   <FormDescription className="flex items-center gap-1 text-xs">
                     <Info className="h-3 w-3" />
@@ -524,10 +532,10 @@ export function ListingForm({ initialData, categories }: ListingFormProps) {
         >
           {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
           {isLoading
-            ? initialData
+            ? initialData && initialData.isListed
               ? "Saving..."
               : "Posting..."
-            : initialData
+            : initialData && initialData.isListed
               ? "Save Changes"
               : "Post Listing"}
         </Button>

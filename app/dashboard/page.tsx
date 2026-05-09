@@ -20,6 +20,12 @@ import {
   Coins,
   ArrowUpCircle,
   Star,
+  LinkIcon,
+  Crown,
+  Leaf,
+  Sprout,
+  Loader2,
+  Tag,
 } from "lucide-react";
 import { authOptions } from "@/lib/auth";
 import dbConnect from "@/lib/db";
@@ -885,6 +891,20 @@ export default async function DashboardPage({ searchParams }: any) {
                                     DO NOT PURCHASE
                                   </div>
                                 )}
+                                
+                                <div className="flex items-center justify-between pt-1">
+                                  {p.isListed ? (
+                                    <Badge variant="outline" className="text-[9px] text-blue-600 border-blue-500/30 bg-blue-500/5 px-1 py-0 h-4">
+                                      <Tag className="h-2 w-2 mr-1" />
+                                      Listed
+                                    </Badge>
+                                  ) : p.ownershipStatus === "owned" ? (
+                                    <div className="h-6 text-[10px] px-2 flex items-center justify-center w-full rounded text-blue-600 bg-blue-50 group-hover:bg-blue-100 transition-colors">
+                                      <Tag className="h-2.5 w-2.5 mr-1" />
+                                      List for Sale
+                                    </div>
+                                  ) : null}
+                                </div>
                               </CardContent>
                             </Card>
                           </Link>

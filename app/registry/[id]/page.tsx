@@ -499,6 +499,26 @@ export default function PropertyDetailPage() {
                       Edit Property
                     </Button>
 
+                    {!property.isListed && property.ownershipStatus === "owned" && (
+                      <Button
+                        className="w-full rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-md border-0"
+                        onClick={() => router.push(`/listings/create?registryId=${property._id}`)}
+                      >
+                        <Tag className="h-4 w-4 mr-2" />
+                        List for Sale
+                      </Button>
+                    )}
+                    {property.isListed && (
+                      <Button
+                        variant="outline"
+                        className="w-full rounded-xl flex items-center justify-center"
+                        onClick={() => router.push(`/listings/${property._id}`)}
+                      >
+                        <Tag className="h-4 w-4 mr-2" />
+                        View Listing
+                      </Button>
+                    )}
+
                     {property.ownershipStatus !== "missing" && (
                       <Button
                         variant="destructive"
