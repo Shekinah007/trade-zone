@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import {
   Loader2,
   ArrowUpCircle,
@@ -10,6 +10,8 @@ import {
   Coins,
   Lock,
   Zap,
+  Search,
+  X,
 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { toast } from "sonner";
@@ -39,6 +41,7 @@ export default function BoostPageInner() {
   const [selectedListings, setSelectedListings] = useState<string[]>([]);
   const [selectedTier, setSelectedTier] = useState<string>("");
   const [boosting, setBoosting] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const [paymentMethod, setPaymentMethod] = useState<
     "credit" | "paystack" | null
   >(null);
@@ -56,6 +59,14 @@ export default function BoostPageInner() {
     amount: 0,
   });
 
+  // Filter logic
+  const filteredListings = useMemo(() => {
+    return listings.filter((item) => {
+      const title = (item.listing?.title || item.model || "").toLowerCase();
+      return title.includes(searchQuery.toLowerCase());
+    });
+  }, [listings, searchQuery]);
+
   const isBoostActive = (listing: any) => {
     return (
       listing.listing?.boostStatus === "active" &&
@@ -65,11 +76,7 @@ export default function BoostPageInner() {
   };
 
   useEffect(() => {
-    if (
-      initialListingId &&
-      !selectedListings.includes(initialListingId)
-    ) {
-      // Only pre-select if not already actively boosted
+    if (initialListingId && !selectedListings.includes(initialListingId)) {
       const target = listings.find((l) => l._id === initialListingId);
       if (!target || !isBoostActive(target)) {
         setSelectedListings([initialListingId]);
@@ -101,7 +108,7 @@ export default function BoostPageInner() {
 
   const handleToggleListing = (id: string) => {
     const listing = listings.find((l) => l._id === id);
-    if (listing && isBoostActive(listing)) return; // block already-boosted
+    if (listing && isBoostActive(listing)) return;
     setSelectedListings((prev) =>
       prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id],
     );
@@ -222,17 +229,45 @@ export default function BoostPageInner() {
       <div className="grid md:grid-cols-5 gap-8">
         <div className="md:col-span-3 space-y-6">
           <div>
-            <h3 className="font-semibold text-lg mb-3">
-              1. Select Listings to Boost
-            </h3>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
+              <h3 className="font-semibold text-lg">
+                1. Select Listings to Boost
+              </h3>
+              <div className="relative group w-full sm:w-64">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-amber-500 transition-colors" />
+                <input
+                  type="text"
+                  placeholder="Search listings..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-9 pr-9 py-2 bg-white dark:bg-gray-900 border rounded-xl text-sm focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 outline-none transition-all"
+                />
+                {searchQuery && (
+                  <button
+                    onClick={() => setSearchQuery("")}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full"
+                  >
+                    <X className="w-3.5 h-3.5 text-muted-foreground" />
+                  </button>
+                )}
+              </div>
+            </div>
+
             <div className="bg-white dark:bg-gray-900 rounded-xl border overflow-hidden max-h-[400px] overflow-y-auto">
               {listings.length === 0 ? (
-                <div className="p-8 text-center text-muted-foreground">
+                <div className="p-8 text-center text-muted-foreground text-sm">
                   No active listings available to boost.
+                </div>
+              ) : filteredListings.length === 0 ? (
+                <div className="p-12 text-center">
+                  <Search className="w-8 h-8 text-gray-300 mx-auto mb-2" />
+                  <p className="text-muted-foreground text-sm">
+                    No listings found for "{searchQuery}"
+                  </p>
                 </div>
               ) : (
                 <div className="divide-y divide-gray-100 dark:divide-gray-800">
-                  {listings.map((listing) => {
+                  {filteredListings.map((listing) => {
                     const boosted = isBoostActive(listing);
                     const expiry = listing.listing?.boostExpiry
                       ? new Date(listing.listing.boostExpiry)
@@ -243,11 +278,6 @@ export default function BoostPageInner() {
                       <div
                         key={listing._id}
                         onClick={() => handleToggleListing(listing._id)}
-                        title={
-                          boosted
-                            ? `Boost active — expires ${expiry ? timeUntil(expiry) : "soon"}`
-                            : undefined
-                        }
                         className={`flex items-center p-4 transition-colors ${
                           boosted
                             ? "opacity-60 cursor-not-allowed bg-gray-50/50 dark:bg-gray-800/20"
@@ -257,7 +287,7 @@ export default function BoostPageInner() {
                         }`}
                       >
                         <div className="flex-1 flex gap-4">
-                          <div className="h-12 w-12 rounded-lg bg-gray-100 dark:bg-gray-800 flex-shrink-0 overflow-hidden relative">
+                          <div className="h-12 w-12 rounded-lg bg-gray-100 dark:bg-gray-800 flex-shrink-0 overflow-hidden relative border border-gray-200 dark:border-gray-700">
                             {listing.images?.[0] && (
                               <img
                                 src={listing.images[0]}
@@ -271,9 +301,9 @@ export default function BoostPageInner() {
                               </div>
                             )}
                           </div>
-                          <div>
+                          <div className="min-w-0">
                             <div className="flex items-center gap-2">
-                              <p className="font-medium text-sm line-clamp-1">
+                              <p className="font-medium text-sm truncate">
                                 {listing.listing?.title || listing.model}
                               </p>
                               {boosted && (
@@ -328,7 +358,7 @@ export default function BoostPageInner() {
                   className={`p-4 border rounded-xl cursor-pointer flex justify-between items-center transition-all ${
                     selectedTier === tier._id
                       ? "border-amber-500 ring-1 ring-amber-500 bg-amber-50/30 dark:bg-amber-900/10"
-                      : "hover:border-amber-300"
+                      : "hover:border-amber-300 bg-white dark:bg-gray-900"
                   }`}
                 >
                   <div>
