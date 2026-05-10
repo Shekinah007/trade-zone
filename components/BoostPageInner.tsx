@@ -8,11 +8,24 @@ import {
   ShoppingCart,
   CreditCard,
   Coins,
+  Lock,
+  Zap,
 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { toast } from "sonner";
 import { usePaystackPayment } from "react-paystack";
 import { useRouter, useSearchParams } from "next/navigation";
+
+function timeUntil(date: Date): string {
+  const diffMs = date.getTime() - Date.now();
+  const diffMins = Math.round(diffMs / 60000);
+  const diffHours = Math.round(diffMs / 3600000);
+  const diffDays = Math.round(diffMs / 86400000);
+  const rtf = new Intl.RelativeTimeFormat("en", { numeric: "auto" });
+  if (Math.abs(diffMins) < 60) return rtf.format(diffMins, "minute");
+  if (Math.abs(diffHours) < 24) return rtf.format(diffHours, "hour");
+  return rtf.format(diffDays, "day");
+}
 
 export default function BoostPageInner() {
   const { data: session } = useSession();
@@ -43,11 +56,26 @@ export default function BoostPageInner() {
     amount: 0,
   });
 
+  const isBoostActive = (listing: any) => {
+    return (
+      listing.listing?.boostStatus === "active" &&
+      listing.listing?.boostExpiry &&
+      new Date(listing.listing.boostExpiry) > new Date()
+    );
+  };
+
   useEffect(() => {
-    if (initialListingId && !selectedListings.includes(initialListingId)) {
-      setSelectedListings([initialListingId]);
+    if (
+      initialListingId &&
+      !selectedListings.includes(initialListingId)
+    ) {
+      // Only pre-select if not already actively boosted
+      const target = listings.find((l) => l._id === initialListingId);
+      if (!target || !isBoostActive(target)) {
+        setSelectedListings([initialListingId]);
+      }
     }
-  }, [initialListingId]);
+  }, [initialListingId, listings]);
 
   const fetchData = async () => {
     try {
@@ -72,6 +100,8 @@ export default function BoostPageInner() {
   }, []);
 
   const handleToggleListing = (id: string) => {
+    const listing = listings.find((l) => l._id === id);
+    if (listing && isBoostActive(listing)) return; // block already-boosted
     setSelectedListings((prev) =>
       prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id],
     );
@@ -202,48 +232,85 @@ export default function BoostPageInner() {
                 </div>
               ) : (
                 <div className="divide-y divide-gray-100 dark:divide-gray-800">
-                  {listings.map((listing) => (
-                    <div
-                      key={listing._id}
-                      onClick={() => handleToggleListing(listing._id)}
-                      className={`flex items-center p-4 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors ${
-                        selectedListings.includes(listing._id)
-                          ? "bg-amber-50/50 dark:bg-amber-950/20"
-                          : ""
-                      }`}
-                    >
-                      <div className="flex-1 flex gap-4">
-                        <div className="h-12 w-12 rounded-lg bg-gray-100 dark:bg-gray-800 flex-shrink-0 overflow-hidden">
-                          {listing.images?.[0] && (
-                            <img
-                              src={listing.images[0]}
-                              alt=""
-                              className="w-full h-full object-cover"
-                            />
-                          )}
-                        </div>
-                        <div>
-                          <p className="font-medium text-sm line-clamp-1">
-                            {listing.listing?.title || listing.model}
-                          </p>
-                          <p className="text-xs text-muted-foreground">
-                            ₦{(listing.listing?.price || 0).toLocaleString()}
-                          </p>
-                        </div>
-                      </div>
+                  {listings.map((listing) => {
+                    const boosted = isBoostActive(listing);
+                    const expiry = listing.listing?.boostExpiry
+                      ? new Date(listing.listing.boostExpiry)
+                      : null;
+                    const isSelected = selectedListings.includes(listing._id);
+
+                    return (
                       <div
-                        className={`h-5 w-5 rounded border flex items-center justify-center ${
-                          selectedListings.includes(listing._id)
-                            ? "bg-amber-500 border-amber-500 text-white"
-                            : "border-gray-300"
+                        key={listing._id}
+                        onClick={() => handleToggleListing(listing._id)}
+                        title={
+                          boosted
+                            ? `Boost active — expires ${expiry ? timeUntil(expiry) : "soon"}`
+                            : undefined
+                        }
+                        className={`flex items-center p-4 transition-colors ${
+                          boosted
+                            ? "opacity-60 cursor-not-allowed bg-gray-50/50 dark:bg-gray-800/20"
+                            : isSelected
+                              ? "cursor-pointer bg-amber-50/50 dark:bg-amber-950/20"
+                              : "cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/50"
                         }`}
                       >
-                        {selectedListings.includes(listing._id) && (
-                          <CheckCircle2 className="w-4 h-4" />
-                        )}
+                        <div className="flex-1 flex gap-4">
+                          <div className="h-12 w-12 rounded-lg bg-gray-100 dark:bg-gray-800 flex-shrink-0 overflow-hidden relative">
+                            {listing.images?.[0] && (
+                              <img
+                                src={listing.images[0]}
+                                alt=""
+                                className="w-full h-full object-cover"
+                              />
+                            )}
+                            {boosted && (
+                              <div className="absolute inset-0 bg-black/30 flex items-center justify-center rounded-lg">
+                                <Lock className="w-4 h-4 text-white" />
+                              </div>
+                            )}
+                          </div>
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <p className="font-medium text-sm line-clamp-1">
+                                {listing.listing?.title || listing.model}
+                              </p>
+                              {boosted && (
+                                <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-400 border border-amber-200 dark:border-amber-700 shrink-0">
+                                  <Zap className="w-2.5 h-2.5" />
+                                  BOOSTED
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-xs text-muted-foreground">
+                              ₦{(listing.listing?.price || 0).toLocaleString()}
+                            </p>
+                            {boosted && expiry && (
+                              <p className="text-[11px] text-amber-600 dark:text-amber-400 mt-0.5">
+                                Expires {timeUntil(expiry)}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                        <div
+                          className={`h-5 w-5 rounded border flex items-center justify-center shrink-0 ${
+                            boosted
+                              ? "border-gray-200 bg-gray-100 dark:border-gray-700 dark:bg-gray-800"
+                              : isSelected
+                                ? "bg-amber-500 border-amber-500 text-white"
+                                : "border-gray-300"
+                          }`}
+                        >
+                          {boosted ? (
+                            <Lock className="w-3 h-3 text-gray-400" />
+                          ) : isSelected ? (
+                            <CheckCircle2 className="w-4 h-4" />
+                          ) : null}
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </div>

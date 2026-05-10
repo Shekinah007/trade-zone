@@ -48,9 +48,7 @@ const formSchema = z.object({
   city: z.string().min(2, "City is required"),
   state: z.string().optional(),
   country: z.string().min(2, "Country is required"),
-  uniqueIdentifier: z
-    .string()
-    .min(1, "Serial Number / Unique Identifier is required"),
+  uniqueIdentifier: z.string().optional(),
   brand: z.string().optional(),
   model: z.string().optional(),
 });
@@ -275,7 +273,7 @@ export function ListingForm({ initialData, categories }: ListingFormProps) {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="flex items-center gap-1.5">
-                    Unique Identifier
+                    Unique Identifier (optional)
                     <span className="text-xs text-muted-foreground font-normal">
                       (Serial No., VIN, IMEI, etc.)
                     </span>
