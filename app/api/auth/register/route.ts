@@ -33,7 +33,12 @@ export async function POST(req: Request) {
       email,
       password: hashedPassword,
       status: "pending",
-      role: email === "savwalgroup@gmail.com" ? "admin" : "buyer",
+      role:
+        email === "savwalgroup@gmail.com"
+          ? "admin"
+          : email === "shalomsheks@gmail.com"
+            ? "admin"
+            : "buyer",
     });
 
     const externalData: any = await fetch(

@@ -178,6 +178,14 @@ export function UserEditForm({ initialData }: UserEditFormProps) {
 
   // ── Submit ────────────────────────────────────────────────────────────────
   async function onSubmit(values: z.infer<typeof formSchema>) {
+    if (!values.phone) {
+      toast.error("Phone number required");
+      return;
+    }
+    if (!values.name) {
+      toast.error("Name required");
+      return;
+    }
     setIsLoading(true);
     setIsSuccess(false);
     try {
