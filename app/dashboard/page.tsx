@@ -356,13 +356,24 @@ export default async function DashboardPage({ searchParams }: any) {
                 <div className="flex flex-col gap-2 mt-1">
                   <Button
                     size="sm"
-                    className="w-full justify-start bg-blue-600 hover:bg-blue-700 text-white shadow-sm text-xs h-9 rounded-lg"
+                    className="w-full justify-start bg-green-600 hover:bg-blue-700 text-white shadow-sm text-xs h-9 rounded-lg"
                     asChild
                   >
                     <Link href="/dashboard/tokens">
                       <ShoppingBag className="mr-2 h-4 w-4" />
                       Increase Listing Quota
                     </Link>
+                  </Button>
+                  <Button
+                    size="sm"
+                    className="w-full justify-start py-4 border bg-red-500 hover:bg-green-700 text-white shadow-sm text-xs h-9 rounded-lg"
+                    asChild
+                  >
+                    <TokenPurchaseButton
+                      size="sm"
+                      className="h-7 text-xs"
+                      creditBalance={details.creditBalance || 0}
+                    />
                   </Button>
                   <Button
                     size="sm"
@@ -891,10 +902,13 @@ export default async function DashboardPage({ searchParams }: any) {
                                     DO NOT PURCHASE
                                   </div>
                                 )}
-                                
+
                                 <div className="flex items-center justify-between pt-1">
                                   {p.isListed ? (
-                                    <Badge variant="outline" className="text-[9px] text-blue-600 border-blue-500/30 bg-blue-500/5 px-1 py-0 h-4">
+                                    <Badge
+                                      variant="outline"
+                                      className="text-[9px] text-blue-600 border-blue-500/30 bg-blue-500/5 px-1 py-0 h-4"
+                                    >
                                       <Tag className="h-2 w-2 mr-1" />
                                       Listed
                                     </Badge>

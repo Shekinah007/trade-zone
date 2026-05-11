@@ -6,7 +6,7 @@ export interface IPurchase extends Document {
   tierModel: "ListingPack" | "BoostTier" | "FeaturedTier";
   type: "pack" | "boost" | "featured";
   item?: mongoose.Types.ObjectId;
-  paymentMethod: "naira" | "token" | "credits" | "paystack";
+  paymentMethod: "naira" | "token" | "credits" | "paystack" | "credit";
   amountPaid: number;
   status: "pending" | "success" | "failed";
   reference?: string;
@@ -31,7 +31,11 @@ const PurchaseSchema = new Schema<IPurchase>(
     },
     type: { type: String, enum: ["pack", "boost", "featured"], required: true },
     item: { type: Schema.Types.ObjectId, ref: "Item" },
-    paymentMethod: { type: String, enum: ["naira", "token"], required: true },
+    paymentMethod: {
+      type: String,
+      enum: ["naira", "token", "credit", "paystack", "credits"],
+      required: true,
+    },
     amountPaid: { type: Number, required: true },
     status: {
       type: String,

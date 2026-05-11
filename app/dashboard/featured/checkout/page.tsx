@@ -50,7 +50,7 @@ function WaitlistCheckoutContent() {
     fetchData();
   }, [waitlistId, router]);
 
-  const handleCheckout = async (method: "credits" | "paystack") => {
+  const handleCheckout = async (method: "credit" | "paystack") => {
     setProcessing(true);
 
     if (method === "paystack") {
@@ -69,12 +69,12 @@ function WaitlistCheckoutContent() {
         },
       });
     } else {
-      await completeCheckout("credits");
+      await completeCheckout("credit");
     }
   };
 
   const completeCheckout = async (
-    method: "credits" | "paystack",
+    method: "credit" | "paystack",
     reference?: string,
   ) => {
     try {
@@ -179,7 +179,7 @@ function WaitlistCheckoutContent() {
           <div className="space-y-3">
             <Button
               disabled={processing}
-              onClick={() => handleCheckout("credits")}
+              onClick={() => handleCheckout("credit")}
               className="w-full bg-amber-500 hover:bg-amber-600 text-white rounded-xl py-6"
             >
               {processing ? (

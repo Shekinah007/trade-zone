@@ -52,7 +52,7 @@ export default function UserFeaturedPage() {
     ? data.totalActiveFeatured >= data.maxFeaturedSlots
     : false;
 
-  const handlePurchase = async (method: "credits" | "paystack") => {
+  const handlePurchase = async (method: "credit" | "paystack") => {
     if (!selectedListing || !selectedTier) return;
 
     setProcessing(true);
@@ -74,12 +74,12 @@ export default function UserFeaturedPage() {
         },
       });
     } else {
-      await completePurchase("credits");
+      await completePurchase("credit");
     }
   };
 
   const completePurchase = async (
-    method: "credits" | "naira",
+    method: "credit" | "naira",
     reference?: string,
   ) => {
     try {
@@ -228,7 +228,7 @@ export default function UserFeaturedPage() {
                     <div className="flex flex-col sm:flex-row gap-3">
                       <Button
                         disabled={processing}
-                        onClick={() => handlePurchase("credits")}
+                        onClick={() => handlePurchase("credit")}
                         className="flex-1 bg-amber-500 hover:bg-amber-600 text-white rounded-xl py-6"
                       >
                         {processing ? (
