@@ -3,21 +3,40 @@
 import { useState, useMemo } from "react";
 import { useEffect } from "react";
 import {
-  Table, TableBody, TableCell, TableHead,
-  TableHeader, TableRow,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
-  DropdownMenu, DropdownMenuContent, DropdownMenuItem,
-  DropdownMenuLabel, DropdownMenuTrigger,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
-  Select, SelectContent, SelectItem,
-  SelectTrigger, SelectValue,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select";
-import { MoreHorizontal, ExternalLink, ArrowUpDown, ArrowUp, ArrowDown, Search, X, SlidersHorizontal } from "lucide-react";
+import {
+  MoreHorizontal,
+  ExternalLink,
+  ArrowUpDown,
+  ArrowUp,
+  ArrowDown,
+  Search,
+  X,
+  SlidersHorizontal,
+} from "lucide-react";
 import Link from "next/link";
 
 type SortField = "createdAt" | "price" | "title";
@@ -43,7 +62,10 @@ export default function AdminListingsPage() {
   useEffect(() => {
     fetch("/api/listings")
       .then((r) => r.json())
-      .then((data) => { setListings(data); setLoading(false); });
+      .then((data) => {
+        setListings(data);
+        setLoading(false);
+      });
   }, []);
 
   const handleSort = (field: SortField) => {
@@ -56,10 +78,13 @@ export default function AdminListingsPage() {
   };
 
   const SortIcon = ({ field }: { field: SortField }) => {
-    if (sortField !== field) return <ArrowUpDown className="ml-1 h-3 w-3 text-muted-foreground" />;
-    return sortDir === "asc"
-      ? <ArrowUp className="ml-1 h-3 w-3 text-primary" />
-      : <ArrowDown className="ml-1 h-3 w-3 text-primary" />;
+    if (sortField !== field)
+      return <ArrowUpDown className="ml-1 h-3 w-3 text-muted-foreground" />;
+    return sortDir === "asc" ? (
+      <ArrowUp className="ml-1 h-3 w-3 text-primary" />
+    ) : (
+      <ArrowDown className="ml-1 h-3 w-3 text-primary" />
+    );
   };
 
   const clearFilters = () => {
@@ -71,7 +96,13 @@ export default function AdminListingsPage() {
     setStatusFilter("all");
   };
 
-  const hasActiveFilters = search || minPrice || maxPrice || dateFrom || dateTo || statusFilter !== "all";
+  const hasActiveFilters =
+    search ||
+    minPrice ||
+    maxPrice ||
+    dateFrom ||
+    dateTo ||
+    statusFilter !== "all";
 
   const filtered = useMemo(() => {
     let result = [...listings];
@@ -82,7 +113,7 @@ export default function AdminListingsPage() {
         (l) =>
           (l.listing?.title || l.model || "").toLowerCase().includes(q) ||
           l.owner?.name?.toLowerCase().includes(q) ||
-          l.owner?.email?.toLowerCase().includes(q)
+          l.owner?.email?.toLowerCase().includes(q),
       );
     }
 
@@ -90,10 +121,15 @@ export default function AdminListingsPage() {
       result = result.filter((l) => l.listing?.status === statusFilter);
     }
 
-    if (minPrice) result = result.filter((l) => l.listing?.price >= Number(minPrice));
-    if (maxPrice) result = result.filter((l) => l.listing?.price <= Number(maxPrice));
+    if (minPrice)
+      result = result.filter((l) => l.listing?.price >= Number(minPrice));
+    if (maxPrice)
+      result = result.filter((l) => l.listing?.price <= Number(maxPrice));
 
-    if (dateFrom) result = result.filter((l) => new Date(l.createdAt) >= new Date(dateFrom));
+    if (dateFrom)
+      result = result.filter(
+        (l) => new Date(l.createdAt) >= new Date(dateFrom),
+      );
     if (dateTo) {
       const to = new Date(dateTo);
       to.setHours(23, 59, 59, 999);
@@ -121,7 +157,17 @@ export default function AdminListingsPage() {
     });
 
     return result;
-  }, [listings, search, statusFilter, minPrice, maxPrice, dateFrom, dateTo, sortField, sortDir]);
+  }, [
+    listings,
+    search,
+    statusFilter,
+    minPrice,
+    maxPrice,
+    dateFrom,
+    dateTo,
+    sortField,
+    sortDir,
+  ]);
 
   if (loading) {
     return (
@@ -166,7 +212,12 @@ export default function AdminListingsPage() {
             )}
           </Button>
           {hasActiveFilters && (
-            <Button variant="ghost" size="icon" onClick={clearFilters} title="Clear filters">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={clearFilters}
+              title="Clear filters"
+            >
               <X className="h-4 w-4" />
             </Button>
           )}
@@ -175,7 +226,9 @@ export default function AdminListingsPage() {
         {showFilters && (
           <div className="grid grid-cols-2 md:grid-cols-5 gap-3 p-4 rounded-xl border bg-muted/20">
             <div>
-              <label className="text-xs font-medium text-muted-foreground mb-1 block">Status</label>
+              <label className="text-xs font-medium text-muted-foreground mb-1 block">
+                Status
+              </label>
               <Select value={statusFilter} onValueChange={setStatusFilter}>
                 <SelectTrigger className="h-9">
                   <SelectValue />
@@ -190,7 +243,9 @@ export default function AdminListingsPage() {
               </Select>
             </div>
             <div>
-              <label className="text-xs font-medium text-muted-foreground mb-1 block">Min Price</label>
+              <label className="text-xs font-medium text-muted-foreground mb-1 block">
+                Min Price
+              </label>
               <Input
                 type="number"
                 placeholder="0"
@@ -200,7 +255,9 @@ export default function AdminListingsPage() {
               />
             </div>
             <div>
-              <label className="text-xs font-medium text-muted-foreground mb-1 block">Max Price</label>
+              <label className="text-xs font-medium text-muted-foreground mb-1 block">
+                Max Price
+              </label>
               <Input
                 type="number"
                 placeholder="Any"
@@ -210,7 +267,9 @@ export default function AdminListingsPage() {
               />
             </div>
             <div>
-              <label className="text-xs font-medium text-muted-foreground mb-1 block">Date From</label>
+              <label className="text-xs font-medium text-muted-foreground mb-1 block">
+                Date From
+              </label>
               <Input
                 type="date"
                 value={dateFrom}
@@ -219,7 +278,9 @@ export default function AdminListingsPage() {
               />
             </div>
             <div>
-              <label className="text-xs font-medium text-muted-foreground mb-1 block">Date To</label>
+              <label className="text-xs font-medium text-muted-foreground mb-1 block">
+                Date To
+              </label>
               <Input
                 type="date"
                 value={dateTo}
@@ -243,11 +304,18 @@ export default function AdminListingsPage() {
               className="h-8 text-xs"
               onClick={() => handleSort(field)}
             >
-              {field === "createdAt" ? "Date" : field.charAt(0).toUpperCase() + field.slice(1)}
-              {sortField === field
-                ? sortDir === "asc" ? <ArrowUp className="ml-1 h-3 w-3" /> : <ArrowDown className="ml-1 h-3 w-3" />
-                : <ArrowUpDown className="ml-1 h-3 w-3" />
-              }
+              {field === "createdAt"
+                ? "Date"
+                : field.charAt(0).toUpperCase() + field.slice(1)}
+              {sortField === field ? (
+                sortDir === "asc" ? (
+                  <ArrowUp className="ml-1 h-3 w-3" />
+                ) : (
+                  <ArrowDown className="ml-1 h-3 w-3" />
+                )
+              ) : (
+                <ArrowUpDown className="ml-1 h-3 w-3" />
+              )}
             </Button>
           ))}
         </div>
@@ -258,9 +326,14 @@ export default function AdminListingsPage() {
           </div>
         )}
         {filtered.map((listing: any) => (
-          <div key={listing._id} className="rounded-xl border bg-card p-4 space-y-3">
+          <div
+            key={listing._id}
+            className="rounded-xl border bg-card p-4 space-y-3"
+          >
             <div className="flex items-start justify-between gap-2">
-              <p className="font-semibold text-sm leading-snug line-clamp-2">{listing.listing?.title || listing.model}</p>
+              <p className="font-semibold text-sm leading-snug line-clamp-2">
+                {listing.listing?.title || listing.model}
+              </p>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="h-8 w-8 p-0 shrink-0">
@@ -274,24 +347,36 @@ export default function AdminListingsPage() {
                       <ExternalLink className="mr-2 h-4 w-4" /> View Listing
                     </Link>
                   </DropdownMenuItem>
-                  <DropdownMenuItem className="text-destructive">Delete Listing</DropdownMenuItem>
+                  <DropdownMenuItem className="text-destructive">
+                    Delete Listing
+                  </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
 
             <div className="text-xs text-muted-foreground">
-              <span className="font-medium text-foreground">{listing.owner?.name || "Unknown"}</span>
+              <span className="font-medium text-foreground">
+                {listing.owner?.name || "Unknown"}
+              </span>
               {listing.owner?.email && <span> · {listing.owner.email}</span>}
             </div>
 
             <div className="flex items-center gap-2 flex-wrap">
-              <Badge variant={listing.listing?.status === "active" ? "default" : "secondary"}>
+              <Badge
+                variant={
+                  listing.listing?.status === "active" ? "default" : "secondary"
+                }
+              >
                 {listing.listing?.status}
               </Badge>
               {listing.listing?.category?.name && (
-                <Badge variant="outline" className="text-xs">{listing.listing.category.name}</Badge>
+                <Badge variant="outline" className="text-xs">
+                  {listing.listing.category.name}
+                </Badge>
               )}
-              <span className="text-sm font-semibold text-primary ml-auto">₦{listing.listing?.price?.toLocaleString() || 0}</span>
+              <span className="text-sm font-semibold text-primary ml-auto">
+                ₦{listing.listing?.price?.toLocaleString() || 0}
+              </span>
             </div>
 
             <p className="text-xs text-muted-foreground">
@@ -307,20 +392,30 @@ export default function AdminListingsPage() {
           <TableHeader>
             <TableRow className="bg-muted/50">
               <TableHead>
-                <button onClick={() => handleSort("title")} className="flex items-center hover:text-foreground transition-colors">
+                <button
+                  onClick={() => handleSort("title")}
+                  className="flex items-center hover:text-foreground transition-colors"
+                >
                   Title <SortIcon field="title" />
                 </button>
               </TableHead>
-              <TableHead>Seller</TableHead>
+              {/* <TableHead>Seller</TableHead> */}
+              <TableHead>ID</TableHead>
               <TableHead>
-                <button onClick={() => handleSort("price")} className="flex items-center hover:text-foreground transition-colors">
+                <button
+                  onClick={() => handleSort("price")}
+                  className="flex items-center hover:text-foreground transition-colors"
+                >
                   Price <SortIcon field="price" />
                 </button>
               </TableHead>
               <TableHead>Category</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>
-                <button onClick={() => handleSort("createdAt")} className="flex items-center hover:text-foreground transition-colors">
+                <button
+                  onClick={() => handleSort("createdAt")}
+                  className="flex items-center hover:text-foreground transition-colors"
+                >
                   Date <SortIcon field="createdAt" />
                 </button>
               </TableHead>
@@ -330,30 +425,53 @@ export default function AdminListingsPage() {
           <TableBody>
             {filtered.length === 0 && (
               <TableRow>
-                <TableCell colSpan={7} className="h-24 text-center text-muted-foreground">
+                <TableCell
+                  colSpan={7}
+                  className="h-24 text-center text-muted-foreground"
+                >
                   No listings match your filters.
                 </TableCell>
               </TableRow>
             )}
             {filtered.map((listing: any) => (
               <TableRow key={listing._id}>
-                <TableCell className="font-medium max-w-[200px] truncate" title={listing.listing?.title || listing.model}>
+                <TableCell
+                  className="font-medium max-w-[200px] truncate"
+                  title={listing.listing?.title || listing.model}
+                >
                   {listing.listing?.title || listing.model}
                 </TableCell>
-                <TableCell>
+                {/* <TableCell>
                   <div className="flex flex-col">
-                    <span className="text-sm">{listing.owner?.name || "Unknown"}</span>
-                    <span className="text-xs text-muted-foreground">{listing.owner?.email}</span>
+                    <span className="text-sm">
+                      {listing.owner?.name || "Unknown"}
+                    </span>
+                    <span className="text-xs text-muted-foreground">
+                      {listing.owner?.email}
+                    </span>
                   </div>
-                </TableCell>
-                <TableCell>₦{listing.listing?.price?.toLocaleString() || 0}</TableCell>
-                <TableCell>{listing.listing?.category?.name || "N/A"}</TableCell>
+                </TableCell> */}
+                <TableCell>{listing.uniqueIdentifier || "none"}</TableCell>
                 <TableCell>
-                  <Badge variant={listing.listing?.status === "active" ? "default" : "secondary"}>
+                  ₦{listing.listing?.price?.toLocaleString() || 0}
+                </TableCell>
+                <TableCell>
+                  {listing.listing?.category?.name || "N/A"}
+                </TableCell>
+                <TableCell>
+                  <Badge
+                    variant={
+                      listing.listing?.status === "active"
+                        ? "default"
+                        : "secondary"
+                    }
+                  >
                     {listing.listing?.status}
                   </Badge>
                 </TableCell>
-                <TableCell>{new Date(listing.createdAt).toLocaleDateString()}</TableCell>
+                <TableCell>
+                  {new Date(listing.createdAt).toLocaleDateString()}
+                </TableCell>
                 <TableCell className="text-right">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -368,7 +486,9 @@ export default function AdminListingsPage() {
                           <ExternalLink className="mr-2 h-4 w-4" /> View Listing
                         </Link>
                       </DropdownMenuItem>
-                      <DropdownMenuItem className="text-destructive">Delete Listing</DropdownMenuItem>
+                      <DropdownMenuItem className="text-destructive">
+                        Delete Listing
+                      </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </TableCell>
