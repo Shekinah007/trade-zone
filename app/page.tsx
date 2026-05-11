@@ -59,6 +59,9 @@ export default async function Home() {
   const featuredListings = await getFeaturedListings();
   const categories = await getCategories();
 
+  console.log("Categories ", categories);
+  console.log("Recent Listings' ", recentListings);
+
   return (
     <div className="flex flex-col min-h-screen bg-background">
       {/* Hero Section */}
