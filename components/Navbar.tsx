@@ -398,7 +398,7 @@ export default function Navbar() {
           <Sheet open={isMobileMenuOpen} onOpenChange={openMobileMenu}>
             <SheetTrigger asChild>
               <Button variant="ghost" size="icon" className="md:hidden">
-                <Menu className="h-5 w-5" />
+                <Menu className="h-10 w-10" />
                 <span className="sr-only">Toggle menu</span>
               </Button>
             </SheetTrigger>

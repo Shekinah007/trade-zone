@@ -63,39 +63,27 @@ export default async function Home() {
     <div className="flex flex-col min-h-screen bg-background">
       {/* Hero Section */}
       <section className="relative px-4 py-10 md:py-16 overflow-hidden border-b pb-16 md:pb-24">
-        {/* Animated background paths */}
-        <div
-          className="absolute inset-0 z-10 opacity-30"
-          style={{
-            contain: "strict",
-            willChange: "opacity",
-            transform: "translateZ(0)",
-          }}
-        >
-          <FloatingPaths position={1} />
-          {/* <FloatingPaths position={-1} /> */}
-        </div>
         {/* Subtle linear overlay */}
         <div className="absolute inset-0 -z-10 bg-linear-to-b from-background via-background/90 to-background pointer-events-none" />
 
         <div className="container mx-auto relative z-10 text-center">
-          <div className="inline-flex items-center px-2.5 py-1 rounded-full border bg-background/80 backdrop-blur-sm text-xs font-semibold mb-6 text-primary animate-in fade-in slide-in-from-bottom-4 duration-700 shadow-sm">
-            <span className="flex h-2 w-2 rounded-full bg-primary mr-2 animate-pulse" />
+          <div className="inline-flex items-center px-2.5 py-1 rounded-full border bg-background/80 backdrop-blur-sm text-xs font-semibold mb-6 text-primary  shadow-sm">
+            <span className="flex h-2 w-2 rounded-full bg-primary mr-2" />
             Africa&apos;s #1 Property Security Marketplace
           </div>
 
-          <h1 className="text-4xl md:text-6xl font-bold bg-clip-text text-transparent bg-linear-to-r from-red-500  to-emerald-500 tracking-tight mb-4 leading-tight animate-in fade-in slide-in-from-bottom-6 duration-700 delay-100">
+          <h1 className="text-4xl md:text-6xl font-bold bg-clip-text text-transparent bg-linear-to-r from-red-500  to-emerald-500 tracking-tight mb-4 leading-tight ">
             Secure. Verify. <br className="hidden md:block" />
             <span className="">Trade Safely.</span>
           </h1>
 
-          <p className="text-lg md:text-xl font-medium text-muted-foreground mb-10 max-w-2xl mx-auto animate-in fade-in slide-in-from-bottom-6 duration-700 delay-200">
+          <p className="text-lg md:text-xl font-medium text-muted-foreground mb-10 max-w-2xl mx-auto ">
             Register your devices in Africa&apos;s trusted property registry,
             and buy or sell with full confidence.
           </p>
 
           {/* Dual Search Cards */}
-          <div className="grid md:grid-cols-2 gap-4 lg:gap-6 max-w-5xl mx-auto animate-in fade-in slide-in-from-bottom-6 duration-700 delay-300">
+          <div className="grid md:grid-cols-2 gap-4 lg:gap-6 max-w-5xl mx-auto  ">
             {/* Marketplace Card */}
             <div className="rounded-3xl border-2 border-emerald-500/30 bg-linear-to-b from-card to-emerald-900/10 backdrop-blur-2xl p-5 md:p-6 text-left space-y-3 shadow-[0_0_30px_-15px_rgba(16,185,129,0.3)] hover:shadow-[0_0_40px_-15px_rgba(16,185,129,0.4)] hover:-translate-y-1 transition-all duration-300 relative overflow-hidden group">
               <div className="absolute -right-10 -top-10 w-40 h-40 bg-emerald-500/20 rounded-full blur-3xl group-hover:bg-emerald-500/30 transition-all duration-500" />

@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document, Model } from 'mongoose';
+import mongoose, { Schema, Document, Model } from "mongoose";
 
 export interface IUser extends Document {
   name: string;
@@ -6,11 +6,11 @@ export interface IUser extends Document {
   password?: string;
   image?: string;
   phone?: string;
-  role: 'buyer' | 'seller' | 'admin';
-  provider: 'credentials' | 'google' | 'facebook';
+  role: "buyer" | "seller" | "admin";
+  provider: "credentials" | "google" | "facebook";
   createdAt: Date;
   updatedAt: Date;
-  status: 'pending' | 'active' | 'suspended' | 'banned';
+  status: "pending" | "active" | "suspended" | "banned";
   registrationLimit: number;
   unlimitedRegistrations: boolean;
   tokensUsed?: {
@@ -33,25 +33,32 @@ const UserSchema = new Schema<IUser>(
     phone: { type: String },
     role: {
       type: String,
-      enum: ['buyer', 'seller', 'admin'],
-      default: 'buyer',
+      enum: ["buyer", "seller", "admin"],
+      default: "buyer",
     },
-    provider: { type: String, default: 'credentials' },
-    status: {type: String, enum: ['pending', 'active', 'suspended', 'banned'], default: 'pending' },
-    registrationLimit: { type: Number, default: 1 },
+    provider: { type: String, default: "credentials" },
+    status: {
+      type: String,
+      enum: ["pending", "active", "suspended", "banned"],
+      default: "pending",
+    },
+    registrationLimit: { type: Number, default: 3 },
     unlimitedRegistrations: { type: Boolean, default: false },
-    tokensUsed: [{
-      tokenId: { type: Schema.Types.ObjectId, ref: 'RechargeToken' },
-      usedAt: { type: Date },
-      tokenType: { type: String },
-      value: { type: Number }
-    }],
+    tokensUsed: [
+      {
+        tokenId: { type: Schema.Types.ObjectId, ref: "RechargeToken" },
+        usedAt: { type: Date },
+        tokenType: { type: String },
+        value: { type: Number },
+      },
+    ],
     totalTokensRedeemed: { type: Number, default: 0 },
     creditBalance: { type: Number, default: 0 },
     listingQuota: { type: Number, default: 3 },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
-const User: Model<IUser> = mongoose.models?.User || mongoose.model('User', UserSchema);
+const User: Model<IUser> =
+  mongoose.models?.User || mongoose.model("User", UserSchema);
 export default User;
