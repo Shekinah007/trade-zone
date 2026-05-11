@@ -132,10 +132,9 @@ export async function PUT(
     if (hasImageUpdates) {
       const existingImages = formData.getAll("existingImages") as string[];
       const newFiles = formData.getAll("images") as File[];
-      const newImageUrls: string[] = [];
-
-      for (const file of newFiles) {
-        if (file instanceof File && file.size > 0) {
+      const uploadPromises = newFiles
+        .filter((file) => file instanceof File && file.size > 0)
+        .map(async (file) => {
           const arrayBuffer = await file.arrayBuffer();
           const buffer = Buffer.from(arrayBuffer);
 
@@ -148,9 +147,10 @@ export async function PUT(
               .end(buffer);
           });
 
-          newImageUrls.push(uploadResult.secure_url);
-        }
-      }
+          return uploadResult.secure_url;
+        });
+
+      const newImageUrls = await Promise.all(uploadPromises);
 
       item.images = [...existingImages, ...newImageUrls];
     }

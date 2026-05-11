@@ -39,6 +39,8 @@ import {
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 
+import imageCompression from "browser-image-compression";
+
 const formSchema = z.object({
   title: z.string().min(5, "Title must be at least 5 characters"),
   description: z.string().min(20, "Description must be at least 20 characters"),
@@ -87,6 +89,8 @@ export function ListingForm({ initialData, categories }: ListingFormProps) {
   const [imageItems, setImageItems] = useState<
     { url: string; file?: File; isNew: boolean }[]
   >(initialData?.images?.map((url: string) => ({ url, isNew: false })) || []);
+  const [isCompressing, setIsCompressing] = useState(false);
+  const [compressionProgress, setCompressionProgress] = useState(0);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema) as any,
@@ -108,19 +112,52 @@ export function ListingForm({ initialData, categories }: ListingFormProps) {
     },
   });
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const files = Array.from(e.target.files);
       if (imageItems.length + files.length > 5) {
         toast.error("Maximum 5 images allowed");
         return;
       }
-      const newItems = files.map((file) => ({
-        url: URL.createObjectURL(file),
-        file,
-        isNew: true,
-      }));
-      setImageItems((prev) => [...prev, ...newItems]);
+      
+      setIsCompressing(true);
+      setCompressionProgress(0);
+      const progressMap = new Map<number, number>();
+
+      const compressedItems = await Promise.all(
+        files.map(async (file, index) => {
+          try {
+            const compressedFile = await imageCompression(file, {
+              maxSizeMB: 1,
+              maxWidthOrHeight: 1920,
+              useWebWorker: true,
+              onProgress: (p) => {
+                progressMap.set(index, p);
+                let total = 0;
+                progressMap.forEach((val) => { total += val; });
+                setCompressionProgress(Math.round(total / files.length));
+              }
+            });
+            return {
+              url: URL.createObjectURL(compressedFile),
+              file: compressedFile,
+              isNew: true,
+            };
+          } catch (error) {
+            console.error("Image compression error:", error);
+            progressMap.set(index, 100);
+            return {
+              url: URL.createObjectURL(file),
+              file,
+              isNew: true,
+            };
+          }
+        })
+      );
+      
+      setIsCompressing(false);
+      setCompressionProgress(0);
+      setImageItems((prev) => [...prev, ...compressedItems]);
     }
   };
 
@@ -304,21 +341,6 @@ export function ListingForm({ initialData, categories }: ListingFormProps) {
               )}
             />
 
-            {/* {!session?.user?.unlimitedRegistrations && (
-              <div className="flex items-start gap-3 p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-900 dark:text-amber-400 mt-2">
-                <Info className="h-5 w-5 mt-0.5 shrink-0" />
-                <div className="flex-1">
-                  <p className="text-sm font-medium">Registry Notice</p>
-                  <p className="text-xs opacity-90 mt-0.5">
-                    Your item will not be automatically added to the Global
-                    Property Registry because you do not have unlimited
-                    registrations. You can manually register items from your
-                    dashboard.
-                  </p>
-                </div>
-              </div>
-            )} */}
-
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <FormField
                 control={form.control as any}
@@ -426,7 +448,7 @@ export function ListingForm({ initialData, categories }: ListingFormProps) {
                 </div>
               ))}
 
-              {imageItems.length < 5 && (
+              {imageItems.length < 5 && !isCompressing && (
                 <label className="flex aspect-square cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-muted-foreground/20 bg-muted/30 hover:bg-muted/50 hover:border-primary/30 transition-all group">
                   <Upload className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
                   <span className="mt-1.5 text-xs text-muted-foreground group-hover:text-primary">
@@ -440,6 +462,17 @@ export function ListingForm({ initialData, categories }: ListingFormProps) {
                     onChange={handleImageChange}
                   />
                 </label>
+              )}
+              {isCompressing && (
+                <div className="flex aspect-square flex-col items-center justify-center rounded-xl border-2 border-muted border-dashed bg-muted/20">
+                  <Loader2 className="h-5 w-5 text-primary animate-spin mb-2" />
+                  <span className="text-xs font-medium text-primary">
+                    {compressionProgress}%
+                  </span>
+                  <span className="text-[10px] text-muted-foreground mt-0.5">
+                    Compressing
+                  </span>
+                </div>
               )}
             </div>
             <p className="text-xs text-muted-foreground mt-2">

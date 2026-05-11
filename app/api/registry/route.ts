@@ -273,38 +273,33 @@ export async function POST(req: NextRequest) {
 
     const imageFiles = formData.getAll("images");
 
-    const imageUrls: string[] = [];
+    const uploadPromises = imageFiles
+      .filter((file) => file && typeof file !== "string" && "arrayBuffer" in file && file.size > 0)
+      .map(async (file: any) => {
+        const arrayBuffer = await file.arrayBuffer();
+        const buffer = Buffer.from(arrayBuffer);
 
-    for (const file of imageFiles) {
-      if (!file || typeof file === "string" || !("arrayBuffer" in file)) {
-        continue;
-      }
+        const uploadResult = await new Promise<any>((resolve, reject) => {
+          cloudinary.uploader
+            .upload_stream(
+              {
+                folder: "trade-zone",
+              },
+              (error, result) => {
+                if (error) {
+                  reject(error);
+                } else {
+                  resolve(result);
+                }
+              },
+            )
+            .end(buffer);
+        });
 
-      if (file.size <= 0) continue;
-
-      const arrayBuffer = await file.arrayBuffer();
-
-      const buffer = Buffer.from(arrayBuffer);
-
-      const uploadResult = await new Promise<any>((resolve, reject) => {
-        cloudinary.uploader
-          .upload_stream(
-            {
-              folder: "trade-zone",
-            },
-            (error, result) => {
-              if (error) {
-                reject(error);
-              } else {
-                resolve(result);
-              }
-            },
-          )
-          .end(buffer);
+        return uploadResult.secure_url;
       });
 
-      imageUrls.push(uploadResult.secure_url);
-    }
+    const imageUrls = await Promise.all(uploadPromises);
 
     // =========================
     // CREATE ITEM

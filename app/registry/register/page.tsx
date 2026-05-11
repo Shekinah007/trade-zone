@@ -37,6 +37,8 @@ import {
 } from "@/components/ui/select";
 import dynamic from "next/dynamic";
 
+import imageCompression from "browser-image-compression";
+
 const TokenPurchaseModal = dynamic(
   () =>
     import("@/components/TokenPurchaseModal").then(
@@ -157,18 +159,55 @@ function RegisterPropertyForm() {
   const [imageItems, setImageItems] = useState<{ url: string; file?: File }[]>(
     [],
   );
+  const [isCompressing, setIsCompressing] = useState(false);
+  const [compressionProgress, setCompressionProgress] = useState(0);
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const files = Array.from(e.target.files);
       if (imageItems.length + files.length > 5) {
         toast.error("Maximum 5 images allowed");
         return;
       }
-      setImageItems((p) => [
-        ...p,
-        ...files.map((file) => ({ url: URL.createObjectURL(file), file })),
-      ]);
+
+      setIsCompressing(true);
+      setCompressionProgress(0);
+      const progressMap = new Map<number, number>();
+
+      const compressedItems = await Promise.all(
+        files.map(async (file, index) => {
+          try {
+            const compressedFile = await imageCompression(file, {
+              maxSizeMB: 1,
+              maxWidthOrHeight: 1920,
+              useWebWorker: true,
+              onProgress: (p) => {
+                progressMap.set(index, p);
+                let total = 0;
+                progressMap.forEach((val) => {
+                  total += val;
+                });
+                setCompressionProgress(Math.round(total / files.length));
+              },
+            });
+            return {
+              url: URL.createObjectURL(compressedFile),
+              file: compressedFile,
+            };
+          } catch (error) {
+            console.error("Image compression error:", error);
+            progressMap.set(index, 100);
+            return {
+              url: URL.createObjectURL(file),
+              file,
+            };
+          }
+        }),
+      );
+
+      setIsCompressing(false);
+      setCompressionProgress(0);
+      setImageItems((p) => [...p, ...compressedItems]);
     }
   };
 
@@ -724,13 +763,13 @@ function RegisterPropertyForm() {
                                 p.filter((_, i) => i !== index),
                               )
                             }
-                            className="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-red-500 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-md"
+                            className="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-red-500 text-white flex items-center justify-center  group-hover:opacity-100 transition-opacity shadow-md"
                           >
                             <X className="h-3 w-3" />
                           </button>
                         </div>
                       ))}
-                      {imageItems.length < 5 && (
+                      {imageItems.length < 5 && !isCompressing && (
                         <label className="aspect-square rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 hover:bg-red-50 hover:border-red-300 transition-all cursor-pointer flex flex-col items-center justify-center gap-2 group shadow-sm">
                           <div className="w-9 h-9 rounded-xl bg-white group-hover:bg-red-100 border border-gray-200 group-hover:border-red-200 flex items-center justify-center transition-all shadow-sm">
                             <Upload className="h-4 w-4 text-gray-400 group-hover:text-red-500 transition-colors" />
@@ -746,6 +785,17 @@ function RegisterPropertyForm() {
                             onChange={handleImageChange}
                           />
                         </label>
+                      )}
+                      {isCompressing && (
+                        <div className="aspect-square flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-gray-200 bg-gray-50">
+                          <Loader2 className="h-5 w-5 text-red-500 animate-spin mb-2" />
+                          <span className="text-xs font-medium text-red-500">
+                            {compressionProgress}%
+                          </span>
+                          <span className="text-[10px] text-gray-400 mt-0.5 font-medium">
+                            Compressing
+                          </span>
+                        </div>
                       )}
                     </div>
                   </>

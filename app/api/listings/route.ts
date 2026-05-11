@@ -198,8 +198,9 @@ export async function POST(req: Request) {
 
     // Upload images to Cloudinary
     if (imageFiles && imageFiles.length > 0) {
-      for (const file of imageFiles) {
-        if (file instanceof File && file.size > 0) {
+      const uploadPromises = imageFiles
+        .filter((file) => file instanceof File && file.size > 0)
+        .map(async (file) => {
           const arrayBuffer = await file.arrayBuffer();
           const buffer = Buffer.from(arrayBuffer);
 
@@ -211,10 +212,11 @@ export async function POST(req: Request) {
               })
               .end(buffer);
           });
+          return uploadResult.secure_url;
+        });
 
-          imageUrls.push(uploadResult.secure_url);
-        }
-      }
+      const uploadedUrls = await Promise.all(uploadPromises);
+      imageUrls.push(...uploadedUrls);
     }
 
     const dbUser = await User.findById(session.user.id);
