@@ -2,21 +2,40 @@
 
 import { useState, useMemo, useEffect } from "react";
 import {
-  Table, TableBody, TableCell, TableHead,
-  TableHeader, TableRow,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
-  DropdownMenu, DropdownMenuContent, DropdownMenuItem,
-  DropdownMenuLabel, DropdownMenuTrigger,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
-  Select, SelectContent, SelectItem,
-  SelectTrigger, SelectValue,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select";
-import { MoreHorizontal, ExternalLink, ArrowUpDown, ArrowUp, ArrowDown, Search, X, SlidersHorizontal } from "lucide-react";
+import {
+  MoreHorizontal,
+  ExternalLink,
+  ArrowUpDown,
+  ArrowUp,
+  ArrowDown,
+  Search,
+  X,
+  SlidersHorizontal,
+} from "lucide-react";
 import Link from "next/link";
 
 type SortField = "createdAt" | "brand" | "model" | "status";
@@ -39,8 +58,14 @@ export default function AdminPropertiesPage() {
   useEffect(() => {
     fetch("/api/admin/properties")
       .then((r) => r.json())
-      .then((data) => { setProperties(data); setLoading(false); })
-      .catch((err) => { console.error(err); setLoading(false); });
+      .then((data) => {
+        setProperties(data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error(err);
+        setLoading(false);
+      });
   }, []);
 
   const handleSort = (field: SortField) => {
@@ -53,10 +78,13 @@ export default function AdminPropertiesPage() {
   };
 
   const SortIcon = ({ field }: { field: SortField }) => {
-    if (sortField !== field) return <ArrowUpDown className="ml-1 h-3 w-3 text-muted-foreground" />;
-    return sortDir === "asc"
-      ? <ArrowUp className="ml-1 h-3 w-3 text-primary" />
-      : <ArrowDown className="ml-1 h-3 w-3 text-primary" />;
+    if (sortField !== field)
+      return <ArrowUpDown className="ml-1 h-3 w-3 text-muted-foreground" />;
+    return sortDir === "asc" ? (
+      <ArrowUp className="ml-1 h-3 w-3 text-primary" />
+    ) : (
+      <ArrowDown className="ml-1 h-3 w-3 text-primary" />
+    );
   };
 
   const clearFilters = () => {
@@ -65,7 +93,8 @@ export default function AdminPropertiesPage() {
     setItemTypeFilter("all");
   };
 
-  const hasActiveFilters = search || statusFilter !== "all" || itemTypeFilter !== "all";
+  const hasActiveFilters =
+    search || statusFilter !== "all" || itemTypeFilter !== "all";
 
   const filtered = useMemo(() => {
     let result = [...properties];
@@ -80,7 +109,7 @@ export default function AdminPropertiesPage() {
           p.imei?.toLowerCase().includes(q) ||
           p.chassisNumber?.toLowerCase().includes(q) ||
           p.owner?.name?.toLowerCase().includes(q) ||
-          p.owner?.email?.toLowerCase().includes(q)
+          p.owner?.email?.toLowerCase().includes(q),
       );
     }
 
@@ -99,7 +128,11 @@ export default function AdminPropertiesPage() {
         valA = new Date(valA).getTime();
         valB = new Date(valB).getTime();
       }
-      if (sortField === "brand" || sortField === "model" || sortField === "status") {
+      if (
+        sortField === "brand" ||
+        sortField === "model" ||
+        sortField === "status"
+      ) {
         valA = valA?.toLowerCase() ?? "";
         valB = valB?.toLowerCase() ?? "";
       }
@@ -123,7 +156,9 @@ export default function AdminPropertiesPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-3xl font-bold tracking-tight">Property Registry</h2>
+          <h2 className="text-3xl font-bold tracking-tight">
+            Property Registry
+          </h2>
           <p className="text-muted-foreground">
             {filtered.length} of {properties.length} registered properties
           </p>
@@ -154,7 +189,12 @@ export default function AdminPropertiesPage() {
             )}
           </Button>
           {hasActiveFilters && (
-            <Button variant="ghost" size="icon" onClick={clearFilters} title="Clear filters">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={clearFilters}
+              title="Clear filters"
+            >
               <X className="h-4 w-4" />
             </Button>
           )}
@@ -163,7 +203,9 @@ export default function AdminPropertiesPage() {
         {showFilters && (
           <div className="grid grid-cols-2 gap-3 p-4 rounded-xl border bg-muted/20 md:grid-cols-4">
             <div>
-              <label className="text-xs font-medium text-muted-foreground mb-1 block">Status</label>
+              <label className="text-xs font-medium text-muted-foreground mb-1 block">
+                Status
+              </label>
               <Select value={statusFilter} onValueChange={setStatusFilter}>
                 <SelectTrigger className="h-9">
                   <SelectValue />
@@ -178,7 +220,9 @@ export default function AdminPropertiesPage() {
               </Select>
             </div>
             <div>
-              <label className="text-xs font-medium text-muted-foreground mb-1 block">Item Type</label>
+              <label className="text-xs font-medium text-muted-foreground mb-1 block">
+                Item Type
+              </label>
               <Select value={itemTypeFilter} onValueChange={setItemTypeFilter}>
                 <SelectTrigger className="h-9">
                   <SelectValue />
@@ -209,11 +253,18 @@ export default function AdminPropertiesPage() {
               className="h-8 text-xs"
               onClick={() => handleSort(field)}
             >
-              {field === "createdAt" ? "Date" : field.charAt(0).toUpperCase() + field.slice(1)}
-              {sortField === field
-                ? sortDir === "asc" ? <ArrowUp className="ml-1 h-3 w-3" /> : <ArrowDown className="ml-1 h-3 w-3" />
-                : <ArrowUpDown className="ml-1 h-3 w-3" />
-              }
+              {field === "createdAt"
+                ? "Date"
+                : field.charAt(0).toUpperCase() + field.slice(1)}
+              {sortField === field ? (
+                sortDir === "asc" ? (
+                  <ArrowUp className="ml-1 h-3 w-3" />
+                ) : (
+                  <ArrowDown className="ml-1 h-3 w-3" />
+                )
+              ) : (
+                <ArrowUpDown className="ml-1 h-3 w-3" />
+              )}
             </Button>
           ))}
         </div>
@@ -224,9 +275,14 @@ export default function AdminPropertiesPage() {
           </div>
         )}
         {filtered.map((property: any) => (
-          <div key={property._id} className="rounded-xl border bg-card p-4 space-y-3">
+          <div
+            key={property._id}
+            className="rounded-xl border bg-card p-4 space-y-3"
+          >
             <div className="flex items-start justify-between gap-2">
-              <p className="font-semibold text-sm leading-snug line-clamp-2">{property.brand} {property.model}</p>
+              <p className="font-semibold text-sm leading-snug line-clamp-2">
+                {property.brand} {property.model}
+              </p>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="h-8 w-8 p-0 shrink-0">
@@ -245,24 +301,43 @@ export default function AdminPropertiesPage() {
             </div>
 
             <div className="text-xs text-muted-foreground">
-              <span className="font-medium text-foreground">{property.owner?.name || "Unknown"}</span>
+              <span className="font-medium text-foreground">
+                {property.owner?.name || "Unknown"}
+              </span>
               {property.owner?.email && <span> · {property.owner.email}</span>}
             </div>
-            
+
             <div className="text-xs text-muted-foreground">
-              {property.serialNumber && <span>SN: {property.serialNumber}</span>}
-              {property.imei && <span>IMEI: {property.imei}</span>}
-              {property.chassisNumber && <span>VIN: {property.chassisNumber}</span>}
-              {!property.serialNumber && !property.imei && !property.chassisNumber && property.uniqueIdentifier && (
-                <span>ID: {property.uniqueIdentifier}</span>
+              {property.serialNumber && (
+                <span>SN: {property.serialNumber}</span>
               )}
+              {property.imei && <span>IMEI: {property.imei}</span>}
+              {property.chassisNumber && (
+                <span>VIN: {property.chassisNumber}</span>
+              )}
+              {!property.serialNumber &&
+                !property.imei &&
+                !property.chassisNumber &&
+                property.uniqueIdentifier && (
+                  <span>ID: {property.uniqueIdentifier}</span>
+                )}
             </div>
 
             <div className="flex items-center gap-2 flex-wrap">
-              <Badge variant={property.status === "registered" ? "default" : property.status === "missing" ? "destructive" : "secondary"}>
-                {property.status}
+              <Badge
+                variant={
+                  property.ownershipStatus === "owned"
+                    ? "default"
+                    : property.ownershipStatus === "missing"
+                      ? "destructive"
+                      : "secondary"
+                }
+              >
+                {property.ownershipStatus.toUpperCase()}
               </Badge>
-              <Badge variant="outline" className="text-xs capitalize">{property.itemType}</Badge>
+              <Badge variant="outline" className="text-xs capitalize">
+                {property.itemType}
+              </Badge>
             </div>
 
             <p className="text-xs text-muted-foreground">
@@ -278,7 +353,10 @@ export default function AdminPropertiesPage() {
           <TableHeader>
             <TableRow className="bg-muted/50">
               <TableHead>
-                <button onClick={() => handleSort("brand")} className="flex items-center hover:text-foreground transition-colors">
+                <button
+                  onClick={() => handleSort("brand")}
+                  className="flex items-center hover:text-foreground transition-colors"
+                >
                   Property <SortIcon field="brand" />
                 </button>
               </TableHead>
@@ -286,12 +364,18 @@ export default function AdminPropertiesPage() {
               <TableHead>Identifiers</TableHead>
               <TableHead>Type</TableHead>
               <TableHead>
-                <button onClick={() => handleSort("status")} className="flex items-center hover:text-foreground transition-colors">
+                <button
+                  onClick={() => handleSort("status")}
+                  className="flex items-center hover:text-foreground transition-colors"
+                >
                   Status <SortIcon field="status" />
                 </button>
               </TableHead>
               <TableHead>
-                <button onClick={() => handleSort("createdAt")} className="flex items-center hover:text-foreground transition-colors">
+                <button
+                  onClick={() => handleSort("createdAt")}
+                  className="flex items-center hover:text-foreground transition-colors"
+                >
                   Registered <SortIcon field="createdAt" />
                 </button>
               </TableHead>
@@ -301,42 +385,74 @@ export default function AdminPropertiesPage() {
           <TableBody>
             {filtered.length === 0 && (
               <TableRow>
-                <TableCell colSpan={7} className="h-24 text-center text-muted-foreground">
+                <TableCell
+                  colSpan={7}
+                  className="h-24 text-center text-muted-foreground"
+                >
                   No properties match your filters.
                 </TableCell>
               </TableRow>
             )}
             {filtered.map((property: any) => (
               <TableRow key={property._id}>
-                <TableCell className="font-medium max-w-[200px] truncate" title={`${property.brand} ${property.model}`}>
+                <TableCell
+                  className="font-medium max-w-[200px] truncate"
+                  title={`${property.brand} ${property.model}`}
+                >
                   {property.brand} {property.model}
                 </TableCell>
                 <TableCell>
                   <div className="flex flex-col">
-                    <span className="text-sm">{property.owner?.name || "Unknown"}</span>
-                    <span className="text-xs text-muted-foreground">{property.owner?.email}</span>
+                    <span className="text-sm">
+                      {property.owner?.name || "Unknown"}
+                    </span>
+                    <span className="text-xs text-muted-foreground">
+                      {property.owner?.email}
+                    </span>
                   </div>
                 </TableCell>
                 <TableCell>
                   <div className="text-xs">
-                    {property.serialNumber && <div>SN: {property.serialNumber}</div>}
+                    {property.serialNumber && (
+                      <div>SN: {property.serialNumber}</div>
+                    )}
                     {property.imei && <div>IMEI: {property.imei}</div>}
-                    {property.chassisNumber && <div>VIN: {property.chassisNumber}</div>}
-                    {!property.serialNumber && !property.imei && !property.chassisNumber && property.uniqueIdentifier && (
-                      <div>ID: {property.uniqueIdentifier}</div>
+                    {property.chassisNumber && (
+                      <div>VIN: {property.chassisNumber}</div>
                     )}
-                    {!property.serialNumber && !property.imei && !property.chassisNumber && !property.uniqueIdentifier && (
-                      <span className="text-muted-foreground">None</span>
-                    )}
+                    {!property.serialNumber &&
+                      !property.imei &&
+                      !property.chassisNumber &&
+                      property.uniqueIdentifier && (
+                        <div>ID: {property.uniqueIdentifier}</div>
+                      )}
+                    {!property.serialNumber &&
+                      !property.imei &&
+                      !property.chassisNumber &&
+                      !property.uniqueIdentifier && (
+                        <span className="text-muted-foreground">None</span>
+                      )}
                   </div>
                 </TableCell>
-                <TableCell className="capitalize">{property.itemType}</TableCell>
+                <TableCell className="capitalize">
+                  {property.itemType}
+                </TableCell>
                 <TableCell>
-                  <Badge variant={property.status === "registered" ? "default" : property.status === "missing" ? "destructive" : "secondary"}>
+                  <Badge
+                    variant={
+                      property.status === "registered"
+                        ? "default"
+                        : property.status === "missing"
+                          ? "destructive"
+                          : "secondary"
+                    }
+                  >
                     {property.status}
                   </Badge>
                 </TableCell>
-                <TableCell>{new Date(property.createdAt).toLocaleDateString()}</TableCell>
+                <TableCell>
+                  {new Date(property.createdAt).toLocaleDateString()}
+                </TableCell>
                 <TableCell className="text-right">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -347,8 +463,12 @@ export default function AdminPropertiesPage() {
                     <DropdownMenuContent align="end">
                       <DropdownMenuLabel>Actions</DropdownMenuLabel>
                       <DropdownMenuItem asChild>
-                        <Link href={`/registry/${property._id}`} target="_blank">
-                          <ExternalLink className="mr-2 h-4 w-4" /> View Property
+                        <Link
+                          href={`/registry/${property._id}`}
+                          target="_blank"
+                        >
+                          <ExternalLink className="mr-2 h-4 w-4" /> View
+                          Property
                         </Link>
                       </DropdownMenuItem>
                     </DropdownMenuContent>

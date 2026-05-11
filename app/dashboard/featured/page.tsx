@@ -12,6 +12,8 @@ import {
   CreditCard,
   Coins,
   CheckCircle,
+  Search,
+  ChevronDown,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -29,6 +31,8 @@ export default function UserFeaturedPage() {
   const [selectedListing, setSelectedListing] = useState("");
   const [selectedTier, setSelectedTier] = useState<any>(null);
   const [processing, setProcessing] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [showDropdown, setShowDropdown] = useState(false);
 
   const fetchData = async () => {
     setLoading(true);
@@ -162,22 +166,72 @@ export default function UserFeaturedPage() {
               </div>
 
               <div className="space-y-4">
-                <div>
+                <div className="relative">
                   <label className="block text-sm font-medium mb-2">
                     Select Listing
                   </label>
-                  <select
-                    className="w-full p-3 bg-gray-50 dark:bg-gray-900 border rounded-xl"
-                    value={selectedListing}
-                    onChange={(e) => setSelectedListing(e.target.value)}
-                  >
-                    <option value="">-- Choose a listing --</option>
-                    {data?.userListings.map((l: any) => (
-                      <option key={l._id} value={l._id}>
-                        {l.listing?.title || l.model} - ₦{l.listing?.price}
-                      </option>
-                    ))}
-                  </select>
+                  
+                  <div className="relative">
+                    <div 
+                      className="w-full p-3 bg-gray-50 dark:bg-gray-900 border rounded-xl flex items-center justify-between cursor-pointer transition-colors hover:border-purple-300"
+                      onClick={() => setShowDropdown(!showDropdown)}
+                    >
+                      <span className={selectedListing ? "text-foreground font-medium" : "text-muted-foreground"}>
+                        {selectedListing 
+                          ? data?.userListings.find((l: any) => l._id === selectedListing)
+                            ? `${data.userListings.find((l: any) => l._id === selectedListing).listing?.title || data.userListings.find((l: any) => l._id === selectedListing).model}`
+                            : "-- Choose a listing --"
+                          : "-- Choose a listing --"}
+                      </span>
+                      <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform ${showDropdown ? 'rotate-180' : ''}`} />
+                    </div>
+
+                    {showDropdown && (
+                      <>
+                        <div className="fixed inset-0 z-10" onClick={() => setShowDropdown(false)} />
+                        <div className="absolute z-20 w-full mt-2 bg-card border rounded-xl shadow-xl max-h-[300px] flex flex-col overflow-hidden">
+                          <div className="p-2 border-b flex items-center gap-2 bg-muted/20">
+                            <Search className="w-4 h-4 text-muted-foreground shrink-0 ml-1" />
+                            <input
+                              type="text"
+                              placeholder="Search by title or model..."
+                              className="w-full bg-transparent outline-none text-sm py-1"
+                              value={searchQuery}
+                              onChange={(e) => setSearchQuery(e.target.value)}
+                              onClick={(e) => e.stopPropagation()}
+                              autoFocus
+                            />
+                          </div>
+                          <div className="overflow-y-auto p-1">
+                            {data?.userListings.filter((l: any) => {
+                              const term = searchQuery.toLowerCase();
+                              return l.listing?.title?.toLowerCase().includes(term) || l.model?.toLowerCase().includes(term);
+                            }).length === 0 ? (
+                               <div className="p-4 text-sm text-muted-foreground text-center">No listings found matching "{searchQuery}"</div>
+                            ) : (
+                              data?.userListings.filter((l: any) => {
+                                const term = searchQuery.toLowerCase();
+                                return l.listing?.title?.toLowerCase().includes(term) || l.model?.toLowerCase().includes(term);
+                              }).map((l: any) => (
+                                <div
+                                  key={l._id}
+                                  className={`p-3 text-sm rounded-lg hover:bg-muted cursor-pointer flex justify-between items-center transition-colors ${selectedListing === l._id ? 'bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-300' : ''}`}
+                                  onClick={() => {
+                                    setSelectedListing(l._id);
+                                    setShowDropdown(false);
+                                    setSearchQuery("");
+                                  }}
+                                >
+                                  <span className="font-medium truncate mr-2">{l.listing?.title || l.model}</span>
+                                  <span className="text-muted-foreground font-semibold shrink-0">₦{l.listing?.price?.toLocaleString() || 0}</span>
+                                </div>
+                              ))
+                            )}
+                          </div>
+                        </div>
+                      </>
+                    )}
+                  </div>
                   {data?.userListings.length === 0 && (
                     <p className="text-xs text-red-500 mt-1">
                       You have no active unfeatured listings to select.
