@@ -160,12 +160,22 @@ export function ListingForm({ initialData, categories }: ListingFormProps) {
 
       const res = await fetch(url, { method, body: formData });
 
-      if (!res.ok) {
-        const err = await res.json();
-        throw new Error(err.message || "Failed to save listing");
+      let data;
+      const text = await res.text();
+      try {
+        data = text ? JSON.parse(text) : {};
+      } catch (e) {
+        console.error("Non-JSON response:", text);
+        if (res.status === 413) {
+          throw new Error("Images are too large. Please upload smaller files.");
+        }
+        throw new Error(`Server error (${res.status}). Please try again.`);
       }
 
-      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.message || data.error || "Failed to save listing");
+      }
+
       toast.success(
         isEditingListing ? "Listing updated!" : "Listing created successfully!",
       );
