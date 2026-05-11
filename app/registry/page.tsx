@@ -120,10 +120,13 @@ function Users(props: any) {
 export default function RegistryPage() {
   const [activeStat, setActiveStat] = useState(0);
   const heroRef = useRef<HTMLElement>(null);
-  
+
   const { scrollYProgress } = useScroll();
-  const smoothProgress = useSpring(scrollYProgress, { stiffness: 100, damping: 30 });
-  
+  const smoothProgress = useSpring(scrollYProgress, {
+    stiffness: 100,
+    damping: 30,
+  });
+
   const heroY = useTransform(scrollYProgress, [0, 1], [0, 200]);
   const opacity = useTransform(scrollYProgress, [0, 0.3], [1, 0]);
   const scale = useTransform(scrollYProgress, [0, 0.3], [1, 0.95]);
@@ -144,23 +147,23 @@ export default function RegistryPage() {
 
   const sectionVariants = {
     hidden: { opacity: 0, y: 30 },
-    visible: { 
-      opacity: 1, 
+    visible: {
+      opacity: 1,
       y: 0,
-      transition: { duration: 0.5, ease: "easeOut" }
-    }
+      transition: { duration: 0.5, ease: "easeOut" },
+    },
   };
 
   return (
     <div className="min-h-screen bg-background">
       {/* Reading Progress Bar - Red Theme */}
-      <motion.div 
+      <motion.div
         className="fixed top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-red-600 via-rose-500 to-red-600 z-50 origin-left"
         style={{ scaleX: smoothProgress }}
       />
-      
+
       {/* Hero - Compact with Red Theme */}
-      <motion.section 
+      <motion.section
         ref={heroRef}
         style={{ y: heroY, opacity, scale }}
         className="relative min-h-[90vh] flex items-center justify-center overflow-hidden"
@@ -194,7 +197,7 @@ export default function RegistryPage() {
           }}
           className="absolute bottom-20 right-10 w-64 h-64 bg-rose-500/20 rounded-full blur-3xl"
         />
-        
+
         {/* Rotating Rings - Red */}
         <motion.div
           style={{ rotate: useTransform(scrollYProgress, [0, 1], [0, 360]) }}
@@ -345,7 +348,9 @@ export default function RegistryPage() {
                       whileHover={{ scale: 1.1, transition: { duration: 0.2 } }}
                     >
                       <Icon className="w-5 h-5 mx-auto mb-1.5 text-red-600" />
-                      <div className="text-xl font-bold text-red-600">{stat.value}</div>
+                      <div className="text-xl font-bold text-red-600">
+                        {stat.value}
+                      </div>
                       <div className="text-xs text-muted-foreground">
                         {stat.label}
                       </div>
@@ -364,9 +369,9 @@ export default function RegistryPage() {
             >
               <div className="relative">
                 <div className="absolute inset-0 bg-gradient-to-br from-red-600/20 via-rose-500/20 to-red-600/20 rounded-2xl blur-2xl" />
-                
-                <motion.div 
-                  style={{ 
+
+                <motion.div
+                  style={{
                     rotateY: useTransform(scrollYProgress, [0, 0.5], [0, 5]),
                     rotateX: useTransform(scrollYProgress, [0, 0.5], [0, 5]),
                   }}
@@ -375,7 +380,9 @@ export default function RegistryPage() {
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-2">
                       <Shield className="w-4 h-4 text-red-600" />
-                      <span className="font-semibold text-sm">Live Protection</span>
+                      <span className="font-semibold text-sm">
+                        Live Protection
+                      </span>
                     </div>
                     <motion.div
                       animate={{ opacity: [1, 0.5, 1] }}
@@ -389,23 +396,48 @@ export default function RegistryPage() {
 
                   <div className="space-y-3 mb-4">
                     {[
-                      { label: "Items Protected", value: "50,234", change: "+12%", color: "red" },
-                      { label: "Theft Reports", value: "127", change: "-8%", color: "red" },
-                      { label: "Successful Checks", value: "15,892", change: "+23%", color: "green" },
+                      {
+                        label: "Items Protected",
+                        value: "50,234",
+                        change: "+12%",
+                        color: "red",
+                      },
+                      {
+                        label: "Theft Reports",
+                        value: "127",
+                        change: "-8%",
+                        color: "red",
+                      },
+                      {
+                        label: "Successful Checks",
+                        value: "15,892",
+                        change: "+23%",
+                        color: "green",
+                      },
                     ].map((item, idx) => (
                       <motion.div
                         key={item.label}
                         initial={{ x: -20, opacity: 0 }}
                         animate={{ x: 0, opacity: 1 }}
                         transition={{ delay: idx * 0.1 }}
-                        whileHover={{ scale: 1.02, x: 5, transition: { duration: 0.2 } }}
+                        whileHover={{
+                          scale: 1.02,
+                          x: 5,
+                          transition: { duration: 0.2 },
+                        }}
                         className="flex items-center justify-between p-2.5 rounded-lg bg-background/50 backdrop-blur-sm border border-red-600/10 cursor-pointer"
                       >
                         <div>
-                          <div className="text-xs text-muted-foreground">{item.label}</div>
-                          <div className="text-xl font-bold text-red-600">{item.value}</div>
+                          <div className="text-xs text-muted-foreground">
+                            {item.label}
+                          </div>
+                          <div className="text-xl font-bold text-red-600">
+                            {item.value}
+                          </div>
                         </div>
-                        <div className={`text-xs text-${item.color}-500 font-medium`}>
+                        <div
+                          className={`text-xs text-${item.color}-500 font-medium`}
+                        >
                           {item.change}
                         </div>
                       </motion.div>
@@ -413,7 +445,9 @@ export default function RegistryPage() {
                   </div>
 
                   <div className="border-t border-red-600/10 pt-3">
-                    <div className="text-xs font-semibold mb-2">Recent Activity</div>
+                    <div className="text-xs font-semibold mb-2">
+                      Recent Activity
+                    </div>
                     <div className="space-y-1.5">
                       {[
                         "iPhone 14 Pro • Registered",
@@ -463,7 +497,7 @@ export default function RegistryPage() {
         className="py-12 bg-muted/20 border-b border-red-600/10"
       >
         <div className="container mx-auto px-4 text-center">
-          <motion.p 
+          <motion.p
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
@@ -471,7 +505,7 @@ export default function RegistryPage() {
           >
             What You Can Secure
           </motion.p>
-          <motion.h2 
+          <motion.h2
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -499,13 +533,14 @@ export default function RegistryPage() {
               </motion.div>
             ))}
           </div>
-          <motion.p 
+          <motion.p
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
             className="mt-4 text-xs text-muted-foreground"
           >
-            Generators, power tools, musical instruments, and any item with a unique serial number.
+            Generators, power tools, musical instruments, and any item with a
+            unique serial number.
           </motion.p>
         </div>
       </motion.section>
@@ -519,7 +554,7 @@ export default function RegistryPage() {
         className="py-16 container mx-auto px-4"
       >
         <div className="text-center mb-10">
-          <motion.p 
+          <motion.p
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
@@ -527,7 +562,7 @@ export default function RegistryPage() {
           >
             Simple Process
           </motion.p>
-          <motion.h2 
+          <motion.h2
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -582,7 +617,7 @@ export default function RegistryPage() {
       >
         <div className="container mx-auto px-4">
           <div className="text-center mb-10">
-            <motion.p 
+            <motion.p
               initial={{ opacity: 0 }}
               whileInView={{ opacity: 1 }}
               viewport={{ once: true }}
@@ -590,7 +625,7 @@ export default function RegistryPage() {
             >
               Platform Features
             </motion.p>
-            <motion.h2 
+            <motion.h2
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -631,7 +666,7 @@ export default function RegistryPage() {
         className="py-16 bg-gradient-to-r from-red-600 to-rose-600 text-white relative overflow-hidden"
       >
         <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay" />
-        
+
         {[...Array(20)].map((_, i) => (
           <motion.div
             key={i}
@@ -652,7 +687,7 @@ export default function RegistryPage() {
             }}
           />
         ))}
-        
+
         <div className="container mx-auto px-4 text-center relative z-10 max-w-2xl">
           <motion.div
             initial={{ scale: 0 }}
@@ -662,7 +697,7 @@ export default function RegistryPage() {
           >
             <ShieldCheck className="h-10 w-10 mx-auto mb-4 opacity-80" />
           </motion.div>
-          <motion.h2 
+          <motion.h2
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -670,7 +705,7 @@ export default function RegistryPage() {
           >
             Register Your Properties Today
           </motion.h2>
-          <motion.p 
+          <motion.p
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -680,7 +715,7 @@ export default function RegistryPage() {
             Join thousands of Nigerians protecting their assets on FindMaster.
             It takes less than 2 minutes.
           </motion.p>
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -694,7 +729,7 @@ export default function RegistryPage() {
             >
               <Link href="/auth/signup">
                 <span className="relative z-10 flex items-center text-sm">
-                  Get Started Free 
+                  Get Started Free
                   <motion.div
                     animate={{ x: [0, 5, 0] }}
                     transition={{ duration: 1, repeat: Infinity }}
