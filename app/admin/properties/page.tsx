@@ -253,6 +253,9 @@ export default function AdminPropertiesPage() {
               {property.serialNumber && <span>SN: {property.serialNumber}</span>}
               {property.imei && <span>IMEI: {property.imei}</span>}
               {property.chassisNumber && <span>VIN: {property.chassisNumber}</span>}
+              {!property.serialNumber && !property.imei && !property.chassisNumber && property.uniqueIdentifier && (
+                <span>ID: {property.uniqueIdentifier}</span>
+              )}
             </div>
 
             <div className="flex items-center gap-2 flex-wrap">
@@ -319,7 +322,12 @@ export default function AdminPropertiesPage() {
                     {property.serialNumber && <div>SN: {property.serialNumber}</div>}
                     {property.imei && <div>IMEI: {property.imei}</div>}
                     {property.chassisNumber && <div>VIN: {property.chassisNumber}</div>}
-                    {!property.serialNumber && !property.imei && !property.chassisNumber && <span className="text-muted-foreground">None</span>}
+                    {!property.serialNumber && !property.imei && !property.chassisNumber && property.uniqueIdentifier && (
+                      <div>ID: {property.uniqueIdentifier}</div>
+                    )}
+                    {!property.serialNumber && !property.imei && !property.chassisNumber && !property.uniqueIdentifier && (
+                      <span className="text-muted-foreground">None</span>
+                    )}
                   </div>
                 </TableCell>
                 <TableCell className="capitalize">{property.itemType}</TableCell>

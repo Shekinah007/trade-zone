@@ -406,10 +406,19 @@ export default function PropertyDetailPage() {
                     },
                     {
                       icon: Hash,
-                      label: "Chassis Number",
+                      label: "Chassis / VIN",
                       value: property.chassisNumber,
                       mono: true,
                     },
+                    // Show generic uniqueIdentifier only if no specific ID fields are set
+                    ...(!property.serialNumber && !property.imei && !property.chassisNumber && property.uniqueIdentifier
+                      ? [{
+                          icon: Hash,
+                          label: "Unique Identifier",
+                          value: property.uniqueIdentifier,
+                          mono: true,
+                        }]
+                      : []),
                   ]
                     .filter((item) => item.value)
                     .map((item) => {

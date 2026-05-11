@@ -167,19 +167,13 @@
 }
 
 /* app/globals.css */
-:root {
-  --app-scale: 0.85;
+/* zoom only applies in Chrome/Edge; Firefox ignores it natively */
+html:not(_):not(_) {
+  /* intentionally empty — keeps specificity for overrides if needed */
 }
 
-html {
-  zoom: var(--app-scale);
-}
-
-/* For Firefox */
-@-moz-document url-prefix() {
+@supports not (-moz-appearance: none) {
   html {
-    transform: scale(var(--app-scale));
-    transform-origin: top center;
-    width: calc(100% / var(--app-scale));
+    zoom: 0.85;
   }
 }
