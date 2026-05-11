@@ -64,11 +64,11 @@ export function TokenPurchaseModal({
         .then((res) => (res.ok ? res.json() : null))
         .then((data) => {
           if (data && data.success) {
+            console.log("Settings: ", data);
             setSettings({
               registrationCreditCost: data.registrationCreditCost || 10,
               registrationPriceNGN: data.registrationPriceNGN || 1000,
-              unlimitedRegistrationPriceNGN:
-                data.unlimitedRegistrationPriceNGN || 10000,
+              unlimitedRegistrationPriceNGN: data.unlimitedRegistrationPriceNGN,
             });
           }
         })
@@ -233,13 +233,15 @@ export function TokenPurchaseModal({
                   <h3 className="font-bold text-lg">Purchase Quotas</h3>
                   <Coins className="h-5 w-5 text-emerald-500" />
                 </div>
-                
+
                 <div className="my-3 flex items-center justify-between bg-white dark:bg-gray-800/50 rounded-lg border border-emerald-500/20 p-1 shadow-inner">
                   <Button
                     variant="ghost"
                     size="icon"
                     className="h-8 w-8 text-emerald-600 rounded-md hover:bg-emerald-100 dark:hover:bg-emerald-900"
-                    onClick={() => setQuotaQuantity(Math.max(1, quotaQuantity - 1))}
+                    onClick={() =>
+                      setQuotaQuantity(Math.max(1, quotaQuantity - 1))
+                    }
                   >
                     -
                   </Button>
@@ -255,10 +257,12 @@ export function TokenPurchaseModal({
                     +
                   </Button>
                 </div>
-                
+
                 <div className="flex items-center justify-between mb-4 mt-2">
                   <div className="text-sm">
-                    <div className="font-semibold">{quotaQuantity * settings.registrationCreditCost} Credits</div>
+                    <div className="font-semibold">
+                      {quotaQuantity * settings.registrationCreditCost} Credits
+                    </div>
                   </div>
                   <div className="text-xs text-right text-muted-foreground flex flex-col items-end">
                     <div className="flex items-center gap-1">
@@ -273,7 +277,8 @@ export function TokenPurchaseModal({
                     onClick={handleBuyQuota}
                     disabled={
                       buyingQuota ||
-                      creditBalance < quotaQuantity * settings.registrationCreditCost ||
+                      creditBalance <
+                        quotaQuantity * settings.registrationCreditCost ||
                       loadingTier !== null
                     }
                     className="w-full bg-emerald-600 hover:bg-emerald-700 transition-all text-xs sm:text-sm py-2 h-auto"
@@ -287,9 +292,14 @@ export function TokenPurchaseModal({
                       <>Pay with Credits</>
                     )}
                   </Button>
-                  
+
                   <Button
-                    onClick={() => handlePurchaseQuotaNaira(quotaQuantity, quotaQuantity * settings.registrationPriceNGN)}
+                    onClick={() =>
+                      handlePurchaseQuotaNaira(
+                        quotaQuantity,
+                        quotaQuantity * settings.registrationPriceNGN,
+                      )
+                    }
                     disabled={loadingTier !== null || buyingQuota}
                     variant="outline"
                     className="w-full border-emerald-600 text-emerald-600 hover:bg-emerald-50 transition-all text-xs sm:text-sm py-2 h-auto"
@@ -300,7 +310,10 @@ export function TokenPurchaseModal({
                         Processing...
                       </>
                     ) : (
-                      <>Pay with Naira (₦{quotaQuantity * settings.registrationPriceNGN})</>
+                      <>
+                        Pay with Naira (₦
+                        {quotaQuantity * settings.registrationPriceNGN})
+                      </>
                     )}
                   </Button>
                 </div>
@@ -367,7 +380,13 @@ export function TokenPurchaseModal({
                   <Infinity className="h-5 w-5 text-amber-500" />
                 </div>
                 <div className="my-3">
-                  <span className="text-3xl font-black">₦10,000</span>
+                  <span className="text-3xl font-black">
+                    {new Intl.NumberFormat("en-NG", {
+                      style: "currency",
+                      currency: "NGN",
+                      minimumFractionDigits: 0,
+                    }).format(settings.unlimitedRegistrationPriceNGN)}
+                  </span>
                   <span className="text-xs text-muted-foreground ml-1">
                     lifetime
                   </span>
@@ -389,11 +408,13 @@ export function TokenPurchaseModal({
                   </li>
                 </ul>
                 <Button
-                  onClick={() => handlePurchase(1000000)}
+                  onClick={() =>
+                    handlePurchase(settings.unlimitedRegistrationPriceNGN * 100)
+                  }
                   disabled={loadingTier !== null}
                   className="w-full bg-amber-500 hover:bg-amber-600 text-white transition-all mt-2 shadow-sm"
                 >
-                  {loadingTier === 1000000 ? (
+                  {loadingTier === settings.unlimitedRegistrationPriceNGN ? (
                     <>
                       <Loader2 className="h-4 w-4 animate-spin mr-2" />
                       Processing...
