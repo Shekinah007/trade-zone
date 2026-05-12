@@ -1,3 +1,6 @@
+export const revalidate = 0;
+export const dynamic = "force-dynamic";
+
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
@@ -10,7 +13,8 @@ const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "FindMaster — Secure Your Property & Trade Safely",
-  description: "Register, track and verify ownership of devices, vehicles and gadgets. Buy and sell securely on FindMaster — Nigeria's #1 property security marketplace.",
+  description:
+    "Register, track and verify ownership of devices, vehicles and gadgets. Buy and sell securely on FindMaster — Nigeria's #1 property security marketplace.",
 };
 
 export default function RootLayout({
@@ -20,14 +24,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.className} min-h-screen flex flex-col bg-background text-foreground`}>
+      <body
+        className={`${inter.className} min-h-screen flex flex-col bg-background text-foreground`}
+      >
         <Providers>
-           <TooltipProvider>
-          <Navbar />
-          <main className="flex-1">
-            {children}
-          </main>
-          <Footer />
+          <TooltipProvider>
+            <Navbar />
+            <main className="flex-1">{children}</main>
+            <Footer />
           </TooltipProvider>
         </Providers>
       </body>

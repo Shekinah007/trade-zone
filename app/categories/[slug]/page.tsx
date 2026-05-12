@@ -120,9 +120,13 @@ export default async function CategoryPage({
           </nav>
 
           <div className="flex items-center gap-5">
-            <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-3xl bg-primary/10 shadow-sm shrink-0">
-              {category.icon || "📦"}
-            </div>
+            {!category.icon ? (
+              <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-3xl bg-primary/10 shadow-sm shrink-0">
+                📦
+              </div>
+            ) : (
+              <EmojiGrid icon={category.icon} />
+            )}
             <div>
               <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight mb-1">
                 {category.name}
