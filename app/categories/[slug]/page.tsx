@@ -5,6 +5,7 @@ import dbConnect from "@/lib/db";
 import Category from "@/models/Category";
 import Item from "@/models/Item";
 import { CategoryPageClient } from "../CategoryPageClient";
+import EmojiGrid from "@/components/EmojiGrid";
 // import { CategoryPageClient } from "@/components/CategoryPageClient";
 
 async function getCategoryData(slug: string) {
@@ -106,8 +107,12 @@ export default async function CategoryPage({
               </>
             )}
             <ChevronRight className="h-3.5 w-3.5 shrink-0" />
-            <span className="text-foreground font-medium">
-              {category.icon && <span className="mr-1">{category.icon}</span>}
+            <span className="text-foreground font-medium flex items-center gap-2">
+              {category.icon && (
+                <div>
+                  <EmojiGrid icon={category.icon} />
+                </div>
+              )}
               {category.name}
             </span>
           </nav>

@@ -24,7 +24,7 @@ import Category from "@/models/Category";
 import { HomeSearchBar } from "@/components/HomeSearchBar";
 import { RegistrySearchBar } from "@/components/RegistrySearchBar";
 import { FloatingPaths } from "@/components/ui/background-paths";
-import EmojiGrid from "@/components/EmojiGrid";
+import EmojiGrid, { CategoryCard } from "@/components/EmojiGrid";
 
 async function getRecentListings() {
   await dbConnect();
@@ -333,29 +333,7 @@ export default async function Home() {
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {categories.map((cat: any) => (
-                <Link
-                  key={cat._id}
-                  href={`/categories/${cat.slug}`}
-                  className="group relative flex flex-col items-center gap-2.5 p-[18px_12px_14px] bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-2xl hover:border-emerald-500 hover:bg-emerald-50/50 dark:hover:bg-emerald-950/20 dark:hover:border-emerald-800 transition-all duration-200 hover:-translate-y-0.5"
-                >
-                  {/* Arrow hint on hover */}
-                  <span className="absolute top-2.5 right-2.5 opacity-0 group-hover:opacity-100 transition-opacity text-emerald-600">
-                    <ArrowUpRight className="w-3.5 h-3.5" />
-                  </span>
-
-                  <EmojiGrid icon={cat.icon} />
-
-                  <div className="text-center">
-                    <span className="block text-xs font-medium leading-snug text-gray-800 dark:text-gray-200 group-hover:text-emerald-700 dark:group-hover:text-emerald-400 transition-colors">
-                      {cat.name}
-                    </span>
-                    {cat.itemCount != null && (
-                      <span className="block text-[11px] text-gray-400 dark:text-gray-500 mt-0.5">
-                        {cat.itemCount} items
-                      </span>
-                    )}
-                  </div>
-                </Link>
+                <CategoryCard key={cat._id} cat={cat} />
               ))}
             </div>
           </div>

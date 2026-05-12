@@ -3,6 +3,7 @@ import { Grid3X3 } from "lucide-react";
 import dbConnect from "@/lib/db";
 import Category from "@/models/Category";
 import Item from "@/models/Item";
+import EmojiGrid from "@/components/EmojiGrid";
 
 export async function getCategoriesWithCounts() {
   await dbConnect();
@@ -13,7 +14,11 @@ export async function getCategoriesWithCounts() {
   const categoriesWithCounts = await Promise.all(
     categories.map(async (cat: any) => {
       const [count, subcategoryCount] = await Promise.all([
-        Item.countDocuments({ isListed: true, "listing.category": cat._id, "listing.status": "active" }),
+        Item.countDocuments({
+          isListed: true,
+          "listing.category": cat._id,
+          "listing.status": "active",
+        }),
         Category.countDocuments({ parent: cat._id }),
       ]);
       return { ...cat, count, subcategoryCount };
@@ -88,9 +93,7 @@ export default async function CategoriesPage() {
                 <div className="relative h-full bg-card hover:bg-background border border-transparent hover:border-primary/20 transition-all p-4 rounded-2xl shadow-sm hover:shadow-lg text-center group-hover:-translate-y-1 duration-300 overflow-hidden">
                   <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl" />
 
-                  <div className="relative w-8 h-8 mx-auto mb-4 rounded-2xl flex items-center justify-center text-3xl bg-primary/10 group-hover:bg-primary/20 group-hover:scale-110 transition-all duration-300 shadow-sm">
-                    {cat.icon || "📦"}
-                  </div>
+                  <EmojiGrid icon={cat.icon} />
 
                   <p className="relative font-semibold text-sm text-foreground/80 group-hover:text-foreground transition-colors mb-1">
                     {cat.name}
