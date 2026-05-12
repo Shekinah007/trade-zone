@@ -198,10 +198,7 @@ export default async function MarketHome() {
             </Button>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-            {(categories.length > 12
-              ? categories.slice(0, 12)
-              : categories
-            ).map((cat: any) => (
+            {categories.map((cat: any) => (
               <Link
                 key={cat._id}
                 href={`/categories/${cat.slug}`}

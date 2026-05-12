@@ -330,10 +330,7 @@ export default async function Home() {
             </div>
             {/* Show only 4 or 8 categories on the home page */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {(categories.length > 8
-                ? categories.slice(0, 8)
-                : categories
-              ).map((cat: any) => (
+              {categories.map((cat: any) => (
                 <Link
                   key={cat._id}
                   href={`/categories/${cat.slug}`}
