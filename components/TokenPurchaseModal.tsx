@@ -210,7 +210,7 @@ export function TokenPurchaseModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="w-[95vw] max-w-[95vw] sm:max-w-4xl rounded-2xl p-0 sm:p-6 gap-0 max-h-[90vh] overflow-y-auto">
+      <DialogContent className="min-w-screen max-w-screen sm:max-w-4xl rounded-2xl p-0 sm:p-6 gap-0 max-h-[90vh] overflow-y-auto">
         <div className="p-4 sm:p-6 space-y-5">
           <DialogHeader className="space-y-2 text-center sm:text-left">
             <DialogTitle className="text-xl sm:text-2xl font-bold flex items-center justify-center sm:justify-start gap-2">

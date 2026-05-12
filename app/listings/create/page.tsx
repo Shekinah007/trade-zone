@@ -17,81 +17,165 @@ import { ListingForm } from "@/components/ListingForm";
 import { Button } from "@/components/ui/button";
 import { ReapplyButton } from "@/components/Reapply";
 
+// ─── Types ────────────────────────────────────────────────────────────────────
+
+interface UserDetails {
+  listingQuota: number;
+  status: "pending" | "active" | "rejected" | string;
+  unlimitedRegistrations?: boolean;
+}
+
+interface PageData {
+  userDetails: UserDetails | null;
+  userListings: any[];
+  registryItem: any | null;
+  categories: any[];
+}
+
+// ─── Safe fetch helper ────────────────────────────────────────────────────────
+// Returns null instead of throwing so callers can handle missing data gracefully.
+
+async function safeFetch<T>(url: string): Promise<T | null> {
+  try {
+    const res = await fetch(url);
+    if (!res.ok) return null;
+
+    const contentType = res.headers.get("content-type") ?? "";
+    if (!contentType.includes("application/json")) return null;
+
+    const text = await res.text();
+    if (!text) return null;
+
+    return JSON.parse(text) as T;
+  } catch {
+    return null;
+  }
+}
+
+// ─── Inner page content ───────────────────────────────────────────────────────
+
 function CreateListingContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { data: session, status } = useSession();
-  const [categories, setCategories] = useState<any[]>([]);
-  const [userDetails, setUserDetails] = useState<any>(null);
-  const registryIdParam = searchParams?.get("registryId");
-  const [registryItem, setRegistryItem] = useState<any>(null);
-  const [isLoadingRegistry, setIsLoadingRegistry] = useState(!!registryIdParam);
-  const [userListings, setUserListings] = useState<any[]>([]);
-  const [listingsLoading, setListingsLoading] = useState(true);
-  const [detailsLoading, setDetailsLoading] = useState(true);
+  const { data: session, status: authStatus } = useSession();
+
+  const registryIdParam = searchParams?.get("registryId") ?? null;
+
+  const [pageData, setPageData] = useState<PageData>({
+    userDetails: null,
+    userListings: [],
+    registryItem: null,
+    categories: [],
+  });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Wait until session is resolved before fetching user-specific data
+  const userId = session?.user?.id;
+  const sessionReady = authStatus !== "loading";
 
   useEffect(() => {
-    fetch("/api/categories")
-      .then((r) => r.json())
-      .then(setCategories)
-      .catch(() => toast.error("Failed to load categories"));
+    // Don't fetch until next-auth has resolved
+    if (!sessionReady) return;
 
-    const registryId = searchParams?.get("registryId");
-    if (registryId) {
-      setIsLoadingRegistry(true);
-      fetch(`/api/registry/${registryId}`)
-        .then((r) => r.json())
-        .then((data) => {
-          if (data?.property?._id) {
-            setRegistryItem(data.property);
-          }
-        })
-        .catch(() => toast.error("Failed to load registry item"))
-        .finally(() => setIsLoadingRegistry(false));
-
-      fetch(`/api/user/${session?.user?.id}`)
-        .then((r) => r.json())
-        .then(setUserDetails)
-        .catch(() => toast.error("Failed to load user details"));
-    } else {
-      setIsLoadingRegistry(false);
+    // Redirect unauthenticated users before any fetches
+    if (authStatus === "unauthenticated") {
+      router.push("/auth/signin?callbackUrl=/listings/create");
+      return;
     }
-  }, [searchParams]);
 
-  useEffect(() => {
-    setDetailsLoading(true);
-    setUserDetails(null);
-    fetch(`/api/user/${session?.user?.id}`)
-      .then((r) => r.json())
-      .then((data) => {
-        setDetailsLoading(false);
-        setUserDetails(data);
-      })
-      .catch(() => {
-        setDetailsLoading(false);
-        // toast.error("Failed to load user details");
-      });
+    if (!userId) return;
 
-    fetch(`/api/user/${session?.user?.id}/listings`)
-      .then((r) => r.json())
-      .then((data) => {
-        setDetailsLoading(false);
-        setUserListings(data);
-      })
-      .catch(() => {
-        // toast.error("Failed to load user listings");
-        setListingsLoading(false);
-      });
-  }, [session?.user?.id]);
+    let cancelled = false;
 
-  const registryId = searchParams?.get("registryId");
+    async function loadAll() {
+      setLoading(true);
+      setError(null);
 
-  if (userListings?.length >= userDetails?.listingQuota) {
+      try {
+        // Always-needed fetches — run in parallel
+        const [categories, userDetails, userListings] = await Promise.all([
+          safeFetch<any[]>("/api/categories"),
+          safeFetch<UserDetails>(`/api/user/${userId}`),
+          safeFetch<any[]>(`/api/user/${userId}/listings`),
+        ]);
+
+        if (cancelled) return;
+
+        if (!categories) {
+          toast.error("Failed to load categories");
+        }
+
+        // Optional: only fetch registry item if the param exists
+        let registryItem: any | null = null;
+        if (registryIdParam) {
+          const data = await safeFetch<{ property: any }>(
+            `/api/registry/${registryIdParam}`,
+          );
+          if (!cancelled && data?.property?._id) {
+            registryItem = data.property;
+          }
+        }
+
+        if (cancelled) return;
+
+        setPageData({
+          categories: categories ?? [],
+          userDetails: userDetails ?? null,
+          userListings: Array.isArray(userListings) ? userListings : [],
+          registryItem,
+        });
+      } catch (err: any) {
+        if (!cancelled) {
+          setError("Something went wrong loading this page. Please refresh.");
+          console.error("CreateListingPage load error:", err);
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+
+    loadAll();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [sessionReady, authStatus, userId, registryIdParam, router]);
+
+  // ── Loading ──────────────────────────────────────────────────────────────
+  if (!sessionReady || loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen px-4">
-        <div className="absolute inset-0 bg-white dark:bg-background" />
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <Loader2 className="animate-spin h-6 w-6 text-muted-foreground" />
+      </div>
+    );
+  }
 
-        {/* Dot grid */}
+  // ── Hard error ───────────────────────────────────────────────────────────
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4 px-4 text-center">
+        <p className="text-sm text-muted-foreground">{error}</p>
+        <Button variant="outline" onClick={() => window.location.reload()}>
+          Retry
+        </Button>
+      </div>
+    );
+  }
+
+  const { userDetails, userListings, registryItem, categories } = pageData;
+
+  // ── Quota exceeded ───────────────────────────────────────────────────────
+  // Only show when we have confirmed both values — prevents a flash of this
+  // state while data is still loading.
+  if (
+    userListings.length > 0 &&
+    userDetails?.listingQuota != null &&
+    userListings.length >= userDetails.listingQuota
+  ) {
+    return (
+      <div className="relative flex items-center justify-center min-h-screen px-4 overflow-hidden">
+        <div className="absolute inset-0 bg-white dark:bg-background" />
         <div
           className="absolute inset-0 pointer-events-none"
           style={{
@@ -100,17 +184,9 @@ function CreateListingContent() {
             backgroundSize: "32px 32px",
           }}
         />
-
-        {/* Amber orb — top left */}
         <div className="absolute -top-16 -left-20 w-[340px] h-[280px] rounded-full bg-amber-100/60 blur-[60px] pointer-events-none animate-[pulse_10s_ease-in-out_infinite]" />
-
-        {/* Green orb — bottom right */}
         <div className="absolute -bottom-10 -right-16 w-[300px] h-[260px] rounded-full bg-emerald-100/55 blur-[60px] pointer-events-none animate-[pulse_12s_ease-in-out_infinite_1s]" />
-
-        {/* Small amber orb — center right */}
         <div className="absolute top-1/2 left-[55%] w-[200px] h-[180px] rounded-full bg-yellow-200/35 blur-[50px] pointer-events-none animate-[pulse_14s_ease-in-out_infinite_2s]" />
-
-        {/* Radial fade to clip orbs at edges */}
         <div
           className="absolute inset-0 pointer-events-none"
           style={{
@@ -120,18 +196,14 @@ function CreateListingContent() {
         />
 
         <div className="relative z-10 max-w-sm w-full text-center">
-          {/* Icon */}
-          <div className="w-18 h-18 rounded-2xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 flex items-center justify-center mx-auto mb-6">
+          <div className="w-[68px] h-[68px] rounded-2xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 flex items-center justify-center mx-auto mb-6">
             <PackageX className="w-8 h-8 text-amber-500" />
           </div>
-
           <h2 className="text-lg font-semibold mb-2">Listing quota reached</h2>
           <p className="text-sm text-muted-foreground mb-6 leading-relaxed">
             You've used all your available listing slots. Get a listing pack to
             keep selling.
           </p>
-
-          {/* Progress bar */}
           <div className="bg-gray-100 dark:bg-gray-800 rounded-xl p-4 mb-5 text-left">
             <div className="flex justify-between text-xs font-medium mb-2">
               <span className="text-muted-foreground">Slots used</span>
@@ -144,9 +216,10 @@ function CreateListingContent() {
             </div>
             <p className="text-xs text-amber-500 mt-2">All slots are in use</p>
           </div>
-
-          {/* CTA */}
-          <Button asChild className="w-full gap-2 bg-green-500">
+          <Button
+            asChild
+            className="w-full gap-2 bg-green-500 hover:bg-green-600"
+          >
             <Link href="/dashboard/tokens">
               <Zap className="w-4 h-4" />
               Get more listing slots
@@ -157,24 +230,7 @@ function CreateListingContent() {
     );
   }
 
-  if (
-    status === "loading" ||
-    isLoadingRegistry ||
-    detailsLoading ||
-    listingsLoading
-  ) {
-    return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <Loader2 className="animate-spin h-6 w-6 text-muted-foreground" />
-      </div>
-    );
-  }
-
-  if (status === "unauthenticated") {
-    router.push("/auth/signin?callbackUrl=/listings/create");
-    return null;
-  }
-
+  // ── Account pending ──────────────────────────────────────────────────────
   if (userDetails?.status === "pending") {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center px-4">
@@ -202,7 +258,8 @@ function CreateListingContent() {
     );
   }
 
-  if (session?.user?.status === "rejected") {
+  // ── Account rejected ─────────────────────────────────────────────────────
+  if (userDetails?.status === "rejected") {
     return (
       <div className="min-h-screen bg-gradient-to-b from-red-50/50 to-background dark:from-red-950/10 dark:to-background flex items-center justify-center px-4">
         <div className="text-center max-w-lg w-full">
@@ -366,6 +423,7 @@ function CreateListingContent() {
     );
   }
 
+  // ── Main form ────────────────────────────────────────────────────────────
   return (
     <div className="min-h-screen bg-muted/20">
       <div className="border-b bg-background">
@@ -437,6 +495,8 @@ function CreateListingContent() {
     </div>
   );
 }
+
+// ─── Page export ──────────────────────────────────────────────────────────────
 
 export default function CreateListingPage() {
   return (
