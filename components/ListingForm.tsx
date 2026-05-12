@@ -119,7 +119,7 @@ export function ListingForm({ initialData, categories }: ListingFormProps) {
         toast.error("Maximum 5 images allowed");
         return;
       }
-      
+
       setIsCompressing(true);
       setCompressionProgress(0);
       const progressMap = new Map<number, number>();
@@ -134,9 +134,11 @@ export function ListingForm({ initialData, categories }: ListingFormProps) {
               onProgress: (p) => {
                 progressMap.set(index, p);
                 let total = 0;
-                progressMap.forEach((val) => { total += val; });
+                progressMap.forEach((val) => {
+                  total += val;
+                });
                 setCompressionProgress(Math.round(total / files.length));
-              }
+              },
             });
             return {
               url: URL.createObjectURL(compressedFile),
@@ -152,9 +154,9 @@ export function ListingForm({ initialData, categories }: ListingFormProps) {
               isNew: true,
             };
           }
-        })
+        }),
       );
-      
+
       setIsCompressing(false);
       setCompressionProgress(0);
       setImageItems((prev) => [...prev, ...compressedItems]);

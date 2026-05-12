@@ -54,6 +54,10 @@ export default async function MarketHome() {
   const featuredListings = await getFeaturedListings();
   const categories = await getCategories();
 
+  console.log("featuredListings", featuredListings);
+  console.log("categories", categories);
+  console.log("recentListings", recentListings);
+
   return (
     <div className="flex flex-col min-h-screen bg-background">
       {/* Hero Section */}
@@ -126,7 +130,8 @@ export default async function MarketHome() {
                   Premium Selections
                 </h2>
                 <p className="text-sm md:text-lg text-emerald-100/80 mt-3 font-medium max-w-2xl">
-                  Hand-picked, high-quality listings from our most trusted sellers. Don't miss out on these exclusive deals.
+                  Hand-picked, high-quality listings from our most trusted
+                  sellers. Don't miss out on these exclusive deals.
                 </p>
               </div>
               <Button
@@ -135,7 +140,7 @@ export default async function MarketHome() {
                 size="sm"
                 asChild
               >
-                <Link href="/browse?featured=true">
+                <Link href="/featured">
                   View All Featured <ArrowRight className="w-4 h-4 ml-2" />
                 </Link>
               </Button>
@@ -143,12 +148,15 @@ export default async function MarketHome() {
 
             <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
               {featuredListings.map((listing: any) => (
-                <div key={listing._id} className="group relative rounded-xl overflow-hidden ring-1 ring-emerald-500/30 hover:ring-emerald-400 transition-all shadow-xl hover:shadow-2xl hover:-translate-y-1 duration-300 bg-background">
+                <div
+                  key={listing._id}
+                  className="group relative rounded-xl overflow-hidden ring-1 ring-emerald-500/30 hover:ring-emerald-400 transition-all shadow-xl hover:shadow-2xl hover:-translate-y-1 duration-300 bg-background"
+                >
                   <div className="absolute top-3 right-3 z-20 pointer-events-none">
-                     <span className="px-2.5 py-1 bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-[10px] font-bold uppercase tracking-wider rounded-full shadow-lg flex items-center gap-1 border border-white/20">
-                        <Zap className="w-3 h-3 fill-white" />
-                        Premium
-                     </span>
+                    <span className="px-2.5 py-1 bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-[10px] font-bold uppercase tracking-wider rounded-full shadow-lg flex items-center gap-1 border border-white/20">
+                      <Zap className="w-3 h-3 fill-white" />
+                      Premium
+                    </span>
                   </div>
                   <ListingCard
                     id={listing._id}

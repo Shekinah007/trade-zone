@@ -4,11 +4,17 @@ import { authOptions } from "@/lib/auth";
 import dbConnect from "@/lib/db";
 import User from "@/models/User";
 import { UserEditForm } from "@/components/profile/UserEditForm";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
 export default async function ProfileEditPage() {
   const session = await getServerSession(authOptions);
-  
+
   if (!session) {
     redirect("/auth/signin?callbackUrl=/profile/edit");
   }
@@ -17,7 +23,7 @@ export default async function ProfileEditPage() {
   const user = await User.findById(session.user.id).lean();
 
   if (!user) {
-     return <div>User not found</div>;
+    return <div>User not found</div>;
   }
 
   // Sanitize for client component

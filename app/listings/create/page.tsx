@@ -3,7 +3,14 @@
 import { Suspense, useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { Clock, Loader2, PlusCircle, ArrowLeft } from "lucide-react";
+import {
+  Clock,
+  Loader2,
+  PlusCircle,
+  ArrowLeft,
+  PackageX,
+  Zap,
+} from "lucide-react";
 import { toast } from "sonner";
 import Link from "next/link";
 import { ListingForm } from "@/components/ListingForm";
@@ -15,9 +22,13 @@ function CreateListingContent() {
   const searchParams = useSearchParams();
   const { data: session, status } = useSession();
   const [categories, setCategories] = useState<any[]>([]);
+  const [userDetails, setUserDetails] = useState<any>(null);
   const registryIdParam = searchParams?.get("registryId");
   const [registryItem, setRegistryItem] = useState<any>(null);
   const [isLoadingRegistry, setIsLoadingRegistry] = useState(!!registryIdParam);
+  const [userListings, setUserListings] = useState<any[]>([]);
+  const [listingsLoading, setListingsLoading] = useState(true);
+  const [detailsLoading, setDetailsLoading] = useState(true);
 
   useEffect(() => {
     fetch("/api/categories")
@@ -37,14 +48,121 @@ function CreateListingContent() {
         })
         .catch(() => toast.error("Failed to load registry item"))
         .finally(() => setIsLoadingRegistry(false));
+
+      fetch(`/api/user/${session?.user?.id}`)
+        .then((r) => r.json())
+        .then(setUserDetails)
+        .catch(() => toast.error("Failed to load user details"));
     } else {
       setIsLoadingRegistry(false);
     }
   }, [searchParams]);
 
+  useEffect(() => {
+    setDetailsLoading(true);
+    setUserDetails(null);
+    fetch(`/api/user/${session?.user?.id}`)
+      .then((r) => r.json())
+      .then((data) => {
+        setDetailsLoading(false);
+        setUserDetails(data);
+      })
+      .catch(() => {
+        setDetailsLoading(false);
+        // toast.error("Failed to load user details");
+      });
+
+    fetch(`/api/user/${session?.user?.id}/listings`)
+      .then((r) => r.json())
+      .then((data) => {
+        setDetailsLoading(false);
+        setUserListings(data);
+      })
+      .catch(() => {
+        // toast.error("Failed to load user listings");
+        setListingsLoading(false);
+      });
+  }, [session?.user?.id]);
+
   const registryId = searchParams?.get("registryId");
 
-  if (status === "loading" || isLoadingRegistry) {
+  if (userListings?.length >= userDetails?.listingQuota) {
+    return (
+      <div className="flex items-center justify-center min-h-screen px-4">
+        <div className="absolute inset-0 bg-white dark:bg-background" />
+
+        {/* Dot grid */}
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            backgroundImage:
+              "radial-gradient(circle, rgba(217,119,6,0.12) 1.5px, transparent 1.5px)",
+            backgroundSize: "32px 32px",
+          }}
+        />
+
+        {/* Amber orb — top left */}
+        <div className="absolute -top-16 -left-20 w-[340px] h-[280px] rounded-full bg-amber-100/60 blur-[60px] pointer-events-none animate-[pulse_10s_ease-in-out_infinite]" />
+
+        {/* Green orb — bottom right */}
+        <div className="absolute -bottom-10 -right-16 w-[300px] h-[260px] rounded-full bg-emerald-100/55 blur-[60px] pointer-events-none animate-[pulse_12s_ease-in-out_infinite_1s]" />
+
+        {/* Small amber orb — center right */}
+        <div className="absolute top-1/2 left-[55%] w-[200px] h-[180px] rounded-full bg-yellow-200/35 blur-[50px] pointer-events-none animate-[pulse_14s_ease-in-out_infinite_2s]" />
+
+        {/* Radial fade to clip orbs at edges */}
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            background:
+              "radial-gradient(ellipse at center, transparent 40%, var(--background) 100%)",
+          }}
+        />
+
+        <div className="relative z-10 max-w-sm w-full text-center">
+          {/* Icon */}
+          <div className="w-18 h-18 rounded-2xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 flex items-center justify-center mx-auto mb-6">
+            <PackageX className="w-8 h-8 text-amber-500" />
+          </div>
+
+          <h2 className="text-lg font-semibold mb-2">Listing quota reached</h2>
+          <p className="text-sm text-muted-foreground mb-6 leading-relaxed">
+            You've used all your available listing slots. Get a listing pack to
+            keep selling.
+          </p>
+
+          {/* Progress bar */}
+          <div className="bg-gray-100 dark:bg-gray-800 rounded-xl p-4 mb-5 text-left">
+            <div className="flex justify-between text-xs font-medium mb-2">
+              <span className="text-muted-foreground">Slots used</span>
+              <span>
+                {userListings.length} / {userDetails.listingQuota}
+              </span>
+            </div>
+            <div className="h-1.5 rounded-full bg-gray-200 dark:bg-gray-700 overflow-hidden">
+              <div className="h-full bg-amber-400 rounded-full w-full" />
+            </div>
+            <p className="text-xs text-amber-500 mt-2">All slots are in use</p>
+          </div>
+
+          {/* CTA */}
+          <Button asChild className="w-full gap-2 bg-green-500">
+            <Link href="/dashboard/tokens">
+              <Zap className="w-4 h-4" />
+              Get more listing slots
+            </Link>
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  if (
+    status === "loading" ||
+    isLoadingRegistry ||
+    detailsLoading ||
+    listingsLoading
+  ) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <Loader2 className="animate-spin h-6 w-6 text-muted-foreground" />

@@ -61,6 +61,7 @@ export default async function Home() {
 
   console.log("Categories ", categories);
   console.log("Recent Listings' ", recentListings);
+  console.log("Featured Listings' ", featuredListings);
 
   return (
     <div className="flex flex-col min-h-screen bg-background">
@@ -392,7 +393,7 @@ export default async function Home() {
                     size="lg"
                     className="rounded-full bg-white text-black hover:bg-zinc-200 font-semibold shadow-xl"
                   >
-                    <Link href="/browse?featured=true">
+                    <Link href="/featured">
                       Explore Featured
                       <ArrowRight className="ml-2 h-4 w-4" />
                     </Link>
