@@ -175,7 +175,7 @@ function CreateListingContent() {
     return null;
   }
 
-  if (session?.user?.status === "pending") {
+  if (userDetails?.status === "pending") {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center px-4">
         <div className="text-center max-w-md">
@@ -188,8 +188,7 @@ function CreateListingContent() {
           <h1 className="text-2xl font-bold mb-3">Account Pending Approval</h1>
           <p className="text-muted-foreground leading-relaxed mb-6">
             Your account is currently under review by our team. You will be
-            notified once approved and can start posting listings. Please note
-            that you will have to login again for the changes to take effect.
+            notified once approved and can start posting listings.
           </p>
           <Link
             href="/browse"
