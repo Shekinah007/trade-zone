@@ -411,13 +411,18 @@ export default function PropertyDetailPage() {
                       mono: true,
                     },
                     // Show generic uniqueIdentifier only if no specific ID fields are set
-                    ...(!property.serialNumber && !property.imei && !property.chassisNumber && property.uniqueIdentifier
-                      ? [{
-                          icon: Hash,
-                          label: "Unique Identifier",
-                          value: property.uniqueIdentifier,
-                          mono: true,
-                        }]
+                    ...(!property.serialNumber &&
+                    !property.imei &&
+                    !property.chassisNumber &&
+                    property.uniqueIdentifier
+                      ? [
+                          {
+                            icon: Hash,
+                            label: "Unique Identifier",
+                            value: property.uniqueIdentifier,
+                            mono: true,
+                          },
+                        ]
                       : []),
                   ]
                     .filter((item) => item.value)
@@ -508,15 +513,20 @@ export default function PropertyDetailPage() {
                       Edit Property
                     </Button>
 
-                    {!property.isListed && property.ownershipStatus === "owned" && (
-                      <Button
-                        className="w-full rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-md border-0"
-                        onClick={() => router.push(`/listings/create?registryId=${property._id}`)}
-                      >
-                        <Tag className="h-4 w-4 mr-2" />
-                        List for Sale
-                      </Button>
-                    )}
+                    {!property.isListed &&
+                      property.ownershipStatus === "owned" && (
+                        <Button
+                          className="w-full rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-md border-0"
+                          onClick={() =>
+                            router.push(
+                              `/listings/create?registryId=${property._id}`,
+                            )
+                          }
+                        >
+                          <Tag className="h-4 w-4 mr-2" />
+                          List for Sale
+                        </Button>
+                      )}
                     {property.isListed && (
                       <Button
                         variant="outline"
@@ -713,16 +723,17 @@ export default function PropertyDetailPage() {
                                         : "bg-muted text-foreground",
                                     )}
                                   >
-                                    {record.name?.charAt(0).toUpperCase() ||
-                                      "U"}
+                                    {record.fromUser?.name
+                                      ?.charAt(0)
+                                      .toUpperCase() || "U"}
                                   </div>
                                   <div>
                                     <p className="font-semibold text-base">
-                                      {record.name || "Unknown User"}
+                                      {record.fromUser?.name || "Unknown User"}
                                     </p>
                                     <p className="text-sm text-muted-foreground flex items-center gap-1">
                                       <Mail className="h-3.5 w-3.5" />
-                                      {record.email || "No email"}
+                                      {record.fromUser?.email || "No email"}
                                     </p>
                                   </div>
                                 </div>

@@ -22,6 +22,8 @@ export async function GET(
 
   const item = await Item.findById(id)
     .populate("owner", "name email phone image")
+    .populate("previousOwners.fromUser", "name email image")
+    .populate("previousOwners.toUser", "name email image")
     .lean();
 
   if (!item || !item.isRegistered) {
@@ -132,11 +134,11 @@ export async function PUT(
     // Check for duplicate identifier if they changed
     const orConditions = [];
     if (serialNumber && serialNumber !== item.registry?.serialNumber)
-      orConditions.push({ 'registry.serialNumber': serialNumber });
-    if (imei && imei !== item.registry?.imei) 
-      orConditions.push({ 'registry.imei': imei });
+      orConditions.push({ "registry.serialNumber": serialNumber });
+    if (imei && imei !== item.registry?.imei)
+      orConditions.push({ "registry.imei": imei });
     if (chassisNumber && chassisNumber !== item.registry?.chassisNumber)
-      orConditions.push({ 'registry.chassisNumber': chassisNumber });
+      orConditions.push({ "registry.chassisNumber": chassisNumber });
 
     if (orConditions.length > 0) {
       const duplicate = await Item.findOne({
@@ -156,17 +158,17 @@ export async function PUT(
     item.brand = brand as any;
     item.model = model as any;
     item.description = description || undefined;
-    
+
     if (!item.registry) item.registry = {};
     item.registry.serialNumber = serialNumber || undefined;
     item.registry.imei = imei || undefined;
     item.registry.chassisNumber = chassisNumber || undefined;
     item.registry.yearOfPurchase = yearOfPurchase;
-    
+
     item.color = color || undefined;
-    
+
     if (serialNumber) {
-        item.uniqueIdentifier = serialNumber;
+      item.uniqueIdentifier = serialNumber;
     }
 
     await item.save();
