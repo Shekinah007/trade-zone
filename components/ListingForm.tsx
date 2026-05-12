@@ -16,6 +16,7 @@ import {
   MapPin,
   FileText,
   Info,
+  Camera,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -424,7 +425,7 @@ export function ListingForm({ initialData, categories }: ListingFormProps) {
                 {imageItems.length}/5
               </span>
             </div>
-            <div className="grid grid-cols-3 sm:grid-cols-5 gap-3">
+            {/* <div className="grid grid-cols-3 sm:grid-cols-5 gap-3">
               {imageItems.map((item, index) => (
                 <div
                   key={index}
@@ -472,10 +473,81 @@ export function ListingForm({ initialData, categories }: ListingFormProps) {
                     {compressionProgress}%
                   </span>
                   <span className="text-[10px] text-muted-foreground mt-0.5">
-                    Compressing
+                    Optimizing Image(s)...
                   </span>
                 </div>
               )}
+            </div> */}
+            <div className="grid grid-cols-3 sm:grid-cols-5 gap-3">
+              {imageItems.map((item, index) => (
+                <div
+                  key={index}
+                  className="relative aspect-square rounded-xl overflow-hidden border bg-muted group"
+                >
+                  <img
+                    src={item.url}
+                    alt="Preview"
+                    className="h-full w-full object-cover"
+                  />
+                  {index === 0 && (
+                    <span className="absolute bottom-1 left-1 text-[10px] bg-black/60 text-white px-1.5 py-0.5 rounded-full font-medium">
+                      Cover
+                    </span>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => removeImageItem(index)}
+                    className="absolute top-1 right-1 rounded-full bg-black/60 text-white p-1 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-destructive"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              ))}
+
+              {imageItems.length < 5 &&
+                (isCompressing ? (
+                  <div className="flex aspect-square flex-col items-center justify-center rounded-xl border-2 border-dashed border-muted bg-muted/20 gap-1">
+                    <Loader2 className="h-5 w-5 text-primary animate-spin" />
+                    <span className="text-xs font-medium text-primary">
+                      {compressionProgress}%
+                    </span>
+                    <span className="text-[10px] text-muted-foreground">
+                      Optimizing...
+                    </span>
+                  </div>
+                ) : (
+                  <div className="flex aspect-square rounded-xl border-2 border-dashed border-muted-foreground/20 overflow-hidden flex-col">
+                    {/* Gallery */}
+                    <label className="flex flex-1 cursor-pointer flex-col items-center justify-center bg-muted/30 hover:bg-muted/50 hover:border-primary/30 transition-all group border-b border-dashed border-muted-foreground/20">
+                      <Upload className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                      <span className="mt-1 text-[10px] text-muted-foreground group-hover:text-primary">
+                        Gallery
+                      </span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        multiple
+                        className="hidden"
+                        onChange={handleImageChange}
+                      />
+                    </label>
+
+                    {/* Camera */}
+                    <label className="flex flex-1 cursor-pointer flex-col items-center justify-center bg-muted/30 hover:bg-muted/50 transition-all group">
+                      <Camera className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                      <span className="mt-1 text-[10px] text-muted-foreground group-hover:text-primary">
+                        Camera
+                      </span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        capture="environment"
+                        className="hidden"
+                        onChange={handleImageChange}
+                      />
+                    </label>
+                  </div>
+                ))}
             </div>
             <p className="text-xs text-muted-foreground mt-2">
               First image will be used as the cover photo

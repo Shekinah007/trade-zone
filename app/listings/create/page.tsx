@@ -52,8 +52,6 @@ async function safeFetch<T>(url: string): Promise<T | null> {
   }
 }
 
-// ─── Inner page content ───────────────────────────────────────────────────────
-
 function CreateListingContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
