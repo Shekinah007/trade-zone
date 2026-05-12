@@ -769,7 +769,7 @@ function RegisterPropertyForm() {
                           </button>
                         </div>
                       ))}
-                      {imageItems.length < 5 && !isCompressing && (
+                      {/* {imageItems.length < 5 && !isCompressing && (
                         <label className="aspect-square rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 hover:bg-red-50 hover:border-red-300 transition-all cursor-pointer flex flex-col items-center justify-center gap-2 group shadow-sm">
                           <div className="w-9 h-9 rounded-xl bg-white group-hover:bg-red-100 border border-gray-200 group-hover:border-red-200 flex items-center justify-center transition-all shadow-sm">
                             <Upload className="h-4 w-4 text-gray-400 group-hover:text-red-500 transition-colors" />
@@ -785,6 +785,44 @@ function RegisterPropertyForm() {
                             onChange={handleImageChange}
                           />
                         </label>
+                      )} */}
+
+                      {imageItems.length < 5 && !isCompressing && (
+                        <div className="aspect-square rounded-xl border-2 border-dashed border-gray-300 overflow-hidden flex flex-col shadow-sm">
+                          {/* Gallery */}
+                          <label className="flex flex-1 cursor-pointer flex-col items-center justify-center bg-gray-50 hover:bg-red-50 hover:border-red-300 transition-all group border-b border-dashed border-gray-300">
+                            <div className="w-8 h-8 rounded-xl bg-white group-hover:bg-red-100 border border-gray-200 group-hover:border-red-200 flex items-center justify-center transition-all shadow-sm">
+                              <Upload className="h-3.5 w-3.5 text-gray-400 group-hover:text-red-500 transition-colors" />
+                            </div>
+                            <span className="text-[10px] text-gray-400 group-hover:text-red-500 transition-colors font-semibold mt-1.5">
+                              Gallery
+                            </span>
+                            <input
+                              type="file"
+                              accept="image/*"
+                              multiple
+                              className="hidden"
+                              onChange={handleImageChange}
+                            />
+                          </label>
+
+                          {/* Camera */}
+                          <label className="flex flex-1 cursor-pointer flex-col items-center justify-center bg-gray-50 hover:bg-red-50 transition-all group">
+                            <div className="w-8 h-8 rounded-xl bg-white group-hover:bg-red-100 border border-gray-200 group-hover:border-red-200 flex items-center justify-center transition-all shadow-sm">
+                              <Camera className="h-3.5 w-3.5 text-gray-400 group-hover:text-red-500 transition-colors" />
+                            </div>
+                            <span className="text-[10px] text-gray-400 group-hover:text-red-500 transition-colors font-semibold mt-1.5">
+                              Camera
+                            </span>
+                            <input
+                              type="file"
+                              accept="image/*"
+                              capture="environment"
+                              className="hidden"
+                              onChange={handleImageChange}
+                            />
+                          </label>
+                        </div>
                       )}
                       {isCompressing && (
                         <div className="aspect-square flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-gray-200 bg-gray-50">
