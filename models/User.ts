@@ -42,7 +42,7 @@ const UserSchema = new Schema<IUser>(
       enum: ["pending", "active", "suspended", "banned"],
       default: "pending",
     },
-    registrationLimit: { type: Number, default: 3 },
+    registrationLimit: { type: Number, default: 1 },
     unlimitedRegistrations: { type: Boolean, default: false },
     tokensUsed: [
       {

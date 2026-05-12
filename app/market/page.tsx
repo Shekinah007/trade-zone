@@ -58,10 +58,6 @@ export default async function MarketHome() {
   const featuredListings = await getFeaturedListings();
   const categories = await getCategories();
 
-  console.log("featuredListings", featuredListings);
-  console.log("categories", categories);
-  console.log("recentListings", recentListings);
-
   return (
     <div className="flex flex-col min-h-screen bg-background">
       {/* Hero Section */}

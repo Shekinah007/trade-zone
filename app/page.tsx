@@ -64,10 +64,6 @@ export default async function Home() {
   const featuredListings = await getFeaturedListings();
   const categories = await getCategories();
 
-  console.log("Categories ", categories);
-  console.log("Recent Listings' ", recentListings);
-  console.log("Featured Listings' ", featuredListings);
-
   return (
     <div className="flex flex-col min-h-screen bg-background">
       {/* Hero Section */}
@@ -348,8 +344,8 @@ export default async function Home() {
                 <div className="absolute top-0 left-0 h-72 w-72 rounded-full bg-purple-500/20 blur-3xl" />
                 <div className="absolute bottom-0 right-0 h-72 w-72 rounded-full bg-indigo-500/20 blur-3xl" />
 
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(168,85,247,0.15),transparent_30%)]" />
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_left,rgba(99,102,241,0.12),transparent_30%)]" />
+                <div className="absolute inset-0 bg-[radial-linear(circle_at_top_right,rgba(168,85,247,0.15),transparent_30%)]" />
+                <div className="absolute inset-0 bg-[radial-linear(circle_at_bottom_left,rgba(99,102,241,0.12),transparent_30%)]" />
               </div>
 
               <div className="relative z-10">
@@ -365,7 +361,7 @@ export default async function Home() {
 
                     <h2 className="text-4xl md:text-5xl font-black tracking-tight text-white leading-tight">
                       Featured
-                      <span className="bg-gradient-to-r from-purple-400 via-fuchsia-300 to-indigo-400 bg-clip-text text-transparent">
+                      <span className="bg-linear-to-r from-purple-400 via-fuchsia-300 to-indigo-400 bg-clip-text text-transparent">
                         {" "}
                         Listings
                       </span>
@@ -394,14 +390,14 @@ export default async function Home() {
                   {featuredListings.map((listing: any, index: number) => (
                     <div
                       key={listing._id}
-                      className="group relative overflow-hidden rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl transition-all duration-500 hover:-translate-y-2 hover:border-purple-400/40 hover:bg-white/[0.08] hover:shadow-[0_20px_60px_-15px_rgba(168,85,247,0.45)]"
+                      className="group relative overflow-hidden rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl transition-all duration-500 hover:-translate-y-2 hover:border-purple-400/40 hover:bg-white/8 hover:shadow-[0_20px_60px_-15px_rgba(168,85,247,0.45)]"
                     >
                       {/* Glow */}
-                      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-gradient-to-br from-purple-500/10 via-transparent to-indigo-500/10" />
+                      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-linear-to-br from-purple-500/10 via-transparent to-indigo-500/10" />
 
                       {/* Premium Badge */}
                       <div className="absolute left-4 top-4 z-30">
-                        <div className="flex items-center gap-1 rounded-full bg-gradient-to-r from-purple-500 to-indigo-500 px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-white shadow-lg">
+                        <div className="flex items-center gap-1 rounded-full bg-linear-to-r from-purple-500 to-indigo-500 px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-white shadow-lg">
                           <Star className="h-3 w-3 fill-current" />
                           Featured
                         </div>
@@ -415,7 +411,7 @@ export default async function Home() {
                       </div>
 
                       {/* Top Accent */}
-                      <div className="absolute top-0 left-0 h-1.5 w-full bg-gradient-to-r from-purple-500 via-fuchsia-500 to-indigo-500" />
+                      <div className="absolute top-0 left-0 h-1.5 w-full bg-linear-to-r from-purple-500 via-fuchsia-500 to-indigo-500" />
 
                       {/* Listing */}
                       <div className="relative">
@@ -432,7 +428,7 @@ export default async function Home() {
                       </div>
 
                       {/* Bottom Glow */}
-                      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-purple-900/20 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+                      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-32 bg-linear-to-t from-purple-900/20 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
                     </div>
                   ))}
                 </div>

@@ -45,7 +45,7 @@ export default async function CategoriesPage() {
           </div>
           <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight mb-4">
             Browse by{" "}
-            <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary via-purple-500 to-indigo-600">
+            <span className="bg-clip-text text-transparent bg-linear-to-r from-primary via-purple-500 to-indigo-600">
               Category
             </span>
           </h1>
@@ -91,7 +91,7 @@ export default async function CategoriesPage() {
                 className="group"
               >
                 <div className="relative h-full bg-card hover:bg-background border border-transparent hover:border-primary/20 transition-all p-4 rounded-2xl shadow-sm hover:shadow-lg text-center group-hover:-translate-y-1 duration-300 overflow-hidden">
-                  <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl" />
+                  <div className="absolute inset-0 bg-linear-to-br from-primary/5 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl" />
 
                   <EmojiGrid icon={cat.icon} />
 
@@ -118,7 +118,7 @@ export default async function CategoriesPage() {
         )}
 
         {/* CTA */}
-        <div className="mt-10 text-center p-12 rounded-3xl bg-gradient-to-br from-primary/5 via-purple-500/5 to-indigo-500/5 border border-primary/10">
+        <div className="mt-10 text-center p-12 rounded-3xl bg-linear-to-br from-primary/5 via-purple-500/5 to-indigo-500/5 border border-primary/10">
           <h2 className="text-2xl font-bold mb-2">Can't find what you need?</h2>
           <p className="text-muted-foreground mb-6">
             Browse all active listings or post your own ad for free.
