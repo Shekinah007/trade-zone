@@ -782,7 +782,7 @@ export default async function DashboardPage({ searchParams }: any) {
                           <p className="text-xs text-muted-foreground">
                             {details.unlimitedRegistrations
                               ? "You have unlimited property registrations."
-                              : `Used ${properties.length} / ${details.registrationLimit || 1} quota. You have ${details.creditBalance || 0} credits.`}
+                              : `Used ${properties.length} / ${details?.registrationLimit} quota. You have ${details.creditBalance || 0} credits.`}
                           </p>
                         </div>
                       </div>

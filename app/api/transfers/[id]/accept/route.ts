@@ -7,6 +7,7 @@ import Item from "@/models/Item";
 import Notification from "@/models/Notification";
 import dbConnect from "@/lib/db";
 import { authOptions } from "@/lib/auth";
+import User from "@/models/User";
 
 export async function POST(
   req: Request,
@@ -45,6 +46,20 @@ export async function POST(
         { status: 403 },
       );
     }
+
+    const user = await User.findById(session.user.id);
+    if (!user) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
+
+    // if (user.registrationLimit >= user.registrationLimit && !user.unlimitedRegistrations) {
+    //   return NextResponse.json(
+    //     { error: "You have reached your registration limit." },
+    //     { status: 400 },
+    //   );
+    // }
+    user.registrationLimit += 1;
+    await user.save();
 
     const item = await Item.findById(transferRequest.itemId);
     if (!item) {

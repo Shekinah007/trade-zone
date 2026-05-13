@@ -729,11 +729,18 @@ export default function PropertyDetailPage() {
                                   </div>
                                   <div>
                                     <p className="font-semibold text-base">
-                                      {record.fromUser?.name || "Unknown User"}
+                                      {/* {record.fromUser?.name || "Unknown User"} */}
+                                      {isCurrent
+                                        ? record?.name
+                                        : record?.fromUser?.name ||
+                                          "Unknown User"}
                                     </p>
                                     <p className="text-sm text-muted-foreground flex items-center gap-1">
                                       <Mail className="h-3.5 w-3.5" />
-                                      {record.fromUser?.email || "No email"}
+                                      {/* {record.fromUser?.email || "No email"} */}
+                                      {isCurrent
+                                        ? record?.email
+                                        : record?.fromUser?.email || "No email"}
                                     </p>
                                   </div>
                                 </div>
