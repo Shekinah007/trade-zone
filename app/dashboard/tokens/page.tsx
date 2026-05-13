@@ -21,6 +21,7 @@ import { format } from "date-fns";
 import { useSession } from "next-auth/react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { TokenPurchaseButton } from "@/components/TokenPurchaseButton";
 
 export default function UserTokensPage() {
   const { data: session } = useSession();
@@ -104,6 +105,7 @@ export default function UserTokensPage() {
       const data = await res.json();
       if (data.success) {
         toast.success("Listing pack purchased successfully!");
+        window.location.reload();
         fetchData();
       } else toast.error(data.error || "Failed to purchase pack");
     } catch {
@@ -213,7 +215,6 @@ export default function UserTokensPage() {
           <Sparkles className="h-5 w-5 text-red-400 animate-pulse" />
         </div>
       </div>
-
       <div className="grid lg:grid-cols-2 gap-6">
         {/* Balance Card */}
         <div className="relative group">
@@ -372,7 +373,6 @@ export default function UserTokensPage() {
           </div>
         </div>
       </div>
-
       {/* Listing Packs */}
       <div className="mt-2 pt-2 border-t border-gray-200 dark:border-gray-800" />
       <div className="relative">
@@ -386,7 +386,7 @@ export default function UserTokensPage() {
             </span>
           </h3>
         </div>
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-2">
           {listingPacks.map((pack) => (
             <div
               key={pack._id}
@@ -438,16 +438,29 @@ export default function UserTokensPage() {
           )}
         </div>
       </div>
-
+      <hr />
+      <div className="flex items-center justify-between mb-6">
+        <h3 className="font-bold text-xl flex items-center gap-2">
+          <div className="p-1.5 bg-linear-to-br from-blue-500 to-indigo-500 rounded-lg">
+            <ShoppingCart className="h-4 w-4 text-white" />
+          </div>
+          <span className="bg-linear-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+            Buy Property Registration Quota
+          </span>
+        </h3>
+      </div>
+      <div className="mt-3 ml-10">
+        <TokenPurchaseButton />
+      </div>
       {/* History */}
-      <div className="mt-10 pt-6 border-t-2 border-gradient-to-r from-emerald-200/50 via-red-200/50 to-emerald-200/50 dark:from-emerald-800/30 dark:via-red-800/30" />
+      <div className="mt-10 pt-6 border-t-2 border-linear-to-r from-emerald-200/50 via-red-200/50 to-emerald-200/50 dark:from-emerald-800/30 dark:via-red-800/30" />
       <div className="relative">
         <div className="flex items-center justify-between mb-6">
           <h3 className="font-bold text-xl flex items-center gap-2">
-            <div className="p-1.5 bg-gradient-to-br from-emerald-500 to-red-500 rounded-lg">
+            <div className="p-1.5 bg-linear-to-br from-emerald-500 to-red-500 rounded-lg">
               <Clock className="h-4 w-4 text-white" />
             </div>
-            <span className="bg-gradient-to-r from-emerald-700 to-red-700 dark:from-emerald-300 dark:to-red-300 bg-clip-text text-transparent">
+            <span className="bg-linear-to-r from-emerald-700 to-red-700 dark:from-emerald-300 dark:to-red-300 bg-clip-text text-transparent">
               Recharge History
             </span>
           </h3>

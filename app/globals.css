@@ -177,3 +177,17 @@ html:not(_):not(_) {
     zoom: 0.85;
   }
 }
+
+html {
+  /* For Chromium (Chrome, Edge, Opera, etc.) */
+  zoom: 0.85;
+}
+
+/* For Firefox */
+@-moz-document url-prefix() {
+  html {
+    transform: scale(0.85);
+    transform-origin: top left;
+    width: 117.647%; /* 1 / 0.85 ≈ 1.17647 → 117.647% to prevent horizontal scroll */
+  }
+}
