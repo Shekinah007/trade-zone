@@ -26,6 +26,9 @@ import {
   Lock,
   Fingerprint,
   ArrowLeft,
+  Computer,
+  Armchair,
+  Shirt,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -49,8 +52,11 @@ const TokenPurchaseModal = dynamic(
 
 const ITEM_TYPES = [
   { value: "phone", label: "Phone", icon: Smartphone },
+  { value: "computer", label: "Computer", icon: Computer },
   { value: "tablet", label: "Tablet", icon: Tablet },
   { value: "laptop", label: "Laptop / PC", icon: Laptop },
+  { value: "furniture", label: "Furniture", icon: Armchair },
+  { value: "fashion", label: "Fashion", icon: Shirt },
   { value: "vehicle", label: "Vehicle", icon: Car },
   { value: "motorcycle", label: "Motorcycle", icon: Zap },
   { value: "generator", label: "Generator", icon: Zap },
@@ -499,7 +505,7 @@ function RegisterPropertyForm() {
                   <BrightLabel>
                     Item Type <Req />
                   </BrightLabel>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mt-2.5">
+                  <div className="grid grid-cols-3 sm:grid-cols-4 gap-2.5 mt-2.5">
                     {ITEM_TYPES.map(({ value, label, icon: Icon }) => {
                       const selected = form.itemType === value;
                       return (
