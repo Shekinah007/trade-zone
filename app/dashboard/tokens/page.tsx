@@ -390,44 +390,104 @@ export default function UserTokensPage() {
           {listingPacks.map((pack) => (
             <div
               key={pack._id}
-              className="p-6 rounded-2xl border bg-white dark:bg-gray-900 shadow-sm hover:shadow-md transition-shadow"
+              className="group relative bg-gradient-to-br from-white via-white to-slate-50 dark:from-slate-900 dark:via-slate-900 dark:to-slate-800 rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 border border-slate-200/80 dark:border-slate-700/80"
             >
-              <h4 className="font-bold text-lg">{pack.name}</h4>
-              <p className="text-3xl font-black text-blue-600 my-4">
-                +{pack.slotCount}{" "}
-                <span className="text-sm font-medium text-gray-500">slots</span>
-              </p>
-              <p className="text-sm text-gray-500 mb-6 flex justify-between">
-                <span>Credits: {pack.creditCost}</span>
-                <span>Naira: ₦{pack.priceNGN}</span>
-              </p>
-              <div className="flex flex-col gap-2">
-                <button
-                  onClick={() => handleBuyPack(pack._id)}
-                  disabled={purchasingPackId !== null}
-                  className="w-full py-2.5 bg-blue-50 hover:bg-blue-100 text-blue-700 font-medium rounded-xl transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
-                >
-                  {purchasingPackId === pack._id &&
-                  purchasingMethod === "credit" ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                  ) : (
-                    <Coins className="w-4 h-4" />
-                  )}
-                  Buy with Credits
-                </button>
-                <button
-                  onClick={() => handleBuyPackPaystack(pack)}
-                  disabled={purchasingPackId !== null}
-                  className="w-full py-2.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-medium rounded-xl transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
-                >
-                  {purchasingPackId === pack._id &&
-                  purchasingMethod === "paystack" ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                  ) : (
-                    <CreditCard className="w-4 h-4" />
-                  )}
-                  Pay with Naira
-                </button>
+              {/* Decorative gradient bar at top */}
+              <div className="absolute top-0 inset-x-0 h-1.5 bg-gradient-to-r from-amber-400 via-orange-500 to-amber-600" />
+
+              {/* Card content */}
+              <div className="p-5 sm:p-6">
+                {/* Header with name and badge */}
+                <div className="flex items-start justify-between gap-2 mb-3">
+                  <div>
+                    <h4 className="font-bold text-lg text-slate-800 dark:text-slate-200">
+                      {pack.name}
+                    </h4>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                      Listing slots pack
+                    </p>
+                  </div>
+                  <div className="p-1.5 bg-gradient-to-br from-amber-100 to-orange-100 dark:from-amber-900/30 dark:to-orange-900/30 rounded-xl">
+                    <svg
+                      className="w-5 h-5 text-amber-600 dark:text-amber-400"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+                      />
+                    </svg>
+                  </div>
+                </div>
+
+                {/* Slot count - prominently displayed */}
+                <div className="mb-4">
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-4xl font-black bg-gradient-to-r from-amber-700 to-orange-700 dark:from-amber-400 dark:to-orange-400 bg-clip-text text-transparent">
+                      +{pack.slotCount}
+                    </span>
+                    <span className="text-sm font-medium text-slate-500 dark:text-slate-400">
+                      slots
+                    </span>
+                  </div>
+                </div>
+
+                {/* Pricing details - clean grid layout */}
+                <div className="grid grid-cols-2 gap-3 mb-5">
+                  <div className="bg-slate-50 dark:bg-slate-800/60 rounded-xl p-2.5 text-center">
+                    <div className="flex items-center justify-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 mb-1">
+                      <Coins className="w-3.5 h-3.5" />
+                      <span>Credits</span>
+                    </div>
+                    <p className="font-semibold text-slate-700 dark:text-slate-300">
+                      {pack.creditCost}
+                    </p>
+                  </div>
+                  <div className="bg-slate-50 dark:bg-slate-800/60 rounded-xl p-2.5 text-center">
+                    <div className="flex items-center justify-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 mb-1">
+                      <CreditCard className="w-3.5 h-3.5" />
+                      <span>Naira</span>
+                    </div>
+                    <p className="font-semibold text-slate-700 dark:text-slate-300">
+                      ₦{pack.priceNGN.toLocaleString()}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Action buttons - stacked, clear CTA */}
+                <div className="flex flex-col gap-2.5">
+                  <button
+                    onClick={() => handleBuyPack(pack._id)}
+                    disabled={purchasingPackId !== null}
+                    className="w-full py-2.5 rounded-xl font-medium transition-all duration-200 flex items-center justify-center gap-2 bg-gradient-to-r from-slate-100 to-slate-200 dark:from-slate-800 dark:to-slate-700 text-slate-700 dark:text-slate-300 hover:from-slate-200 hover:to-slate-300 dark:hover:from-slate-700 dark:hover:to-slate-600 disabled:opacity-50 active:scale-[0.98]"
+                  >
+                    {purchasingPackId === pack._id &&
+                    purchasingMethod === "credit" ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <Coins className="w-4 h-4" />
+                    )}
+                    <span>Buy with Credits</span>
+                  </button>
+
+                  <button
+                    onClick={() => handleBuyPackPaystack(pack)}
+                    disabled={purchasingPackId !== null}
+                    className="w-full py-2.5 rounded-xl font-medium transition-all duration-200 flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white shadow-sm hover:shadow-md disabled:opacity-50 active:scale-[0.98]"
+                  >
+                    {purchasingPackId === pack._id &&
+                    purchasingMethod === "paystack" ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <CreditCard className="w-4 h-4" />
+                    )}
+                    <span>Pay with Naira</span>
+                  </button>
+                </div>
               </div>
             </div>
           ))}
