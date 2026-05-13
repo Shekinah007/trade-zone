@@ -14,6 +14,7 @@ import {
   ShoppingBag,
   Mail,
   MessageCircle,
+  Home,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -343,12 +344,17 @@ export default function Navbar() {
                       <Heart className="mr-2 h-4 w-4" /> Saved Listings
                     </Link>
                   </DropdownMenuItem>
+
                   <DropdownMenuItem asChild>
                     <Link href="/settings" className="cursor-pointer">
                       <User className="mr-2 h-4 w-4" /> Profile
                     </Link>
                   </DropdownMenuItem>
-
+                  <DropdownMenuItem asChild>
+                    <Link href="/" className="cursor-pointer">
+                      <Home className="mr-2 h-4 w-4" /> Home
+                    </Link>
+                  </DropdownMenuItem>
                   {session?.user?.role === "admin" && (
                     <>
                       <DropdownMenuSeparator />
@@ -548,6 +554,16 @@ export default function Navbar() {
                     >
                       <Link href="/dashboard">
                         <LayoutDashboard className="mr-2 h-4 w-4" /> Dashboard
+                      </Link>
+                    </Button>
+                    <Button
+                      asChild
+                      variant="outline"
+                      className="w-full justify-start rounded-xl"
+                      onClick={closeMobileMenu}
+                    >
+                      <Link href="/">
+                        <Home className="mr-2 h-4 w-4" /> Home
                       </Link>
                     </Button>
 
