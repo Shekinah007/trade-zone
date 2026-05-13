@@ -61,13 +61,14 @@ export default function UserTokensPage() {
   const handleRedeem = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!tokenCode.trim()) return;
+
     setRedeeming(true);
     setResultMsg(null);
     try {
       const res = await fetch("/api/tokens/redeem", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ code: tokenCode }),
+        body: JSON.stringify({ code: tokenCode.toUpperCase() }),
       });
       const data = await res.json();
       if (data.success) {
@@ -343,9 +344,10 @@ export default function UserTokensPage() {
                   type="text"
                   placeholder="FMXXXXXXXXXX"
                   value={tokenCode}
-                  onChange={(e) => setTokenCode(e.target.value.toUpperCase())}
+                  autoCorrect="off"
+                  onChange={(e) => setTokenCode(e.target.value)}
                   maxLength={12}
-                  className="w-full text-lg font-mono tracking-wider uppercase p-3 bg-white/70 dark:bg-gray-900/70 border-2 border-red-200/50 dark:border-red-800/30 rounded-xl outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all duration-200 placeholder:text-muted-foreground/40 placeholder:tracking-normal"
+                  className="w-full text-lg font-mono uppercase tracking-wider  p-3 bg-white/70 dark:bg-gray-900/70 border-2 border-red-200/50 dark:border-red-800/30 rounded-xl outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all duration-200 placeholder:text-muted-foreground/40 placeholder:tracking-normal"
                 />
                 <p className="text-xs text-muted-foreground mt-1.5 ml-1">
                   Code is case-sensitive, will be automatically uppercased.
