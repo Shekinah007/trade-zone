@@ -68,9 +68,6 @@ export default async function Home() {
     <div className="flex flex-col min-h-screen bg-background">
       {/* Hero Section */}
       <section className="relative px-4 py-10 md:py-16 overflow-hidden border-b pb-16 md:pb-24">
-        {/* Subtle linear overlay */}
-        <div className="absolute inset-0 -z-10 bg-linear-to-b from-background via-background/90 to-background pointer-events-none" />
-
         <div className="container mx-auto relative z-10 text-center">
           <div className="inline-flex items-center px-2.5 py-1 rounded-full border bg-background/80 backdrop-blur-sm text-xs font-semibold mb-6 text-primary  shadow-sm">
             <span className="flex h-2 w-2 rounded-full bg-primary mr-2" />
@@ -90,7 +87,7 @@ export default async function Home() {
           {/* Dual Search Cards */}
           <div className="grid md:grid-cols-2 gap-4 lg:gap-6 max-w-5xl mx-auto  ">
             {/* Marketplace Card */}
-            <div className="rounded-3xl border-2 border-emerald-500/30 bg-linear-to-b from-card to-emerald-900/10 backdrop-blur-2xl p-5 md:p-6 text-left space-y-3 shadow-[0_0_30px_-15px_rgba(16,185,129,0.3)] hover:shadow-[0_0_40px_-15px_rgba(16,185,129,0.4)] hover:-translate-y-1 transition-all duration-300 relative overflow-hidden group">
+            <div className="rounded-3xl border-2 border-emerald-500/30 bg-linear-to-b from-card to-emerald-900/10 p-5 md:p-6 text-left space-y-3 shadow-[0_0_30px_-15px_rgba(16,185,129,0.3)] hover:shadow-[0_0_40px_-15px_rgba(16,185,129,0.4)] hover:-translate-y-1 transition-all duration-300 relative overflow-hidden group">
               <div className="absolute -right-10 -top-10 w-40 h-40 bg-emerald-500/20 rounded-full blur-3xl group-hover:bg-emerald-500/30 transition-all duration-500" />
               <div className="relative z-10">
                 <div className="flex items-center gap-3 mb-4">

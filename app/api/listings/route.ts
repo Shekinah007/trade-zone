@@ -242,7 +242,7 @@ export async function POST(req: Request) {
 
     // Decrement quota
     // dbUser.listingQuota -= 1;
-    await dbUser.save();
+    // await dbUser.save();
 
     if (dbUser.listingQuota === 1) {
       await Notification.create({
