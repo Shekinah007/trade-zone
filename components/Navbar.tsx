@@ -124,6 +124,7 @@ export default function Navbar() {
       <div className="container mx-auto px-4 h-16 flex items-center justify-between gap-4">
         <div className="flex items-center lg:space-x-8">
           {/* Logo */}
+
           <Link href="/" className="flex items-center space-x-2 group shrink-0">
             {/* <div
               className={cn(
@@ -139,6 +140,7 @@ export default function Navbar() {
                 <Shield className={cn("h-6 w-6 text-red-600")} />
               )}
             </div> */}
+
             <Image
               src="/LOGO_DESIGN/Logo Resources/Transparent/Combo.png" // or "/logo.png" depending on your file
               alt="FindMaster"
@@ -265,8 +267,29 @@ export default function Navbar() {
             </Button>
           )}
 
+          {/* <Button
+            asChild
+            variant="default"
+            size="sm"
+            className="hidden md:flex rounded-full shadow-md bg-white hover:bg-gray-200 text-black transition-all border"
+          >
+            <Link href="/">
+              <Home className="h-5 w-5" />
+            </Link>
+          </Button> */}
+
           {session ? (
             <div className="flex items-center space-x-2">
+              <Button
+                asChild
+                variant="default"
+                size="sm"
+                className={`md:flex rounded-full shadow-md bg-white hover:bg-gray-200 transition-all border ${isMarketplace ? "text-emerald-500" : "text-red-500"}`}
+              >
+                <Link href="/">
+                  <Home className="h-5 w-5" />
+                </Link>
+              </Button>
               <NotificationDropdown />
               <Button
                 variant="ghost"
@@ -275,10 +298,10 @@ export default function Navbar() {
                   router.push("/messages");
                 }}
                 className={cn(
-                  "relative h-9 w-9 rounded-full ring-2 ring-transparent transition-all",
+                  "relative h-9 w-9 rounded-full ring-2 ring-transparent transition-all shadow-md border",
                   isMarketplace
-                    ? "hover:ring-emerald-500/30"
-                    : "hover:ring-red-500/30",
+                    ? "hover:ring-emerald-500/30 text-emerald-600"
+                    : "hover:ring-red-500/30 text-red-500",
                 )}
               >
                 <MessageCircle className="h-5 w-5" />

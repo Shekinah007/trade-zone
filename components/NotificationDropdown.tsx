@@ -81,7 +81,7 @@ export function NotificationDropdown() {
           <Button
             variant="ghost"
             size="icon"
-            className="relative h-9 w-9 rounded-full hover:bg-muted"
+            className="relative h-9 w-9 rounded-full hover:bg-muted shadow-md border"
           >
             <Bell className="h-5 w-5 text-muted-foreground" />
             {unreadCount > 0 && (
