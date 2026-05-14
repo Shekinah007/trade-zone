@@ -124,6 +124,9 @@ const ItemSchema = new Schema<IItem>(
         "generator",
         "electronics",
         "other",
+        "computer",
+        "furniture",
+        "fashion",
       ],
     },
     registry: {
