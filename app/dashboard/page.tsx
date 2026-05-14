@@ -184,29 +184,29 @@ export default async function DashboardPage({ searchParams }: any) {
                   <Package className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
                 </div>
                 <h2 className="text-2xl font-black text-emerald-700 dark:text-emerald-400">
-                  {activeListings.length}
+                  {listings.length}
                 </h2>
                 <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-semibold mb-1">
-                  Active Ads
+                  Total Ads
                 </p>
 
                 <div className="w-full space-y-1">
                   <div className="flex justify-between text-[11px] font-medium text-gray-600 dark:text-gray-400">
                     <span>Quota</span>
                     <span>
-                      {activeListings.length} / {details.listingQuota}
+                      {listings.length} / {details.listingQuota}
                     </span>
                   </div>
                   <div className="h-1.5 w-full bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
                     <div
                       className="h-full bg-emerald-500 dark:bg-emerald-400 rounded-full transition-all duration-300"
                       style={{
-                        width: `${(activeListings.length / details.listingQuota) * 100}%`,
+                        width: `${(listings.length / details.listingQuota) * 100}%`,
                       }}
                     />
                   </div>
                   <p className="text-[10px] text-gray-500 dark:text-gray-500">
-                    {details.listingQuota - activeListings.length} remaining
+                    {details.listingQuota - listings.length} remaining
                   </p>
                 </div>
               </CardContent>
@@ -299,7 +299,7 @@ export default async function DashboardPage({ searchParams }: any) {
                   <div className="flex justify-around text-xs">
                     <div className="text-center">
                       <div className="font-bold text-emerald-600">
-                        {activeListings.length}
+                        {listings.length}
                       </div>
                       <div className="text-muted-foreground text-[10px]">
                         Active
@@ -501,10 +501,10 @@ export default async function DashboardPage({ searchParams }: any) {
                       <div className="flex items-center justify-between">
                         <div>
                           <p className="text-xs text-emerald-700 dark:text-emerald-400">
-                            Active Listings
+                            All Listings
                           </p>
                           <p className="text-xl font-bold text-emerald-700 dark:text-emerald-400">
-                            {activeListings.length}
+                            {listings.length}
                           </p>
                         </div>
                         <Package className="h-6 w-6 text-emerald-600 opacity-50" />
@@ -570,7 +570,7 @@ export default async function DashboardPage({ searchParams }: any) {
                         <div>
                           <p className="font-semibold text-sm">Listing Quota</p>
                           <p className="text-xs text-muted-foreground">
-                            {`Used ${activeListings.length} / ${details.listingQuota || 1} quota. You have ${details.creditBalance || 0} credits.`}
+                            {`Used ${listings.length} / ${details.listingQuota || 1} quota. You have ${details.creditBalance || 0} credits.`}
                           </p>
                         </div>
                       </div>
