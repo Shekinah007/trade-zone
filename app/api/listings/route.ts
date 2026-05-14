@@ -240,33 +240,16 @@ export async function POST(req: Request) {
       );
     }
 
-    // Decrement quota
-    // dbUser.listingQuota -= 1;
-    // await dbUser.save();
-
     const listedItems = await Item.find({
       owner: session.user.id,
       isListed: true,
     });
-    console.log("dbUser: ", dbUser.listingQuota);
-    console.log("Listed items: ", listedItems.length);
     if (dbUser.listingQuota <= listedItems.length) {
       return NextResponse.json(
         { message: "Listing quota exhausted. Please purchase a listing pack." },
         { status: 403 },
       );
     }
-
-    // if (dbUser.listingQuota === 1) {
-    //   await Notification.create({
-    //     userId: dbUser._id,
-    //     title: "Listing Quota Low",
-    //     message:
-    //       "You have 1 listing quota remaining. Purchase a listing pack to continue posting.",
-    //     type: "system",
-    //     link: "/dashboard/tokens",
-    //   });
-    // }
 
     let existingItem: any = null;
 

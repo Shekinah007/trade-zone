@@ -69,8 +69,6 @@ export async function POST(
       );
     }
 
-    item.isListed = false;
-    await item.save();
 
     // Accept logic
     transferRequest.status = "accepted";
