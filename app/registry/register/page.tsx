@@ -449,45 +449,45 @@ function RegisterPropertyForm() {
             </div>
 
             {/* SECTION 01 — Link Listing */}
-            {unregisteredListings.length > 0 && (
-              <section ref={sectionRefs[0]} className="scroll-mt-24">
-                <SectionHeader
-                  num="01"
-                  title="Link Listing"
-                  subtitle="Optional — autofill details from an existing ad"
-                />
-                <div className="mt-4 bg-white rounded-2xl border border-gray-200 shadow-sm p-5">
-                  <Select
-                    value={selectedListingId}
-                    onValueChange={handleListingSelect}
-                  >
-                    <SelectTrigger className="h-12 rounded-xl border-gray-200 bg-gray-50 text-gray-700 focus:ring-1 focus:ring-red-400 focus:border-red-400 hover:bg-gray-100 transition-colors">
-                      <SelectValue placeholder="Select a listing to link…" />
-                    </SelectTrigger>
-                    <SelectContent className="bg-white border-gray-200 text-gray-700 shadow-xl rounded-xl">
+            {/* {unregisteredListings.length > 0 && ( */}
+            <section ref={sectionRefs[0]} className="scroll-mt-24">
+              <SectionHeader
+                num="01"
+                title="Link Listing"
+                subtitle="Optional — autofill details from an existing ad"
+              />
+              <div className="mt-4 bg-white rounded-2xl border border-gray-200 shadow-sm p-5">
+                <Select
+                  value={selectedListingId}
+                  onValueChange={handleListingSelect}
+                >
+                  <SelectTrigger className="h-12 rounded-xl border-gray-200 bg-gray-50 text-gray-700 focus:ring-1 focus:ring-red-400 focus:border-red-400 hover:bg-gray-100 transition-colors">
+                    <SelectValue placeholder="Select a listing to link…" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-white border-gray-200 text-gray-700 shadow-xl rounded-xl">
+                    <SelectItem
+                      value="none"
+                      className="focus:bg-gray-50 text-gray-400 italic"
+                    >
+                      — Don't link to a listing —
+                    </SelectItem>
+                    {unregisteredListings.map((l) => (
                       <SelectItem
-                        value="none"
-                        className="focus:bg-gray-50 text-gray-400 italic"
+                        key={l._id}
+                        value={l._id}
+                        className="focus:bg-red-50 focus:text-red-700"
                       >
-                        — Don't link to a listing —
+                        {l.listing?.title || l.model}
+                        {l.listing?.price
+                          ? ` · ₦${l.listing.price.toLocaleString()}`
+                          : ""}
                       </SelectItem>
-                      {unregisteredListings.map((l) => (
-                        <SelectItem
-                          key={l._id}
-                          value={l._id}
-                          className="focus:bg-red-50 focus:text-red-700"
-                        >
-                          {l.listing?.title || l.model}
-                          {l.listing?.price
-                            ? ` · ₦${l.listing.price.toLocaleString()}`
-                            : ""}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </section>
-            )}
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </section>
+            {/* )} */}
 
             {/* SECTION 02 — Item Details */}
             <section
