@@ -69,6 +69,9 @@ export async function POST(
       );
     }
 
+    item.isListed = false;
+    await item.save();
+
     // Accept logic
     transferRequest.status = "accepted";
     await transferRequest.save();
@@ -89,6 +92,7 @@ export async function POST(
     // Update Property ownership
     item.owner = session.user.id as any;
     item.ownershipStatus = "owned";
+    item.isListed = false;
     await item.save();
 
     // Notify Sender

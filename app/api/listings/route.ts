@@ -245,10 +245,11 @@ export async function POST(req: Request) {
     // await dbUser.save();
 
     const listedItems = await Item.find({
-      seller: session.user.id,
+      owner: session.user.id,
       isListed: true,
     });
-    console.log("Listed items: ", listedItems);
+    console.log("dbUser: ", dbUser.listingQuota);
+    console.log("Listed items: ", listedItems.length);
     if (dbUser.listingQuota <= listedItems.length) {
       return NextResponse.json(
         { message: "Listing quota exhausted. Please purchase a listing pack." },
