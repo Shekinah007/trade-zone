@@ -25,7 +25,7 @@ export async function RecommendedItems({
       isListed: true,
       "listing.status": "active",
     })
-      .sort({ "listing.boostStatus": -1, createdAt: -1 })
+      .sort({ "listing.boostStatus": 1, createdAt: -1 })
       .limit(20)
       .lean();
 
