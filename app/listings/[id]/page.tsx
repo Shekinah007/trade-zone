@@ -30,6 +30,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ListingActions, ReportButton } from "@/components/ListingActions";
 import { SellerRating } from "@/components/SellerRating";
 import { SellerListingPanel } from "@/components/SellerListingPanel";
+import { RecommendedItems } from "@/components/RecommendedItems";
 
 import Transaction from "@/models/Transaction";
 import Conversation from "@/models/Conversation";
@@ -390,6 +391,11 @@ export default async function ListingPage({
           </Card>
         </div>
       </div>
+
+      <RecommendedItems 
+        categoryId={listing.listing?.category?._id?.toString()} 
+        currentListingId={listing._id?.toString()} 
+      />
     </div>
   );
 }

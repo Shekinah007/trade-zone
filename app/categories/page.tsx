@@ -32,7 +32,7 @@ export default async function CategoriesPage() {
   const categories = await getCategoriesWithCounts();
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pb-10">
       {/* Hero */}
       <section className="relative py-4 md:py-10 overflow-hidden">
         <div className="absolute top-[-10%] right-[-5%] w-[400px] h-[400px] bg-primary/15 rounded-full blur-3xl -z-10" />
