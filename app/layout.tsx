@@ -8,6 +8,7 @@ import { Providers } from "@/components/providers";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { Analytics } from "@vercel/analytics/next";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -34,6 +35,7 @@ export default function RootLayout({
             <Footer />
           </TooltipProvider>
         </Providers>
+        <Analytics />
       </body>
     </html>
   );
