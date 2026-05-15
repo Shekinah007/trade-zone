@@ -39,6 +39,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import dynamic from "next/dynamic";
+import Tiptap from "@/components/Tiptap";
 
 import imageCompression from "browser-image-compression";
 
@@ -572,13 +573,9 @@ function RegisterPropertyForm() {
                   id="desc"
                   hint="Optional — distinguishing features, accessories, etc."
                 >
-                  <textarea
-                    id="desc"
-                    placeholder="Describe the item in detail…"
+                  <Tiptap
                     value={form.description}
-                    onChange={(e) => set("description", e.target.value)}
-                    rows={3}
-                    className="w-full resize-none bg-gray-50 border border-gray-200 text-gray-800 placeholder:text-gray-400 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-red-300 focus:border-red-400 transition-all hover:border-gray-300"
+                    onChange={(val) => set("description", val)}
                   />
                 </BrightField>
               </div>

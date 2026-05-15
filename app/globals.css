@@ -191,3 +191,271 @@ html {
     width: 117.647%; /* 1 / 0.85 ≈ 1.17647 → 117.647% to prevent horizontal scroll */
   }
 }
+
+/* Tiptap content styling */
+.tiptap-content ul {
+  list-style-type: disc;
+  padding-left: 1.5rem;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+.tiptap-content ol {
+  list-style-type: decimal;
+  padding-left: 1.5rem;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+.tiptap-content p {
+  margin-bottom: 0.5rem;
+}
+.tiptap-content p:last-child {
+  margin-bottom: 0;
+}
+.tiptap-content strong {
+  font-weight: 700;
+}
+.tiptap-content em {
+  font-style: italic;
+}
+
+/* globals.css */
+.tiptap-content .ProseMirror {
+  ul {
+    list-style-type: disc;
+    padding-left: 1.5rem;
+    margin: 0.5rem 0;
+  }
+
+  ol {
+    list-style-type: decimal;
+    padding-left: 1.5rem;
+    margin: 0.5rem 0;
+  }
+
+  li {
+    margin: 0.25rem 0;
+  }
+
+  h1 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 0.75rem 0 0.5rem;
+  }
+
+  h2 {
+    font-size: 1rem;
+    font-weight: 500;
+    margin: 0.75rem 0 0.5rem;
+  }
+
+  blockquote {
+    margin: 2rem 0;
+    padding: 1.5rem 2rem;
+    border-left: 4px solid #73e38f;
+    background: linear-gradient(to right, #f9f9f9, #ffffff);
+    color: #2c3e50;
+    font-style: italic;
+    line-height: 1.6;
+    position: relative;
+    border-radius: 0 8px 8px 0;
+    box-shadow: 2px 2px 15px rgba(0, 0, 0, 0.03);
+  }
+
+  hr {
+    border: none;
+    border-top: 1px solid rgb(173, 173, 173);
+    margin: 1rem 0;
+  }
+  u {
+    text-decoration: underline;
+  }
+
+  table {
+    border-collapse: separate; /* Changed to allow border-radius on the container */
+    border-spacing: 0;
+    table-layout: fixed;
+    width: 100%;
+    margin: 1.5rem 0;
+    overflow: hidden;
+    border: 1px solid #e2e8f0; /* Softer border */
+    border-radius: 8px;
+    box-shadow:
+      0 4px 6px -1px rgba(0, 0, 0, 0.05),
+      0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  }
+
+  th,
+  td {
+    padding: 10px 14px; /* Slightly more breathing room */
+    vertical-align: middle; /* Middle often feels more aligned than top for standard data */
+    min-width: 80px;
+    position: relative;
+    border-bottom: 1px solid #e2e8f0;
+    border-right: 1px solid #e2e8f0;
+    color: #334155;
+    font-size: 0.9rem;
+  }
+
+  /* Remove double borders on the outer edges */
+  th:last-child,
+  td:last-child {
+    border-right: none;
+  }
+  tr:last-child td {
+    border-bottom: none;
+  }
+
+  th {
+    background: #c9feb7; /* Clean, off-white background */
+    color: #1e293b;
+    font-weight: 600;
+    text-align: left;
+  }
+
+  /* Zebra striping for better readability */
+  tbody tr:nth-child(even) {
+    background-color: #f8fafc;
+  }
+
+  /* Hover effect on rows */
+  tbody tr:hover {
+    background-color: #f1f5f9;
+  }
+
+  /* Selected cell highlight */
+  .selectedCell::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(59, 130, 246, 0.08); /* Light blue tint tint */
+    border: 2px solid rgba(59, 130, 246, 1); /* Solid blue border */
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  /* Column resize handle */
+  .column-resize-handle {
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: rgba(0, 0, 0, 0); /* Completely transparent by default */
+    cursor: col-resize;
+    pointer-events: all;
+    transition: background 0.2s;
+    z-index: 10;
+  }
+
+  /* Reveal the handle subtly on header hover so it's not distracting */
+  th:hover .column-resize-handle {
+    background: rgba(59, 130, 246, 0.3); /* Subtle blue hint on hover */
+  }
+
+  .column-resize-handle:hover,
+  .column-resize-handle:active {
+    background: rgba(
+      59,
+      130,
+      246,
+      1
+    ) !important; /* Solid blue when actively resizing */
+  }
+}
+
+h1 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 0.75rem 0 0.5rem;
+}
+
+h2 {
+  font-size: 1rem;
+  font-weight: 500;
+  margin: 0.75rem 0 0.5rem;
+}
+
+hr {
+  border: none;
+  border-top: 1px solid rgb(173, 173, 173);
+  margin: 1rem 0;
+}
+u {
+  text-decoration: underline;
+}
+
+table {
+  border-collapse: separate; /* Changed to allow border-radius on the container */
+  border-spacing: 0;
+  table-layout: fixed;
+  width: 100%;
+  margin: 1.5rem 0;
+  overflow: hidden;
+  border: 1px solid #e2e8f0; /* Softer border */
+  border-radius: 8px;
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.05),
+    0 2px 4px -1px rgba(0, 0, 0, 0.03);
+}
+
+th,
+td {
+  padding: 10px 14px; /* Slightly more breathing room */
+  vertical-align: middle; /* Middle often feels more aligned than top for standard data */
+  min-width: 80px;
+  position: relative;
+  border-bottom: 1px solid #e2e8f0;
+  border-right: 1px solid #e2e8f0;
+  color: #334155;
+  font-size: 0.9rem;
+}
+
+/* Remove double borders on the outer edges */
+th:last-child,
+td:last-child {
+  border-right: none;
+}
+tr:last-child td {
+  border-bottom: none;
+}
+
+th {
+  background: #c9feb7; /* Clean, off-white background */
+  color: #1e293b;
+  font-weight: 600;
+  text-align: left;
+}
+
+/* Zebra striping for better readability */
+tbody tr:nth-child(even) {
+  background-color: #f8fafc;
+}
+
+/* Hover effect on rows */
+tbody tr:hover {
+  background-color: #f1f5f9;
+}
+
+/* Selected cell highlight */
+.selectedCell::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(59, 130, 246, 0.08); /* Light blue tint tint */
+  border: 2px solid rgba(59, 130, 246, 1); /* Solid blue border */
+  pointer-events: none;
+  z-index: 1;
+}
+
+blockquote {
+  margin: 2rem 0;
+  padding: 1.5rem 2rem;
+  border-left: 4px solid #73e38f;
+  background: linear-gradient(to right, #f9f9f9, #ffffff);
+  color: #2c3e50;
+  font-style: italic;
+  line-height: 1.6;
+  position: relative;
+  border-radius: 0 8px 8px 0;
+  box-shadow: 2px 2px 15px rgba(0, 0, 0, 0.03);
+}

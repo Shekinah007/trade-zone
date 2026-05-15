@@ -41,6 +41,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 
 import imageCompression from "browser-image-compression";
+import Tiptap from "./Tiptap";
 
 const formSchema = z.object({
   title: z.string().min(5, "Title must be at least 5 characters"),
@@ -390,10 +391,9 @@ export function ListingForm({ initialData, categories }: ListingFormProps) {
             render={({ field }) => (
               <FormItem>
                 <FormControl>
-                  <Textarea
-                    placeholder="Describe the item's condition, features, what's included, reason for selling..."
-                    className="resize-none min-h-[140px]"
-                    {...field}
+                  <Tiptap
+                    value={field.value}
+                    onChange={field.onChange}
                   />
                 </FormControl>
                 <div className="flex items-center justify-between">

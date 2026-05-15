@@ -138,16 +138,17 @@ export default async function ListingPage({
             </Carousel>
           </Card>
 
-          <Card>
-            <CardHeader>
+          <div className="rounded-md shadow  pb-4 bg-white">
+            <div className="bg-green-100 mt-4 px-4 py-4 rounded-t-md">
               <CardTitle>Description</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="whitespace-pre-wrap text-muted-foreground leading-relaxed">
-                {listing.description}
-              </p>
+            </div>
+            <CardContent className="pt-3">
+              <div
+                className="leading-relaxed tiptap-content"
+                dangerouslySetInnerHTML={{ __html: listing.description || "" }}
+              />
             </CardContent>
-          </Card>
+          </div>
 
           <Card>
             <CardHeader>
@@ -392,9 +393,9 @@ export default async function ListingPage({
         </div>
       </div>
 
-      <RecommendedItems 
-        categoryId={listing.listing?.category?._id?.toString()} 
-        currentListingId={listing._id?.toString()} 
+      <RecommendedItems
+        categoryId={listing.listing?.category?._id?.toString()}
+        currentListingId={listing._id?.toString()}
       />
     </div>
   );

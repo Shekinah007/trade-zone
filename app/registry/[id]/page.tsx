@@ -459,9 +459,10 @@ export default function PropertyDetailPage() {
                         <FileText className="h-4 w-4" />
                         <p className="text-xs font-medium">Description</p>
                       </div>
-                      <p className="text-sm leading-relaxed pl-6">
-                        {property.description}
-                      </p>
+                      <div 
+                        className="text-sm leading-relaxed pl-6 tiptap-content"
+                        dangerouslySetInnerHTML={{ __html: property.description }} 
+                      />
                     </div>
                   )}
                 </CardContent>
