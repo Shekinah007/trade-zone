@@ -26,13 +26,16 @@ import {
   Sprout,
   Loader2,
   Tag,
+  Clock,
 } from "lucide-react";
 import { authOptions } from "@/lib/auth";
 import dbConnect from "@/lib/db";
 import Item from "@/models/Item";
 import TransferRequest from "@/models/TransferRequest";
+import Purchase from "@/models/Purchase";
 import { ListingCard } from "@/components/ListingCard";
 import { TransfersTab } from "@/components/TransfersTab";
+import { HistoryTab } from "@/components/HistoryTab";
 import { TokenPurchaseButton } from "@/components/TokenPurchaseButton";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -93,6 +96,25 @@ async function getUserTransfers(userId: string | undefined) {
   return JSON.parse(JSON.stringify({ incoming, outgoing }));
 }
 
+async function getUserHistory(userId: string | undefined) {
+  await dbConnect();
+  const purchases = await Purchase.find({ user: userId })
+    .populate("item", "brand model")
+    .sort({ createdAt: -1 })
+    .lean();
+
+  const transfers = await TransferRequest.find({
+    $or: [{ fromUser: userId }, { toUser: userId }],
+  })
+    .populate("fromUser", "name email")
+    .populate("toUser", "name email")
+    .populate("itemId", "brand model images itemType")
+    .sort({ createdAt: -1 })
+    .lean();
+
+  return JSON.parse(JSON.stringify({ purchases, transfers }));
+}
+
 export default async function DashboardPage({ searchParams }: any) {
   const session = await getServerSession(authOptions);
   // Parse search params for Next.js 15+ compatibility
@@ -116,6 +138,7 @@ export default async function DashboardPage({ searchParams }: any) {
   const properties = await getUserProperties(session.user.id);
   const details = await getUserDetails(session.user.id);
   const transfers = await getUserTransfers(session.user.id);
+  const history = await getUserHistory(session.user.id);
   const activeListings = listings.filter(
     (l: any) => l.listing?.status === "active",
   );
@@ -456,6 +479,13 @@ export default async function DashboardPage({ searchParams }: any) {
                         <span className="relative inline-flex rounded-full h-3 w-3 bg-purple-500"></span>
                       </span>
                     )}
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="history"
+                    className="data-[state=active]:bg-amber-600 data-[state=active]:text-white gap-1.5 text-xs h-7 px-3 relative"
+                  >
+                    <Clock className="h-3.5 w-3.5" />
+                    History
                   </TabsTrigger>
                 </TabsList>
 
@@ -956,6 +986,15 @@ export default async function DashboardPage({ searchParams }: any) {
                 <TransfersTab
                   incoming={transfers.incoming}
                   outgoing={transfers.outgoing}
+                />
+              </TabsContent>
+
+              {/* ==================== HISTORY TAB ==================== */}
+              <TabsContent value="history" className="space-y-4 mt-0">
+                <HistoryTab
+                  purchases={history.purchases}
+                  transfers={history.transfers}
+                  userId={session.user.id}
                 />
               </TabsContent>
             </Tabs>
