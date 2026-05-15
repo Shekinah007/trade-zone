@@ -339,26 +339,69 @@ export default function BoostPageInner() {
                 <div
                   key={tier._id}
                   onClick={() => setSelectedTier(tier._id)}
-                  className={`p-5 rounded-3xl border-2 transition-all cursor-pointer relative overflow-hidden group
-                    ${selectedTier === tier._id ? "border-amber-500 bg-amber-500/[0.03]" : "border-transparent bg-white dark:bg-[#111] hover:border-gray-200 dark:hover:border-white/10"}
-                  `}
+                  className={`
+    relative p-4 rounded-2xl cursor-pointer transition-all duration-200
+    ${
+      selectedTier === tier._id
+        ? "bg-gradient-to-br from-amber-50/80 to-orange-50/80 dark:from-amber-950/30 dark:to-orange-950/30 border-amber-500 shadow-lg shadow-amber-500/10"
+        : "bg-white dark:bg-gray-900/80 border-gray-200/70 dark:border-gray-800 hover:border-amber-300/50 hover:shadow-md"
+    }
+    border-2 backdrop-blur-sm
+  `}
                 >
-                  <div className="flex justify-between items-start mb-2">
-                    <h4 className="font-extrabold text-lg">{tier.name}</h4>
+                  {/* Selected indicator dot (top right) */}
+                  {selectedTier === tier._id && (
+                    <div className="absolute top-3 right-3">
+                      <div className="w-2.5 h-2.5 rounded-full bg-amber-500 shadow-lg shadow-amber-500/50 animate-pulse" />
+                    </div>
+                  )}
+
+                  <div className="flex justify-between items-start gap-2 mb-3">
+                    <div>
+                      <h4 className="font-black text-lg tracking-tight bg-gradient-to-r from-gray-800 to-gray-600 dark:from-gray-100 dark:to-gray-400 bg-clip-text text-transparent">
+                        {tier.name}
+                      </h4>
+                      <p className="text-xs text-muted-foreground mt-0.5 flex items-center gap-1">
+                        <span className="inline-block w-1.5 h-1.5 rounded-full bg-amber-400" />
+                        {tier.durationInDays} days visibility
+                      </p>
+                    </div>
                     <Zap
-                      className={`w-5 h-5 ${selectedTier === tier._id ? "text-amber-500 fill-amber-500" : "text-gray-300"}`}
+                      className={`
+        w-5 h-5 transition-all duration-200
+        ${
+          selectedTier === tier._id
+            ? "text-amber-500 fill-amber-500 drop-shadow-sm"
+            : "text-gray-400 dark:text-gray-600"
+        }
+      `}
                     />
                   </div>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    {tier.durationInDays} Days Visibility
-                  </p>
-                  <div className="pt-4 border-t border-gray-100 dark:border-white/5 flex items-baseline gap-1">
-                    <span className="text-2xl font-black text-amber-600">
+
+                  {/* Price row – Naira prominently displayed */}
+                  <div className="mb-3 pb-2 border-b border-dashed border-gray-200 dark:border-gray-800">
+                    <p className="text-xs uppercase tracking-wider text-muted-foreground mb-0.5">
+                      Naira price
+                    </p>
+                    <p className="text-2xl font-black text-emerald-600 dark:text-emerald-400">
+                      ₦{tier.priceNGN.toLocaleString()}
+                    </p>
+                  </div>
+
+                  {/* Credit cost – clear and punchy */}
+                  <div className="flex items-baseline gap-1.5">
+                    <span className="text-2xl font-black bg-gradient-to-r from-amber-600 to-orange-600 dark:from-amber-400 dark:to-orange-400 bg-clip-text text-transparent">
                       {tier.creditCost}
                     </span>
-                    <span className="text-xs text-muted-foreground uppercase font-bold tracking-tighter">
+                    <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
                       Credits
                     </span>
+                  </div>
+
+                  {/* Optional: per day cost highlight (adds value) */}
+                  <div className="mt-3 text-[11px] text-muted-foreground/70">
+                    ≈ {(tier.creditCost / tier.durationInDays).toFixed(1)}{" "}
+                    credits/day
                   </div>
                 </div>
               ))}
@@ -438,34 +481,79 @@ export default function BoostPageInner() {
         </div>
       </main>
 
-      {/* Mobile Sticky Bar */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-[#111] border-t border-gray-200 dark:border-white/5 p-4 z-50 shadow-[0_-10px_30px_rgba(0,0,0,0.05)]">
-        <div className="max-w-md mx-auto flex items-center justify-between gap-4">
-          <div className="flex-1">
-            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
-              Total Cost
-            </p>
-            <p className="text-xl font-black text-amber-500">
-              {totalCredits}{" "}
-              <span className="text-[10px] text-muted-foreground font-normal">
-                Credits
-              </span>
+      <div className="lg:col-span-5 md:hidden fixed bottom-0 left-0 right-0 z-20">
+        <div className="bg-white/95 dark:bg-[#111]/95 backdrop-blur-md rounded-t-2xl shadow-xl border-t border-gray-200 dark:border-white/10 px-4 pt-3 pb-5">
+          {/* Header with close indicator (optional) */}
+          <div className="flex justify-center mb-2">
+            <div className="w-12 h-1 bg-gray-300 dark:bg-gray-700 rounded-full" />
+          </div>
+
+          <h3 className="text-base font-bold mb-2 flex items-center gap-1">
+            Order Summary
+          </h3>
+
+          {/* Two-column summary for compactness */}
+          <div className="grid grid-cols-2 gap-2 mb-3">
+            <div className="bg-gray-50 dark:bg-white/5 rounded-xl p-2">
+              <p className="text-[11px] text-muted-foreground">
+                Items to boost
+              </p>
+              <p className="font-bold text-lg">{selectedListings.length}</p>
+            </div>
+            <div className="bg-gray-50 dark:bg-white/5 rounded-xl p-2">
+              <p className="text-[11px] text-muted-foreground">Active Plan</p>
+              <p className="font-bold text-amber-600 text-sm truncate">
+                {selectedTierData?.name || "---"}
+              </p>
+            </div>
+          </div>
+
+          {/* Total row - more compact */}
+          <div className="flex items-center justify-between border-t border-gray-100 dark:border-white/10 pt-2 mb-3">
+            <div>
+              <p className="text-[11px] text-muted-foreground font-bold uppercase tracking-wider">
+                Grand Total
+              </p>
+              <p className="text-2xl font-black text-amber-500 leading-tight">
+                {totalCredits} Credits
+              </p>
+            </div>
+            <p className="text-sm font-semibold text-muted-foreground">
+              ≈ ₦{totalNaira.toLocaleString()}
             </p>
           </div>
-          <button
-            disabled={
-              !selectedTier || selectedListings.length === 0 || boosting
-            }
-            onClick={handleBoost}
-            className="flex-[1.5] py-4 bg-amber-500 text-white font-black rounded-2xl shadow-lg shadow-amber-500/20 active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2"
-          >
-            {boosting ? (
-              <Loader2 className="w-5 h-5 animate-spin" />
-            ) : (
-              "Boost Now"
-            )}
-            <ChevronRight className="w-5 h-5" />
-          </button>
+
+          {/* Buttons row - horizontal stacking on mobile for compactness */}
+          <div className="flex gap-2">
+            <button
+              disabled={
+                !selectedTier || selectedListings.length === 0 || boosting
+              }
+              onClick={handleBoost}
+              className="flex-1 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold transition-all active:scale-[0.97] disabled:opacity-50 disabled:grayscale flex items-center justify-center gap-1.5 text-sm shadow-md"
+            >
+              {boosting && paymentMethod === "credit" ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <Coins className="w-4 h-4" />
+              )}
+              Credits
+            </button>
+            <button
+              disabled={
+                !selectedTier || selectedListings.length === 0 || boosting
+              }
+              onClick={handleBoostPaystack}
+              className="flex-1 py-2.5 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-bold transition-all flex items-center justify-center gap-1.5 text-sm"
+            >
+              {boosting && paymentMethod === "paystack" ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <CreditCard className="w-4 h-4" />
+              )}
+              ₦{totalNaira.toLocaleString()}
+            </button>
+          </div>
         </div>
       </div>
     </div>
