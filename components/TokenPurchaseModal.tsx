@@ -225,7 +225,7 @@ export function TokenPurchaseModal({
           </DialogHeader>
 
           {/* Responsive Grid: 1 column on mobile, 2 on tablet, 3 on desktop */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 auto-rows-fr">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4 auto-rows-fr">
             {/* Buy Quota Card */}
             <Card className="border-2 hover:border-emerald-500 transition-all duration-200 bg-gradient-to-br from-emerald-50/60 to-transparent dark:from-emerald-950/20 overflow-hidden">
               <CardContent className="p-5 flex flex-col h-full">
@@ -317,50 +317,6 @@ export function TokenPurchaseModal({
                     )}
                   </Button>
                 </div>
-              </CardContent>
-            </Card>
-
-            {/* Credits Bundle Card */}
-            <Card className="border-2 hover:border-blue-500 transition-all duration-200 bg-gradient-to-br from-blue-50/60 to-transparent dark:from-blue-950/20 overflow-hidden">
-              <CardContent className="p-5 flex flex-col h-full">
-                <div className="flex items-center justify-between">
-                  <h3 className="font-bold text-lg">Credits Bundle</h3>
-                  <Sparkles className="h-5 w-5 text-blue-500" />
-                </div>
-                <div className="my-3">
-                  <span className="text-3xl font-black">₦1,000</span>
-                  <span className="text-xs text-muted-foreground ml-1">
-                    one-time
-                  </span>
-                </div>
-                <ul className="space-y-2 mb-5 flex-1 text-sm">
-                  <li className="flex items-center gap-2">
-                    <Check className="h-4 w-4 text-green-500 shrink-0" />
-                    <span>+50 Credits instantly</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <Check className="h-4 w-4 text-green-500 shrink-0" />
-                    <span>Stackable tokens</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <Check className="h-4 w-4 text-green-500 shrink-0" />
-                    <span>No expiry</span>
-                  </li>
-                </ul>
-                <Button
-                  onClick={() => handlePurchase(100000)}
-                  disabled={loadingTier !== null}
-                  className="w-full bg-blue-600 hover:bg-blue-700 transition-all mt-2"
-                >
-                  {loadingTier === 100000 ? (
-                    <>
-                      <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                      Processing...
-                    </>
-                  ) : (
-                    "Buy Bundle →"
-                  )}
-                </Button>
               </CardContent>
             </Card>
 
