@@ -43,13 +43,13 @@ export function TransfersTab({
 
   return (
     <div className="space-y-6">
-      <Card>
-        <CardHeader className="bg-blue-50/50 dark:bg-blue-900/10 border-b">
-          <CardTitle className="text-sm flex items-center gap-2">
+      <Card className="pt-0">
+        <div className="m-0 p-4  bg-blue-50/50 dark:bg-blue-900/10 border-b">
+          <div className="text-sm flex items-center gap-2">
             <ArrowLeft className="h-4 w-4 text-blue-600" />
             Incoming Transfers ({incoming.length})
-          </CardTitle>
-        </CardHeader>
+          </div>
+        </div>
         <CardContent className="p-4">
           {incoming.length === 0 ? (
             <div className="text-center py-6 text-muted-foreground text-sm flex flex-col items-center">
@@ -114,13 +114,13 @@ export function TransfersTab({
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader className="bg-orange-50/50 dark:bg-orange-900/10 border-b">
-          <CardTitle className="text-sm flex items-center gap-2">
+      <Card className="pt-0">
+        <div className="p-4 bg-orange-50/50 dark:bg-orange-900/10 border-b">
+          <div className="text-sm flex items-center gap-2">
             <ArrowRight className="h-4 w-4 text-orange-600" />
             Outgoing Transfers ({outgoing.length})
-          </CardTitle>
-        </CardHeader>
+          </div>
+        </div>
         <CardContent className="p-4">
           {outgoing.length === 0 ? (
             <div className="text-center py-6 text-muted-foreground text-sm flex flex-col items-center">

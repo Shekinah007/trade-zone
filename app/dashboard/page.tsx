@@ -450,64 +450,53 @@ export default async function DashboardPage({ searchParams }: any) {
           {/* Main Content - Tab System */}
           <div className="lg:col-span-3">
             <Tabs defaultValue={defaultTab} className="w-full">
-              <div className="flex items-center justify-between mb-1">
-                <TabsList className="bg-muted/50 p-0.5 h-8">
-                  <TabsTrigger
-                    value="marketplace"
-                    className="data-[state=active]:bg-emerald-600 data-[state=active]:text-white gap-1.5 text-xs h-7 px-3"
-                  >
-                    <ShoppingBag className="h-3.5 w-3.5" />
-                    Marketplace
-                  </TabsTrigger>
-                  <TabsTrigger
-                    value="registry"
-                    className="data-[state=active]:bg-blue-600 data-[state=active]:text-white gap-1.5 text-xs h-7 px-3"
-                  >
-                    <Database className="h-3.5 w-3.5" />
-                    Property Registry
-                  </TabsTrigger>
-                  <TabsTrigger
-                    value="transfers"
-                    className="data-[state=active]:bg-purple-600 data-[state=active]:text-white gap-1.5 text-xs h-7 px-3 relative"
-                  >
-                    <ArrowLeftRight className="h-3.5 w-3.5" />
-                    Transfers
-                    {(transfers.incoming.length > 0 ||
-                      transfers.outgoing.length > 0) && (
-                      <span className="absolute -top-1 -right-1 flex h-3 w-3">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
-                        <span className="relative inline-flex rounded-full h-3 w-3 bg-purple-500"></span>
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+                {/* Tabs container - scrollable on mobile */}
+                <div className="relative w-full sm:w-auto overflow-x-auto scrollbar-none pb-1">
+                  <TabsList className="inline-flex w-max sm:w-auto gap-1.5 bg-slate-100/80 dark:bg-slate-800/50 backdrop-blur-sm p-1 rounded-full shadow-inner">
+                    <TabsTrigger
+                      value="marketplace"
+                      className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-emerald-600 data-[state=active]:to-emerald-500 data-[state=active]:shadow-md data-[state=active]:text-white rounded-full px-4 py-1.5 text-xs font-medium transition-all duration-200 hover:bg-slate-200 dark:hover:bg-slate-700 gap-1.5"
+                    >
+                      <ShoppingBag className="h-3.5 w-3.5" />
+                      <span className="hidden sm:inline">Marketplace</span>
+                      <span className="sm:hidden">Market</span>
+                    </TabsTrigger>
+                    <TabsTrigger
+                      value="registry"
+                      className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-red-600 data-[state=active]:to-red-500 data-[state=active]:shadow-md data-[state=active]:text-white rounded-full px-4 py-1.5 text-xs font-medium transition-all duration-200 hover:bg-slate-200 dark:hover:bg-slate-700 gap-1.5"
+                    >
+                      <Database className="h-3.5 w-3.5" />
+                      <span className="hidden sm:inline">
+                        Property Registry
                       </span>
-                    )}
-                  </TabsTrigger>
-                  <TabsTrigger
-                    value="history"
-                    className="data-[state=active]:bg-amber-600 data-[state=active]:text-white gap-1.5 text-xs h-7 px-3 relative"
-                  >
-                    <Clock className="h-3.5 w-3.5" />
-                    History
-                  </TabsTrigger>
-                </TabsList>
-
-                {/* Dynamic Action Button */}
-                {/* <div className="hidden sm:block">
-                  <div className="data-[state=marketplace]:block data-[state=registry]:hidden">
-                    <Button size="sm" asChild className="bg-emerald-600 hover:bg-emerald-700 rounded-full h-8 text-xs">
-                      <Link href="/listings/create">
-                        <PlusCircle className="mr-1.5 h-3 w-3" />
-                        Post Ad
-                      </Link>
-                    </Button>
-                  </div>
-                  <div className="data-[state=registry]:block data-[state=marketplace]:hidden">
-                    <Button size="sm" asChild className="bg-blue-600 hover:bg-blue-700 rounded-full h-8 text-xs">
-                      <Link href="/registry/register">
-                        <Shield className="mr-1.5 h-3 w-3" />
-                        Register Asset
-                      </Link>
-                    </Button>
-                  </div>
-                </div> */}
+                      <span className="sm:hidden">Registry</span>
+                    </TabsTrigger>
+                    <TabsTrigger
+                      value="transfers"
+                      className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-purple-500 data-[state=active]:shadow-md data-[state=active]:text-white rounded-full px-4 py-1.5 text-xs font-medium transition-all duration-200 hover:bg-slate-200 dark:hover:bg-slate-700 gap-1.5 relative"
+                    >
+                      <ArrowLeftRight className="h-3.5 w-3.5" />
+                      <span className="hidden sm:inline">Transfers</span>
+                      <span className="sm:hidden">Transfers</span>
+                      {(transfers.incoming.length > 0 ||
+                        transfers.outgoing.length > 0) && (
+                        <span className="absolute -top-0.5 -right-0.5 flex h-2.5 w-2.5">
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
+                          <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-purple-500"></span>
+                        </span>
+                      )}
+                    </TabsTrigger>
+                    <TabsTrigger
+                      value="history"
+                      className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-amber-600 data-[state=active]:to-amber-500 data-[state=active]:shadow-md data-[state=active]:text-white rounded-full px-4 py-1.5 text-xs font-medium transition-all duration-200 hover:bg-slate-200 dark:hover:bg-slate-700 gap-1.5"
+                    >
+                      <Clock className="h-3.5 w-3.5" />
+                      <span className="hidden sm:inline">History</span>
+                      <span className="sm:hidden">History</span>
+                    </TabsTrigger>
+                  </TabsList>
+                </div>
               </div>
 
               {/* ==================== MARKETPLACE TAB ==================== */}
