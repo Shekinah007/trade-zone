@@ -19,18 +19,13 @@ import "@/models/User"; // Ensure User model is registered
 import "@/models/Category";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "@/components/ui/carousel";
+
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ListingActions, ReportButton } from "@/components/ListingActions";
 import { SellerRating } from "@/components/SellerRating";
 import { SellerListingPanel } from "@/components/SellerListingPanel";
 import { RecommendedItems } from "@/components/RecommendedItems";
+import { ListingImageGallery } from "@/components/ListingImageGallery";
 
 import Transaction from "@/models/Transaction";
 import Conversation from "@/models/Conversation";
@@ -104,39 +99,10 @@ export default async function ListingPage({
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Left Column: Images */}
         <div className="lg:col-span-2 space-y-6">
-          <Card className="overflow-hidden border-none shadow-none bg-transparent">
-            <Carousel className="w-full">
-              <CarouselContent>
-                {listing.images && listing.images.length > 0 ? (
-                  listing.images.map((img: string, index: number) => (
-                    <CarouselItem key={index}>
-                      <div className="relative aspect-video w-full overflow-hidden rounded-lg bg-muted">
-                        <img
-                          src={img}
-                          alt={`${listing.listing?.title || listing.model} - Image ${index + 1}`}
-                          className="object-contain w-full h-full"
-                        />
-                      </div>
-                    </CarouselItem>
-                  ))
-                ) : (
-                  <CarouselItem>
-                    <div className="relative aspect-video w-full overflow-hidden rounded-lg bg-muted flex items-center justify-center">
-                      <span className="text-muted-foreground">
-                        No images available
-                      </span>
-                    </div>
-                  </CarouselItem>
-                )}
-              </CarouselContent>
-              {listing.images && listing.images.length > 1 && (
-                <>
-                  <CarouselPrevious className="left-2" />
-                  <CarouselNext className="right-2" />
-                </>
-              )}
-            </Carousel>
-          </Card>
+          <ListingImageGallery
+            images={listing.images}
+            altText={listing.listing?.title || listing.model || "Listing image"}
+          />
 
           <div className="rounded-md shadow  pb-4 bg-white">
             <div className="bg-green-100 mt-4 px-4 py-4 rounded-t-md">
