@@ -61,14 +61,23 @@ export default async function MarketHome() {
   return (
     <div className="flex flex-col min-h-screen bg-background">
       {/* Hero Section */}
-      <section className="relative px-4 py-16 md:py-24 overflow-hidden border-b">
-        {/* Animated background paths */}
-        <div className="absolute inset-0 z-10 opacity-40">
-          {/* <FloatingPaths position={1} /> */}
-          {/* <FloatingPaths position={-1} /> */}
-        </div>
+      <section className="relative px-4 py-16 md:py-24 overflow-hidden border-b min-h-[calc(100vh-4rem)] flex items-center">
+        {/* Dot grid */}
+        <div className="absolute inset-0 -z-10 bg-[radial-gradient(#9ca3af_1px,transparent_1px)] bg-[size:40px_40px] [mask-image:radial-gradient(ellipse_65%_65%_at_50%_45%,black,transparent)]" />
+
+        {/* Emerald top glow */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-64 bg-emerald-400/10 rounded-full blur-3xl -translate-y-1/2 pointer-events-none" />
+
+        {/* Teal bottom-left glow */}
+        <div className="absolute bottom-0 left-0 w-80 h-80 bg-teal-400/10 rounded-full blur-3xl -translate-x-1/3 translate-y-1/4 pointer-events-none" />
+
+        {/* Cyan bottom-right glow */}
+        <div className="absolute bottom-0 right-0 w-72 h-72 bg-cyan-400/8 rounded-full blur-3xl translate-x-1/4 translate-y-1/4 pointer-events-none" />
+
+        {/* Your existing gradient overlay */}
         <div className="absolute inset-0 -z-10 bg-linear-to-b from-background via-emerald-950/5 to-background pointer-events-none" />
 
+        {/* Content */}
         <div className="container mx-auto relative z-10 text-center max-w-4xl pt-8">
           <div className="inline-flex items-center px-3 py-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 backdrop-blur-sm text-xs font-bold mb-8 text-emerald-700 dark:text-emerald-400 uppercase tracking-widest animate-in fade-in slide-in-from-bottom-4 duration-700 shadow-sm">
             <ShoppingBag className="w-4 h-4 mr-2" />

@@ -67,7 +67,20 @@ export default async function Home() {
   return (
     <div className="flex flex-col min-h-screen bg-background">
       {/* Hero Section */}
-      <section className="relative px-4 py-10 md:py-16 overflow-hidden border-b pb-16 md:pb-24">
+      <section
+        className="relative px-4 py-10 md:py-16 overflow-hidden border-b pb-40 md:pb-40 min-h-screen flex flex-col justify-center"
+        style={{ background: "#fafaf8" }}
+      >
+        {/* Grid pattern */}
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(209,213,219,0.4)_1px,transparent_1px),linear-gradient(90deg,rgba(209,213,219,0.4)_1px,transparent_1px)] bg-[size:40px_40px] [mask-image:radial-gradient(ellipse_60%_60%_at_50%_50%,black,transparent)]" />
+
+        {/* Emerald glow */}
+        <div className="absolute bottom-0 left-0 w-96 h-96 bg-emerald-400/10 rounded-full blur-3xl -translate-x-1/2 translate-y-1/4" />
+
+        {/* Red glow */}
+        <div className="absolute top-0 right-0 w-96 h-96 bg-red-400/10 rounded-full blur-3xl translate-x-1/3 -translate-y-1/4" />
+
+        {/* Your content */}
         <div className="container mx-auto relative z-10 text-center">
           <div className="inline-flex items-center px-2.5 py-1 rounded-full border bg-background/80 backdrop-blur-sm text-xs font-semibold mb-6 text-primary  shadow-sm">
             <span className="flex h-2 w-2 rounded-full bg-primary mr-2" />
