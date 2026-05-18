@@ -74,10 +74,10 @@ export default async function Home() {
             Africa&apos;s #1 Property Security Marketplace
           </div>
 
-          <h1 className="text-4xl md:text-6xl font-bold bg-clip-text text-transparent bg-linear-to-r from-red-500  to-emerald-500 tracking-tight mb-4 leading-tight ">
+          <h4 className="text-4xl md:text-6xl font-bold bg-clip-text text-transparent bg-linear-to-r from-red-500  to-emerald-500 tracking-tight mb-4 leading-tight ">
             Secure. Verify. <br className="hidden md:block" />
             <span className="">Trade Safely.</span>
-          </h1>
+          </h4>
 
           <p className="text-lg md:text-xl font-medium text-muted-foreground mb-10 max-w-2xl mx-auto ">
             Register your devices in Africa&apos;s trusted property registry,
