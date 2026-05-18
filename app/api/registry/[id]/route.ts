@@ -167,9 +167,7 @@ export async function PUT(
 
     item.color = color || undefined;
 
-    if (serialNumber) {
-      item.uniqueIdentifier = serialNumber;
-    }
+    item.uniqueIdentifier = serialNumber || imei || chassisNumber;
 
     // Handle images
     let keptImages: string[] = [];
