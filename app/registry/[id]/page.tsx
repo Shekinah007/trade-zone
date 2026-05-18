@@ -7,7 +7,6 @@ import Link from "next/link";
 import Image from "next/image";
 import OwnerSearchLogs from "@/components/OwnerSearchLogs";
 import { TransferModal } from "@/components/TransferModal";
-import { EditPropertyModal } from "@/components/registry/EditPropertyModal";
 import { toast } from "sonner";
 import {
   Shield,
@@ -106,7 +105,6 @@ export default function PropertyDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [updatingStatus, setUpdatingStatus] = useState(false);
-  const [showEditModal, setShowEditModal] = useState(false);
 
   // Image gallery state
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
@@ -508,7 +506,7 @@ export default function PropertyDetailPage() {
                     <Button
                       variant="outline"
                       className="w-full rounded-xl flex items-center justify-center"
-                      onClick={() => setShowEditModal(true)}
+                      onClick={() => router.push(`/registry/${id}/edit`)}
                     >
                       <Edit className="h-4 w-4 mr-2" />
                       Edit Property
@@ -573,11 +571,6 @@ export default function PropertyDetailPage() {
                       propertyId={id as string}
                       propertyTitle={`${property.brand} ${property.model}`}
                       onSuccess={() => router.push("/dashboard?tab=transfers")}
-                    />
-                    <EditPropertyModal
-                      isOpen={showEditModal}
-                      onClose={() => setShowEditModal(false)}
-                      property={property}
                     />
                   </CardContent>
                 </Card>

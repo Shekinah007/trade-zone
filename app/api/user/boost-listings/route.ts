@@ -5,6 +5,7 @@ import User from "@/models/User";
 import Item from "@/models/Item";
 import BoostTier from "@/models/BoostTier";
 import dbConnect from "@/lib/db";
+import Purchase from "@/models/Purchase";
 
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
@@ -13,10 +14,14 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const { listingIds, boostTierId, paymentMethod, reference } = await req.json();
+    const { listingIds, boostTierId, paymentMethod, reference } =
+      await req.json();
 
     if (!listingIds || !listingIds.length || !boostTierId || !paymentMethod) {
-      return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Missing required fields" },
+        { status: 400 },
+      );
     }
 
     await dbConnect();
@@ -24,7 +29,10 @@ export async function POST(req: NextRequest) {
     const tier = await BoostTier.findById(boostTierId);
 
     if (!user || !tier) {
-      return NextResponse.json({ error: "User or Boost Tier not found" }, { status: 404 });
+      return NextResponse.json(
+        { error: "User or Boost Tier not found" },
+        { status: 404 },
+      );
     }
 
     // Verify listings belong to user and are active
@@ -32,72 +40,117 @@ export async function POST(req: NextRequest) {
       _id: { $in: listingIds },
       $or: [{ seller: session.user.id }, { owner: session.user.id }],
       isListed: true,
-      'listing.status': 'active'
+      "listing.status": "active",
     });
 
     if (listings.length !== listingIds.length) {
-       return NextResponse.json({ error: "Some listings are invalid, not yours, or not active." }, { status: 400 });
+      return NextResponse.json(
+        { error: "Some listings are invalid, not yours, or not active." },
+        { status: 400 },
+      );
     }
 
     const totalCreditCost = tier.creditCost * listingIds.length;
     const totalPriceNGN = tier.priceNGN * listingIds.length;
 
-    if (paymentMethod === 'credit') {
+    if (paymentMethod === "credit") {
       if (user.creditBalance < totalCreditCost) {
-        return NextResponse.json({ error: "Insufficient credits" }, { status: 400 });
+        return NextResponse.json(
+          { error: "Insufficient credits" },
+          { status: 400 },
+        );
       }
       user.creditBalance -= totalCreditCost;
       await user.save();
-    } else if (paymentMethod === 'paystack') {
-       if (!reference) return NextResponse.json({ error: "Reference required for paystack payment" }, { status: 400 });
-       
-       const paystackSecret = process.env.PAYSTACK_SECRET_KEY;
-       const response = await fetch(`https://api.paystack.co/transaction/verify/${reference}`, {
+    } else if (paymentMethod === "paystack") {
+      if (!reference)
+        return NextResponse.json(
+          { error: "Reference required for paystack payment" },
+          { status: 400 },
+        );
+
+      const paystackSecret = process.env.PAYSTACK_SECRET_KEY;
+      const response = await fetch(
+        `https://api.paystack.co/transaction/verify/${reference}`,
+        {
           headers: { Authorization: `Bearer ${paystackSecret}` },
-       });
-       const data = await response.json();
-       
-       if (!data.status || data.data.status !== "success") {
-          if (process.env.NODE_ENV !== "development" || data.status) {
-            return NextResponse.json({ error: "Transaction verification failed" }, { status: 400 });
-          }
-       }
-       
-       const amountPaidKobo = data.data ? data.data.amount : 0;
-       const amountPaidNGN = amountPaidKobo / 100;
-       
-       if (process.env.NODE_ENV !== "development" && amountPaidNGN < totalPriceNGN) {
-          return NextResponse.json({ error: "Amount paid is less than total boost price" }, { status: 400 });
-       }
+        },
+      );
+      const data = await response.json();
+
+      if (!data.status || data.data.status !== "success") {
+        if (process.env.NODE_ENV !== "development" || data.status) {
+          return NextResponse.json(
+            { error: "Transaction verification failed" },
+            { status: 400 },
+          );
+        }
+      }
+
+      const amountPaidKobo = data.data ? data.data.amount : 0;
+      const amountPaidNGN = amountPaidKobo / 100;
+
+      if (
+        process.env.NODE_ENV !== "development" &&
+        amountPaidNGN < totalPriceNGN
+      ) {
+        return NextResponse.json(
+          { error: "Amount paid is less than total boost price" },
+          { status: 400 },
+        );
+      }
     } else {
-       return NextResponse.json({ error: "Invalid payment method" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Invalid payment method" },
+        { status: 400 },
+      );
     }
 
     const now = new Date();
-    
-    const updates = listings.map(item => {
-      if (item.listing?.boostStatus === 'active') {
+
+    const purchases = listings.map((item) => ({
+      user: session.user.id,
+      tierModel: "BoostTier",
+      tier: tier._id,
+      type: "boost",
+      item: item._id,
+      paymentMethod,
+      amountPaid: paymentMethod === "credit" ? tier.creditCost : tier.priceNGN,
+      status: "success",
+      reference: paymentMethod === "paystack" ? reference : undefined,
+    }));
+    await Purchase.insertMany(purchases);
+
+    const updates = listings.map((item) => {
+      if (item.listing?.boostStatus === "active") {
         // Queue the boost
         if (!item.listing.boostQueue) item.listing.boostQueue = [];
         item.listing.boostQueue.push({
           durationInDays: tier.durationInDays,
-          purchasedAt: now
+          purchasedAt: now,
         });
       } else {
         // Activate the boost
-        item.listing!.boostStatus = 'active';
+        item.listing!.boostStatus = "active";
         item.listing!.boostedAt = now;
-        item.listing!.boostExpiry = new Date(now.getTime() + tier.durationInDays * 24 * 60 * 60 * 1000);
+        item.listing!.boostExpiry = new Date(
+          now.getTime() + tier.durationInDays * 24 * 60 * 60 * 1000,
+        );
       }
       return item.save();
     });
 
     await Promise.all(updates);
 
-    return NextResponse.json({ success: true, message: `Boosted ${listings.length} listings successfully.` });
-
+    return NextResponse.json({
+      success: true,
+      message: `Boosted ${listings.length} listings successfully.`,
+    });
   } catch (error: any) {
     console.error("Boost listings error:", error);
-    return NextResponse.json({ error: error.message || "Internal Server Error" }, { status: 500 });
+    return NextResponse.json(
+      { error: error.message || "Internal Server Error" },
+      { status: 500 },
+    );
   }
 }

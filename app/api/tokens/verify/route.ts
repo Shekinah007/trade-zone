@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth";
 import User from "@/models/User";
 import dbConnect from "@/lib/db";
 import SystemSettings from "@/models/SystemSettings";
+import Purchase from "@/models/Purchase";
 
 export async function GET(req: NextRequest) {
   const session = await getServerSession(authOptions);
@@ -114,6 +115,17 @@ export async function GET(req: NextRequest) {
 
     if (limitIncreased) {
       await user.save();
+
+      if (isQuotaPurchase || amount !== 100000) {
+        await Purchase.create({
+          user: session.user.id,
+          type: "registration",
+          paymentMethod: "paystack",
+          amountPaid: amount / 100,
+          status: "success",
+          reference: reference,
+        });
+      }
     }
 
     return NextResponse.json({

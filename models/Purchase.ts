@@ -2,9 +2,9 @@ import mongoose, { Schema, Document, Model } from "mongoose";
 
 export interface IPurchase extends Document {
   user: mongoose.Types.ObjectId;
-  tier: mongoose.Types.ObjectId;
-  tierModel: "ListingPack" | "BoostTier" | "FeaturedTier";
-  type: "pack" | "boost" | "featured";
+  tier?: mongoose.Types.ObjectId;
+  tierModel?: "ListingPack" | "BoostTier" | "FeaturedTier";
+  type: "pack" | "boost" | "featured" | "registration";
   item?: mongoose.Types.ObjectId;
   paymentMethod: "naira" | "token" | "credits" | "paystack" | "credit";
   amountPaid: number;
@@ -27,9 +27,8 @@ const PurchaseSchema = new Schema<IPurchase>(
     tier: {
       type: Schema.Types.ObjectId,
       refPath: "tierModel",
-      required: true,
     },
-    type: { type: String, enum: ["pack", "boost", "featured"], required: true },
+    type: { type: String, enum: ["pack", "boost", "featured", "registration"], required: true },
     item: { type: Schema.Types.ObjectId, ref: "Item" },
     paymentMethod: {
       type: String,

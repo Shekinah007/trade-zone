@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth";
 import dbConnect from "@/lib/db";
 import User from "@/models/User";
 import SystemSettings from "@/models/SystemSettings";
+import Purchase from "@/models/Purchase";
 
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
@@ -38,6 +39,14 @@ export async function POST(req: NextRequest) {
     user.creditBalance -= cost;
     user.registrationLimit = (user.registrationLimit || 0) + quantity;
     await user.save();
+
+    await Purchase.create({
+      user: session.user.id,
+      type: "registration",
+      paymentMethod: "credit",
+      amountPaid: cost,
+      status: "success",
+    });
 
     return NextResponse.json({
       success: true,

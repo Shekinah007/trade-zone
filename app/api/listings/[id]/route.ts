@@ -152,6 +152,50 @@ export async function PUT(
 
       const newImageUrls = await Promise.all(uploadPromises);
 
+      // Delete removed images from Cloudinary
+      const oldImages = item.images || [];
+      const removedImages = oldImages.filter(
+        (img: string) => !existingImages.includes(img)
+      );
+
+      if (removedImages.length > 0) {
+        const extractPublicId = (url: string) => {
+          try {
+            const splitUrl = url.split("/upload/");
+            if (splitUrl.length < 2) return null;
+            let path = splitUrl[1];
+            if (path.match(/^v\d+\//)) {
+              path = path.replace(/^v\d+\//, "");
+            }
+            const lastDotIndex = path.lastIndexOf(".");
+            if (lastDotIndex !== -1) {
+              path = path.substring(0, lastDotIndex);
+            }
+            return path;
+          } catch (e) {
+            return null;
+          }
+        };
+
+        const deletePromises = removedImages.map((url: string) => {
+          const publicId = extractPublicId(url);
+          if (publicId) {
+            return new Promise((resolve) => {
+              cloudinary.uploader.destroy(
+                publicId,
+                (error: any, result: any) => {
+                  if (error) console.error("Cloudinary delete error:", error);
+                  resolve(result);
+                }
+              );
+            });
+          }
+          return Promise.resolve();
+        });
+
+        await Promise.all(deletePromises);
+      }
+
       item.images = [...existingImages, ...newImageUrls];
     }
 
@@ -203,6 +247,45 @@ export async function DELETE(
       await item.save();
     } else {
       // Not registered, delete entirely
+      const imagesToDelete = item.images || [];
+      if (imagesToDelete.length > 0) {
+        const extractPublicId = (url: string) => {
+          try {
+            const splitUrl = url.split("/upload/");
+            if (splitUrl.length < 2) return null;
+            let path = splitUrl[1];
+            if (path.match(/^v\d+\//)) {
+              path = path.replace(/^v\d+\//, "");
+            }
+            const lastDotIndex = path.lastIndexOf(".");
+            if (lastDotIndex !== -1) {
+              path = path.substring(0, lastDotIndex);
+            }
+            return path;
+          } catch (e) {
+            return null;
+          }
+        };
+
+        const deletePromises = imagesToDelete.map((url: string) => {
+          const publicId = extractPublicId(url);
+          if (publicId) {
+            return new Promise((resolve) => {
+              cloudinary.uploader.destroy(
+                publicId,
+                (error: any, result: any) => {
+                  if (error) console.error("Cloudinary delete error:", error);
+                  resolve(result);
+                }
+              );
+            });
+          }
+          return Promise.resolve();
+        });
+
+        await Promise.all(deletePromises);
+      }
+      
       await Item.findByIdAndDelete(id);
     }
 

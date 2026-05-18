@@ -72,6 +72,8 @@ export default function UserFeaturedPage() {
         currency: "NGN",
         onSuccess: async (transaction: any) => {
           await completePurchase("naira", transaction.reference);
+          toast.success("Success");
+          window.location.reload();
         },
         onCancel: () => {
           setProcessing(false);
@@ -108,7 +110,7 @@ export default function UserFeaturedPage() {
       );
 
       setSelectedListing("");
-      // window.location.reload();
+      window.location.reload();
       setSelectedTier(null);
       fetchData();
     } catch (err: any) {
@@ -130,7 +132,7 @@ export default function UserFeaturedPage() {
   return (
     <div className="container mx-auto py-8 px-4 max-w-5xl">
       <div className="mb-8 flex items-center gap-4">
-        <div className="p-3 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-2xl shadow-lg shadow-purple-500/20">
+        <div className="p-3 bg-linear-to-br from-purple-500 to-indigo-600 rounded-2xl shadow-lg shadow-purple-500/20">
           <Star className="h-8 w-8 text-white" />
         </div>
         <div>
@@ -170,25 +172,38 @@ export default function UserFeaturedPage() {
                   <label className="block text-sm font-medium mb-2">
                     Select Listing
                   </label>
-                  
+
                   <div className="relative">
-                    <div 
+                    <div
                       className="w-full p-3 bg-gray-50 dark:bg-gray-900 border rounded-xl flex items-center justify-between cursor-pointer transition-colors hover:border-purple-300"
                       onClick={() => setShowDropdown(!showDropdown)}
                     >
-                      <span className={selectedListing ? "text-foreground font-medium" : "text-muted-foreground"}>
-                        {selectedListing 
-                          ? data?.userListings.find((l: any) => l._id === selectedListing)
+                      <span
+                        className={
+                          selectedListing
+                            ? "text-foreground font-medium"
+                            : "text-muted-foreground"
+                        }
+                      >
+                        {selectedListing
+                          ? data?.userListings.find(
+                              (l: any) => l._id === selectedListing,
+                            )
                             ? `${data.userListings.find((l: any) => l._id === selectedListing).listing?.title || data.userListings.find((l: any) => l._id === selectedListing).model}`
                             : "-- Choose a listing --"
                           : "-- Choose a listing --"}
                       </span>
-                      <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform ${showDropdown ? 'rotate-180' : ''}`} />
+                      <ChevronDown
+                        className={`w-4 h-4 text-muted-foreground transition-transform ${showDropdown ? "rotate-180" : ""}`}
+                      />
                     </div>
 
                     {showDropdown && (
                       <>
-                        <div className="fixed inset-0 z-10" onClick={() => setShowDropdown(false)} />
+                        <div
+                          className="fixed inset-0 z-10"
+                          onClick={() => setShowDropdown(false)}
+                        />
                         <div className="absolute z-20 w-full mt-2 bg-card border rounded-xl shadow-xl max-h-[300px] flex flex-col overflow-hidden">
                           <div className="p-2 border-b flex items-center gap-2 bg-muted/20">
                             <Search className="w-4 h-4 text-muted-foreground shrink-0 ml-1" />
@@ -205,27 +220,45 @@ export default function UserFeaturedPage() {
                           <div className="overflow-y-auto p-1">
                             {data?.userListings.filter((l: any) => {
                               const term = searchQuery.toLowerCase();
-                              return l.listing?.title?.toLowerCase().includes(term) || l.model?.toLowerCase().includes(term);
+                              return (
+                                l.listing?.title
+                                  ?.toLowerCase()
+                                  .includes(term) ||
+                                l.model?.toLowerCase().includes(term)
+                              );
                             }).length === 0 ? (
-                               <div className="p-4 text-sm text-muted-foreground text-center">No listings found matching "{searchQuery}"</div>
+                              <div className="p-4 text-sm text-muted-foreground text-center">
+                                No listings found matching "{searchQuery}"
+                              </div>
                             ) : (
-                              data?.userListings.filter((l: any) => {
-                                const term = searchQuery.toLowerCase();
-                                return l.listing?.title?.toLowerCase().includes(term) || l.model?.toLowerCase().includes(term);
-                              }).map((l: any) => (
-                                <div
-                                  key={l._id}
-                                  className={`p-3 text-sm rounded-lg hover:bg-muted cursor-pointer flex justify-between items-center transition-colors ${selectedListing === l._id ? 'bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-300' : ''}`}
-                                  onClick={() => {
-                                    setSelectedListing(l._id);
-                                    setShowDropdown(false);
-                                    setSearchQuery("");
-                                  }}
-                                >
-                                  <span className="font-medium truncate mr-2">{l.listing?.title || l.model}</span>
-                                  <span className="text-muted-foreground font-semibold shrink-0">₦{l.listing?.price?.toLocaleString() || 0}</span>
-                                </div>
-                              ))
+                              data?.userListings
+                                .filter((l: any) => {
+                                  const term = searchQuery.toLowerCase();
+                                  return (
+                                    l.listing?.title
+                                      ?.toLowerCase()
+                                      .includes(term) ||
+                                    l.model?.toLowerCase().includes(term)
+                                  );
+                                })
+                                .map((l: any) => (
+                                  <div
+                                    key={l._id}
+                                    className={`p-3 text-sm rounded-lg hover:bg-muted cursor-pointer flex justify-between items-center transition-colors ${selectedListing === l._id ? "bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-300" : ""}`}
+                                    onClick={() => {
+                                      setSelectedListing(l._id);
+                                      setShowDropdown(false);
+                                      setSearchQuery("");
+                                    }}
+                                  >
+                                    <span className="font-medium truncate mr-2">
+                                      {l.listing?.title || l.model}
+                                    </span>
+                                    <span className="text-muted-foreground font-semibold shrink-0">
+                                      ₦{l.listing?.price?.toLocaleString() || 0}
+                                    </span>
+                                  </div>
+                                ))
                             )}
                           </div>
                         </div>
@@ -343,7 +376,7 @@ export default function UserFeaturedPage() {
                 ) : (
                   data?.userActiveFeatured.map((item: any) => (
                     <div key={item._id} className="flex gap-3 items-center">
-                      <div className="w-12 h-12 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
+                      <div className="w-12 h-12 bg-gray-100 rounded-lg overflow-hidden shrink-0">
                         {item.images?.[0] ? (
                           <img
                             src={item.images[0]}

@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import User from "@/models/User";
 import ListingPack from "@/models/ListingPack";
+import Purchase from "@/models/Purchase";
 import dbConnect from "@/lib/db";
 
 export async function POST(req: NextRequest) {
@@ -33,6 +34,17 @@ export async function POST(req: NextRequest) {
       user.creditBalance -= pack.creditCost;
       user.listingQuota += pack.slotCount;
       await user.save();
+
+      await Purchase.create({
+        user: session.user.id,
+        tierModel: "ListingPack",
+        tier: pack._id,
+        type: "pack",
+        paymentMethod: "credit",
+        amountPaid: pack.creditCost,
+        status: "success",
+      });
+
       return NextResponse.json({ success: true, message: "Pack purchased with credits", listingQuota: user.listingQuota });
     } else if (paymentMethod === 'paystack') {
        if (!reference) return NextResponse.json({ error: "Reference required for paystack payment" }, { status: 400 });
@@ -58,6 +70,18 @@ export async function POST(req: NextRequest) {
 
        user.listingQuota += pack.slotCount;
        await user.save();
+
+       await Purchase.create({
+         user: session.user.id,
+         tierModel: "ListingPack",
+         tier: pack._id,
+         type: "pack",
+         paymentMethod: "paystack",
+         amountPaid: pack.priceNGN,
+         status: "success",
+         reference,
+       });
+
        return NextResponse.json({ success: true, message: "Pack purchased via Paystack", listingQuota: user.listingQuota });
     } else {
        return NextResponse.json({ error: "Invalid payment method" }, { status: 400 });

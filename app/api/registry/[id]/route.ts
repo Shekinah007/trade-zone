@@ -171,6 +171,93 @@ export async function PUT(
       item.uniqueIdentifier = serialNumber;
     }
 
+    // Handle images
+    let keptImages: string[] = [];
+    const keptImagesRaw = formData.get("keptImages");
+    if (keptImagesRaw && typeof keptImagesRaw === "string") {
+      try {
+        keptImages = JSON.parse(keptImagesRaw);
+      } catch (e) {
+        console.error("Failed to parse keptImages");
+      }
+    }
+
+    const imageFiles = formData.getAll("images");
+    const { v2: cloudinary } = require("cloudinary");
+    
+    // Make sure cloudinary is configured, we can configure it if not done already
+    cloudinary.config({
+      cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+      api_key: process.env.CLOUDINARY_API_KEY,
+      api_secret: process.env.CLOUDINARY_API_SECRET,
+    });
+
+    // Delete removed images from Cloudinary
+    const oldImages = item.images || [];
+    const removedImages = oldImages.filter((img: string) => !keptImages.includes(img));
+    
+    if (removedImages.length > 0) {
+      const extractPublicId = (url: string) => {
+        try {
+          const splitUrl = url.split("/upload/");
+          if (splitUrl.length < 2) return null;
+          let path = splitUrl[1];
+          if (path.match(/^v\d+\//)) {
+            path = path.replace(/^v\d+\//, "");
+          }
+          const lastDotIndex = path.lastIndexOf(".");
+          if (lastDotIndex !== -1) {
+            path = path.substring(0, lastDotIndex);
+          }
+          return path;
+        } catch (e) {
+          return null;
+        }
+      };
+
+      const deletePromises = removedImages.map((url: string) => {
+        const publicId = extractPublicId(url);
+        if (publicId) {
+          return new Promise((resolve) => {
+            cloudinary.uploader.destroy(publicId, (error: any, result: any) => {
+              if (error) console.error("Cloudinary delete error:", error);
+              resolve(result);
+            });
+          });
+        }
+        return Promise.resolve();
+      });
+
+      await Promise.all(deletePromises);
+    }
+
+    const uploadPromises = imageFiles
+      .filter((file) => file && typeof file !== "string" && "arrayBuffer" in file && (file as File).size > 0)
+      .map(async (file: any) => {
+        const arrayBuffer = await file.arrayBuffer();
+        const buffer = Buffer.from(arrayBuffer);
+
+        const uploadResult = await new Promise<any>((resolve, reject) => {
+          cloudinary.uploader
+            .upload_stream(
+              {
+                folder: "trade-zone",
+              },
+              (error: any, result: any) => {
+                if (error) reject(error);
+                else resolve(result);
+              },
+            )
+            .end(buffer);
+        });
+
+        return uploadResult.secure_url;
+      });
+
+    const newImageUrls = await Promise.all(uploadPromises);
+
+    item.images = [...keptImages, ...newImageUrls];
+
     await item.save();
 
     return NextResponse.json({ property: item });

@@ -227,7 +227,7 @@ export function TokenPurchaseModal({
           {/* Responsive Grid: 1 column on mobile, 2 on tablet, 3 on desktop */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4 auto-rows-fr">
             {/* Buy Quota Card */}
-            <Card className="border-2 hover:border-emerald-500 transition-all duration-200 bg-gradient-to-br from-emerald-50/60 to-transparent dark:from-emerald-950/20 overflow-hidden">
+            <Card className="border-2 hover:border-emerald-500 transition-all duration-200 bg-linear-to-br from-emerald-50/60 to-transparent dark:from-emerald-950/20 overflow-hidden">
               <CardContent className="p-5 flex flex-col h-full">
                 <div className="flex items-center justify-between">
                   <h3 className="font-bold text-lg">Purchase Quotas</h3>
@@ -321,7 +321,7 @@ export function TokenPurchaseModal({
             </Card>
 
             {/* Unlimited Plan Card - Best Value */}
-            <Card className="relative overflow-hidden border-2 border-amber-500/70 shadow-md bg-gradient-to-br from-amber-50/80 to-transparent dark:from-amber-950/30">
+            <Card className="relative overflow-hidden border-2 border-amber-500/70 shadow-md bg-linear-to-br from-amber-50/80 to-transparent dark:from-amber-950/30">
               <div className="absolute top-2 right-2 z-10">
                 <div className="bg-amber-500 text-white text-[11px] font-bold px-2.5 py-1 rounded-full shadow-md flex items-center gap-1 uppercase tracking-wide">
                   <Sparkles className="h-3 w-3" />
@@ -386,7 +386,7 @@ export function TokenPurchaseModal({
           <Separator className="my-2" />
 
           {/* Token Redemption Section - Responsive */}
-          <div className="bg-gradient-to-br from-gray-50/80 to-white dark:from-gray-900/40 dark:to-gray-950/30 p-4 rounded-xl border border-gray-100 dark:border-gray-800 shadow-sm">
+          <div className="bg-linear-to-br from-gray-50/80 to-white dark:from-gray-900/40 dark:to-gray-950/30 p-4 rounded-xl border border-gray-100 dark:border-gray-800 shadow-sm">
             <Label
               htmlFor="token-code"
               className="text-sm font-semibold flex items-center gap-2 mb-3"

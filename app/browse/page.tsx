@@ -184,7 +184,7 @@ function BrowseContent() {
             <ListingCard
               key={listing._id}
               id={listing._id}
-              title={listing.title}
+              title={listing.listing?.title}
               price={listing.listing?.price}
               image={listing.images[0]}
               category={listing.listing?.category}
