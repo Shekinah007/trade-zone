@@ -24,7 +24,7 @@ import {
   Check,
   X,
   Upload,
-  Camera
+  Camera,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Tiptap from "@/components/Tiptap";
@@ -117,7 +117,9 @@ export default function EditRegistryPage() {
   const [property, setProperty] = useState<any>(null);
 
   const [keptImages, setKeptImages] = useState<string[]>([]);
-  const [imageItems, setImageItems] = useState<{ url: string; file?: File }[]>([]);
+  const [imageItems, setImageItems] = useState<{ url: string; file?: File }[]>(
+    [],
+  );
   const [isCompressing, setIsCompressing] = useState(false);
   const [compressionProgress, setCompressionProgress] = useState(0);
 
@@ -196,19 +198,21 @@ export default function EditRegistryPage() {
           return;
         }
         const data = await res.json();
-        
+
+        console.log("Data: ", data);
+
         // Ensure user has permission
         // TODO: Check if user is owner or admin based on session data
-        
+
         setProperty(data.property);
         setForm({
           itemType: data.property.itemType || "",
           brand: data.property.brand || "",
           model: data.property.model || "",
           description: data.property.description || "",
-          serialNumber: data.property.serialNumber || "",
-          imei: data.property.imei || "",
-          chassisNumber: data.property.chassisNumber || "",
+          serialNumber: data.property.registry?.serialNumber || "",
+          imei: data.property.registry?.imei || "",
+          chassisNumber: data.property.registry?.chassisNumber || "",
           color: data.property.color || "",
           yearOfPurchase: data.property.yearOfPurchase || "",
         });
@@ -229,7 +233,8 @@ export default function EditRegistryPage() {
     }
   }, [id, session, status]);
 
-  const set = (key: string, val: string) => setForm((p) => ({ ...p, [key]: val }));
+  const set = (key: string, val: string) =>
+    setForm((p) => ({ ...p, [key]: val }));
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -248,7 +253,7 @@ export default function EditRegistryPage() {
       Object.entries(form).forEach(([k, v]) => {
         if (v) formData.append(k, v.toString());
       });
-      
+
       formData.append("keptImages", JSON.stringify(keptImages));
       imageItems.forEach((item) => {
         if (item.file) formData.append("images", item.file);
@@ -294,7 +299,11 @@ export default function EditRegistryPage() {
     );
   }
 
-  const hasIdentifier = !!(form.serialNumber || form.imei || form.chassisNumber);
+  const hasIdentifier = !!(
+    form.serialNumber ||
+    form.imei ||
+    form.chassisNumber
+  );
 
   return (
     <div className="min-h-screen bg-[#fafaf9]">
@@ -331,7 +340,8 @@ export default function EditRegistryPage() {
             Edit <span className="text-red-500">Property Details</span>
           </h1>
           <p className="mt-2 text-sm text-gray-500">
-            Update the registry information for your {property?.brand} {property?.model}.
+            Update the registry information for your {property?.brand}{" "}
+            {property?.model}.
           </p>
         </div>
 
@@ -339,7 +349,9 @@ export default function EditRegistryPage() {
           {/* Item Details */}
           <section>
             <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-              <span className="w-6 h-6 rounded-md bg-gray-100 flex items-center justify-center text-xs text-gray-500 font-mono">01</span>
+              <span className="w-6 h-6 rounded-md bg-gray-100 flex items-center justify-center text-xs text-gray-500 font-mono">
+                01
+              </span>
               Item Details
             </h2>
             <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 space-y-6">
@@ -363,7 +375,10 @@ export default function EditRegistryPage() {
                         )}
                       >
                         <Icon
-                          className={cn("h-5 w-5", selected ? "text-red-500" : "text-gray-400")}
+                          className={cn(
+                            "h-5 w-5",
+                            selected ? "text-red-500" : "text-gray-400",
+                          )}
                         />
                         {label.split(" / ")[0]}
                       </button>
@@ -426,7 +441,9 @@ export default function EditRegistryPage() {
           {/* Identifiers */}
           <section>
             <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-              <span className="w-6 h-6 rounded-md bg-gray-100 flex items-center justify-center text-xs text-gray-500 font-mono">02</span>
+              <span className="w-6 h-6 rounded-md bg-gray-100 flex items-center justify-center text-xs text-gray-500 font-mono">
+                02
+              </span>
               Identifiers
             </h2>
 
@@ -434,7 +451,8 @@ export default function EditRegistryPage() {
               <div className="flex items-start gap-3 p-3.5 rounded-xl bg-amber-50 border border-amber-200 mb-2">
                 <AlertCircle className="h-4 w-4 text-amber-500 shrink-0 mt-0.5" />
                 <p className="text-xs text-amber-700 leading-relaxed">
-                  Provide at least one unique identifier. This ensures your property can be found in the registry.
+                  Provide at least one unique identifier. This ensures your
+                  property can be found in the registry.
                 </p>
               </div>
 
@@ -466,7 +484,14 @@ export default function EditRegistryPage() {
                   maxLength={17}
                   suffix={
                     form.imei.length > 0 && (
-                      <span className={cn("text-[10px] font-mono font-bold", form.imei.length >= 15 ? "text-green-500" : "text-gray-400")}>
+                      <span
+                        className={cn(
+                          "text-[10px] font-mono font-bold",
+                          form.imei.length >= 15
+                            ? "text-green-500"
+                            : "text-gray-400",
+                        )}
+                      >
                         {form.imei.length}/15
                       </span>
                     )
@@ -488,7 +513,14 @@ export default function EditRegistryPage() {
                   maxLength={17}
                   suffix={
                     form.chassisNumber.length > 0 && (
-                      <span className={cn("text-[10px] font-mono font-bold", form.chassisNumber.length === 17 ? "text-green-500" : "text-gray-400")}>
+                      <span
+                        className={cn(
+                          "text-[10px] font-mono font-bold",
+                          form.chassisNumber.length === 17
+                            ? "text-green-500"
+                            : "text-gray-400",
+                        )}
+                      >
                         {form.chassisNumber.length}/17
                       </span>
                     )
@@ -496,12 +528,14 @@ export default function EditRegistryPage() {
                 />
               </BrightField>
 
-              <div className={cn(
-                "flex items-center gap-2.5 p-3.5 rounded-xl text-xs font-semibold border transition-all mt-4",
-                hasIdentifier
-                  ? "bg-green-50 border-green-200 text-green-700"
-                  : "bg-gray-50 border-gray-200 text-gray-400"
-              )}>
+              <div
+                className={cn(
+                  "flex items-center gap-2.5 p-3.5 rounded-xl text-xs font-semibold border transition-all mt-4",
+                  hasIdentifier
+                    ? "bg-green-50 border-green-200 text-green-700"
+                    : "bg-gray-50 border-gray-200 text-gray-400",
+                )}
+              >
                 {hasIdentifier ? (
                   <>
                     <div className="w-5 h-5 rounded-full bg-green-500 flex items-center justify-center shrink-0">
@@ -522,7 +556,9 @@ export default function EditRegistryPage() {
           {/* Photos */}
           <section>
             <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-              <span className="w-6 h-6 rounded-md bg-gray-100 flex items-center justify-center text-xs text-gray-500 font-mono">03</span>
+              <span className="w-6 h-6 rounded-md bg-gray-100 flex items-center justify-center text-xs text-gray-500 font-mono">
+                03
+              </span>
               Photos
             </h2>
 
@@ -587,43 +623,44 @@ export default function EditRegistryPage() {
                   </div>
                 ))}
 
-                {keptImages.length + imageItems.length < 5 && !isCompressing && (
-                  <div className="aspect-square rounded-xl border-2 border-dashed border-gray-300 overflow-hidden flex flex-col shadow-sm">
-                    {/* Gallery */}
-                    <label className="flex flex-1 cursor-pointer flex-col items-center justify-center bg-gray-50 hover:bg-red-50 hover:border-red-300 transition-all group border-b border-dashed border-gray-300">
-                      <div className="w-8 h-8 rounded-xl bg-white group-hover:bg-red-100 border border-gray-200 group-hover:border-red-200 flex items-center justify-center transition-all shadow-sm">
-                        <Upload className="h-3.5 w-3.5 text-gray-400 group-hover:text-red-500 transition-colors" />
-                      </div>
-                      <span className="text-[10px] text-gray-400 group-hover:text-red-500 transition-colors font-semibold mt-1.5">
-                        Gallery
-                      </span>
-                      <input
-                        type="file"
-                        accept="image/*"
-                        multiple
-                        className="hidden"
-                        onChange={handleImageChange}
-                      />
-                    </label>
+                {keptImages.length + imageItems.length < 5 &&
+                  !isCompressing && (
+                    <div className="aspect-square rounded-xl border-2 border-dashed border-gray-300 overflow-hidden flex flex-col shadow-sm">
+                      {/* Gallery */}
+                      <label className="flex flex-1 cursor-pointer flex-col items-center justify-center bg-gray-50 hover:bg-red-50 hover:border-red-300 transition-all group border-b border-dashed border-gray-300">
+                        <div className="w-8 h-8 rounded-xl bg-white group-hover:bg-red-100 border border-gray-200 group-hover:border-red-200 flex items-center justify-center transition-all shadow-sm">
+                          <Upload className="h-3.5 w-3.5 text-gray-400 group-hover:text-red-500 transition-colors" />
+                        </div>
+                        <span className="text-[10px] text-gray-400 group-hover:text-red-500 transition-colors font-semibold mt-1.5">
+                          Gallery
+                        </span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          multiple
+                          className="hidden"
+                          onChange={handleImageChange}
+                        />
+                      </label>
 
-                    {/* Camera */}
-                    <label className="flex flex-1 cursor-pointer flex-col items-center justify-center bg-gray-50 hover:bg-red-50 transition-all group">
-                      <div className="w-8 h-8 rounded-xl bg-white group-hover:bg-red-100 border border-gray-200 group-hover:border-red-200 flex items-center justify-center transition-all shadow-sm">
-                        <Camera className="h-3.5 w-3.5 text-gray-400 group-hover:text-red-500 transition-colors" />
-                      </div>
-                      <span className="text-[10px] text-gray-400 group-hover:text-red-500 transition-colors font-semibold mt-1.5">
-                        Camera
-                      </span>
-                      <input
-                        type="file"
-                        accept="image/*"
-                        capture="environment"
-                        className="hidden"
-                        onChange={handleImageChange}
-                      />
-                    </label>
-                  </div>
-                )}
+                      {/* Camera */}
+                      <label className="flex flex-1 cursor-pointer flex-col items-center justify-center bg-gray-50 hover:bg-red-50 transition-all group">
+                        <div className="w-8 h-8 rounded-xl bg-white group-hover:bg-red-100 border border-gray-200 group-hover:border-red-200 flex items-center justify-center transition-all shadow-sm">
+                          <Camera className="h-3.5 w-3.5 text-gray-400 group-hover:text-red-500 transition-colors" />
+                        </div>
+                        <span className="text-[10px] text-gray-400 group-hover:text-red-500 transition-colors font-semibold mt-1.5">
+                          Camera
+                        </span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          capture="environment"
+                          className="hidden"
+                          onChange={handleImageChange}
+                        />
+                      </label>
+                    </div>
+                  )}
                 {isCompressing && (
                   <div className="aspect-square flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-gray-200 bg-gray-50">
                     <Loader2 className="h-5 w-5 text-red-500 animate-spin mb-2" />
