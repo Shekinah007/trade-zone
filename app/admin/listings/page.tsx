@@ -68,6 +68,8 @@ export default function AdminListingsPage() {
       });
   }, []);
 
+  console.log("Listings: ", listings);
+
   const handleSort = (field: SortField) => {
     if (sortField === field) {
       setSortDir(sortDir === "asc" ? "desc" : "asc");
@@ -293,7 +295,7 @@ export default function AdminListingsPage() {
       </div>
 
       {/* Mobile: Card layout */}
-      <div className="space-y-3 md:hidden">
+      <div className="space-y-1 md:hidden">
         {/* Mobile sort controls */}
         <div className="flex gap-2 flex-wrap">
           {(["createdAt", "price", "title"] as SortField[]).map((field) => (
@@ -328,10 +330,10 @@ export default function AdminListingsPage() {
         {filtered.map((listing: any) => (
           <div
             key={listing._id}
-            className="rounded-xl border bg-card p-4 space-y-3"
+            className="rounded-xl border bg-card px-4 py-2 space-y-2"
           >
-            <div className="flex items-start justify-between gap-2">
-              <p className="font-semibold text-sm leading-snug line-clamp-2">
+            <div className="flex items-center justify-between gap-2">
+              <p className="font-semibold text-lg leading-snug line-clamp-2">
                 {listing.listing?.title || listing.model}
               </p>
               <DropdownMenu>

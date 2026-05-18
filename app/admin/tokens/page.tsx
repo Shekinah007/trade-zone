@@ -522,7 +522,7 @@ export default function AdminTokensPage() {
                     tokens.map((token) => (
                       <div
                         key={token._id}
-                        className="p-4 space-y-3 hover:bg-gray-50/50 dark:hover:bg-gray-800/30 transition-colors"
+                        className="border-b border-green-500 p-4 space-y-3 hover:bg-gray-50/50 dark:hover:bg-gray-800/30 transition-colors"
                       >
                         {/* Header Row with Token Code and Actions */}
                         <div className="flex items-start gap-3">
