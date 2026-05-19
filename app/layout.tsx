@@ -81,7 +81,7 @@ export default function RootLayout({
         className={`${inter.className} min-h-screen flex flex-col bg-background text-foreground`}
       >
         <LoadingScreen />
-        <NextTopLoader color="#8a2be2" />
+        <NextTopLoader color="#8a2be2" showSpinner={false} />
         <Providers>
           <TooltipProvider>
             <PageTransition>
