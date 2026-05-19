@@ -9,6 +9,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Analytics } from "@vercel/analytics/next";
+import NextTopLoader from 'nextjs-toploader';
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -28,6 +29,7 @@ export default function RootLayout({
       <body
         className={`${inter.className} min-h-screen flex flex-col bg-background text-foreground`}
       >
+        <NextTopLoader color="#8a2be2" showSpinner={false} />
         <Providers>
           <TooltipProvider>
             <Navbar />

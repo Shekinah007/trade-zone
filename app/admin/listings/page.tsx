@@ -68,8 +68,6 @@ export default function AdminListingsPage() {
       });
   }, []);
 
-  console.log("Listings: ", listings);
-
   const handleSort = (field: SortField) => {
     if (sortField === field) {
       setSortDir(sortDir === "asc" ? "desc" : "asc");
