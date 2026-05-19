@@ -10,7 +10,8 @@ import Footer from "@/components/Footer";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Analytics } from "@vercel/analytics/next";
 import NextTopLoader from "nextjs-toploader";
-import LoadingScreen from "./loading";
+
+import GlobalLoading from "@/components/GlobalLoading";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -33,11 +34,11 @@ export default function RootLayout({
         <NextTopLoader color="#8a2be2" showSpinner={false} />
         <Providers>
           <TooltipProvider>
-            {/* <LoadingScreen> */}
-            <Navbar />
-            <main className="flex-1">{children}</main>
-            <Footer />
-            {/* </LoadingScreen> */}
+            <GlobalLoading>
+              <Navbar />
+              <main className="flex-1">{children}</main>
+              <Footer />
+            </GlobalLoading>
           </TooltipProvider>
         </Providers>
         <Analytics />

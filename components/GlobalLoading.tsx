@@ -1,37 +1,51 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 
-export default function LoadingScreen({
+export default function GlobalLoading({
   children,
 }: {
   children: React.ReactNode;
 }) {
   const [loading, setLoading] = useState(true);
   const [showContent, setShowContent] = useState(false);
+  const [initialLoad, setInitialLoad] = useState(true);
+  const pathname = usePathname();
 
   useEffect(() => {
-    const loadingTimer = setTimeout(() => {
-      setLoading(false);
+    if (initialLoad) {
+      const loadingTimer = setTimeout(() => {
+        setLoading(false);
 
-      setTimeout(() => {
+        setTimeout(() => {
+          setShowContent(true);
+          setInitialLoad(false);
+        }, 150);
+      }, 1800);
+
+      return () => clearTimeout(loadingTimer);
+    } else {
+      // For subsequent page navigations: fade out, then fade in
+      setShowContent(false);
+      const timer = setTimeout(() => {
         setShowContent(true);
       }, 150);
-    }, 1800);
-
-    return () => clearTimeout(loadingTimer);
-  }, []);
+      return () => clearTimeout(timer);
+    }
+  }, [pathname, initialLoad]);
 
   return (
     <>
       {/* Loading Screen */}
-      <div
-        className={`fixed inset-0 z-50 flex flex-col items-center justify-center bg-white transition-all duration-700 ${
-          loading
-            ? "opacity-100 pointer-events-auto"
-            : "opacity-0 pointer-events-none"
-        }`}
-      >
+      {initialLoad && (
+        <div
+          className={`fixed inset-0 z-50 flex flex-col items-center justify-center bg-white transition-all duration-700 ${
+            loading
+              ? "opacity-100 pointer-events-auto"
+              : "opacity-0 pointer-events-none"
+          }`}
+        >
         {/* Animated Rings */}
         <div className="relative flex items-center justify-center">
           <div className="h-24 w-24 animate-spin rounded-full border-[6px] border-red-200 border-t-red-500" />
@@ -62,10 +76,11 @@ export default function LoadingScreen({
         {/* Bottom Glow */}
         <div className="absolute bottom-0 left-0 h-40 w-full bg-gradient-to-t from-green-50 via-red-50 to-transparent" />
       </div>
+      )}
 
       {/* Page Content */}
       <div
-        className={`transition-all duration-700 ${
+        className={`flex-1 flex flex-col transition-all duration-700 ${
           showContent ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
         }`}
       >
