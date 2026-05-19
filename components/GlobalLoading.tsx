@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function GlobalLoading({
   children,
@@ -9,7 +10,6 @@ export default function GlobalLoading({
   children: React.ReactNode;
 }) {
   const [loading, setLoading] = useState(true);
-  const [showContent, setShowContent] = useState(false);
   const [initialLoad, setInitialLoad] = useState(true);
   const pathname = usePathname();
 
@@ -19,21 +19,13 @@ export default function GlobalLoading({
         setLoading(false);
 
         setTimeout(() => {
-          setShowContent(true);
           setInitialLoad(false);
         }, 150);
       }, 1800);
 
       return () => clearTimeout(loadingTimer);
-    } else {
-      // For subsequent page navigations: fade out, then fade in
-      setShowContent(false);
-      const timer = setTimeout(() => {
-        setShowContent(true);
-      }, 150);
-      return () => clearTimeout(timer);
     }
-  }, [pathname, initialLoad]);
+  }, [initialLoad]);
 
   return (
     <>
@@ -79,13 +71,20 @@ export default function GlobalLoading({
       )}
 
       {/* Page Content */}
-      <div
-        className={`flex-1 flex flex-col transition-all duration-700 ${
-          showContent ? "opacity-100 translate-y-0" : "opacity-0 translate-y-0"
-        }`}
-      >
-        {children}
-      </div>
+      <AnimatePresence mode="wait">
+        {!loading && (
+          <motion.div
+            key={pathname}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.4 }}
+            className="flex-1 flex flex-col"
+          >
+            {children}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   );
 }
