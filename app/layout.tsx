@@ -84,11 +84,11 @@ export default function RootLayout({
         <NextTopLoader color="#8a2be2" showSpinner={false} />
         <Providers>
           <TooltipProvider>
+            <Navbar />
             <PageTransition>
-              <Navbar />
               <main className="flex-1">{children}</main>
-              <Footer />
             </PageTransition>
+            <Footer />
           </TooltipProvider>
         </Providers>
         <Analytics />
