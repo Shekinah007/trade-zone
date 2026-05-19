@@ -185,6 +185,7 @@ export async function POST(req: NextRequest) {
       formData.get("chassisNumber"),
     )?.toUpperCase();
     const color = normalize(formData.get("color"));
+    const itemId = normalize(formData.get("itemId"));
 
     const yearOfPurchaseRaw = normalize(formData.get("yearOfPurchase"));
 
@@ -274,7 +275,13 @@ export async function POST(req: NextRequest) {
     const imageFiles = formData.getAll("images");
 
     const uploadPromises = imageFiles
-      .filter((file) => file && typeof file !== "string" && "arrayBuffer" in file && file.size > 0)
+      .filter(
+        (file) =>
+          file &&
+          typeof file !== "string" &&
+          "arrayBuffer" in file &&
+          file.size > 0,
+      )
       .map(async (file: any) => {
         const arrayBuffer = await file.arrayBuffer();
         const buffer = Buffer.from(arrayBuffer);
@@ -302,46 +309,116 @@ export async function POST(req: NextRequest) {
     const imageUrls = await Promise.all(uploadPromises);
 
     // =========================
-    // CREATE ITEM
+    // CREATE OR UPDATE ITEM
     // =========================
 
     const uniqueIdentifier = serialNumber || imei || chassisNumber;
 
-    const newItem = await Item.create({
-      owner: dbUser._id,
+    let property;
+    let existingItem = null;
 
-      brand,
-      model,
-      description,
-      color,
+    if (itemId) {
+      // Find the existing item by explicitly provided ID
+      existingItem = await Item.findOne({ _id: itemId, owner: dbUser._id });
 
-      images: imageUrls,
+      if (!existingItem) {
+        return NextResponse.json(
+          {
+            error:
+              "Item not found or you do not have permission to register it.",
+          },
+          { status: 404 },
+        );
+      }
+    } else if (uniqueIdentifier) {
+      // Try to auto-link by identifier if it exists and is owned by the user
+      existingItem = await Item.findOne({
+        owner: dbUser._id,
+        isRegistered: false,
+        $or: [
+          { "registry.serialNumber": uniqueIdentifier },
+          { "registry.imei": uniqueIdentifier },
+          { "registry.chassisNumber": uniqueIdentifier },
+          { uniqueIdentifier: uniqueIdentifier },
+        ],
+      });
+    }
 
-      uniqueIdentifier,
+    if (existingItem) {
+      if (existingItem.isRegistered) {
+        return NextResponse.json(
+          { error: "This item is already registered." },
+          { status: 400 },
+        );
+      }
 
-      // Registry
-      isRegistered: true,
-      registeredAt: new Date(),
+      // Append any new images to existing ones
+      const combinedImages = [...(existingItem.images || [])];
+      if (imageUrls && imageUrls.length > 0) {
+        combinedImages.push(...imageUrls);
+      }
 
-      itemType,
+      // Update the existing item
+      existingItem.brand = brand || existingItem.brand;
+      (existingItem as any).model = model ?? existingItem.model;
+      if (description) existingItem.description = description;
+      if (color) existingItem.color = color;
+      existingItem.images = combinedImages;
+      existingItem.uniqueIdentifier = uniqueIdentifier;
 
-      ownershipStatus: "owned",
+      // Registry fields
+      existingItem.isRegistered = true;
+      existingItem.registeredAt = new Date();
+      existingItem.itemType = itemType as any;
+      existingItem.ownershipStatus = "owned";
 
-      registry: {
+      existingItem.registry = {
         serialNumber,
         imei,
         chassisNumber,
         yearOfPurchase,
         color,
-      },
+      };
 
-      // Marketplace
-      isListed: false,
-    });
+      await existingItem.save();
+      property = existingItem;
+    } else {
+      property = await Item.create({
+        owner: dbUser._id,
+
+        brand,
+        model,
+        description,
+        color,
+
+        images: imageUrls,
+
+        uniqueIdentifier,
+
+        // Registry
+        isRegistered: true,
+        registeredAt: new Date(),
+
+        itemType,
+
+        ownershipStatus: "owned",
+
+        registry: {
+          serialNumber,
+          imei,
+          chassisNumber,
+          yearOfPurchase,
+          color,
+        },
+
+        // Marketplace
+        isListed: false,
+      });
+    }
 
     return NextResponse.json(
       {
-        property: newItem,
+        property,
       },
       { status: 201 },
     );
