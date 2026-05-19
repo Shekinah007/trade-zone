@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback, memo } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -135,14 +136,20 @@ export default function AdminMobileNav({ user }: Props) {
 
   return (
     <>
-      {/* Floating Action Button - Optimized with transform instead of scale */}
-      <Sheet open={open} onOpenChange={setOpen}>
-        <SheetTrigger asChild>
-          <button className="lg:hidden fixed bottom-6 right-6 z-50 flex items-center gap-2 px-5 py-3.5 rounded-full bg-gradient-to-r from-red-600 to-red-700 text-white shadow-lg shadow-red-500/40 hover:shadow-red-500/60 active:scale-95 transition-transform duration-150 text-sm font-semibold group">
+      {/* Floating Action Button - Rendered in portal to fix positioning issues caused by parent CSS transforms */}
+      {mounted &&
+        createPortal(
+          <button
+            onClick={() => setOpen(true)}
+            className="lg:hidden fixed bottom-6 right-6 z-[100] flex items-center gap-2 px-5 py-3.5 rounded-full bg-gradient-to-r from-red-600 to-red-700 text-white shadow-lg shadow-red-500/40 hover:shadow-red-500/60 active:scale-95 transition-transform duration-150 text-sm font-semibold group"
+          >
             <Menu className="h-4 w-4 transition-transform duration-150 group-hover:rotate-90" />
             <span>Admin Menu</span>
-          </button>
-        </SheetTrigger>
+          </button>,
+          document.body
+        )}
+
+      <Sheet open={open} onOpenChange={setOpen}>
 
         <SheetContent
           side="left"
