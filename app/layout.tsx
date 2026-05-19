@@ -33,11 +33,11 @@ export default function RootLayout({
         <NextTopLoader color="#8a2be2" showSpinner={false} />
         <Providers>
           <TooltipProvider>
-            <LoadingScreen>
-              <Navbar />
-              <main className="flex-1">{children}</main>
-              <Footer />
-            </LoadingScreen>
+            {/* <LoadingScreen> */}
+            <Navbar />
+            <main className="flex-1">{children}</main>
+            <Footer />
+            {/* </LoadingScreen> */}
           </TooltipProvider>
         </Providers>
         <Analytics />

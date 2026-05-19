@@ -56,6 +56,17 @@ export default function Navbar() {
     setMounted(true);
   }, []);
 
+  useEffect(() => {
+    if (isMobileMenuOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isMobileMenuOpen]);
+
   const fetchConversations = async () => {
     try {
       const res = await fetch("/api/conversations");
