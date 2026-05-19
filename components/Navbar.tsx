@@ -38,6 +38,7 @@ import { NotificationDropdown } from "@/components/NotificationDropdown";
 import Image from "next/image";
 import { Badge } from "./ui/badge";
 import { createPortal } from "react-dom";
+import { TransitionLink } from "./TransitionLink";
 
 export default function Navbar() {
   const { data: session } = useSession();
@@ -139,7 +140,7 @@ export default function Navbar() {
           <div className="flex items-center lg:space-x-8">
             {/* Logo */}
 
-            <Link
+            <TransitionLink
               href="/"
               className="flex items-center space-x-2 group shrink-0"
             >
@@ -166,7 +167,7 @@ export default function Navbar() {
                 className="object-contain"
                 priority
               />
-            </Link>
+            </TransitionLink>
 
             {/* Context Switcher Pill */}
             <div className="hidden md:flex items-center p-1 bg-muted rounded-full border border-border/50">
@@ -459,247 +460,253 @@ export default function Navbar() {
       </header>
 
       {/* Mobile Menu Overlay & Content */}
-      {mounted && createPortal(
-        <AnimatePresence>
-          {isMobileMenuOpen && (
-            <>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              className="fixed h-full w-full top-0 inset-0 bg-black/60 z-[60] md:hidden"
-              onClick={closeMobileMenu}
-            />
-            <motion.div
-              initial={{ x: "100%" }}
-              animate={{ x: 0 }}
-              exit={{ x: "100%" }}
-              transition={{ type: "spring", damping: 25, stiffness: 200 }}
-              className="fixed top-0 right-0 h-full w-[300px] bg-background z-[100] shadow-xl flex flex-col md:hidden"
-            >
-              <div className="flex justify-between items-center p-4 border-b">
-                <span className="font-semibold text-lg">Menu</span>
-                <Button variant="ghost" size="icon" onClick={closeMobileMenu}>
-                  <X className="h-5 w-5" />
-                </Button>
-              </div>
-
-              <div className="flex flex-col flex-1 overflow-y-auto p-5 space-y-6">
-                {/* Mobile Mode Switcher */}
-                <div className="flex rounded-lg bg-muted p-1 border">
-                  <button
-                    onClick={() => {
-                      setMode("marketplace");
-                      router.push("/market");
-                      closeMobileMenu();
-                    }}
-                    className={cn(
-                      "flex-1 text-sm py-2 rounded-md font-semibold transition-all",
-                      isMarketplace
-                        ? "bg-emerald-600 text-white shadow-sm"
-                        : "text-muted-foreground",
-                    )}
-                  >
-                    Marketplace
-                  </button>
-                  <button
-                    onClick={() => {
-                      setMode("registry");
-                      router.push("/registry");
-                      closeMobileMenu();
-                    }}
-                    className={cn(
-                      "flex-1 text-sm py-2 rounded-md font-semibold transition-all",
-                      !isMarketplace
-                        ? "bg-red-600 text-white shadow-sm"
-                        : "text-muted-foreground",
-                    )}
-                  >
-                    Registry
-                  </button>
-                </div>
-
-                {menuVisible && (
-                  <form
-                    onSubmit={(e) => {
-                      e.preventDefault();
-                      closeMobileMenu();
-                      handleSearch(e);
-                    }}
-                  >
-                    <div className="relative group">
-                      <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground transition-colors" />
-                      <Input
-                        type="search"
-                        placeholder={
-                          isMarketplace
-                            ? "Search marketplace..."
-                            : "Search registry..."
-                        }
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        className={cn(
-                          "pl-10 bg-muted/50 rounded-full transition-all text-sm",
-                          isMarketplace
-                            ? "focus-visible:ring-emerald-500"
-                            : "focus-visible:ring-red-500",
-                        )}
-                      />
-                    </div>
-                  </form>
-                )}
-
-                <div>
-                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-3">
-                    {isMarketplace ? "Marketplace Menu" : "Registry Menu"}
-                  </p>
-                  <nav className="flex flex-col space-y-1">
-                    {isMarketplace ? (
-                      <>
-                        <Link
-                          onClick={closeMobileMenu}
-                          href="/browse"
-                          className="flex items-center px-3 py-2.5 rounded-xl text-sm font-medium hover:text-emerald-700 hover:bg-emerald-50"
-                        >
-                          Browse Listings
-                        </Link>
-                        <Link
-                          onClick={closeMobileMenu}
-                          href="/categories"
-                          className="flex items-center px-3 py-2.5 rounded-xl text-sm font-medium hover:text-emerald-700 hover:bg-emerald-50"
-                        >
-                          Categories
-                        </Link>
-                      </>
-                    ) : (
-                      <>
-                        <Link
-                          onClick={closeMobileMenu}
-                          href="/dashboard?tab=registry"
-                          className="flex items-center px-3 py-2.5 rounded-xl text-sm font-medium hover:text-red-700 hover:bg-red-50"
-                        >
-                          My Registry
-                        </Link>
-                        <Link
-                          onClick={closeMobileMenu}
-                          href="/registry/search"
-                          className="flex items-center px-3 py-2.5 rounded-xl text-sm font-medium hover:text-red-700 hover:bg-red-50"
-                        >
-                          Search Registry
-                        </Link>
-                      </>
-                    )}
-                  </nav>
-                </div>
-              </div>
-
-              {/* Footer */}
-              <div className="p-5 border-t bg-muted/20">
-                {session ? (
-                  <div className="flex flex-col space-y-3">
-                    <div className="flex items-center gap-3 p-3 rounded-xl bg-background border">
-                      <Avatar className="h-10 w-10">
-                        <AvatarImage src={session.user?.image || ""} />
-                        <AvatarFallback
-                          className={cn(
-                            "text-white font-bold",
-                            isMarketplace ? "bg-emerald-600" : "bg-red-600",
-                          )}
-                        >
-                          {session.user?.name?.charAt(0)}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="flex-1 min-w-0">
-                        <p className="font-semibold text-sm truncate">
-                          {session.user?.name}
-                        </p>
-                        <p className="text-xs text-muted-foreground truncate">
-                          {session.user?.email}
-                        </p>
-                      </div>
-                    </div>
-
-                    <Button
-                      asChild
-                      variant="outline"
-                      className="w-full justify-start rounded-xl"
-                      onClick={closeMobileMenu}
-                    >
-                      <Link href="/dashboard">
-                        <LayoutDashboard className="mr-2 h-4 w-4" /> Dashboard
-                      </Link>
-                    </Button>
-                    <Button
-                      asChild
-                      variant="outline"
-                      className="w-full justify-start rounded-xl"
-                      onClick={closeMobileMenu}
-                    >
-                      <Link href="/">
-                        <Home className="mr-2 h-4 w-4" /> Home
-                      </Link>
-                    </Button>
-
-                    <Button
-                      asChild
-                      className={cn(
-                        "w-full justify-start rounded-full shadow-md",
-                        isMarketplace
-                          ? "bg-emerald-600 hover:bg-emerald-700 text-white"
-                          : "bg-red-600 hover:bg-red-700 text-white",
-                      )}
-                      onClick={closeMobileMenu}
-                    >
-                      {isMarketplace ? (
-                        <Link href="/listings/create">
-                          <PlusCircle className="mr-2 h-4 w-4" /> Post an Ad
-                        </Link>
-                      ) : (
-                        <Link href="/registry/register">
-                          <Shield className="mr-2 h-4 w-4" /> Register Item
-                        </Link>
-                      )}
-                    </Button>
+      {mounted &&
+        createPortal(
+          <AnimatePresence>
+            {isMobileMenuOpen && (
+              <>
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="fixed h-full w-full top-0 inset-0 bg-black/60 z-[60] md:hidden"
+                  onClick={closeMobileMenu}
+                />
+                <motion.div
+                  initial={{ x: "100%" }}
+                  animate={{ x: 0 }}
+                  exit={{ x: "100%" }}
+                  transition={{ type: "spring", damping: 25, stiffness: 200 }}
+                  className="fixed top-0 right-0 h-full w-[300px] bg-background z-[100] shadow-xl flex flex-col md:hidden"
+                >
+                  <div className="flex justify-between items-center p-4 border-b">
+                    <span className="font-semibold text-lg">Menu</span>
                     <Button
                       variant="ghost"
-                      className="w-full justify-start rounded-xl text-destructive hover:bg-destructive/10"
-                      onClick={() => signOut({ callbackUrl: "/" })}
-                    >
-                      <LogOut className="mr-2 h-4 w-4" /> Log out
-                    </Button>
-                  </div>
-                ) : (
-                  <div className="flex flex-col space-y-3">
-                    <Button
-                      asChild
-                      variant="outline"
-                      className="w-full rounded-full"
+                      size="icon"
                       onClick={closeMobileMenu}
                     >
-                      <Link href="/auth/signin">Sign In</Link>
-                    </Button>
-                    <Button
-                      asChild
-                      className={cn(
-                        "w-full rounded-full",
-                        isMarketplace
-                          ? "bg-emerald-600 hover:bg-emerald-700"
-                          : "bg-red-600 hover:bg-red-700",
-                      )}
-                      onClick={closeMobileMenu}
-                    >
-                      <Link href="/auth/signup">Get Started Free</Link>
+                      <X className="h-5 w-5" />
                     </Button>
                   </div>
-                )}
-              </div>
-            </motion.div>
-            </>
-          )}
-        </AnimatePresence>,
-        document.body
-      )}
+
+                  <div className="flex flex-col flex-1 overflow-y-auto p-5 space-y-6">
+                    {/* Mobile Mode Switcher */}
+                    <div className="flex rounded-lg bg-muted p-1 border">
+                      <button
+                        onClick={() => {
+                          setMode("marketplace");
+                          router.push("/market");
+                          closeMobileMenu();
+                        }}
+                        className={cn(
+                          "flex-1 text-sm py-2 rounded-md font-semibold transition-all",
+                          isMarketplace
+                            ? "bg-emerald-600 text-white shadow-sm"
+                            : "text-muted-foreground",
+                        )}
+                      >
+                        Marketplace
+                      </button>
+                      <button
+                        onClick={() => {
+                          setMode("registry");
+                          router.push("/registry");
+                          closeMobileMenu();
+                        }}
+                        className={cn(
+                          "flex-1 text-sm py-2 rounded-md font-semibold transition-all",
+                          !isMarketplace
+                            ? "bg-red-600 text-white shadow-sm"
+                            : "text-muted-foreground",
+                        )}
+                      >
+                        Registry
+                      </button>
+                    </div>
+
+                    {menuVisible && (
+                      <form
+                        onSubmit={(e) => {
+                          e.preventDefault();
+                          closeMobileMenu();
+                          handleSearch(e);
+                        }}
+                      >
+                        <div className="relative group">
+                          <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground transition-colors" />
+                          <Input
+                            type="search"
+                            placeholder={
+                              isMarketplace
+                                ? "Search marketplace..."
+                                : "Search registry..."
+                            }
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            className={cn(
+                              "pl-10 bg-muted/50 rounded-full transition-all text-sm",
+                              isMarketplace
+                                ? "focus-visible:ring-emerald-500"
+                                : "focus-visible:ring-red-500",
+                            )}
+                          />
+                        </div>
+                      </form>
+                    )}
+
+                    <div>
+                      <p className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-3">
+                        {isMarketplace ? "Marketplace Menu" : "Registry Menu"}
+                      </p>
+                      <nav className="flex flex-col space-y-1">
+                        {isMarketplace ? (
+                          <>
+                            <Link
+                              onClick={closeMobileMenu}
+                              href="/browse"
+                              className="flex items-center px-3 py-2.5 rounded-xl text-sm font-medium hover:text-emerald-700 hover:bg-emerald-50"
+                            >
+                              Browse Listings
+                            </Link>
+                            <Link
+                              onClick={closeMobileMenu}
+                              href="/categories"
+                              className="flex items-center px-3 py-2.5 rounded-xl text-sm font-medium hover:text-emerald-700 hover:bg-emerald-50"
+                            >
+                              Categories
+                            </Link>
+                          </>
+                        ) : (
+                          <>
+                            <Link
+                              onClick={closeMobileMenu}
+                              href="/dashboard?tab=registry"
+                              className="flex items-center px-3 py-2.5 rounded-xl text-sm font-medium hover:text-red-700 hover:bg-red-50"
+                            >
+                              My Registry
+                            </Link>
+                            <Link
+                              onClick={closeMobileMenu}
+                              href="/registry/search"
+                              className="flex items-center px-3 py-2.5 rounded-xl text-sm font-medium hover:text-red-700 hover:bg-red-50"
+                            >
+                              Search Registry
+                            </Link>
+                          </>
+                        )}
+                      </nav>
+                    </div>
+                  </div>
+
+                  {/* Footer */}
+                  <div className="p-5 border-t bg-muted/20">
+                    {session ? (
+                      <div className="flex flex-col space-y-3">
+                        <div className="flex items-center gap-3 p-3 rounded-xl bg-background border">
+                          <Avatar className="h-10 w-10">
+                            <AvatarImage src={session.user?.image || ""} />
+                            <AvatarFallback
+                              className={cn(
+                                "text-white font-bold",
+                                isMarketplace ? "bg-emerald-600" : "bg-red-600",
+                              )}
+                            >
+                              {session.user?.name?.charAt(0)}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div className="flex-1 min-w-0">
+                            <p className="font-semibold text-sm truncate">
+                              {session.user?.name}
+                            </p>
+                            <p className="text-xs text-muted-foreground truncate">
+                              {session.user?.email}
+                            </p>
+                          </div>
+                        </div>
+
+                        <Button
+                          asChild
+                          variant="outline"
+                          className="w-full justify-start rounded-xl"
+                          onClick={closeMobileMenu}
+                        >
+                          <Link href="/dashboard">
+                            <LayoutDashboard className="mr-2 h-4 w-4" />{" "}
+                            Dashboard
+                          </Link>
+                        </Button>
+                        <Button
+                          asChild
+                          variant="outline"
+                          className="w-full justify-start rounded-xl"
+                          onClick={closeMobileMenu}
+                        >
+                          <Link href="/">
+                            <Home className="mr-2 h-4 w-4" /> Home
+                          </Link>
+                        </Button>
+
+                        <Button
+                          asChild
+                          className={cn(
+                            "w-full justify-start rounded-full shadow-md",
+                            isMarketplace
+                              ? "bg-emerald-600 hover:bg-emerald-700 text-white"
+                              : "bg-red-600 hover:bg-red-700 text-white",
+                          )}
+                          onClick={closeMobileMenu}
+                        >
+                          {isMarketplace ? (
+                            <Link href="/listings/create">
+                              <PlusCircle className="mr-2 h-4 w-4" /> Post an Ad
+                            </Link>
+                          ) : (
+                            <Link href="/registry/register">
+                              <Shield className="mr-2 h-4 w-4" /> Register Item
+                            </Link>
+                          )}
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          className="w-full justify-start rounded-xl text-destructive hover:bg-destructive/10"
+                          onClick={() => signOut({ callbackUrl: "/" })}
+                        >
+                          <LogOut className="mr-2 h-4 w-4" /> Log out
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="flex flex-col space-y-3">
+                        <Button
+                          asChild
+                          variant="outline"
+                          className="w-full rounded-full"
+                          onClick={closeMobileMenu}
+                        >
+                          <Link href="/auth/signin">Sign In</Link>
+                        </Button>
+                        <Button
+                          asChild
+                          className={cn(
+                            "w-full rounded-full",
+                            isMarketplace
+                              ? "bg-emerald-600 hover:bg-emerald-700"
+                              : "bg-red-600 hover:bg-red-700",
+                          )}
+                          onClick={closeMobileMenu}
+                        >
+                          <Link href="/auth/signup">Get Started Free</Link>
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                </motion.div>
+              </>
+            )}
+          </AnimatePresence>,
+          document.body,
+        )}
     </>
   );
 }

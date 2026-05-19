@@ -34,9 +34,9 @@ export default function RootLayout({
         <NextTopLoader color="#8a2be2" showSpinner={false} />
         <Providers>
           <TooltipProvider>
+            <Navbar />
             <GlobalLoading>
-              <Navbar />
-              <main className="flex-1">{children}</main>
+              <main className="flex-1 main-container">{children}</main>
               <Footer />
             </GlobalLoading>
           </TooltipProvider>

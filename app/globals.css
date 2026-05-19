@@ -192,19 +192,6 @@ html {
   }
 }
 
-body {
-  transition-property: opacity, transform, filter, background;
-  transition-timing-function: ease-in-out;
-  transition-duration: 500ms;
-}
-
-.page-transition {
-  opacity: 0;
-  background: black;
-  transform: translateY(40px);
-  filter: blur(12px);
-}
-
 /* Tiptap content styling */
 .tiptap-content ul {
   list-style-type: disc;
@@ -471,4 +458,17 @@ blockquote {
   position: relative;
   border-radius: 0 8px 8px 0;
   box-shadow: 2px 2px 15px rgba(0, 0, 0, 0.03);
+}
+
+.main-container {
+  transition-property: opacity, transform, filter, background;
+  transition-timing-function: ease-in-out;
+  transition-duration: 500ms;
+}
+
+.page-transition {
+  opacity: 0;
+  /* background: black; */
+  transform: translateY(10px);
+  filter: blur(8px);
 }

@@ -30,18 +30,18 @@ export default function GlobalLoading({
     <>
       <style>{`
         @keyframes fadeSlideIn {
-          from { opacity: 0; transform: translateY(5px); }
+          from { opacity: 0; transform: translateY(20px); }
           to { opacity: 1; transform: translateY(0); }
         }
         .animate-fade-slide-in {
-          animation: fadeSlideIn 0.6s ease-out forwards;
+          animation: fadeSlideIn 0.3s linear;
         }
       `}</style>
 
       {/* Loading Screen */}
       {initialLoad && (
         <div
-          className={`fixed inset-0 z-50 flex flex-col items-center justify-center bg-white transition-all duration-700 ${
+          className={`fixed inset-0 z-50 flex flex-col items-center justify-center bg-green-100 transition-all duration-700 ${
             loading
               ? "opacity-100 pointer-events-auto"
               : "opacity-0 pointer-events-none"
