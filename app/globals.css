@@ -192,6 +192,19 @@ html {
   }
 }
 
+body {
+  transition-property: opacity, transform, filter, background;
+  transition-timing-function: ease-in-out;
+  transition-duration: 500ms;
+}
+
+.page-transition {
+  opacity: 0;
+  background: black;
+  transform: translateY(40px);
+  filter: blur(12px);
+}
+
 /* Tiptap content styling */
 .tiptap-content ul {
   list-style-type: disc;
