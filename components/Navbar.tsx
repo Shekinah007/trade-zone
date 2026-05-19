@@ -15,6 +15,7 @@ import {
   Mail,
   MessageCircle,
   Home,
+  X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -28,12 +29,7 @@ import {
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
-import {
-  Sheet,
-  SheetContent,
-  SheetTrigger,
-  SheetTitle,
-} from "@/components/ui/sheet";
+import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
@@ -41,6 +37,7 @@ import { useAppMode } from "@/components/AppModeContext";
 import { NotificationDropdown } from "@/components/NotificationDropdown";
 import Image from "next/image";
 import { Badge } from "./ui/badge";
+import { createPortal } from "react-dom";
 
 export default function Navbar() {
   const { data: session } = useSession();
@@ -53,6 +50,11 @@ export default function Navbar() {
   const [searchQuery, setSearchQuery] = useState("");
   const router = useRouter();
   const [conversations, setConversations] = useState<any[]>([]);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const fetchConversations = async () => {
     try {
@@ -113,20 +115,24 @@ export default function Navbar() {
   }, []);
 
   return (
-    <header
-      className={cn(
-        "sticky top-0 z-50 w-full transition-all duration-300",
-        scrolled
-          ? "border-b bg-white backdrop-blur-md shadow-sm"
-          : "bg-white border-b",
-      )}
-    >
-      <div className="container mx-auto px-4 h-16 flex items-center justify-between gap-4">
-        <div className="flex items-center lg:space-x-8">
-          {/* Logo */}
+    <>
+      <header
+        className={cn(
+          "sticky top-0 z-50 w-full transition-all duration-300",
+          scrolled
+            ? "border-b bg-white backdrop-blur-md shadow-sm"
+            : "bg-white border-b",
+        )}
+      >
+        <div className="container mx-auto px-4 h-16 flex items-center justify-between gap-4">
+          <div className="flex items-center lg:space-x-8">
+            {/* Logo */}
 
-          <Link href="/" className="flex items-center space-x-2 group shrink-0">
-            {/* <div
+            <Link
+              href="/"
+              className="flex items-center space-x-2 group shrink-0"
+            >
+              {/* <div
               className={cn(
                 "p-2 rounded-xl transition-colors",
                 isMarketplace
@@ -141,133 +147,133 @@ export default function Navbar() {
               )}
             </div> */}
 
-            <Image
-              src="/LOGO_DESIGN/Logo Resources/Transparent/Combo.png" // or "/logo.png" depending on your file
-              alt="FindMaster"
-              width={180}
-              height={180}
-              className="object-contain"
-              priority
-            />
-          </Link>
+              <Image
+                src="/LOGO_DESIGN/Logo Resources/Transparent/Combo.png" // or "/logo.png" depending on your file
+                alt="FindMaster"
+                width={180}
+                height={180}
+                className="object-contain"
+                priority
+              />
+            </Link>
 
-          {/* Context Switcher Pill */}
-          <div className="hidden md:flex items-center p-1 bg-muted rounded-full border border-border/50">
-            <button
-              onClick={() => {
-                setMode("marketplace");
-                router.push("/market");
-              }}
-              className={cn(
-                "flex items-center px-4 py-1.5 rounded-full text-sm font-medium transition-all",
-                isMarketplace
-                  ? "bg-emerald-600 text-white shadow-sm"
-                  : "text-muted-foreground hover:text-foreground",
-              )}
-            >
-              Marketplace
-            </button>
-            <button
-              onClick={() => {
-                setMode("registry");
-                router.push("/registry");
-              }}
-              className={cn(
-                "flex items-center px-4 py-1.5 rounded-full text-sm font-medium transition-all",
-                !isMarketplace
-                  ? "bg-red-600 text-white shadow-sm"
-                  : "text-muted-foreground hover:text-foreground",
-              )}
-            >
-              Registry
-            </button>
+            {/* Context Switcher Pill */}
+            <div className="hidden md:flex items-center p-1 bg-muted rounded-full border border-border/50">
+              <button
+                onClick={() => {
+                  setMode("marketplace");
+                  router.push("/market");
+                }}
+                className={cn(
+                  "flex items-center px-4 py-1.5 rounded-full text-sm font-medium transition-all",
+                  isMarketplace
+                    ? "bg-emerald-600 text-white shadow-sm"
+                    : "text-muted-foreground hover:text-foreground",
+                )}
+              >
+                Marketplace
+              </button>
+              <button
+                onClick={() => {
+                  setMode("registry");
+                  router.push("/registry");
+                }}
+                className={cn(
+                  "flex items-center px-4 py-1.5 rounded-full text-sm font-medium transition-all",
+                  !isMarketplace
+                    ? "bg-red-600 text-white shadow-sm"
+                    : "text-muted-foreground hover:text-foreground",
+                )}
+              >
+                Registry
+              </button>
+            </div>
           </div>
-        </div>
 
-        {/* Desktop Nav */}
-        <nav className="hidden lg:flex items-center space-x-6 text-sm font-medium">
-          {isMarketplace ? (
-            <>
-              <Link
-                href="/browse"
-                className="transition-colors hover:text-emerald-600 text-foreground/80"
+          {/* Desktop Nav */}
+          <nav className="hidden lg:flex items-center space-x-6 text-sm font-medium">
+            {isMarketplace ? (
+              <>
+                <Link
+                  href="/browse"
+                  className="transition-colors hover:text-emerald-600 text-foreground/80"
+                >
+                  Browse
+                </Link>
+                <Link
+                  href="/categories"
+                  className="transition-colors hover:text-emerald-600 text-foreground/80"
+                >
+                  Categories
+                </Link>
+              </>
+            ) : (
+              <>
+                <Link
+                  href="/dashboard?tab=registry"
+                  className="transition-colors hover:text-red-600 text-foreground/80"
+                >
+                  My Registry
+                </Link>
+              </>
+            )}
+          </nav>
+
+          {/* Desktop Search */}
+          <form
+            onSubmit={handleSearch}
+            className="hidden md:flex flex-1 items-center justify-center max-w-sm"
+          >
+            <div className="relative w-full group">
+              <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground transition-colors" />
+              <Input
+                type="search"
+                placeholder={
+                  isMarketplace
+                    ? "Search marketplace..."
+                    : "Search IMEI/Serial..."
+                }
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className={cn(
+                  "w-full pl-10 bg-muted/50 transition-all rounded-full focus-visible:ring-1",
+                  isMarketplace
+                    ? "focus-visible:ring-emerald-500"
+                    : "focus-visible:ring-red-500",
+                )}
+              />
+            </div>
+          </form>
+
+          {/* Right Actions */}
+          <div className="flex items-center space-x-3 shrink-0">
+            {isMarketplace ? (
+              <Button
+                asChild
+                variant="default"
+                size="sm"
+                className="hidden md:flex rounded-full px-6 shadow-md hover:shadow-lg transition-all bg-emerald-600 hover:bg-emerald-700 text-white border-0"
               >
-                Browse
-              </Link>
-              <Link
-                href="/categories"
-                className="transition-colors hover:text-emerald-600 text-foreground/80"
+                <Link href="/listings/create">
+                  <PlusCircle className="h-4 w-4 mr-2" />
+                  Post Ad
+                </Link>
+              </Button>
+            ) : (
+              <Button
+                asChild
+                variant="default"
+                size="sm"
+                className="hidden md:flex rounded-full px-5 shadow-md bg-red-600 hover:bg-red-700 text-white transition-all border-0"
               >
-                Categories
-              </Link>
-            </>
-          ) : (
-            <>
-              <Link
-                href="/dashboard?tab=registry"
-                className="transition-colors hover:text-red-600 text-foreground/80"
-              >
-                My Registry
-              </Link>
-            </>
-          )}
-        </nav>
+                <Link href="/registry/register">
+                  <Shield className="h-4 w-4 mr-2" />
+                  Register Item
+                </Link>
+              </Button>
+            )}
 
-        {/* Desktop Search */}
-        <form
-          onSubmit={handleSearch}
-          className="hidden md:flex flex-1 items-center justify-center max-w-sm"
-        >
-          <div className="relative w-full group">
-            <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground transition-colors" />
-            <Input
-              type="search"
-              placeholder={
-                isMarketplace
-                  ? "Search marketplace..."
-                  : "Search IMEI/Serial..."
-              }
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className={cn(
-                "w-full pl-10 bg-muted/50 transition-all rounded-full focus-visible:ring-1",
-                isMarketplace
-                  ? "focus-visible:ring-emerald-500"
-                  : "focus-visible:ring-red-500",
-              )}
-            />
-          </div>
-        </form>
-
-        {/* Right Actions */}
-        <div className="flex items-center space-x-3 shrink-0">
-          {isMarketplace ? (
-            <Button
-              asChild
-              variant="default"
-              size="sm"
-              className="hidden md:flex rounded-full px-6 shadow-md hover:shadow-lg transition-all bg-emerald-600 hover:bg-emerald-700 text-white border-0"
-            >
-              <Link href="/listings/create">
-                <PlusCircle className="h-4 w-4 mr-2" />
-                Post Ad
-              </Link>
-            </Button>
-          ) : (
-            <Button
-              asChild
-              variant="default"
-              size="sm"
-              className="hidden md:flex rounded-full px-5 shadow-md bg-red-600 hover:bg-red-700 text-white transition-all border-0"
-            >
-              <Link href="/registry/register">
-                <Shield className="h-4 w-4 mr-2" />
-                Register Item
-              </Link>
-            </Button>
-          )}
-
-          {/* <Button
+            {/* <Button
             asChild
             variant="default"
             size="sm"
@@ -278,161 +284,195 @@ export default function Navbar() {
             </Link>
           </Button> */}
 
-          {session ? (
-            <div className="flex items-center space-x-2">
-              <Button
-                asChild
-                variant="default"
-                size="sm"
-                className={`md:flex rounded-full shadow-md bg-white hover:bg-gray-200 transition-all border ${isMarketplace ? "text-emerald-500" : "text-red-500"}`}
-              >
-                <Link href="/">
-                  <Home className="h-5 w-5" />
-                </Link>
-              </Button>
-              <NotificationDropdown />
-              <Button
-                variant="ghost"
-                onClick={async () => {
-                  await fetchConversations();
-                  router.push("/messages");
-                }}
-                className={cn(
-                  "relative h-9 w-9 rounded-full ring-2 ring-transparent transition-all shadow-md border",
-                  isMarketplace
-                    ? "hover:ring-emerald-500/30 text-emerald-600"
-                    : "hover:ring-red-500/30 text-red-500",
-                )}
-              >
-                <MessageCircle className="h-5 w-5" />
-                {unreadCount > 0 && (
-                  <Badge
-                    variant="destructive"
-                    className="absolute -top-1 -right-1"
-                  >
-                    {unreadCount}
-                  </Badge>
-                )}
-              </Button>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    className={cn(
-                      "relative h-9 w-9 rounded-full ring-2 ring-transparent transition-all",
-                      isMarketplace
-                        ? "hover:ring-emerald-500/30"
-                        : "hover:ring-red-500/30",
-                    )}
-                  >
-                    <Avatar className="h-9 w-9">
-                      <AvatarImage
-                        src={session.user?.image || ""}
-                        alt={session.user?.name || ""}
-                      />
-                      <AvatarFallback
-                        className={cn(
-                          "text-white",
-                          isMarketplace ? "bg-emerald-600" : "bg-red-600",
-                        )}
-                      >
-                        {session.user?.name?.charAt(0) || "U"}
-                      </AvatarFallback>
-                    </Avatar>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent
-                  className="w-56 mt-2"
-                  align="end"
-                  forceMount
+            {session ? (
+              <div className="flex items-center space-x-2">
+                <Button
+                  asChild
+                  variant="default"
+                  size="sm"
+                  className={`md:flex rounded-full shadow-md bg-white hover:bg-gray-200 transition-all border ${isMarketplace ? "text-emerald-500" : "text-red-500"}`}
                 >
-                  <DropdownMenuLabel className="font-normal">
-                    <div className="flex flex-col space-y-1">
-                      <p className="text-sm font-medium leading-none">
-                        {session.user?.name}
-                      </p>
-                      <p className="text-xs leading-none text-muted-foreground">
-                        {session.user?.email}
-                      </p>
-                    </div>
-                  </DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem asChild>
-                    <Link href="/dashboard" className="cursor-pointer">
-                      <LayoutDashboard className="mr-2 h-4 w-4" /> Dashboard
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link href="/saved" className="cursor-pointer">
-                      <Heart className="mr-2 h-4 w-4" /> Saved Listings
-                    </Link>
-                  </DropdownMenuItem>
-
-                  <DropdownMenuItem asChild>
-                    <Link href="/settings" className="cursor-pointer">
-                      <User className="mr-2 h-4 w-4" /> Profile
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link href="/" className="cursor-pointer">
-                      <Home className="mr-2 h-4 w-4" /> Home
-                    </Link>
-                  </DropdownMenuItem>
-                  {session?.user?.role === "admin" && (
-                    <>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem asChild>
-                        <Link
-                          href="/admin"
-                          className="cursor-pointer text-purple-600"
-                        >
-                          <LayoutDashboard className="mr-2 h-4 w-4" /> Admin
-                          Panel
-                        </Link>
-                      </DropdownMenuItem>
-                    </>
+                  <Link href="/">
+                    <Home className="h-5 w-5" />
+                  </Link>
+                </Button>
+                <NotificationDropdown />
+                <Button
+                  variant="ghost"
+                  onClick={async () => {
+                    await fetchConversations();
+                    router.push("/messages");
+                  }}
+                  className={cn(
+                    "relative h-9 w-9 rounded-full ring-2 ring-transparent transition-all shadow-md border",
+                    isMarketplace
+                      ? "hover:ring-emerald-500/30 text-emerald-600"
+                      : "hover:ring-red-500/30 text-red-500",
                   )}
-
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem
-                    onClick={() => signOut({ callbackUrl: "/" })}
-                    className="cursor-pointer text-destructive focus:text-destructive"
+                >
+                  <MessageCircle className="h-5 w-5" />
+                  {unreadCount > 0 && (
+                    <Badge
+                      variant="destructive"
+                      className="absolute -top-1 -right-1"
+                    >
+                      {unreadCount}
+                    </Badge>
+                  )}
+                </Button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      className={cn(
+                        "relative h-9 w-9 rounded-full ring-2 ring-transparent transition-all",
+                        isMarketplace
+                          ? "hover:ring-emerald-500/30"
+                          : "hover:ring-red-500/30",
+                      )}
+                    >
+                      <Avatar className="h-9 w-9">
+                        <AvatarImage
+                          src={session.user?.image || ""}
+                          alt={session.user?.name || ""}
+                        />
+                        <AvatarFallback
+                          className={cn(
+                            "text-white",
+                            isMarketplace ? "bg-emerald-600" : "bg-red-600",
+                          )}
+                        >
+                          {session.user?.name?.charAt(0) || "U"}
+                        </AvatarFallback>
+                      </Avatar>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent
+                    className="w-56 mt-2"
+                    align="end"
+                    forceMount
                   >
-                    <LogOut className="mr-2 h-4 w-4" /> Log out
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-          ) : (
-            <div className="hidden md:flex items-center space-x-2">
-              <Button asChild variant="ghost" size="sm">
-                <Link href="/auth/signin">Sign In</Link>
-              </Button>
-              <Button
-                asChild
-                size="sm"
-                className={cn(
-                  "rounded-full",
-                  isMarketplace
-                    ? "bg-emerald-600 hover:bg-emerald-700"
-                    : "bg-red-600 hover:bg-red-700",
-                )}
-              >
-                <Link href="/auth/signup">Sign Up</Link>
-              </Button>
-            </div>
-          )}
+                    <DropdownMenuLabel className="font-normal">
+                      <div className="flex flex-col space-y-1">
+                        <p className="text-sm font-medium leading-none">
+                          {session.user?.name}
+                        </p>
+                        <p className="text-xs leading-none text-muted-foreground">
+                          {session.user?.email}
+                        </p>
+                      </div>
+                    </DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild>
+                      <Link href="/dashboard" className="cursor-pointer">
+                        <LayoutDashboard className="mr-2 h-4 w-4" /> Dashboard
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link href="/saved" className="cursor-pointer">
+                        <Heart className="mr-2 h-4 w-4" /> Saved Listings
+                      </Link>
+                    </DropdownMenuItem>
 
-          {/* Mobile Menu */}
-          <Sheet open={isMobileMenuOpen} onOpenChange={openMobileMenu}>
-            <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="md:hidden">
+                    <DropdownMenuItem asChild>
+                      <Link href="/settings" className="cursor-pointer">
+                        <User className="mr-2 h-4 w-4" /> Profile
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link href="/" className="cursor-pointer">
+                        <Home className="mr-2 h-4 w-4" /> Home
+                      </Link>
+                    </DropdownMenuItem>
+                    {session?.user?.role === "admin" && (
+                      <>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem asChild>
+                          <Link
+                            href="/admin"
+                            className="cursor-pointer text-purple-600"
+                          >
+                            <LayoutDashboard className="mr-2 h-4 w-4" /> Admin
+                            Panel
+                          </Link>
+                        </DropdownMenuItem>
+                      </>
+                    )}
+
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
+                      onClick={() => signOut({ callbackUrl: "/" })}
+                      className="cursor-pointer text-destructive focus:text-destructive"
+                    >
+                      <LogOut className="mr-2 h-4 w-4" /> Log out
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+            ) : (
+              <div className="hidden md:flex items-center space-x-2">
+                <Button asChild variant="ghost" size="sm">
+                  <Link href="/auth/signin">Sign In</Link>
+                </Button>
+                <Button
+                  asChild
+                  size="sm"
+                  className={cn(
+                    "rounded-full",
+                    isMarketplace
+                      ? "bg-emerald-600 hover:bg-emerald-700"
+                      : "bg-red-600 hover:bg-red-700",
+                  )}
+                >
+                  <Link href="/auth/signup">Sign Up</Link>
+                </Button>
+              </div>
+            )}
+
+            {/* Mobile Menu Toggle */}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="md:hidden"
+              onClick={() => openMobileMenu(!isMobileMenuOpen)}
+            >
+              {isMobileMenuOpen ? (
+                <X className="h-10 w-10" />
+              ) : (
                 <Menu className="h-10 w-10" />
-                <span className="sr-only">Toggle menu</span>
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="right" className="w-[300px] p-0 flex flex-col">
-              <SheetTitle className="sr-only">Menu</SheetTitle>
+              )}
+              <span className="sr-only">Toggle menu</span>
+            </Button>
+          </div>
+        </div>
+      </header>
+
+      {/* Mobile Menu Overlay & Content */}
+      {mounted && createPortal(
+        <AnimatePresence>
+          {isMobileMenuOpen && (
+            <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="fixed h-full w-full top-0 inset-0 bg-black/60 z-[60] md:hidden"
+              onClick={closeMobileMenu}
+            />
+            <motion.div
+              initial={{ x: "100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "100%" }}
+              transition={{ type: "spring", damping: 25, stiffness: 200 }}
+              className="fixed top-0 right-0 h-full w-[300px] bg-background z-[100] shadow-xl flex flex-col md:hidden"
+            >
+              <div className="flex justify-between items-center p-4 border-b">
+                <span className="font-semibold text-lg">Menu</span>
+                <Button variant="ghost" size="icon" onClick={closeMobileMenu}>
+                  <X className="h-5 w-5" />
+                </Button>
+              </div>
 
               <div className="flex flex-col flex-1 overflow-y-auto p-5 space-y-6">
                 {/* Mobile Mode Switcher */}
@@ -643,10 +683,12 @@ export default function Navbar() {
                   </div>
                 )}
               </div>
-            </SheetContent>
-          </Sheet>
-        </div>
-      </div>
-    </header>
+            </motion.div>
+            </>
+          )}
+        </AnimatePresence>,
+        document.body
+      )}
+    </>
   );
 }
