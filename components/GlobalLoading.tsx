@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
 
 export default function GlobalLoading({
   children,
@@ -29,6 +28,16 @@ export default function GlobalLoading({
 
   return (
     <>
+      <style>{`
+        @keyframes fadeSlideIn {
+          from { opacity: 0; transform: translateY(0px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-slide-in {
+          animation: fadeSlideIn 0.4s ease-out forwards;
+        }
+      `}</style>
+
       {/* Loading Screen */}
       {initialLoad && (
         <div
@@ -71,20 +80,14 @@ export default function GlobalLoading({
       )}
 
       {/* Page Content */}
-      <AnimatePresence mode="wait">
-        {!loading && (
-          <motion.div
-            key={pathname}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.4 }}
-            className="flex-1 flex flex-col"
-          >
-            {children}
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {!loading && (
+        <div
+          key={pathname}
+          className="flex-1 flex flex-col animate-fade-slide-in"
+        >
+          {children}
+        </div>
+      )}
     </>
   );
 }
