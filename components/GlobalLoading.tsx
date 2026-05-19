@@ -30,11 +30,11 @@ export default function GlobalLoading({
     <>
       <style>{`
         @keyframes fadeSlideIn {
-          from { opacity: 0; transform: translateY(0px); }
+          from { opacity: 0; transform: translateY(5px); }
           to { opacity: 1; transform: translateY(0); }
         }
         .animate-fade-slide-in {
-          animation: fadeSlideIn 0.4s ease-out forwards;
+          animation: fadeSlideIn 0.6s ease-out forwards;
         }
       `}</style>
 
