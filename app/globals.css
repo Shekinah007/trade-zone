@@ -172,24 +172,11 @@ html:not(_):not(_) {
   /* intentionally empty — keeps specificity for overrides if needed */
 }
 
-@supports not (-moz-appearance: none) {
-  html {
-    zoom: 0.85;
-  }
-}
-
+/* zoom: 0.85 for all browsers — Firefox supports zoom natively since v126 (May 2024).
+   We intentionally avoid transform: scale() on <html> because it creates a new
+   containing block for position:fixed elements, breaking fixed navbars & modals. */
 html {
-  /* For Chromium (Chrome, Edge, Opera, etc.) */
   zoom: 0.85;
-}
-
-/* For Firefox */
-@-moz-document url-prefix() {
-  html {
-    transform: scale(0.85);
-    transform-origin: top left;
-    width: 117.647%; /* 1 / 0.85 ≈ 1.17647 → 117.647% to prevent horizontal scroll */
-  }
 }
 
 /* Tiptap content styling */
@@ -464,6 +451,14 @@ blockquote {
   transition-property: opacity, transform, filter, background;
   transition-timing-function: ease-in-out;
   transition-duration: 500ms;
+}
+
+/* Admin pages must not have transform/filter on the container — they break
+   position:fixed for the sidebar and floating menu button in all browsers. */
+.admin-no-transition {
+  transition: none !important;
+  transform: none !important;
+  filter: none !important;
 }
 
 .page-transition {

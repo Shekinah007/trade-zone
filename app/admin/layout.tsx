@@ -28,9 +28,9 @@ export default async function AdminLayout({
   }
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
-      {/* Sidebar */}
-      <aside className="hidden w-70 lg:block">
+    <div className="flex bg-gray-50" style={{ transform: "none", filter: "none", isolation: "isolate" }}>
+      {/* Sidebar — sticky+h-screen keeps it fixed in Firefox without position:fixed */}
+      <aside className="hidden lg:block sticky top-0 h-screen w-70 shrink-0">
         <div className="flex h-full flex-col bg-linear-to-br from-white via-red-50/20 to-white dark:from-gray-900 dark:via-red-950/10 dark:to-gray-900 shadow-2xl">
           {/* Header with red gradient */}
           <div className="flex h-16 items-center border-b border-red-100/50 px-6 dark:border-red-900/30">
@@ -72,8 +72,8 @@ export default async function AdminLayout({
         </div>
       </aside>
 
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col">
+      {/* Main Content — min-h-screen ensures the column drives page height */}
+      <div className="flex-1 flex flex-col min-h-screen">
         <main className="flex-1 p-4 md:p-8 rounded-4xl md:bg-white md:m-5">
           <AdminMobileNav user={session.user} />
 

@@ -79,11 +79,12 @@ export default function GlobalLoading({
         </div>
       )}
 
-      {/* Page Content */}
+      {/* Page Content — admin routes skip the transform animation to avoid
+          creating a stacking context that breaks position:fixed children */}
       {!loading && (
         <div
           key={pathname}
-          className="flex-1 flex flex-col animate-fade-slide-in"
+          className={`flex-1 flex flex-col${pathname.startsWith("/admin") ? "" : " animate-fade-slide-in"}`}
         >
           {children}
         </div>

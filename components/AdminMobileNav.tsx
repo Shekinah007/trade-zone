@@ -141,7 +141,8 @@ export default function AdminMobileNav({ user }: Props) {
         createPortal(
           <button
             onClick={() => setOpen(true)}
-            className="lg:hidden fixed bottom-6 right-6 z-[100] flex items-center gap-2 px-5 py-3.5 rounded-full bg-gradient-to-r from-red-600 to-red-700 text-white shadow-lg shadow-red-500/40 hover:shadow-red-500/60 active:scale-95 transition-transform duration-150 text-sm font-semibold group"
+            style={{ position: "fixed", bottom: "1.5rem", right: "1.5rem" }}
+            className="lg:hidden z-[100] flex items-center gap-2 px-5 py-3.5 rounded-full bg-gradient-to-r from-red-600 to-red-700 text-white shadow-lg shadow-red-500/40 hover:shadow-red-500/60 hover:scale-105 transition-all duration-150 text-sm font-semibold group"
           >
             <Menu className="h-4 w-4 transition-transform duration-150 group-hover:rotate-90" />
             <span>Admin Menu</span>
