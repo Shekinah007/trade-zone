@@ -77,12 +77,12 @@ export function HistoryTab({
                       <div className="flex flex-col items-end gap-1">
                         <span className="font-bold text-sm">
                           {p.paymentMethod === "naira" ||
-                          p.paymentMethod === "paystack"
+                            p.paymentMethod === "paystack"
                             ? "₦"
                             : ""}
                           {p.amountPaid}
                           {p.paymentMethod === "credit" ||
-                          p.paymentMethod === "credits"
+                            p.paymentMethod === "credits"
                             ? " Credits"
                             : ""}
                         </span>
@@ -149,6 +149,13 @@ export function HistoryTab({
                             <p className="font-semibold text-sm">
                               {item?.brand} {item?.model}
                             </p>
+                            
+                            {(item?.uniqueId || item?.imei || item?.serialNumber || item?.chasisNumber) && (
+                              <p className="text-[11px] text-muted-foreground/80 font-mono mt-0.5 mb-1">
+                                ID: {item.uniqueId || item.imei || item.serialNumber || item.chasisNumber}
+                              </p>
+                            )}
+
                             <p className="text-xs text-muted-foreground">
                               {isIncoming ? (
                                 <>
@@ -184,7 +191,7 @@ export function HistoryTab({
                               t.status === "accepted"
                                 ? "default"
                                 : t.status === "declined" ||
-                                    t.status === "cancelled"
+                                  t.status === "cancelled"
                                   ? "destructive"
                                   : "secondary"
                             }
