@@ -68,7 +68,7 @@ export function TokenPurchaseModal({
             setSettings({
               registrationCreditCost: data.registrationCreditCost || 10,
               registrationPriceNGN: data.registrationPriceNGN || 1000,
-              unlimitedRegistrationPriceNGN: data.unlimitedRegistrationPriceNGN,
+              unlimitedRegistrationPriceNGN: data.unlimitedRegistrationPriceNGN || 10000,
             });
           }
         })

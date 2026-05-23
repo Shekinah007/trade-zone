@@ -34,6 +34,7 @@ import Item from "@/models/Item";
 import TransferRequest from "@/models/TransferRequest";
 import Purchase from "@/models/Purchase";
 import "@/models/FeaturedTier";
+import "@/models/BoostTier";
 import { ListingCard } from "@/components/ListingCard";
 import { TransfersTab } from "@/components/TransfersTab";
 import { HistoryTab } from "@/components/HistoryTab";

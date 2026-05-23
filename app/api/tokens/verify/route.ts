@@ -84,10 +84,9 @@ export async function GET(req: NextRequest) {
 
     if (!isQuotaPurchase) {
       let settings = await SystemSettings.findOne();
-
-      const fallbackSettings = { unlimitedRegistrationPriceNGN: 10000 };
-      const effectiveSettings = settings ?? fallbackSettings;
-      // if (!settings) settings = { unlimitedRegistrationPriceNGN: 10000 };
+      if (!settings) {
+        settings = await SystemSettings.create({});
+      }
 
       // Check tiers
       if (amount === 100000) {
@@ -96,13 +95,9 @@ export async function GET(req: NextRequest) {
         limitIncreased = true;
       } else if (
         amount ===
-        effectiveSettings.unlimitedRegistrationPriceNGN * 100
+        settings.unlimitedRegistrationPriceNGN * 100
       ) {
         // Tier 2: Unlimited
-        user.unlimitedRegistrations = true;
-        limitIncreased = true;
-      } else if (amount === 1000000) {
-        // Fallback for hardcoded 10k unlimited
         user.unlimitedRegistrations = true;
         limitIncreased = true;
       } else {
