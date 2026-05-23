@@ -33,6 +33,7 @@ import dbConnect from "@/lib/db";
 import Item from "@/models/Item";
 import TransferRequest from "@/models/TransferRequest";
 import Purchase from "@/models/Purchase";
+import "@/models/FeaturedTier";
 import { ListingCard } from "@/components/ListingCard";
 import { TransfersTab } from "@/components/TransfersTab";
 import { HistoryTab } from "@/components/HistoryTab";
@@ -99,7 +100,8 @@ async function getUserTransfers(userId: string | undefined) {
 async function getUserHistory(userId: string | undefined) {
   await dbConnect();
   const purchases = await Purchase.find({ user: userId })
-    .populate("item", "brand model")
+    .populate("tier")
+    .populate("item", "brand model images listing")
     .sort({ createdAt: -1 })
     .lean();
 
@@ -108,7 +110,7 @@ async function getUserHistory(userId: string | undefined) {
   })
     .populate("fromUser", "name email")
     .populate("toUser", "name email")
-    .populate("itemId", "brand model images itemType")
+    .populate("itemId", "brand model images itemType uniqueId imei serialNumber chasisNumber")
     .sort({ createdAt: -1 })
     .lean();
 
@@ -481,11 +483,11 @@ export default async function DashboardPage({ searchParams }: any) {
                       <span className="sm:hidden">Transfers</span>
                       {(transfers.incoming.length > 0 ||
                         transfers.outgoing.length > 0) && (
-                        <span className="absolute -top-0.5 -right-0.5 flex h-2.5 w-2.5">
-                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
-                          <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-purple-500"></span>
-                        </span>
-                      )}
+                          <span className="absolute -top-0.5 -right-0.5 flex h-2.5 w-2.5">
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
+                            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-purple-500"></span>
+                          </span>
+                        )}
                     </TabsTrigger>
                     <TabsTrigger
                       value="history"
@@ -907,13 +909,13 @@ export default async function DashboardPage({ searchParams }: any) {
                                 {(p.registry?.imei ||
                                   p.registry?.serialNumber ||
                                   p.registry?.chassisNumber) && (
-                                  <div className="text-[9px] font-mono bg-muted/40 px-1.5 py-0.5 rounded truncate">
-                                    🔑{" "}
-                                    {p.registry?.imei ||
-                                      p.registry?.serialNumber ||
-                                      p.registry?.chassisNumber}
-                                  </div>
-                                )}
+                                    <div className="text-[9px] font-mono bg-muted/40 px-1.5 py-0.5 rounded truncate">
+                                      🔑{" "}
+                                      {p.registry?.imei ||
+                                        p.registry?.serialNumber ||
+                                        p.registry?.chassisNumber}
+                                    </div>
+                                  )}
 
                                 {p.ownershipStatus === "missing" && (
                                   <div className="text-[9px] font-semibold text-red-600 bg-red-500/10 border border-red-500/20 px-1.5 py-0.5 rounded flex items-center gap-0.5">

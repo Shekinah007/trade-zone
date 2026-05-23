@@ -43,6 +43,10 @@ export async function POST(req: NextRequest) {
         paymentMethod: "credit",
         amountPaid: pack.creditCost,
         status: "success",
+        metadata: {
+          slotCount: pack.slotCount,
+          packName: pack.name,
+        },
       });
 
       return NextResponse.json({ success: true, message: "Pack purchased with credits", listingQuota: user.listingQuota });
@@ -80,6 +84,10 @@ export async function POST(req: NextRequest) {
          amountPaid: pack.priceNGN,
          status: "success",
          reference,
+         metadata: {
+           slotCount: pack.slotCount,
+           packName: pack.name,
+         },
        });
 
        return NextResponse.json({ success: true, message: "Pack purchased via Paystack", listingQuota: user.listingQuota });

@@ -1,15 +1,104 @@
+import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
   ArrowRight,
-  ArrowLeft,
   Clock,
   CreditCard,
   ShoppingCart,
   Shield,
   ArrowLeftRight,
+  Package,
+  Zap,
+  Star,
 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
+
+// ─── helpers ───────────────────────────────────────────────────────────────
+
+function formatAmount(p: any) {
+  const method = p.paymentMethod;
+  if (method === "naira" || method === "paystack") return `₦${p.amountPaid.toLocaleString()}`;
+  if (method === "credit" || method === "credits") return `${p.amountPaid} Credits`;
+  if (method === "token") return `${p.amountPaid} Tokens`;
+  return `${p.amountPaid}`;
+}
+
+function statusVariant(status: string): "default" | "destructive" | "secondary" | "outline" {
+  if (status === "success") return "default";
+  if (status === "failed") return "destructive";
+  return "secondary";
+}
+
+/** Returns the icon, label, and type-specific chips for a purchase row */
+function getPurchaseMeta(p: any): {
+  icon: React.ReactNode;
+  label: string;
+  subLabel?: string;
+  chips: { text: string; color: string }[];
+} {
+  const tier = p.tier;
+  const meta = p.metadata || {};
+
+  switch (p.type as string) {
+    case "pack": {
+      const packName = meta.packName || tier?.name || "Listing Pack";
+      const slotCount = meta.slotCount ?? tier?.slotCount;
+      return {
+        icon: <Package className="h-4 w-4 text-emerald-600" />,
+        label: `Listing Pack — ${packName}`,
+        subLabel: "Marketplace listing slots",
+        chips: slotCount != null
+          ? [{ text: `+${slotCount} listing slot${slotCount !== 1 ? "s" : ""}`, color: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300" }]
+          : [],
+      };
+    }
+    case "registration": {
+      const qty = meta.quantity ?? 1;
+      return {
+        icon: <Shield className="h-4 w-4 text-red-600" />,
+        label: "Registry Quota",
+        subLabel: "Property registration slots",
+        chips: [{ text: `+${qty} registry slot${qty !== 1 ? "s" : ""}`, color: "bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300" }],
+      };
+    }
+    case "boost": {
+      const tierName = meta.tierName || tier?.name || "Boost";
+      const days = meta.durationInDays ?? tier?.durationInDays;
+      const itemLabel = p.item ? `${p.item.brand || ""} ${p.item.model || ""}`.trim() : null;
+      return {
+        icon: <Zap className="h-4 w-4 text-amber-600" />,
+        label: `Listing Boost — ${tierName}`,
+        subLabel: itemLabel || "Boost applied to listing",
+        chips: days != null
+          ? [{ text: `${days} day${days !== 1 ? "s" : ""}`, color: "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300" }]
+          : [],
+      };
+    }
+    case "featured": {
+      const tierName = meta.tierName || tier?.name || "Featured";
+      const days = meta.durationInDays ?? tier?.durationInDays;
+      const itemLabel = p.item ? `${p.item.brand || ""} ${p.item.model || ""}`.trim() : null;
+      return {
+        icon: <Star className="h-4 w-4 text-purple-600" />,
+        label: `Featured Listing — ${tierName}`,
+        subLabel: itemLabel || "Featured placement",
+        chips: days != null
+          ? [{ text: `${days} day${days !== 1 ? "s" : ""}`, color: "bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300" }]
+          : [],
+      };
+    }
+    default:
+      return {
+        icon: <CreditCard className="h-4 w-4 text-blue-600" />,
+        label: `${String(p.type).charAt(0).toUpperCase() + String(p.type).slice(1)} Purchase`,
+        chips: [],
+      };
+  }
+}
+
+// ─── component ─────────────────────────────────────────────────────────────
 
 export function HistoryTab({
   purchases,
@@ -21,6 +110,7 @@ export function HistoryTab({
   userId?: string;
 }) {
   if (!userId) return null;
+
   return (
     <div className="space-y-6">
       <Tabs defaultValue="purchases" className="w-full">
@@ -30,7 +120,7 @@ export function HistoryTab({
             className="data-[state=active]:bg-blue-600 data-[state=active]:text-white text-xs h-7 px-3"
           >
             <ShoppingCart className="h-3.5 w-3.5 mr-1.5" />
-            Purchases
+            Purchases ({purchases.length})
           </TabsTrigger>
           <TabsTrigger
             value="transfers"
@@ -41,75 +131,106 @@ export function HistoryTab({
           </TabsTrigger>
         </TabsList>
 
+        {/* ── Purchases Tab ── */}
         <TabsContent value="purchases">
           <Card>
-            <CardHeader className="bg-blue-50/50 dark:bg-blue-900/10 border-b">
+            <div className="bg-blue-50/50 dark:bg-blue-900/10 border-b py-3">
               <CardTitle className="text-sm flex items-center gap-2">
                 <CreditCard className="h-4 w-4 text-blue-600" />
                 Purchase History ({purchases.length})
               </CardTitle>
-            </CardHeader>
+            </div>
             <CardContent className="p-4">
               {purchases.length === 0 ? (
-                <div className="text-center py-6 text-muted-foreground text-sm">
+                <div className="text-center py-8 text-muted-foreground text-sm">
                   <ShoppingCart className="h-8 w-8 mb-2 opacity-20 mx-auto" />
                   <p>No purchase history found.</p>
                 </div>
               ) : (
                 <div className="space-y-3">
-                  {purchases.map((p) => (
-                    <div
-                      key={p._id}
-                      className="flex flex-col sm:flex-row sm:items-center justify-between p-3 border rounded-lg bg-card gap-4"
-                    >
-                      <div>
-                        <p className="font-semibold text-sm capitalize">
-                          {p.type} Purchase
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          Method: {p.paymentMethod}
-                        </p>
-                        <div className="flex items-center gap-1 text-[10px] text-muted-foreground mt-1">
-                          <Clock className="h-3 w-3" />{" "}
-                          {new Date(p.createdAt).toLocaleDateString()}
+                  {purchases.map((p) => {
+                    const { icon, label, subLabel, chips } = getPurchaseMeta(p);
+                    return (
+                      <div
+                        key={p._id}
+                        className="flex flex-col sm:flex-row sm:items-start justify-between p-3 border rounded-xl bg-card gap-3 hover:bg-muted/30 transition-colors"
+                      >
+                        {/* Left: icon + info */}
+                        <div className="flex items-start gap-3 min-w-0">
+                          <div className="mt-0.5 p-2 rounded-lg bg-muted/60 shrink-0">
+                            {icon}
+                          </div>
+                          <div className="min-w-0">
+                            <p className="font-semibold text-sm leading-snug truncate">{label}</p>
+                            {subLabel && (
+                              <p className="text-xs text-muted-foreground mt-0.5 truncate">{subLabel}</p>
+                            )}
+
+                            {/* Type-specific chips */}
+                            {chips.length > 0 && (
+                              <div className="flex flex-wrap gap-1.5 mt-1.5">
+                                {chips.map((chip) => (
+                                  <span
+                                    key={chip.text}
+                                    className={`text-[11px] font-semibold px-2 py-0.5 rounded-full ${chip.color}`}
+                                  >
+                                    {chip.text}
+                                  </span>
+                                ))}
+                              </div>
+                            )}
+
+                            {/* Date range for boost/featured */}
+                            {(p.type === "boost" || p.type === "featured") && p.startDate && p.endDate && (
+                              <p className="text-[11px] text-muted-foreground mt-1">
+                                {new Date(p.startDate).toLocaleDateString()} → {new Date(p.endDate).toLocaleDateString()}
+                              </p>
+                            )}
+
+                            {/* Payment method + date */}
+                            <div className="flex items-center gap-3 mt-1.5 flex-wrap">
+                              <span className="text-xs text-muted-foreground capitalize">
+                                via {p.paymentMethod}
+                              </span>
+                              <span className="flex items-center gap-1 text-[11px] text-muted-foreground">
+                                <Clock className="h-3 w-3" />
+                                {new Date(p.createdAt).toLocaleDateString("en-GB", {
+                                  day: "numeric", month: "short", year: "numeric",
+                                })}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Right: amount + status + detail link */}
+                        <div className="flex sm:flex-col items-center sm:items-end gap-2 shrink-0">
+                          <span className="font-bold text-sm">{formatAmount(p)}</span>
+                          <Badge
+                            variant={statusVariant(p.status)}
+                            className="text-[10px] capitalize"
+                          >
+                            {p.status}
+                          </Badge>
+                          <Link
+                            href={`/dashboard/purchases/${p._id}`}
+                            className="flex items-center gap-1 text-[11px] text-blue-600 hover:text-blue-700 font-medium mt-0.5"
+                          >
+                            Details <ArrowRight className="h-3 w-3" />
+                          </Link>
                         </div>
                       </div>
-                      <div className="flex flex-col items-end gap-1">
-                        <span className="font-bold text-sm">
-                          {p.paymentMethod === "naira" ||
-                            p.paymentMethod === "paystack"
-                            ? "₦"
-                            : ""}
-                          {p.amountPaid}
-                          {p.paymentMethod === "credit" ||
-                            p.paymentMethod === "credits"
-                            ? " Credits"
-                            : ""}
-                        </span>
-                        <Badge
-                          variant={
-                            p.status === "success"
-                              ? "default"
-                              : p.status === "failed"
-                                ? "destructive"
-                                : "secondary"
-                          }
-                          className="text-[10px]"
-                        >
-                          {p.status}
-                        </Badge>
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </CardContent>
           </Card>
         </TabsContent>
 
+        {/* ── Transfer History Tab ── */}
         <TabsContent value="transfers">
           <Card>
-            <CardHeader className="bg-purple-50/50 dark:bg-purple-900/10 border-b">
+            <CardHeader className="bg-purple-50/50 dark:bg-purple-900/10 border-b py-3">
               <CardTitle className="text-sm flex items-center gap-2">
                 <Shield className="h-4 w-4 text-purple-600" />
                 Asset Transfer History ({transfers.length})
@@ -117,7 +238,7 @@ export function HistoryTab({
             </CardHeader>
             <CardContent className="p-4">
               {transfers.length === 0 ? (
-                <div className="text-center py-6 text-muted-foreground text-sm">
+                <div className="text-center py-8 text-muted-foreground text-sm">
                   <Shield className="h-8 w-8 mb-2 opacity-20 mx-auto" />
                   <p>No transfer history found.</p>
                 </div>
@@ -131,10 +252,10 @@ export function HistoryTab({
                     return (
                       <div
                         key={t._id}
-                        className="flex flex-col sm:flex-row sm:items-center justify-between p-3 border rounded-lg bg-card gap-4"
+                        className="flex flex-col sm:flex-row sm:items-center justify-between p-3 border rounded-xl bg-card gap-4 hover:bg-muted/30 transition-colors"
                       >
                         <div className="flex items-center gap-3">
-                          <div className="h-12 w-12 bg-muted rounded overflow-hidden shrink-0">
+                          <div className="h-12 w-12 bg-muted rounded-lg overflow-hidden shrink-0">
                             {item?.images?.[0] ? (
                               <img
                                 src={item.images[0]}
@@ -149,7 +270,7 @@ export function HistoryTab({
                             <p className="font-semibold text-sm">
                               {item?.brand} {item?.model}
                             </p>
-                            
+
                             {(item?.uniqueId || item?.imei || item?.serialNumber || item?.chasisNumber) && (
                               <p className="text-[11px] text-muted-foreground/80 font-mono mt-0.5 mb-1">
                                 ID: {item.uniqueId || item.imei || item.serialNumber || item.chasisNumber}
@@ -158,23 +279,16 @@ export function HistoryTab({
 
                             <p className="text-xs text-muted-foreground">
                               {isIncoming ? (
-                                <>
-                                  From: {t.fromUser?.name || t.fromUser?.email}
-                                </>
+                                <>From: {t.fromUser?.name || t.fromUser?.email}</>
                               ) : (
-                                <>
-                                  To:{" "}
-                                  {t.toUser
-                                    ? t.toUser.name || t.toUser.email
-                                    : t.receiverEmail}
-                                </>
+                                <>To: {t.toUser ? t.toUser.name || t.toUser.email : t.receiverEmail}</>
                               )}
                             </p>
                             <div className="flex items-center gap-1 text-[10px] text-muted-foreground mt-1">
-                              <Clock className="h-3 w-3" />{" "}
-                              {new Date(
-                                t.updatedAt || t.createdAt,
-                              ).toLocaleDateString()}
+                              <Clock className="h-3 w-3" />
+                              {new Date(t.updatedAt || t.createdAt).toLocaleDateString("en-GB", {
+                                day: "numeric", month: "short", year: "numeric",
+                              })}
                             </div>
                           </div>
                         </div>
@@ -190,8 +304,7 @@ export function HistoryTab({
                             variant={
                               t.status === "accepted"
                                 ? "default"
-                                : t.status === "declined" ||
-                                  t.status === "cancelled"
+                                : t.status === "declined" || t.status === "cancelled"
                                   ? "destructive"
                                   : "secondary"
                             }

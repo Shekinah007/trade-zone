@@ -46,6 +46,10 @@ export async function POST(req: NextRequest) {
       paymentMethod: "credit",
       amountPaid: cost,
       status: "success",
+      metadata: {
+        quantity,
+        tierName: "Registry Quota",
+      },
     });
 
     return NextResponse.json({

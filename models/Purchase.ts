@@ -12,6 +12,14 @@ export interface IPurchase extends Document {
   reference?: string;
   startDate?: Date;
   endDate?: Date;
+  /** Type-specific details stored at purchase time */
+  metadata?: {
+    slotCount?: number;    // pack: listing slots granted
+    packName?: string;     // pack: name of the listing pack
+    quantity?: number;     // registration: quota slots granted
+    tierName?: string;     // boost/featured: tier name snapshot
+    durationInDays?: number; // boost/featured: duration snapshot
+  };
   createdAt: Date;
   updatedAt: Date;
 }
@@ -28,7 +36,11 @@ const PurchaseSchema = new Schema<IPurchase>(
       type: Schema.Types.ObjectId,
       refPath: "tierModel",
     },
-    type: { type: String, enum: ["pack", "boost", "featured", "registration"], required: true },
+    type: {
+      type: String,
+      enum: ["pack", "boost", "featured", "registration"],
+      required: true,
+    },
     item: { type: Schema.Types.ObjectId, ref: "Item" },
     paymentMethod: {
       type: String,
@@ -44,6 +56,7 @@ const PurchaseSchema = new Schema<IPurchase>(
     reference: { type: String },
     startDate: { type: Date },
     endDate: { type: Date },
+    metadata: { type: Schema.Types.Mixed, default: {} },
   },
   { timestamps: true },
 );

@@ -118,6 +118,10 @@ export async function POST(req: NextRequest) {
       amountPaid: paymentMethod === "credit" ? tier.creditCost : tier.priceNGN,
       status: "success",
       reference: paymentMethod === "paystack" ? reference : undefined,
+      metadata: {
+        tierName: tier.name,
+        durationInDays: tier.durationInDays,
+      },
     }));
     await Purchase.insertMany(purchases);
 
