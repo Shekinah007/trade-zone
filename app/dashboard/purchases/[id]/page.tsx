@@ -90,7 +90,7 @@ function typeConfig(type: string) {
 
 // ─── data fetch ────────────────────────────────────────────────────────────
 
-async function getPurchase(id: string, userId: string) {
+async function getPurchase(id: string, userId: string | null | undefined) {
   await dbConnect();
   const purchase = await Purchase.findOne({ _id: id, user: userId })
     .populate("tier")
