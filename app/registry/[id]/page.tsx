@@ -52,7 +52,10 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogPortal,
+  DialogOverlay,
 } from "@/components/ui/dialog";
+import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -133,6 +136,22 @@ export default function PropertyDetailPage() {
     };
     fetch_();
   }, [id]);
+
+  // Keyboard navigation for lightbox
+  useEffect(() => {
+    if (!lightboxOpen) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "ArrowRight") {
+        nextImage();
+      } else if (e.key === "ArrowLeft") {
+        prevImage();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [lightboxOpen, property?.images?.length]);
 
   const isOwner = session?.user?.id === property?.owner?._id;
   const isAdmin = session?.user?.role === "admin";
@@ -410,17 +429,17 @@ export default function PropertyDetailPage() {
                     },
                     // Show generic uniqueIdentifier only if no specific ID fields are set
                     ...(!property.serialNumber &&
-                    !property.imei &&
-                    !property.chassisNumber &&
-                    property.uniqueIdentifier
+                      !property.imei &&
+                      !property.chassisNumber &&
+                      property.uniqueIdentifier
                       ? [
-                          {
-                            icon: Hash,
-                            label: "Unique Identifier",
-                            value: property.uniqueIdentifier,
-                            mono: true,
-                          },
-                        ]
+                        {
+                          icon: Hash,
+                          label: "Unique Identifier",
+                          value: property.uniqueIdentifier,
+                          mono: true,
+                        },
+                      ]
                       : []),
                   ]
                     .filter((item) => item.value)
@@ -457,9 +476,9 @@ export default function PropertyDetailPage() {
                         <FileText className="h-4 w-4" />
                         <p className="text-xs font-medium">Description</p>
                       </div>
-                      <div 
+                      <div
                         className="text-sm leading-relaxed pl-6 tiptap-content"
-                        dangerouslySetInnerHTML={{ __html: property.description }} 
+                        dangerouslySetInnerHTML={{ __html: property.description }}
                       />
                     </div>
                   )}
@@ -727,7 +746,7 @@ export default function PropertyDetailPage() {
                                       {isCurrent
                                         ? record?.name
                                         : record?.fromUser?.name ||
-                                          "Unknown User"}
+                                        "Unknown User"}
                                     </p>
                                     <p className="text-sm text-muted-foreground flex items-center gap-1">
                                       <Mail className="h-3.5 w-3.5" />
@@ -769,7 +788,7 @@ export default function PropertyDetailPage() {
                                         isCurrent
                                           ? record.transferredAt
                                           : transferRecord?.transferredAt ||
-                                              record.transferredAt,
+                                          record.transferredAt,
                                       ).toLocaleDateString()}
                                     </span>
                                   </div>
@@ -847,47 +866,73 @@ export default function PropertyDetailPage() {
         {/* Image Lightbox */}
         {hasImages && (
           <Dialog open={lightboxOpen} onOpenChange={setLightboxOpen}>
-            <DialogContent className="max-w-5xl h-[90vh] p-0 bg-black/95">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="absolute top-4 right-4 z-50 text-white hover:bg-white/20"
-                onClick={() => setLightboxOpen(false)}
-              >
-                <X className="h-6 w-6" />
-              </Button>
-              <div className="relative w-full h-full flex items-center justify-center p-4">
-                <Image
-                  src={property.images[selectedImageIndex]}
-                  alt={`${property.brand} ${property.model}`}
-                  fill
-                  className="object-contain"
-                />
-                {property.images.length > 1 && (
-                  <>
-                    <Button
-                      variant="secondary"
-                      size="icon"
-                      className="absolute left-4 top-1/2 -translate-y-1/2 h-12 w-12 rounded-full"
-                      onClick={prevImage}
-                    >
-                      <ChevronLeft className="h-6 w-6" />
-                    </Button>
-                    <Button
-                      variant="secondary"
-                      size="icon"
-                      className="absolute right-4 top-1/2 -translate-y-1/2 h-12 w-12 rounded-full"
-                      onClick={nextImage}
-                    >
-                      <ChevronRight className="h-6 w-6" />
-                    </Button>
-                    <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-white/90 text-black px-4 py-2 rounded-full font-medium">
-                      {selectedImageIndex + 1} / {property.images.length}
-                    </div>
-                  </>
-                )}
-              </div>
-            </DialogContent>
+            <DialogPortal>
+              <DialogOverlay className="bg-black/95 fixed inset-0 z-50 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
+              <DialogPrimitive.Content className="fixed inset-0 z-50 w-screen h-[100dvh] bg-black flex flex-col justify-center items-center overflow-hidden outline-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95">
+                <div className="sr-only">
+                  <DialogTitle>Expanded Image View</DialogTitle>
+                </div>
+
+                <div
+                  className="relative w-full h-full flex flex-col justify-center items-center p-4 md:p-8"
+                  onClick={() => setLightboxOpen(false)}
+                >
+                  <img
+                    src={property.images[selectedImageIndex]}
+                    alt={`${property.brand} ${property.model}`}
+                    className="max-w-full max-h-full object-contain pointer-events-none select-none transition-all duration-300"
+                    onClick={(e) => e.stopPropagation()}
+                  />
+
+                  {/* Custom Close Button - placed within safe area */}
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="absolute top-[calc(1rem+env(safe-area-inset-top,0px))] right-[calc(1rem+env(safe-area-inset-right,0px))] z-50 bg-black/50 hover:bg-black/80 text-white rounded-full h-10 w-10 md:h-12 md:w-12 backdrop-blur-sm transition-all"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setLightboxOpen(false);
+                    }}
+                  >
+                    <X className="h-6 w-6" />
+                    <span className="sr-only">Close</span>
+                  </Button>
+
+                  {property.images.length > 1 && (
+                    <>
+                      {/* Navigation Controls with Safe Area awareness */}
+                      <Button
+                        variant="secondary"
+                        size="icon"
+                        className="absolute left-[calc(1rem+env(safe-area-inset-left,0px))] top-1/2 -translate-y-1/2 h-12 w-12 rounded-full bg-black/50 hover:bg-black/80 text-white border-none shadow-lg transition-all flex items-center justify-center"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          prevImage();
+                        }}
+                      >
+                        <ChevronLeft className="h-8 w-8" />
+                      </Button>
+                      <Button
+                        variant="secondary"
+                        size="icon"
+                        className="absolute right-[calc(1rem+env(safe-area-inset-right,0px))] top-1/2 -translate-y-1/2 h-12 w-12 rounded-full bg-black/50 hover:bg-black/80 text-white border-none shadow-lg transition-all flex items-center justify-center"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          nextImage();
+                        }}
+                      >
+                        <ChevronRight className="h-8 w-8" />
+                      </Button>
+
+                      {/* Bottom Pagination Counter with Safe Area awareness */}
+                      <div className="absolute bottom-[calc(1rem+env(safe-area-inset-bottom,0px))] left-1/2 -translate-x-1/2 bg-black/60 backdrop-blur-md px-4 py-1.5 rounded-full text-white text-sm font-medium pointer-events-none">
+                        {selectedImageIndex + 1} / {property.images.length}
+                      </div>
+                    </>
+                  )}
+                </div>
+              </DialogPrimitive.Content>
+            </DialogPortal>
           </Dialog>
         )}
       </div>
