@@ -272,12 +272,11 @@ export default function BoostPageInner() {
                       key={listing._id}
                       onClick={() => handleToggleListing(listing._id)}
                       className={`relative flex items-center p-3 gap-4 rounded-2xl transition-all border-2 cursor-pointer
-                        ${
-                          active
-                            ? "opacity-60 cursor-not-allowed border-transparent bg-gray-100 dark:bg-white/5"
-                            : isSelected
-                              ? "border-amber-500 bg-amber-500/[0.03] shadow-md"
-                              : "border-transparent bg-white dark:bg-[#111] hover:border-gray-200 dark:hover:border-white/10 shadow-sm"
+                        ${active
+                          ? "opacity-60 cursor-not-allowed border-transparent bg-gray-100 dark:bg-white/5"
+                          : isSelected
+                            ? "border-amber-500 bg-amber-500/[0.03] shadow-md"
+                            : "border-transparent bg-white dark:bg-[#111] hover:border-gray-200 dark:hover:border-white/10 shadow-sm"
                         }
                       `}
                     >
@@ -341,11 +340,10 @@ export default function BoostPageInner() {
                   onClick={() => setSelectedTier(tier._id)}
                   className={`
     relative p-4 rounded-2xl cursor-pointer transition-all duration-200
-    ${
-      selectedTier === tier._id
-        ? "bg-gradient-to-br from-amber-50/80 to-orange-50/80 dark:from-amber-950/30 dark:to-orange-950/30 border-amber-500 shadow-lg shadow-amber-500/10"
-        : "bg-white dark:bg-gray-900/80 border-gray-200/70 dark:border-gray-800 hover:border-amber-300/50 hover:shadow-md"
-    }
+    ${selectedTier === tier._id
+                      ? "bg-gradient-to-br from-amber-50/80 to-orange-50/80 dark:from-amber-950/30 dark:to-orange-950/30 border-amber-500 shadow-lg shadow-amber-500/10"
+                      : "bg-white dark:bg-gray-900/80 border-gray-200/70 dark:border-gray-800 hover:border-amber-300/50 hover:shadow-md"
+                    }
     border-2 backdrop-blur-sm
   `}
                 >
@@ -369,11 +367,10 @@ export default function BoostPageInner() {
                     <Zap
                       className={`
         w-5 h-5 transition-all duration-200
-        ${
-          selectedTier === tier._id
-            ? "text-amber-500 fill-amber-500 drop-shadow-sm"
-            : "text-gray-400 dark:text-gray-600"
-        }
+        ${selectedTier === tier._id
+                          ? "text-amber-500 fill-amber-500 drop-shadow-sm"
+                          : "text-gray-400 dark:text-gray-600"
+                        }
       `}
                     />
                   </div>

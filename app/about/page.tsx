@@ -240,8 +240,15 @@ export default function AboutPage() {
               Get Started Free <ArrowRight className="h-4 w-4" />
             </Link>
             <Link
+              href="/market"
+              className="inline-flex bg-green-500 text-white items-center gap-2 px-6 py-3 rounded-full border font-semibold text-sm hover:bg-green-700 transition-colors"
+            >
+              <Shield className="h-4 w-4" />
+              Explore Marketplace
+            </Link>
+            <Link
               href="/registry"
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-full border font-semibold text-sm hover:bg-muted transition-colors"
+              className="inline-flex items-center bg-red-500 text-white gap-2 px-6 py-3 rounded-full border font-semibold text-sm hover:bg-red-700 transition-colors"
             >
               <Shield className="h-4 w-4" />
               Explore Registry

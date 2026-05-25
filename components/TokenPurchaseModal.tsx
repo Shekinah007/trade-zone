@@ -59,16 +59,15 @@ export function TokenPurchaseModal({
 
   useEffect(() => {
     if (isOpen) {
-      // Fetch settings
-      fetch("/api/settings")
+      // Fetch settings — always bypass cache so admin price changes are reflected immediately
+      fetch("/api/settings", { cache: "no-store" })
         .then((res) => (res.ok ? res.json() : null))
         .then((data) => {
           if (data && data.success) {
-            console.log("Settings: ", data);
             setSettings({
-              registrationCreditCost: data.registrationCreditCost || 10,
-              registrationPriceNGN: data.registrationPriceNGN || 1000,
-              unlimitedRegistrationPriceNGN: data.unlimitedRegistrationPriceNGN || 10000,
+              registrationCreditCost: data.registrationCreditCost ?? 10,
+              registrationPriceNGN: data.registrationPriceNGN ?? 1000,
+              unlimitedRegistrationPriceNGN: data.unlimitedRegistrationPriceNGN ?? 10000,
             });
           }
         })
@@ -278,7 +277,7 @@ export function TokenPurchaseModal({
                     disabled={
                       buyingQuota ||
                       creditBalance <
-                        quotaQuantity * settings.registrationCreditCost ||
+                      quotaQuantity * settings.registrationCreditCost ||
                       loadingTier !== null
                     }
                     className="w-full bg-emerald-600 hover:bg-emerald-700 transition-all text-xs sm:text-sm py-2 h-auto"
