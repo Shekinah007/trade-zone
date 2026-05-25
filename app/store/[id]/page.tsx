@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import { Metadata } from "next";
 import {
   MapPin,
   Globe,
@@ -15,6 +16,33 @@ import {
   CreditCard,
   ExternalLink,
 } from "lucide-react";
+
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+  const { id } = await params;
+  try {
+    await dbConnect();
+    const user = await User.findById(id).select("name").lean();
+    if (!user) return {};
+    const business = await Business.findOne({ owner: id }).lean();
+    
+    const displayName = business?.name || user.name;
+    const desc = business?.description || `Shop verified listings from ${displayName} on FindMaster.`;
+    
+    return {
+      title: `${displayName}'s Store — FindMaster`,
+      description: desc,
+      alternates: { canonical: `/store/${id}` },
+      openGraph: {
+        title: `${displayName}'s Store — FindMaster`,
+        description: desc,
+        url: `/store/${id}`,
+        type: "profile",
+      },
+    };
+  } catch (e) {
+    return {};
+  }
+}
 import dbConnect from "@/lib/db";
 import User from "@/models/User";
 import Business from "@/models/Business";

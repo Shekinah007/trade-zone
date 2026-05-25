@@ -5,6 +5,7 @@ export interface ICategory extends Document {
     slug: string;
     icon?: string;
     parent?: mongoose.Types.ObjectId;
+    updatedAt?: Date;
 }
 
 const CategorySchema = new Schema<ICategory>({

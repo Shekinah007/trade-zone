@@ -1,8 +1,22 @@
 import Link from "next/link";
 import { Grid3X3 } from "lucide-react";
 import dbConnect from "@/lib/db";
+import { Metadata } from "next";
 import Category from "@/models/Category";
 import Item from "@/models/Item";
+
+export const metadata: Metadata = {
+  title: "All Categories — FindMaster",
+  description: "Browse thousands of verified listings across all categories on FindMaster.",
+  alternates: {
+    canonical: "/categories",
+  },
+  openGraph: {
+    title: "All Categories — FindMaster",
+    description: "Browse thousands of verified listings across all categories on FindMaster.",
+    url: "/categories",
+  },
+};
 import EmojiGrid from "@/components/EmojiGrid";
 
 export async function getCategoriesWithCounts() {

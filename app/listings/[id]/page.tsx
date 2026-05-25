@@ -3,6 +3,9 @@ import Link from "next/link";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { formatDistanceToNow } from "date-fns";
+import { Metadata } from "next";
+import dbConnect from "@/lib/db";
+import Item from "@/models/Item";
 import {
   MapPin,
   Share2,
@@ -13,6 +16,42 @@ import {
   Shield,
   ExternalLink,
 } from "lucide-react";
+
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+  const { id } = await params;
+  try {
+    await dbConnect();
+    const item = await Item.findById(id).lean();
+    if (!item || !item.isListed) return {};
+
+    const title = item.listing?.title || `${item.brand} ${item.model}`;
+    const priceStr = item.listing?.price != null ? `₦${item.listing.price.toLocaleString()}` : "Price on request";
+    const desc = `${item.listing?.condition || "Used"} ${title} for sale${item.listing?.location?.city ? ` in ${item.listing.location.city}` : ""}. Verified listing on FindMaster.`;
+
+    const images = item.images && item.images.length > 0 ? item.images : [];
+
+    return {
+      title: `Buy ${title} for ${priceStr} — FindMaster`,
+      description: desc,
+      alternates: { canonical: `/listings/${id}` },
+      openGraph: {
+        title: `Buy ${title} for ${priceStr} — FindMaster`,
+        description: desc,
+        url: `/listings/${id}`,
+        type: "website",
+        images: images.map((url: string) => ({ url })),
+      },
+      twitter: {
+        card: "summary_large_image",
+        title: `Buy ${title} for ${priceStr}`,
+        description: desc,
+        images: images,
+      },
+    };
+  } catch (e) {
+    return {};
+  }
+}
 import dbConnect from "@/lib/db";
 import Item from "@/models/Item";
 import "@/models/User"; // Ensure User model is registered
@@ -96,6 +135,52 @@ export default async function ListingPage({
 
   return (
     <div className="container mx-auto py-8 px-4">
+      {/* JSON-LD Structured Data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify([
+            {
+              "@context": "https://schema.org",
+              "@type": "Product",
+              name: listing.listing?.title || `${listing.brand} ${listing.model}`,
+              image: listing.images && listing.images.length > 0 ? listing.images : undefined,
+              description: listing.description?.replace(/<[^>]*>?/gm, ''),
+              itemCondition: listing.listing?.condition === "New" ? "https://schema.org/NewCondition" : "https://schema.org/UsedCondition",
+              offers: {
+                "@type": "Offer",
+                url: `${process.env.NEXT_PUBLIC_SITE_URL || "https://findmaster.org"}/listings/${listing._id}`,
+                priceCurrency: "NGN",
+                price: listing.listing?.price,
+                availability: listing.listing?.status === "active" ? "https://schema.org/InStock" : "https://schema.org/OutOfStock"
+              }
+            },
+            {
+              "@context": "https://schema.org",
+              "@type": "BreadcrumbList",
+              itemListElement: [
+                {
+                  "@type": "ListItem",
+                  position: 1,
+                  name: "Home",
+                  item: `${process.env.NEXT_PUBLIC_SITE_URL || "https://findmaster.org"}`
+                },
+                {
+                  "@type": "ListItem",
+                  position: 2,
+                  name: "Browse",
+                  item: `${process.env.NEXT_PUBLIC_SITE_URL || "https://findmaster.org"}/browse`
+                },
+                {
+                  "@type": "ListItem",
+                  position: 3,
+                  name: listing.listing?.title || `${listing.brand} ${listing.model}`
+                }
+              ]
+            }
+          ])
+        }}
+      />
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Left Column: Images */}
         <div className="lg:col-span-2 space-y-6">

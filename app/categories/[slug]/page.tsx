@@ -2,13 +2,35 @@ export const revalidate = 0;
 
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { Metadata } from "next";
 import { ChevronRight, Tag } from "lucide-react";
 import dbConnect from "@/lib/db";
 import Category from "@/models/Category";
 import Item from "@/models/Item";
 import { CategoryPageClient } from "../CategoryPageClient";
 import EmojiGrid from "@/components/EmojiGrid";
-// import { CategoryPageClient } from "@/components/CategoryPageClient";
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  try {
+    await dbConnect();
+    const category = await Category.findOne({ slug }).lean();
+    if (!category) return {};
+
+    return {
+      title: `${category.name} — FindMaster`,
+      description: `Browse verified ${category.name.toLowerCase()} listings on FindMaster. Find exactly what you're looking for.`,
+      alternates: { canonical: `/categories/${slug}` },
+      openGraph: {
+        title: `${category.name} — FindMaster`,
+        description: `Browse verified ${category.name.toLowerCase()} listings on FindMaster.`,
+        url: `/categories/${slug}`,
+      },
+    };
+  } catch (e) {
+    return {};
+  }
+}
 
 async function getCategoryData(slug: string) {
   await dbConnect();

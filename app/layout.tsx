@@ -16,9 +16,31 @@ import GlobalLoading from "@/components/GlobalLoading";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://findmaster.org"),
   title: "FindMaster — Secure Your Property & Trade Safely",
   description:
     "Register, track and verify ownership of devices, vehicles and gadgets. Buy and sell securely on FindMaster — Nigeria's #1 property security marketplace.",
+  keywords: ["FindMaster", "property security", "register devices", "stolen items", "buy electronics Nigeria", "sell securely", "verify ownership"],
+  openGraph: {
+    type: "website",
+    locale: "en_NG",
+    url: "/",
+    siteName: "FindMaster",
+    title: "FindMaster — Secure Your Property & Trade Safely",
+    description: "Register, track and verify ownership of devices, vehicles and gadgets. Buy and sell securely on FindMaster — Nigeria's #1 property security marketplace.",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "FindMaster — Secure Your Property & Trade Safely",
+    description: "Register, track and verify ownership of devices, vehicles and gadgets. Buy and sell securely on FindMaster — Nigeria's #1 property security marketplace.",
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
+  alternates: {
+    canonical: "/",
+  },
 };
 
 export default function RootLayout({
