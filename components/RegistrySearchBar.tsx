@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Search, MapPin, Loader2 } from "lucide-react";
+import { Search, MapPin, Loader2, SearchIcon } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
@@ -54,8 +54,8 @@ export function RegistrySearchBar() {
   };
 
   return (
-    <form onSubmit={handleSearch} className="flex gap-2 w-full">
-      <div className="relative flex-1">
+    <form onSubmit={handleSearch} className="flex gap-2 w-full items-center">
+      <div className="relative flex-1 shadow">
         <Search className="absolute left-4 top-3.5 h-5 w-5 text-muted-foreground" />
         <Input
           id="registry-search-input"
@@ -72,12 +72,12 @@ export function RegistrySearchBar() {
           ) : coords ? (
             <MapPin
               className="h-5 w-5 text-emerald-500"
-              // title="Location detected"
+            // title="Location detected"
             />
           ) : (
             <MapPin
               className="h-5 w-5 text-muted-foreground/40"
-              // title="Location unavailable"
+            // title="Location unavailable"
             />
           )}
         </div>
@@ -85,9 +85,9 @@ export function RegistrySearchBar() {
       <Button
         type="submit"
         size="lg"
-        className="rounded-full z-50 px-6 bg-gradient-to-r from-primary to-blue-600 hover:opacity-90 border-0"
+        className="rounded-full z-50 px-6 bg-red-500 hover:opacity-90 border-0"
       >
-        Search
+        <SearchIcon />
       </Button>
     </form>
   );

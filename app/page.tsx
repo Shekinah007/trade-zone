@@ -719,6 +719,8 @@ import {
   Gift,
   Package,
   Percent,
+  ShoppingBag,
+  Database,
 } from "lucide-react";
 import dbConnect from "@/lib/db";
 import Item from "@/models/Item";
@@ -768,46 +770,110 @@ export default async function Home() {
     <div className="flex flex-col min-h-screen bg-[#f5f5f0] font-[family-name:var(--font-geist-sans)]">
 
       {/* ── TOP ANNOUNCEMENT BANNER ── */}
-      <div className="bg-emerald-600 text-white text-xs md:text-sm font-semibold text-center py-2 px-4 flex items-center justify-center gap-2">
+      {/* <div className="bg-emerald-600 text-white text-xs md:text-sm font-semibold text-center py-2 px-4 flex items-center justify-center gap-2">
         <Bell className="h-3.5 w-3.5 shrink-0" />
         <span>Free listing for the first 30 days — Africa's trusted property marketplace is live!</span>
         <Link href="/auth/signup" className="underline underline-offset-2 ml-1 hover:text-emerald-100">
           Join now →
         </Link>
-      </div>
+      </div> */}
 
       {/* ── HERO: SEARCH BAR HEADER ── */}
       <section className="bg-[#0f1923] pt-5 pb-0 px-4">
         <div className="container mx-auto">
           {/* Logo + search row */}
           <div className="flex flex-col md:flex-row items-center gap-4 mb-5">
-            <Link href="/" className="shrink-0">
+            {/* <Link href="/" className="shrink-0">
               <span className="text-2xl font-black tracking-tight text-white">
                 Find<span className="text-emerald-400">Master</span>
               </span>
-            </Link>
-            <div className="flex-1 max-w-3xl w-full">
-              <div className="flex rounded-lg overflow-hidden shadow-lg border-2 border-emerald-400">
-                <div className="flex-1 bg-white">
+            </Link> */}
+            <div className="w-full max-w-2xl rounded-2xl border border-border/60 overflow-hidden bg-green-100 shadow-sm">
+
+              {/* Header bar */}
+              <div className="bg-[#0f1923] px-4 py-3 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <ShoppingBag className="h-4 w-4 text-emerald-400" />
+                  <span className="text-white text-sm font-medium">Marketplace</span>
+                </div>
+                <span className="bg-emerald-600 text-white text-xs font-medium px-3 py-0.5 rounded-full">
+                  Live
+                </span>
+              </div>
+
+              {/* Search area */}
+              <div className="p-4">
+                <div className="flex-1">
                   <HomeSearchBar />
                 </div>
-                <button className="bg-emerald-500 hover:bg-emerald-400 transition-colors text-white px-5 font-bold text-sm flex items-center gap-2 shrink-0">
-                  <Search className="h-4 w-4" />
-                  <span className="hidden sm:inline">Search</span>
-                </button>
+
+
+                {/* Popular tags */}
+                <p className="mt-2.5 text-xs text-red-700 flex items-center gap-1">
+                  Popular Categories: Phones & Accessories, Electronics...
+                </p>
               </div>
+
+              {/* Footer strip */}
+              <div className="border-t border-border/50 px-4 py-2.5 flex items-center justify-between">
+                <span className="text-xs text-muted-foreground">Find what you need, verified &amp; secure</span>
+                <div className="flex items-center gap-1">
+                  <ShieldCheck className="h-3.5 w-3.5 text-emerald-500" />
+                  <span className="text-xs text-emerald-600 font-medium">10K+ listings</span>
+                </div>
+              </div>
+
             </div>
-            <div className="flex items-center gap-3 shrink-0">
-              <Link href="/auth/signin" className="text-white/70 hover:text-white text-sm font-medium transition-colors">
-                Sign In
-              </Link>
-              <Link href="/auth/signup" className="bg-emerald-500 hover:bg-emerald-400 text-white text-sm font-bold px-4 py-2 rounded-lg transition-colors">
-                Register
-              </Link>
-              <Link href="/listings/create" className="bg-amber-400 hover:bg-amber-300 text-black text-sm font-bold px-4 py-2 rounded-lg transition-colors whitespace-nowrap">
-                + Post Ad
-              </Link>
+            {/* ── REGISTRY CHECK BAR ── */}
+            <div className="w-full max-w-3xl rounded-2xl border border-red-200 overflow-hidden bg-red-50 shadow-sm">
+
+              {/* Header bar */}
+              <div className="bg-red-950 px-4 py-3 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <ShieldCheck className="h-4 w-4 text-red-300" />
+                  <span className="text-white text-sm font-medium">Property Registry</span>
+                </div>
+                <span className="bg-red-600 text-white text-xs font-medium px-3 py-0.5 rounded-full">
+                  Verify now
+                </span>
+              </div>
+
+              {/* Search area */}
+              <div className="p-4">
+                <div className="flex items-center  rounded-xl overflow-hidden">
+                  <div className="flex-1">
+                    <RegistrySearchBar />
+                  </div>
+                </div>
+
+                <p className="mt-2.5 text-xs text-red-700 flex items-center gap-1">
+                  <span className="w-1 h-1 rounded-full bg-red-400 inline-block" />
+                  Search by IMEI &nbsp;·&nbsp; Serial Number &nbsp;·&nbsp; Chassis Number
+                </p>
+              </div>
+
+              {/* Footer strip */}
+              <div className="border-t border-red-100 px-4 py-2.5 flex items-center justify-between">
+                <span className="text-xs text-red-700">Check item status.</span>
+                <div className="flex items-center gap-1">
+                  <Database className="h-3.5 w-3.5 text-red-500" />
+                  <span className="text-xs text-red-600 font-medium">30K+ items registered</span>
+                </div>
+              </div>
+
             </div>
+            <br />
+          </div>
+          <div className="flex items-center gap-3 shrink-0">
+            <Link href="/auth/signin" className="text-white/70 hover:text-white text-sm font-medium transition-colors">
+              Sign In
+            </Link>
+            <Link href="/auth/signup" className="bg-emerald-500 hover:bg-emerald-400 text-white text-sm font-bold px-4 py-2 rounded-lg transition-colors">
+              Register
+            </Link>
+            <Link href="/listings/create" className="bg-amber-400 hover:bg-amber-300 text-black text-sm font-bold px-4 py-2 rounded-lg transition-colors whitespace-nowrap">
+              + Post Ad
+            </Link>
           </div>
 
           {/* Category nav strip */}
@@ -887,10 +953,10 @@ export default async function Home() {
                 <div className="absolute -right-4 -bottom-4 w-24 h-24 bg-white/10 rounded-full" />
                 <ShieldCheck className="h-6 w-6 text-red-300" />
                 <div>
-                  <p className="text-white font-black text-lg leading-tight">Verify Before Buy</p>
-                  <p className="text-white/60 text-xs mt-1">Check IMEI · Serial · Chassis</p>
-                  <Link href="/registry/check" className="mt-3 inline-block bg-red-400 text-white text-xs font-black px-4 py-1.5 rounded-full hover:bg-red-300 transition-colors">
-                    Check Now →
+                  <p className="text-white font-black text-lg leading-tight">Register your item</p>
+                  <p className="text-white/60 text-xs mt-1">IMEI · Serial · Chassis</p>
+                  <Link href="/registry/register" className="mt-3 inline-block bg-red-400 text-white text-xs font-black px-4 py-1.5 rounded-full hover:bg-red-300 transition-colors">
+                    Go →
                   </Link>
                 </div>
               </div>
@@ -899,19 +965,7 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* ── REGISTRY CHECK BAR ── */}
-      <div className="bg-red-50 border-y border-red-100 py-3 px-4">
-        <div className="container mx-auto flex flex-col sm:flex-row items-center gap-3">
-          <div className="flex items-center gap-2 shrink-0">
-            <Shield className="h-5 w-5 text-red-600" />
-            <span className="text-red-700 font-bold text-sm">Property Registry Check:</span>
-          </div>
-          <div className="flex-1 max-w-xl">
-            <RegistrySearchBar />
-          </div>
-          <p className="text-red-500/70 text-xs shrink-0">Search by IMEI · Serial · Chassis</p>
-        </div>
-      </div>
+
 
       {/* ── STATS TICKER ── */}
       <div className="bg-white border-b border-gray-100 py-2 px-4 overflow-hidden">
@@ -972,7 +1026,7 @@ export default async function Home() {
             {/* Featured row with gold accent */}
             <div className="bg-gradient-to-r from-amber-50 to-yellow-50 border border-amber-200/60 rounded-2xl p-4">
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-6 gap-3">
-                {featuredListings.slice(0, 6).map((listing: any) => (
+                {featuredListings.map((listing: any) => (
                   <div key={listing._id} className="relative group">
                     <div className="absolute top-2 left-2 z-20 bg-amber-400 text-black text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-wide flex items-center gap-1">
                       <Star className="h-2.5 w-2.5 fill-current" /> Featured
@@ -1006,22 +1060,22 @@ export default async function Home() {
               <Link href="/listings/create" className="mt-2 inline-block text-xs text-white font-bold underline">Start →</Link>
             </div>
           </div>
-          <div className="rounded-2xl bg-gradient-to-br from-teal-600 to-emerald-700 p-5 flex items-center gap-4">
+          {/* <div className="rounded-2xl bg-gradient-to-br from-teal-600 to-emerald-700 p-5 flex items-center gap-4">
             <BadgeCheck className="h-10 w-10 text-teal-200 shrink-0" />
             <div>
               <p className="text-white font-black text-base">Buy Safe</p>
               <p className="text-teal-200 text-xs">Every seller ID-verified</p>
               <Link href="/safety" className="mt-2 inline-block text-xs text-white font-bold underline">Learn how →</Link>
             </div>
-          </div>
-          <div className="rounded-2xl bg-gradient-to-br from-rose-600 to-red-700 p-5 flex items-center gap-4">
+          </div> */}
+          {/* <div className="rounded-2xl bg-gradient-to-br from-rose-600 to-red-700 p-5 flex items-center gap-4">
             <Gift className="h-10 w-10 text-rose-200 shrink-0" />
             <div>
               <p className="text-white font-black text-base">Refer & Earn</p>
               <p className="text-rose-200 text-xs">₦5,000 for every referral</p>
               <Link href="/referral" className="mt-2 inline-block text-xs text-white font-bold underline">Refer now →</Link>
             </div>
-          </div>
+          </div> */}
         </section>
 
         {/* ── FRESH LISTINGS ── */}
@@ -1192,7 +1246,7 @@ export default async function Home() {
       </div>
 
       {/* ── FOOTER STRIP ── */}
-      <footer className="bg-[#0f1923] mt-8 pt-8 pb-6 px-4">
+      {/* <footer className="bg-[#0f1923] mt-8 pt-8 pb-6 px-4">
         <div className="container mx-auto">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8 text-sm">
             <div>
@@ -1229,7 +1283,7 @@ export default async function Home() {
             </div>
           </div>
         </div>
-      </footer>
+      </footer> */}
 
     </div>
   );

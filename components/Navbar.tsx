@@ -16,6 +16,7 @@ import {
   MessageCircle,
   Home,
   X,
+  HomeIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -185,6 +186,19 @@ export default function Navbar() {
               >
                 Marketplace
               </button>
+              {/* <button
+                className={cn(
+                  "flex items-center px-4 py-1.5 hover:bg-green-500 shadow-none rounded-full text-sm font-medium transition-all",
+                  isMarketplace
+                    ? "bg-white-600 text-black shadow-none"
+                    : "text-muted-foreground hover:text-foreground",
+                )}
+                onClick={() => {
+                  router.push("/");
+                }}
+              >
+                <HomeIcon className="w-5 h-5" />
+              </button> */}
               <button
                 onClick={() => {
                   setMode("registry");
