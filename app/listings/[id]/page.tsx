@@ -52,8 +52,6 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
     return {};
   }
 }
-import dbConnect from "@/lib/db";
-import Item from "@/models/Item";
 import "@/models/User"; // Ensure User model is registered
 import "@/models/Category";
 import { Badge } from "@/components/ui/badge";
