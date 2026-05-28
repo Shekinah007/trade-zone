@@ -42,7 +42,6 @@ async function getFeaturedListings() {
     "listing.featuredExpiry": { $gt: now },
   })
     .sort({ "listing.featuredAt": -1 })
-    .limit(4) // Highlight up to 4 featured listings
     .lean();
   return JSON.parse(JSON.stringify(listings));
 }
