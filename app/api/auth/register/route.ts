@@ -41,10 +41,18 @@ export async function POST(req: Request) {
             : "buyer",
     });
 
-    const externalData: any = await fetch(
-      `${process.env.ACD_API}/users/${user.email}`,
-    );
-    const { data } = await externalData.json();
+    let data = null;
+    try {
+      const externalData = await fetch(
+        `${process.env.ACD_API}/users/${user.email}`,
+      );
+      if (externalData.ok) {
+        const json = await externalData.json();
+        data = json.data;
+      }
+    } catch (err) {
+      console.warn("Failed to fetch from ACD API:", err);
+    }
 
     if (data?.business) {
       await Business.create({

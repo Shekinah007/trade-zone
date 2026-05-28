@@ -43,13 +43,7 @@ import Tiptap from "@/components/Tiptap";
 
 import imageCompression from "browser-image-compression";
 
-const TokenPurchaseModal = dynamic(
-  () =>
-    import("@/components/TokenPurchaseModal").then(
-      (mod) => mod.TokenPurchaseModal,
-    ),
-  { ssr: false, loading: () => null },
-);
+
 
 const ITEM_TYPES = [
   { value: "phone", label: "Phone", icon: Smartphone },
@@ -78,7 +72,6 @@ function RegisterPropertyForm() {
   const searchParams = useSearchParams();
   const defaultListingId = searchParams?.get("listingId");
   const [submitting, setSubmitting] = useState(false);
-  const [showTokenModal, setShowTokenModal] = useState(false);
   const [activeSection, setActiveSection] = useState(0);
 
   const sectionRefs = [
@@ -251,7 +244,7 @@ function RegisterPropertyForm() {
       if (!res.ok) {
         if (data.code === "LIMIT_EXCEEDED") {
           toast.error(data.error);
-          setShowTokenModal(true);
+          router.push("/upgrade");
         } else toast.error(data.error || "Failed to register property.");
         return;
       }
@@ -912,11 +905,6 @@ function RegisterPropertyForm() {
           </form>
         </div>
       </div>
-
-      <TokenPurchaseModal
-        isOpen={showTokenModal}
-        onClose={() => setShowTokenModal(false)}
-      />
     </div>
   );
 }
