@@ -27,7 +27,7 @@ async function getRecentListings() {
     "listing.status": "active",
   })
     .sort({ createdAt: -1 })
-    .limit(12) // Show slightly more on the dedicated home page
+    .limit(30) // Show slightly more on the dedicated home page
     .lean();
   return JSON.parse(JSON.stringify(listings));
 }
