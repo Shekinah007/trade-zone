@@ -845,33 +845,25 @@ export default async function DashboardPage({ searchParams }: any) {
                 {/* Properties Grid - Compact */}
                 <div className="mt-4">
                   {properties.length > 0 ? (
-                    <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2.5">
                       {properties.map((p: any) => {
-                        const statusColors: Record<string, string> = {
-                          owned:
-                            "bg-green-500/10 text-green-600 border-green-500/20",
-                          missing:
-                            "bg-red-500/10 text-red-600 border-red-500/20",
-                          found: "bg-red-500/10 text-red-600 border-red-500/20",
-                          transferred:
-                            "bg-purple-500/10 text-purple-600 border-purple-500/20",
-                          transfer_pending:
-                            "bg-yellow-500/10 text-yellow-600 border-yellow-500/20",
+                        const statusConfig: Record<string, { label: string; className: string; icon: any }> = {
+                          owned: { label: "Owned", className: "bg-green-500/10 text-green-600 border-green-500/20", icon: CheckCircle },
+                          missing: { label: "Missing", className: "bg-red-500/10 text-red-600 border-red-500/20", icon: AlertTriangle },
+                          found: { label: "Found", className: "bg-red-500/10 text-red-600 border-red-500/20", icon: Shield },
+                          transferred: { label: "Transferred", className: "bg-blue-500/10 text-blue-600 border-blue-500/20", icon: ArrowRight },
+                          transfer_pending: { label: "Pending", className: "bg-yellow-500/10 text-yellow-700 border-yellow-500/20", icon: ArrowLeftRight },
                         };
-                        const statusIcons: Record<string, any> = {
-                          owned: CheckCircle,
-                          missing: AlertTriangle,
-                          found: Shield,
-                          transferred: ArrowRight,
-                          transfer_pending: ArrowLeftRight,
-                        };
-                        const StatusIcon =
-                          statusIcons[p.ownershipStatus] || Shield;
+                        const cfg = statusConfig[p.ownershipStatus] ?? statusConfig.owned;
+                        const StatusIcon = cfg.icon;
+                        const identifier = p.registry?.imei || p.registry?.serialNumber || p.registry?.chassisNumber;
 
                         return (
                           <Link key={p._id} href={`/registry/${p._id}`}>
-                            <Card className="group overflow-hidden rounded-xl border bg-card hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 cursor-pointer">
-                              <div className="relative h-32 w-full bg-muted">
+                            <div className={`group rounded-xl border bg-card overflow-hidden hover:-translate-y-0.5 hover:border-border/60 transition-all duration-150 cursor-pointer ${p.ownershipStatus === "missing" ? "border-red-200" : "border-border/40"}`}>
+
+                              {/* Image */}
+                              <div className="relative h-[88px] w-full bg-muted/50">
                                 {p.images?.[0] ? (
                                   <img
                                     src={p.images[0]}
@@ -879,73 +871,66 @@ export default async function DashboardPage({ searchParams }: any) {
                                     className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-200"
                                   />
                                 ) : (
-                                  <div className="flex items-center justify-center h-full text-muted-foreground text-xs">
-                                    <Shield className="h-8 w-8 opacity-20" />
+                                  <div className="flex items-center justify-center h-full">
+                                    <Shield className="h-7 w-7 text-muted-foreground/20" />
                                   </div>
                                 )}
+                                {/* Status badge */}
                                 <div className="absolute top-1.5 right-1.5">
-                                  <Badge
-                                    className={`text-[9px] px-1.5 py-0 border flex items-center gap-0.5 ${statusColors[p.ownershipStatus] || ""}`}
-                                  >
+                                  <span className={`inline-flex items-center gap-1 text-[10px] font-medium px-1.5 py-0.5 rounded-full border ${cfg.className}`}>
                                     <StatusIcon className="h-2.5 w-2.5" />
-                                    {p.ownershipStatus.toUpperCase()}
-                                  </Badge>
+                                    {cfg.label}
+                                  </span>
                                 </div>
                               </div>
 
-                              <CardContent className="p-3 space-y-2">
+                              {/* Body */}
+                              <div className="p-2.5 space-y-1.5">
                                 <div>
-                                  <h3 className="font-semibold text-xs leading-tight capitalize">
-                                    {p.brand} {p.model}
-                                  </h3>
-                                  <p className="text-[10px] text-muted-foreground capitalize">
-                                    {p.itemType}
-                                  </p>
+                                  <p className="text-xs font-medium leading-tight capitalize">{p.brand} {p.model}</p>
+                                  <p className="text-[10px] text-muted-foreground capitalize">{p.itemType}</p>
                                 </div>
 
-                                <div className="flex flex-wrap gap-x-2 gap-y-0.5 text-[10px] text-muted-foreground">
-                                  {p.color && <span>🎨 {p.color}</span>}
-                                  {p.yearOfPurchase && (
-                                    <span>📅 {p.yearOfPurchase}</span>
-                                  )}
-                                </div>
-
-                                {(p.registry?.imei ||
-                                  p.registry?.serialNumber ||
-                                  p.registry?.chassisNumber) && (
-                                    <div className="text-[9px] font-mono bg-muted/40 px-1.5 py-0.5 rounded truncate">
-                                      🔑{" "}
-                                      {p.registry?.imei ||
-                                        p.registry?.serialNumber ||
-                                        p.registry?.chassisNumber}
-                                    </div>
-                                  )}
-
-                                {p.ownershipStatus === "missing" && (
-                                  <div className="text-[9px] font-semibold text-red-600 bg-red-500/10 border border-red-500/20 px-1.5 py-0.5 rounded flex items-center gap-0.5">
-                                    <AlertTriangle className="h-2.5 w-2.5" />⚠
-                                    DO NOT PURCHASE
+                                {(p.color || p.yearOfPurchase) && (
+                                  <div className="flex flex-wrap gap-1">
+                                    {p.color && (
+                                      <span className="text-[10px] text-muted-foreground bg-muted border border-border/40 px-1.5 py-px rounded-full">
+                                        {p.color}
+                                      </span>
+                                    )}
+                                    {p.yearOfPurchase && (
+                                      <span className="text-[10px] text-muted-foreground bg-muted border border-border/40 px-1.5 py-px rounded-full">
+                                        {p.yearOfPurchase}
+                                      </span>
+                                    )}
                                   </div>
                                 )}
 
-                                <div className="flex items-center justify-between pt-1">
-                                  {p.isListed ? (
-                                    <Badge
-                                      variant="outline"
-                                      className="text-[9px] text-blue-600 border-blue-500/30 bg-blue-500/5 px-1 py-0 h-4"
-                                    >
-                                      <Tag className="h-2 w-2 mr-1" />
-                                      Listed
-                                    </Badge>
-                                  ) : p.ownershipStatus === "owned" ? (
-                                    <div className="h-6 text-[10px] px-2 flex items-center justify-center w-full rounded text-blue-600 bg-blue-50 group-hover:bg-blue-100 transition-colors">
-                                      <Tag className="h-2.5 w-2.5 mr-1" />
-                                      List for Sale
-                                    </div>
-                                  ) : null}
-                                </div>
-                              </CardContent>
-                            </Card>
+                                {identifier && (
+                                  <div className="text-[10px] font-mono bg-muted/50 border border-border/30 px-1.5 py-1 rounded truncate text-muted-foreground">
+                                    {identifier}
+                                  </div>
+                                )}
+
+                                {p.ownershipStatus === "missing" && (
+                                  <div className="flex items-center gap-1 text-[10px] font-medium text-red-600 bg-red-500/10 border border-red-500/20 px-1.5 py-1 rounded">
+                                    <AlertTriangle className="h-2.5 w-2.5 shrink-0" />
+                                    Do not purchase
+                                  </div>
+                                )}
+
+                                {p.isListed ? (
+                                  <div className="flex items-center justify-center gap-1 text-[10px] text-blue-600 bg-blue-500/10 border border-blue-500/20 px-1.5 py-1 rounded">
+                                    <Tag className="h-2.5 w-2.5" /> Listed for sale
+                                  </div>
+                                ) : p.ownershipStatus === "owned" ? (
+                                  <div className="flex items-center justify-center gap-1 text-[10px] text-muted-foreground bg-muted/50 border border-border/30 px-1.5 py-1 rounded hover:bg-muted transition-colors">
+                                    <Tag className="h-2.5 w-2.5" /> List for sale
+                                  </div>
+                                ) : null}
+                              </div>
+
+                            </div>
                           </Link>
                         );
                       })}
