@@ -35,10 +35,10 @@ export async function POST(req: Request) {
     }
 
     // Unfeature
-    item.listing.featuredStatus = "none";
-    item.listing.featured = false;
-    item.listing.featuredExpiry = undefined;
-    item.listing.featuredAt = undefined;
+    item.listing!.featuredStatus = "none";
+    item.listing!.featured = false;
+    item.listing!.featuredExpiry = undefined;
+    item.listing!.featuredAt = undefined;
 
     await item.save();
 

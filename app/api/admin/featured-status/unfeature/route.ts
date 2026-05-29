@@ -38,23 +38,22 @@ export async function POST(req: Request) {
     }
 
     // Unfeature
-    item.listing.featuredStatus = "none";
-    item.listing.featured = false;
-    item.listing.featuredExpiry = undefined;
-    item.listing.featuredAt = undefined;
+    item.listing!.featuredStatus = "none";
+    item.listing!.featured = false;
+    item.listing!.featuredExpiry = undefined;
+    item.listing!.featuredAt = undefined;
 
     await item.save();
 
-    const targetUser = item.seller || item.owner;
+    const targetUser: any = item.seller || item.owner;
 
     // Send notification
     if (targetUser) {
       await Notification.create({
         userId: targetUser._id,
         title: "Item Unfeatured by Admin",
-        message: `Your item '${
-          item.listing.title || item.model
-        }' has been removed from featured listings. Reason: ${reason}`,
+        message: `Your item '${item.listing!.title || item.model
+          }' has been removed from featured listings. Reason: ${reason}`,
         type: "system",
         link: `/market/${item._id}`,
       });
@@ -64,7 +63,7 @@ export async function POST(req: Request) {
         await sendItemUnfeaturedEmail(
           targetUser.email,
           targetUser.name || "User",
-          item.listing.title || item.model,
+          item.listing!.title || item.model,
           reason
         );
       }
