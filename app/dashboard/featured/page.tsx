@@ -121,6 +121,24 @@ export default function UserFeaturedPage() {
     }
   };
 
+  const handleUnfeature = async (itemId: string) => {
+    if (!confirm("Are you sure you want to unfeature this item? You will not be refunded for any remaining time.")) return;
+    
+    try {
+      const res = await fetch("/api/user/featured-status/unfeature", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ itemId }),
+      });
+      const result = await res.json();
+      if (!res.ok) throw new Error(result.error || "Failed to unfeature");
+      toast.success("Item unfeatured successfully");
+      fetchData();
+    } catch (err: any) {
+      toast.error(err.message);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
@@ -397,6 +415,13 @@ export default function UserFeaturedPage() {
                           ).toLocaleDateString()}
                         </p>
                       </div>
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => handleUnfeature(item._id)}
+                      >
+                        Unfeature
+                      </Button>
                     </div>
                   ))
                 )}

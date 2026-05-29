@@ -398,3 +398,34 @@ export async function sendFeaturedExpiryEmail(
     console.error("Error sending featured expiry email: ", error);
   }
 }
+
+export async function sendItemUnfeaturedEmail(
+  email: string,
+  userName: string,
+  listingTitle: string,
+  reason: string,
+) {
+  const mailOptions = {
+    from: `"FindMaster" <${process.env.SMTP_USER}>`,
+    to: email,
+    subject: "Your Featured Listing was Removed",
+    html: `
+      <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <h2 style="color: #ef4444;">Featured Listing Removed</h2>
+        <p>Hi ${userName},</p>
+        <p>Your homepage featured slot for the listing <strong>"${listingTitle}"</strong> has been removed by an administrator.</p>
+        <div style="background-color: #fef2f2; border-left: 4px solid #ef4444; padding: 16px; margin: 20px 0;">
+          <p style="margin: 0;"><strong>Reason:</strong> ${reason}</p>
+        </div>
+        <p>If you believe this was an error, please contact our support team.</p>
+      </div>
+    `,
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log(`Item unfeatured email sent to ${email}`);
+  } catch (error) {
+    console.error("Error sending item unfeatured email: ", error);
+  }
+}

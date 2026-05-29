@@ -2,11 +2,41 @@
 
 import { useEffect, useState } from "react";
 import { Loader2, Star, Clock, AlertCircle } from "lucide-react";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
 
 export default function AdminFeaturedPage() {
   const [loading, setLoading] = useState(true);
   const [activeFeatured, setActiveFeatured] = useState<any[]>([]);
   const [waitlist, setWaitlist] = useState<any[]>([]);
+
+  const [unfeatureModalOpen, setUnfeatureModalOpen] = useState(false);
+  const [unfeatureReason, setUnfeatureReason] = useState("");
+  const [selectedItemForUnfeature, setSelectedItemForUnfeature] = useState<string | null>(null);
+  const [unfeaturing, setUnfeaturing] = useState(false);
+
+  const handleUnfeature = async () => {
+    if (!selectedItemForUnfeature || !unfeatureReason.trim()) return;
+    setUnfeaturing(true);
+    try {
+      const res = await fetch("/api/admin/featured-status/unfeature", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ itemId: selectedItemForUnfeature, reason: unfeatureReason }),
+      });
+      const result = await res.json();
+      if (!res.ok) throw new Error(result.error || "Failed to unfeature");
+      toast.success("Item unfeatured successfully");
+      setUnfeatureModalOpen(false);
+      setUnfeatureReason("");
+      setSelectedItemForUnfeature(null);
+      fetchData();
+    } catch (err: any) {
+      toast.error(err.message);
+    } finally {
+      setUnfeaturing(false);
+    }
+  };
 
   const fetchData = async () => {
     setLoading(true);
@@ -82,9 +112,20 @@ export default function AdminFeaturedPage() {
                       <p className="text-sm font-medium text-purple-600 dark:text-purple-400">
                         Expires: {new Date(item.featuredExpiry).toLocaleDateString()}
                       </p>
-                      <p className="text-xs text-muted-foreground">
+                      <p className="text-xs text-muted-foreground mt-1">
                         Started: {new Date(item.featuredAt).toLocaleDateString()}
                       </p>
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        className="mt-2 text-xs h-7"
+                        onClick={() => {
+                          setSelectedItemForUnfeature(item.id);
+                          setUnfeatureModalOpen(true);
+                        }}
+                      >
+                        Unfeature
+                      </Button>
                     </div>
                   </div>
                 ))}
@@ -143,6 +184,29 @@ export default function AdminFeaturedPage() {
           </div>
         </div>
       </div>
+
+      {unfeatureModalOpen && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-gray-900 rounded-xl max-w-md w-full p-6 space-y-4">
+            <h3 className="text-lg font-bold">Unfeature Item</h3>
+            <p className="text-sm text-muted-foreground">Please provide a reason for unfeaturing this item. This will be sent to the user.</p>
+            <textarea
+              className="w-full p-3 border rounded-lg bg-transparent text-sm min-h-[100px]"
+              placeholder="Reason for removal..."
+              value={unfeatureReason}
+              onChange={(e) => setUnfeatureReason(e.target.value)}
+            />
+            <div className="flex justify-end gap-3 pt-2">
+              <Button variant="outline" onClick={() => setUnfeatureModalOpen(false)} disabled={unfeaturing}>
+                Cancel
+              </Button>
+              <Button variant="destructive" onClick={handleUnfeature} disabled={unfeaturing || !unfeatureReason.trim()}>
+                {unfeaturing ? <Loader2 className="w-4 h-4 animate-spin" /> : "Unfeature"}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
