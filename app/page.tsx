@@ -1015,7 +1015,7 @@ export default async function Home() {
                 </div>
                 <div>
                   <h2 className="text-lg font-black text-gray-900 tracking-tight">Featured Listings</h2>
-                  <p className="text-xs text-gray-500 mt-0.5">Boosted by sellers for maximum visibility</p>
+                  <p className="text-xs text-gray-500 mt-0.5">Premium selections</p>
                 </div>
               </div>
               <Link href="/featured" className="text-emerald-600 text-xs font-bold flex items-center gap-1 hover:text-emerald-700">

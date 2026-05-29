@@ -15,6 +15,7 @@ import {
   Coins,
   ChevronDown,
   ChevronRight,
+  Star,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
@@ -37,6 +38,7 @@ const navGroups = [
       { href: "/admin/search-logs", label: "Search Logs", icon: History },
       { href: "/admin/tokens", label: "Tokens", icon: Coins },
       { href: "/admin/monetization", label: "Monetization", icon: Settings },
+      { href: "/admin/featured", label: "Featured Listings", icon: Star },
     ],
   },
 ];
@@ -56,7 +58,7 @@ export default function AdminSidebarLinks() {
     fetch("/api/admin/registrations")
       .then((r) => r.json())
       .then((data) => setPendingCount(Array.isArray(data) ? data.length : 0))
-      .catch(() => {});
+      .catch(() => { });
   }, []);
 
   const toggleGroup = (groupTitle: string) => {

@@ -35,6 +35,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
+import Link from "next/link";
 
 type NotificationType = "offer" | "message" | "price" | "alert" | "info";
 
@@ -165,7 +166,7 @@ export default function NotificationsPage() {
       prev.map((n) => (n._id === id ? { ...n, isRead: true } : n)),
     );
     await fetch(`/api/notifications/${id}/read`, { method: "PUT" }).catch(
-      () => {},
+      () => { },
     );
   };
 
@@ -173,7 +174,7 @@ export default function NotificationsPage() {
     setMarkingAll(true);
     setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
     await fetch("/api/notifications/read-all", { method: "PUT" }).catch(
-      () => {},
+      () => { },
     );
     setMarkingAll(false);
   };
@@ -333,13 +334,13 @@ export default function NotificationsPage() {
             <p className="text-xs text-muted-foreground mt-4">
               {selected?.createdAt
                 ? new Date(selected.createdAt).toLocaleString(undefined, {
-                    weekday: "short",
-                    year: "numeric",
-                    month: "short",
-                    day: "numeric",
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })
+                  weekday: "short",
+                  year: "numeric",
+                  month: "short",
+                  day: "numeric",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })
                 : ""}
             </p>
           </div>
@@ -351,11 +352,16 @@ export default function NotificationsPage() {
             >
               Close
             </Button>
-            {selected?.link && (
+            {/* {selected?.link && (
               <Button size="sm" onClick={handleAction}>
                 View Action
               </Button>
-            )}
+            )} */}
+            <Button size="sm" >
+              <Link href={"/notifications"}>
+                View All
+              </Link>
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

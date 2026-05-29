@@ -123,7 +123,7 @@ export default function UserFeaturedPage() {
 
   const handleUnfeature = async (itemId: string) => {
     if (!confirm("Are you sure you want to unfeature this item? You will not be refunded for any remaining time.")) return;
-    
+
     try {
       const res = await fetch("/api/user/featured-status/unfeature", {
         method: "POST",
@@ -205,8 +205,8 @@ export default function UserFeaturedPage() {
                       >
                         {selectedListing
                           ? data?.userListings.find(
-                              (l: any) => l._id === selectedListing,
-                            )
+                            (l: any) => l._id === selectedListing,
+                          )
                             ? `${data.userListings.find((l: any) => l._id === selectedListing).listing?.title || data.userListings.find((l: any) => l._id === selectedListing).model}`
                             : "-- Choose a listing --"
                           : "-- Choose a listing --"}
@@ -299,11 +299,10 @@ export default function UserFeaturedPage() {
                       <div
                         key={tier._id}
                         onClick={() => setSelectedTier(tier)}
-                        className={`p-4 border rounded-xl cursor-pointer transition-all ${
-                          selectedTier?._id === tier._id
+                        className={`p-4 border rounded-xl cursor-pointer transition-all ${selectedTier?._id === tier._id
                             ? "border-purple-500 bg-purple-50 dark:bg-purple-900/20 shadow-md ring-1 ring-purple-500"
                             : "hover:border-purple-300"
-                        }`}
+                          }`}
                       >
                         <div className="flex justify-between items-start mb-2">
                           <h3 className="font-semibold text-purple-900 dark:text-purple-100">
@@ -367,8 +366,7 @@ export default function UserFeaturedPage() {
                         Since slots are full, payment secures your place in the
                         waitlist. If you pay via Paystack, you'll enter the
                         waitlist and complete payment only when your slot is
-                        ready. If you use credits, they are deducted immediately
-                        but refunded if you cancel.
+                        ready. If you use credits, they are deducted immediately.
                       </p>
                     )}
                   </div>
