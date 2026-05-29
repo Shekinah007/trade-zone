@@ -248,6 +248,7 @@ export function HistoryTab({
                     const isIncoming =
                       t.toUser?._id === userId || t.toUser === userId;
                     const item = t.itemId || t.propertyId;
+                    const itemIdentifier = item?.uniqueIdentifier || item?.registry?.imei || item?.registry?.serialNumber || item?.registry?.chassisNumber || item?.uniqueId || item?.imei || item?.serialNumber || item?.chasisNumber;
 
                     return (
                       <div
@@ -271,9 +272,9 @@ export function HistoryTab({
                               {item?.brand} {item?.model}
                             </p>
 
-                            {(item?.uniqueId || item?.imei || item?.serialNumber || item?.chasisNumber) && (
+                            {itemIdentifier && (
                               <p className="text-[11px] text-muted-foreground/80 font-mono mt-0.5 mb-1">
-                                ID: {item.uniqueId || item.imei || item.serialNumber || item.chasisNumber}
+                                ID: {itemIdentifier}
                               </p>
                             )}
 

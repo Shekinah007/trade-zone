@@ -87,7 +87,7 @@ async function getUserTransfers(userId: string | undefined) {
     status: "pending",
   })
     .populate("fromUser", "name email")
-    .populate("itemId", "brand model images itemType")
+    .populate("itemId", "brand model images itemType uniqueIdentifier registry")
     .sort({ createdAt: -1 })
     .lean();
   const outgoing = await TransferRequest.find({
@@ -95,7 +95,7 @@ async function getUserTransfers(userId: string | undefined) {
     status: "pending",
   })
     .populate("toUser", "name email")
-    .populate("itemId", "brand model images itemType")
+    .populate("itemId", "brand model images itemType uniqueIdentifier registry")
     .sort({ createdAt: -1 })
     .lean();
   return JSON.parse(JSON.stringify({ incoming, outgoing }));
@@ -114,7 +114,7 @@ async function getUserHistory(userId: string | undefined) {
   })
     .populate("fromUser", "name email")
     .populate("toUser", "name email")
-    .populate("itemId", "brand model images itemType uniqueId imei serialNumber chasisNumber")
+    .populate("itemId", "brand model images itemType uniqueIdentifier registry")
     .sort({ createdAt: -1 })
     .lean();
 
