@@ -738,7 +738,7 @@ async function getRecentListings() {
     "listing.status": "active",
   })
     .sort({ createdAt: -1 })
-    .limit(12)
+    .limit(30)
     .lean();
   return JSON.parse(JSON.stringify(listings));
 }

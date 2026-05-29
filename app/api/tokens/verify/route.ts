@@ -3,7 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import User from "@/models/User";
 import dbConnect from "@/lib/db";
-import SystemSettings from "@/models/SystemSettings";
+
 import Purchase from "@/models/Purchase";
 
 export async function GET(req: NextRequest) {
@@ -66,6 +66,7 @@ export async function GET(req: NextRequest) {
 
     const metadata = data.data?.metadata;
     let isQuotaPurchase = false;
+    let isUnlimitedPurchase = false;
 
     if (metadata && metadata.custom_fields) {
       const typeField = metadata.custom_fields.find(
@@ -79,26 +80,18 @@ export async function GET(req: NextRequest) {
         const qty = Number(qtyField?.value || 1);
         user.registrationLimit = (user.registrationLimit || 0) + qty;
         limitIncreased = true;
+      } else if (typeField?.value === "unlimited") {
+        isUnlimitedPurchase = true;
+        user.unlimitedRegistrations = true;
+        limitIncreased = true;
       }
     }
 
-    if (!isQuotaPurchase) {
-      let settings = await SystemSettings.findOne();
-      if (!settings) {
-        settings = await SystemSettings.create({});
-      }
-
-      // Check tiers
+    if (!isQuotaPurchase && !isUnlimitedPurchase) {
+      // Fallback for legacy purchases without metadata
       if (amount === 100000) {
         // Tier 1: 1000 NGN for +50 Credits
         user.creditBalance = (user.creditBalance || 0) + 50;
-        limitIncreased = true;
-      } else if (
-        amount ===
-        settings.unlimitedRegistrationPriceNGN * 100
-      ) {
-        // Tier 2: Unlimited
-        user.unlimitedRegistrations = true;
         limitIncreased = true;
       } else {
         return NextResponse.json(

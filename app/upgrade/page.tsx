@@ -113,6 +113,15 @@ export default function UpgradePage() {
       config: {
         ...config,
         amount: tierAmount,
+        metadata: {
+          custom_fields: [
+            {
+              display_name: "Purchase Type",
+              variable_name: "purchase_type",
+              value: "unlimited",
+            },
+          ],
+        },
       },
     } as any);
   };
