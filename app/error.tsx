@@ -40,8 +40,7 @@ export default function Error({
           </h2>
 
           <p className="text-slate-500 dark:text-slate-400 mb-8 text-sm leading-relaxed">
-            We apologize for the inconvenience. An unexpected error has occurred
-            on our end. Please try refreshing the page.
+            This may be due to a slow or unstable internet connection. Please refresh the page and try again.
           </p>
 
           {process.env.NODE_ENV === "development" && (
