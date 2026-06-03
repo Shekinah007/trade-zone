@@ -27,6 +27,7 @@ import {
   Loader2,
   Tag,
   Clock,
+  Infinity,
 } from "lucide-react";
 import { authOptions } from "@/lib/auth";
 import dbConnect from "@/lib/db";
@@ -208,8 +209,8 @@ export default async function DashboardPage({ searchParams }: any) {
 
           <div className="w-full md:w-[320px] lg:w-[380px] grid grid-cols-2 gap-3">
             <Card className="border py-2 shadow-md bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-gray-800/80 rounded-2xl">
-              <CardContent className="p-3 flex flex-col items-center justify-center h-full text-center">
-                <div className="p-2.5 bg-emerald-100 dark:bg-emerald-900/40 rounded-full mb-1">
+              <CardContent className="p-4 flex flex-col gap-3 h-full">
+                {/* <div className="p-2.5 bg-emerald-100 dark:bg-emerald-900/40 rounded-full mb-1">
                   <Package className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
                 </div>
                 <h2 className="text-2xl font-black text-emerald-700 dark:text-emerald-400">
@@ -217,7 +218,20 @@ export default async function DashboardPage({ searchParams }: any) {
                 </h2>
                 <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-semibold mb-1">
                   Total Ads
-                </p>
+                </p> */}
+                <div className="flex items-center gap-2">
+                  <div className="p-2 bg-red-100 dark:bg-red-900/40 rounded-full">
+                    <Package className="h-4 w-4 text-red-600 dark:text-red-400" />
+                  </div>
+                  <div>
+                    <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-semibold">
+                      Total Ads
+                    </p>
+                    <h2 className="text-2xl font-black text-red-700 dark:text-red-400 leading-none">
+                      {listings.length}
+                    </h2>
+                  </div>
+                </div>
 
                 <div className="w-full space-y-1">
                   <div className="flex justify-between text-[11px] font-medium text-gray-600 dark:text-gray-400">
@@ -242,34 +256,51 @@ export default async function DashboardPage({ searchParams }: any) {
             </Card>
 
             <Card className="border shadow-md py-2 bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-gray-800/80 rounded-2xl">
-              <CardContent className="p-4 flex flex-col items-center justify-center h-full text-center">
-                <div className="p-2.5 bg-red-100 dark:bg-red-900/40 rounded-full mb-2">
-                  <Shield className="h-5 w-5 text-red-600 dark:text-red-400" />
+              <CardContent className="p-4 flex flex-col gap-3 h-full">
+                {/* Header */}
+                <div className="flex items-center gap-2">
+                  <div className="p-2 bg-red-100 dark:bg-red-900/40 rounded-full">
+                    <Shield className="h-4 w-4 text-red-600 dark:text-red-400" />
+                  </div>
+                  <div>
+                    <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-semibold">
+                      Protected
+                    </p>
+                    <h2 className="text-2xl font-black text-red-700 dark:text-red-400 leading-none">
+                      {properties.length}
+                    </h2>
+                  </div>
                 </div>
-                <h2 className="text-2xl font-black text-red-700 dark:text-red-400">
-                  {properties.length}
-                </h2>
-                <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-semibold">
-                  Protected
-                </p>
 
-                <div className="w-full space-y-1">
-                  <div className="flex justify-between text-[11px] font-medium text-gray-600 dark:text-gray-400">
+                {/* Quota section */}
+                <div className="w-full space-y-1 mt-auto">
+                  <div className="flex justify-between items-center text-[11px] font-medium text-gray-600 dark:text-gray-400">
                     <span>Quota</span>
-                    <span>
-                      {properties.length} / {details.registrationLimit}
+                    <span className="font-semibold">
+                      {properties.length} /{" "}
+                      {details.unlimitedRegistrations ? (
+                        <Infinity className="inline h-4 w-4" />
+                      ) : (
+                        details.registrationLimit
+                      )}
                     </span>
                   </div>
+
                   <div className="h-1.5 w-full bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
                     <div
                       className="h-full bg-emerald-500 dark:bg-emerald-400 rounded-full transition-all duration-300"
                       style={{
-                        width: `${(properties.length / details.registrationLimit) * 100}%`,
+                        width: details.unlimitedRegistrations
+                          ? "100%"
+                          : `${Math.min((properties.length / details.registrationLimit) * 100, 100)}%`,
                       }}
                     />
                   </div>
+
                   <p className="text-[10px] text-gray-500 dark:text-gray-500">
-                    {details.registrationLimit - properties.length} remaining
+                    {details.unlimitedRegistrations
+                      ? <span className="font-bold text-green-500">No Limits ⚡</span>
+                      : `${details.registrationLimit - properties.length} slot${details.registrationLimit - properties.length !== 1 ? "s" : ""} remaining`}
                   </p>
                 </div>
               </CardContent>
