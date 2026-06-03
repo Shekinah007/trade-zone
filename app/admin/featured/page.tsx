@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Loader2, Star, Clock, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function AdminFeaturedPage() {
   const [loading, setLoading] = useState(true);
@@ -147,40 +148,75 @@ export default function AdminFeaturedPage() {
               </span>
             </div>
           </div>
-          <div className="p-0">
-            {waitlist.length === 0 ? (
-              <div className="p-8 text-center text-muted-foreground flex flex-col items-center">
-                <AlertCircle className="w-8 h-8 mb-2 opacity-50" />
-                <p>Waitlist is currently empty.</p>
-              </div>
-            ) : (
-              <div className="divide-y border-gray-200 dark:border-gray-800">
-                {waitlist.map((entry) => (
-                  <div key={entry._id} className="p-4 flex justify-between items-center hover:bg-gray-50 dark:hover:bg-gray-800/50">
-                    <div>
-                      <p className="font-medium">{entry.item?.listing?.title}</p>
-                      <p className="text-sm text-muted-foreground">User: {entry.user?.name || entry.user?.email}</p>
-                      <p className="text-xs text-muted-foreground mt-1">Tier: {entry.tier?.name} ({entry.tier?.durationInDays} days)</p>
-                    </div>
-                    <div className="text-right">
-                      <span className={`inline-flex items-center px-2 py-1 rounded text-xs font-medium ${
-                        entry.status === 'notified' ? 'bg-blue-100 text-blue-700' :
-                        entry.status === 'waiting' ? 'bg-amber-100 text-amber-700' :
-                        entry.status === 'expired' ? 'bg-red-100 text-red-700' :
-                        'bg-emerald-100 text-emerald-700'
-                      }`}>
-                        {entry.status.toUpperCase()}
-                      </span>
-                      {entry.notifiedAt && (
-                        <p className="text-xs text-muted-foreground mt-1">
-                          Notified: {new Date(entry.notifiedAt).toLocaleDateString()}
-                        </p>
-                      )}
-                    </div>
+          <div className="p-4">
+            <Tabs defaultValue="waiting" className="w-full">
+              <TabsList className="w-full grid grid-cols-2 mb-4">
+                <TabsTrigger value="waiting">Pending</TabsTrigger>
+                <TabsTrigger value="fulfilled">Fulfilled</TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="waiting" className="space-y-0">
+                {waitlist.filter((e) => e.status === 'waiting' || e.status === 'notified').length === 0 ? (
+                  <div className="p-8 text-center text-muted-foreground flex flex-col items-center">
+                    <AlertCircle className="w-8 h-8 mb-2 opacity-50" />
+                    <p>No pending waitlist entries.</p>
                   </div>
-                ))}
-              </div>
-            )}
+                ) : (
+                  <div className="divide-y border border-gray-200 dark:border-gray-800 rounded-lg overflow-hidden">
+                    {waitlist.filter((e) => e.status === 'waiting' || e.status === 'notified').map((entry) => (
+                      <div key={entry._id} className="p-4 flex justify-between items-center bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800/50">
+                        <div>
+                          <p className="font-medium">{entry.item?.listing?.title}</p>
+                          <p className="text-sm text-muted-foreground">User: {entry.user?.name || entry.user?.email}</p>
+                          <p className="text-xs text-muted-foreground mt-1">Tier: {entry.tier?.name} ({entry.tier?.durationInDays} days)</p>
+                        </div>
+                        <div className="text-right">
+                          <span className="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-amber-100 text-amber-700">
+                            {entry.status.toUpperCase()}
+                          </span>
+                          {entry.notifiedAt && (
+                            <p className="text-xs text-muted-foreground mt-1">
+                              Notified: {new Date(entry.notifiedAt).toLocaleDateString()}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </TabsContent>
+
+              <TabsContent value="fulfilled" className="space-y-0">
+                {waitlist.filter((e) => e.status === 'fulfilled').length === 0 ? (
+                  <div className="p-8 text-center text-muted-foreground flex flex-col items-center">
+                    <AlertCircle className="w-8 h-8 mb-2 opacity-50" />
+                    <p>No fulfilled waitlist entries.</p>
+                  </div>
+                ) : (
+                  <div className="divide-y border border-gray-200 dark:border-gray-800 rounded-lg overflow-hidden">
+                    {waitlist.filter((e) => e.status === 'fulfilled').map((entry) => (
+                      <div key={entry._id} className="p-4 flex justify-between items-center bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800/50">
+                        <div>
+                          <p className="font-medium">{entry.item?.listing?.title}</p>
+                          <p className="text-sm text-muted-foreground">User: {entry.user?.name || entry.user?.email}</p>
+                          <p className="text-xs text-muted-foreground mt-1">Tier: {entry.tier?.name} ({entry.tier?.durationInDays} days)</p>
+                        </div>
+                        <div className="text-right">
+                          <span className="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-emerald-100 text-emerald-700">
+                            {entry.status.toUpperCase()}
+                          </span>
+                          {entry.notifiedAt && (
+                            <p className="text-xs text-muted-foreground mt-1">
+                              Fulfilled: {new Date(entry.notifiedAt).toLocaleDateString()}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </TabsContent>
+            </Tabs>
           </div>
         </div>
       </div>
