@@ -5,6 +5,7 @@ import dbConnect from "@/lib/db";
 import Item from "@/models/Item";
 import Notification from "@/models/Notification";
 import { sendItemUnfeaturedEmail } from "@/lib/mail";
+import { processFeaturedWaitlist } from "@/lib/featured";
 
 export async function POST(req: Request) {
   try {
@@ -68,6 +69,9 @@ export async function POST(req: Request) {
         );
       }
     }
+
+    // Process waitlist to fill the newly available slot
+    await processFeaturedWaitlist();
 
     return NextResponse.json({
       success: true,

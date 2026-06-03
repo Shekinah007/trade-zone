@@ -60,45 +60,19 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Check availability
-    const activeSlots = await Item.countDocuments({
-      "listing.featuredStatus": "active",
+    // 1. Check if already on waitlist to prevent double charging
+    const existingWaitlist = await FeaturedWaitlist.findOne({
+      item: item._id,
+      status: { $in: ["waiting", "notified"] },
     });
-    const notifiedWaitlist = await FeaturedWaitlist.countDocuments({
-      status: "notified",
-    });
-    const maxSlots = settings.maxFeaturedSlots || 5;
-
-    if (activeSlots + notifiedWaitlist >= maxSlots) {
-      // Add to waitlist
-      // Check if already in waitlist
-      const existingWaitlist = await FeaturedWaitlist.findOne({
-        item: item._id,
-        status: { $in: ["waiting", "notified"] },
-      });
-      if (existingWaitlist) {
-        return NextResponse.json(
-          { error: "Already on waitlist." },
-          { status: 400 },
-        );
-      }
-
-      await FeaturedWaitlist.create({
-        user: user._id,
-        item: item._id,
-        tier: tier._id,
-        status: "waiting",
-      });
-
-      return NextResponse.json({
-        success: true,
-        status: "waitlist",
-        message:
-          "All featured slots are currently taken. You have been added to the waitlist.",
-      });
+    if (existingWaitlist) {
+      return NextResponse.json(
+        { error: "Already on waitlist." },
+        { status: 400 },
+      );
     }
 
-    // Process payment
+    // 2. Process payment FIRST
     if (paymentMethod === "credit") {
       if (user.creditBalance < tier.creditCost) {
         return NextResponse.json(
@@ -152,8 +126,46 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Activate featured
+    // 3. Check availability
+    const activeSlots = await Item.countDocuments({
+      "listing.featuredStatus": "active",
+    });
+    const maxSlots = settings.maxFeaturedSlots || 5;
     const now = new Date();
+
+    if (activeSlots >= maxSlots) {
+      // Add to waitlist
+      await FeaturedWaitlist.create({
+        user: user._id,
+        item: item._id,
+        tier: tier._id,
+        status: "waiting",
+      });
+
+      // Create purchase record for the waitlist entry
+      await Purchase.create({
+        user: user._id,
+        tierModel: "FeaturedTier",
+        tier: tier._id,
+        type: "featured",
+        item: item._id,
+        paymentMethod,
+        amountPaid: paymentMethod === "credit" ? tier.creditCost : tier.priceNGN,
+        status: "success",
+        reference: reference || `waitlist_credit_${Date.now()}`,
+        startDate: now,
+        // No endDate since it's not active yet
+      });
+
+      return NextResponse.json({
+        success: true,
+        status: "waitlist",
+        message:
+          "Payment successful. All featured slots are currently taken. You have been added to the waitlist.",
+      });
+    }
+
+    // 4. Activate featured
     const expiry = new Date(
       now.getTime() + tier.durationInDays * 24 * 60 * 60 * 1000,
     );
@@ -174,7 +186,7 @@ export async function POST(req: NextRequest) {
       paymentMethod,
       amountPaid: paymentMethod === "credit" ? tier.creditCost : tier.priceNGN,
       status: "success",
-      reference,
+      reference: reference || `featured_credit_${Date.now()}`,
       startDate: now,
       endDate: expiry,
     });

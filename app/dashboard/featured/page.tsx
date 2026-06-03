@@ -363,10 +363,7 @@ export default function UserFeaturedPage() {
                     </div>
                     {isFull && (
                       <p className="text-xs text-center text-muted-foreground mt-3">
-                        Since slots are full, payment secures your place in the
-                        waitlist. If you pay via Paystack, you'll enter the
-                        waitlist and complete payment only when your slot is
-                        ready. If you use credits, they are deducted immediately.
+                        Since slots are full, your payment secures your place in the waitlist. You will be automatically featured as soon as a slot becomes available.
                       </p>
                     )}
                   </div>
@@ -448,35 +445,14 @@ export default function UserFeaturedPage() {
                         <Badge
                           variant="outline"
                           className={
-                            entry.status === "notified"
-                              ? "border-blue-500 text-blue-600"
-                              : entry.status === "waiting"
+                            entry.status === "waiting"
                                 ? "border-amber-500 text-amber-600"
                                 : "border-gray-500"
                           }
                         >
                           {entry.status.toUpperCase()}
                         </Badge>
-
-                        {entry.status === "notified" && (
-                          <Button
-                            size="sm"
-                            onClick={() =>
-                              router.push(
-                                `/dashboard/featured/checkout?id=${entry._id}`,
-                              )
-                            }
-                          >
-                            Claim Slot
-                          </Button>
-                        )}
                       </div>
-                      {entry.notifiedAt && entry.status === "notified" && (
-                        <p className="text-xs text-red-500 mt-2">
-                          Please claim within 24h of{" "}
-                          {new Date(entry.notifiedAt).toLocaleString()}
-                        </p>
-                      )}
                     </div>
                   ))
                 )}

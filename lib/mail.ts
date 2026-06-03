@@ -335,21 +335,21 @@ export async function sendFeaturedWaitlistEmail(
   waitlistId: string,
 ) {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-  const checkoutLink = `${appUrl}/dashboard/featured/checkout?waitlistId=${waitlistId}`;
+  const dashboardLink = `${appUrl}/dashboard/featured`;
 
   const mailOptions = {
     from: `"FindMaster" <${process.env.SMTP_USER}>`,
     to: email,
-    subject: "A Featured Slot is Available! (Action Required within 24h)",
+    subject: "Your Waitlisted Item is Now Featured!",
     html: `
       <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
         <h2 style="color: #10b981;">Your Wait is Over!</h2>
         <p>Hi ${userName},</p>
-        <p>A featured slot on the FindMaster homepage has just become available for your listing: <strong>"${listingTitle}"</strong>.</p>
-        <p><strong>You have exactly 24 hours to claim this slot before it is offered to the next person on the waitlist.</strong></p>
+        <p>Great news! A featured slot on the FindMaster homepage has just become available, and your listing <strong>"${listingTitle}"</strong> has been automatically promoted to featured status.</p>
+        <p>No further action or payment is required from you at this time.</p>
         <div style="margin: 30px 0;">
-          <a href="${checkoutLink}" style="background-color: #10b981; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">
-            Confirm & Pay Now
+          <a href="${dashboardLink}" style="background-color: #10b981; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">
+            View Featured Listings
           </a>
         </div>
       </div>
@@ -358,9 +358,9 @@ export async function sendFeaturedWaitlistEmail(
 
   try {
     await transporter.sendMail(mailOptions);
-    console.log(`Featured waitlist email sent to ${email}`);
+    console.log(`Featured waitlist claim email sent to ${email}`);
   } catch (error) {
-    console.error("Error sending featured waitlist email: ", error);
+    console.error("Error sending featured waitlist claim email: ", error);
   }
 }
 

@@ -6,6 +6,7 @@ import Notification from "@/models/Notification";
 import FeaturedWaitlist from "@/models/FeaturedWaitlist";
 import SystemSettings from "@/models/SystemSettings";
 import { sendFeaturedExpiryEmail, sendFeaturedWaitlistEmail } from "@/lib/mail";
+import { processFeaturedWaitlist } from "@/lib/featured";
 
 export async function GET() {
   try {
@@ -78,60 +79,14 @@ export async function GET() {
       await waitlist.save();
     }
 
-    // 4. Fill available slots from waitlist
-    const activeSlotsCount = await Item.countDocuments({ 'listing.featuredStatus': 'active' });
-    const notifiedWaitlistCount = await FeaturedWaitlist.countDocuments({ status: 'notified' });
-    
-    let availableSlots = maxSlots - (activeSlotsCount + notifiedWaitlistCount);
-
-    let newlyNotifiedCount = 0;
-    if (availableSlots > 0) {
-      // Find the top N waiting users
-      const waitingList = await FeaturedWaitlist.find({ status: 'waiting' })
-        .sort({ createdAt: 1 })
-        .limit(availableSlots)
-        .populate('user', 'name email')
-        .populate('item', 'listing.title');
-
-      const notificationsToInsert = [];
-      for (const waitlist of waitingList) {
-        waitlist.status = 'notified';
-        waitlist.notifiedAt = now;
-        await waitlist.save();
-        newlyNotifiedCount++;
-
-        const user = waitlist.user as any;
-        const item = waitlist.item as any;
-
-        notificationsToInsert.push({
-          userId: user._id,
-          title: "Featured Slot Available!",
-          message: `A featured slot is now available for your listing "${item.listing?.title}". You have 24 hours to confirm.`,
-          type: "system",
-          link: `/dashboard/featured/checkout?waitlistId=${waitlist._id}`,
-        });
-
-        if (user.email) {
-          await sendFeaturedWaitlistEmail(
-            user.email,
-            user.name || "User",
-            item.listing?.title || "your item",
-            waitlist._id.toString()
-          );
-        }
-      }
-
-      if (notificationsToInsert.length > 0) {
-        await Notification.insertMany(notificationsToInsert);
-      }
-    }
+    const newlyFeaturedCount = await processFeaturedWaitlist();
 
     return NextResponse.json({ 
         message: "Successfully processed featured slots", 
         expiringNotifiedCount: expiringFeatured.length,
         expiredCount: expiredFeatured.length,
         waitlistExpiredCount: expiredWaitlist.length,
-        waitlistNewlyNotifiedCount: newlyNotifiedCount
+        waitlistNewlyFeaturedCount: newlyFeaturedCount
     });
   } catch (error: any) {
     console.error("Featured expiry cron error:", error);

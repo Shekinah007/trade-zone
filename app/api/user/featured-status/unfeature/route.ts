@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import dbConnect from "@/lib/db";
 import Item from "@/models/Item";
+import { processFeaturedWaitlist } from "@/lib/featured";
 
 export async function POST(req: Request) {
   try {
@@ -41,6 +42,9 @@ export async function POST(req: Request) {
     item.listing!.featuredAt = undefined;
 
     await item.save();
+
+    // Process waitlist to fill the newly available slot
+    await processFeaturedWaitlist();
 
     return NextResponse.json({
       success: true,
