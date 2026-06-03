@@ -18,6 +18,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 // import PaystackPop from "@paystack/inline-js";
 
@@ -430,32 +431,65 @@ export default function UserFeaturedPage() {
                 <Clock className="w-5 h-5 text-amber-500" />
                 <h3 className="font-semibold">Your Waitlist</h3>
               </div>
-              <div className="p-4 space-y-4">
-                {data?.userWaitlist.length === 0 ? (
-                  <p className="text-sm text-muted-foreground text-center py-4">
-                    Not on any waitlist.
-                  </p>
-                ) : (
-                  data?.userWaitlist.map((entry: any) => (
-                    <div key={entry._id} className="border rounded-lg p-3">
-                      <p className="text-sm font-medium truncate mb-1">
-                        {entry.item?.listing?.title || entry.item?.model}
+              <div className="p-4">
+                <Tabs defaultValue="waiting" className="w-full">
+                  <TabsList className="w-full grid grid-cols-2 mb-4">
+                    <TabsTrigger value="waiting">Pending</TabsTrigger>
+                    <TabsTrigger value="fulfilled">Fulfilled</TabsTrigger>
+                  </TabsList>
+                  
+                  <TabsContent value="waiting" className="space-y-4">
+                    {data?.userWaitlist?.filter((e: any) => e.status === "waiting" || e.status === "notified").length === 0 ? (
+                      <p className="text-sm text-muted-foreground text-center py-4">
+                        No pending waitlist entries.
                       </p>
-                      <div className="flex justify-between items-center mt-2">
-                        <Badge
-                          variant="outline"
-                          className={
-                            entry.status === "waiting"
-                                ? "border-amber-500 text-amber-600"
-                                : "border-gray-500"
-                          }
-                        >
-                          {entry.status.toUpperCase()}
-                        </Badge>
-                      </div>
-                    </div>
-                  ))
-                )}
+                    ) : (
+                      data?.userWaitlist
+                        ?.filter((e: any) => e.status === "waiting" || e.status === "notified")
+                        .map((entry: any) => (
+                          <div key={entry._id} className="border rounded-lg p-3">
+                            <p className="text-sm font-medium truncate mb-1">
+                              {entry.item?.listing?.title || entry.item?.model}
+                            </p>
+                            <div className="flex justify-between items-center mt-2">
+                              <Badge
+                                variant="outline"
+                                className="border-amber-500 text-amber-600"
+                              >
+                                {entry.status.toUpperCase()}
+                              </Badge>
+                            </div>
+                          </div>
+                        ))
+                    )}
+                  </TabsContent>
+
+                  <TabsContent value="fulfilled" className="space-y-4">
+                    {data?.userWaitlist?.filter((e: any) => e.status === "fulfilled").length === 0 ? (
+                      <p className="text-sm text-muted-foreground text-center py-4">
+                        No fulfilled waitlist entries.
+                      </p>
+                    ) : (
+                      data?.userWaitlist
+                        ?.filter((e: any) => e.status === "fulfilled")
+                        .map((entry: any) => (
+                          <div key={entry._id} className="border rounded-lg p-3">
+                            <p className="text-sm font-medium truncate mb-1">
+                              {entry.item?.listing?.title || entry.item?.model}
+                            </p>
+                            <div className="flex justify-between items-center mt-2">
+                              <Badge
+                                variant="outline"
+                                className="border-emerald-500 text-emerald-600"
+                              >
+                                {entry.status.toUpperCase()}
+                              </Badge>
+                            </div>
+                          </div>
+                        ))
+                    )}
+                  </TabsContent>
+                </Tabs>
               </div>
             </CardContent>
           </Card>

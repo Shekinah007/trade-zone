@@ -69,24 +69,24 @@ export async function GET() {
     }
 
     // 3. Handle expired waitlist entries (notified > 24h ago but didn't pay)
-    const expiredWaitlist = await FeaturedWaitlist.find({
-      status: 'notified',
-      notifiedAt: { $lt: yesterday }
-    });
+    // const expiredWaitlist = await FeaturedWaitlist.find({
+    //   status: 'notified',
+    //   notifiedAt: { $lt: yesterday }
+    // });
 
-    for (const waitlist of expiredWaitlist) {
-      waitlist.status = 'expired';
-      await waitlist.save();
-    }
+    // for (const waitlist of expiredWaitlist) {
+    //   waitlist.status = 'expired';
+    //   await waitlist.save();
+    // }
 
     const newlyFeaturedCount = await processFeaturedWaitlist();
 
-    return NextResponse.json({ 
-        message: "Successfully processed featured slots", 
-        expiringNotifiedCount: expiringFeatured.length,
-        expiredCount: expiredFeatured.length,
-        waitlistExpiredCount: expiredWaitlist.length,
-        waitlistNewlyFeaturedCount: newlyFeaturedCount
+    return NextResponse.json({
+      message: "Successfully processed featured slots",
+      expiringNotifiedCount: expiringFeatured.length,
+      expiredCount: expiredFeatured.length,
+      // waitlistExpiredCount: expiredWaitlist.length,
+      waitlistNewlyFeaturedCount: newlyFeaturedCount
     });
   } catch (error: any) {
     console.error("Featured expiry cron error:", error);
