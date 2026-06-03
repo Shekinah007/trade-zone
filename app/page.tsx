@@ -878,26 +878,31 @@ export default async function Home() {
 
           {/* Category nav strip */}
           <div className="flex items-center gap-1 overflow-x-auto scrollbar-none pb-0">
-            {[
-              { label: "All Categories", href: "/categories", icon: <Package className="h-3.5 w-3.5" /> },
-              { label: "Phones", href: "/browse?cat=phones", icon: null },
-              { label: "Laptops", href: "/browse?cat=laptops", icon: null },
-              { label: "Vehicles", href: "/browse?cat=vehicles", icon: null },
-              { label: "Electronics", href: "/browse?cat=electronics", icon: null },
-              { label: "Fashion", href: "/browse?cat=fashion", icon: null },
-              { label: "Home & Garden", href: "/browse?cat=home", icon: null },
-              { label: "Agriculture", href: "/browse?cat=agriculture", icon: null },
-              { label: "Services", href: "/browse?cat=services", icon: null },
-            ].map((item) => (
-              <Link
-                key={item.label}
-                href={item.href}
-                className="flex items-center gap-1.5 text-white/80 hover:text-white hover:bg-white/10 text-xs font-medium px-3 py-2.5 rounded-t-lg transition-colors whitespace-nowrap"
-              >
-                {item.icon}
-                {item.label}
-              </Link>
-            ))}
+            <p className="text-white/80 text-xs font-medium px-3 py-2.5 rounded-t-lg transition-colors whitespace-nowrap" >
+              All Categories:
+            </p>
+            {
+              // [
+              //   { label: "All Categories", href: "/categories", icon: <Package className="h-3.5 w-3.5" /> },
+              //   { label: "Phones", href: "/browse?cat=phones", icon: null },
+              //   { label: "Laptops", href: "/browse?cat=laptops", icon: null },
+              //   { label: "Vehicles", href: "/browse?cat=vehicles", icon: null },
+              //   { label: "Electronics", href: "/browse?cat=electronics", icon: null },
+              //   { label: "Fashion", href: "/browse?cat=fashion", icon: null },
+              //   { label: "Home & Garden", href: "/browse?cat=home", icon: null },
+              //   { label: "Agriculture", href: "/browse?cat=agriculture", icon: null },
+              //   { label: "Services", href: "/browse?cat=services", icon: null },
+              // ]
+              categories.map((item: any) => (
+                <Link
+                  key={item._id}
+                  href={`/categories/${item.slug}`}
+                  className="flex items-center gap-1.5 text-white/80 hover:text-white hover:bg-white/10 text-xs font-medium px-3 py-2.5 rounded-t-lg transition-colors whitespace-nowrap"
+                >
+                  {/* {item.icon} */}
+                  {item.name}
+                </Link>
+              ))}
           </div>
         </div>
       </section>
