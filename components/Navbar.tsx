@@ -161,7 +161,7 @@ export default function Navbar() {
             </div> */}
 
               <Image
-                src="/LOGO_DESIGN/Logo Resources/Transparent/logo text_alt_transparent.png" // or "/logo.png" depending on your file
+                src="/LOGO_DESIGN/Logo Resources/Transparent/logo_text_alt_transparent.png" // or "/logo.png" depending on your file
                 alt="FindMaster"
                 width={180}
                 height={180}
