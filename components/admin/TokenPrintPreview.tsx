@@ -183,7 +183,7 @@ export default function TokenPrintPreview({ tokens, onClose }: Props) {
                       <div className="flex items-start justify-between mb-2">
                         <div className="w-[100px] mt-2">
                           <Image
-                            src="/LOGO_DESIGN/Logo Resources/Transparent/Combo.png" // or "/logo.png" depending on your file
+                            src="/LOGO_DESIGN/Logo Resources/Transparent/logo+text_alt_transparent.png" // or "/logo.png" depending on your file
                             alt="FindMaster"
                             width={100}
                             height={100}

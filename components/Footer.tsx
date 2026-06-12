@@ -29,7 +29,7 @@ export default function Footer() {
           <div className="md:col-span-2 space-y-4">
             <Link href="/" className="flex items-center space-x-2">
               <Image
-                src="/LOGO_DESIGN/Logo Resources/Transparent/Combo.png" // or "/logo.png" depending on your file
+                src="/LOGO_DESIGN/Logo Resources/Transparent/logo+text_alt_transparent.png" // or "/logo.png" depending on your file
                 alt="FindMaster"
                 width={180}
                 height={180}
