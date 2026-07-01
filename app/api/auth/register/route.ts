@@ -9,12 +9,13 @@ const registerSchema = z.object({
   name: z.string().min(2),
   email: z.string().email(),
   password: z.string().min(6),
+  phone: z.string(),
 });
 
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { name, email, password } = registerSchema.parse(body);
+    const { name, email, phone, password } = registerSchema.parse(body);
 
     await dbConnect();
 
@@ -31,6 +32,7 @@ export async function POST(req: Request) {
     const user = await User.create({
       name,
       email,
+      phone,
       password: hashedPassword,
       status: "pending",
       role:

@@ -19,6 +19,7 @@ import {
   User,
   Check,
   Sparkles,
+  Phone,
 } from "lucide-react";
 import { toast } from "sonner";
 import { signIn } from "next-auth/react";
@@ -34,15 +35,42 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 
+// const formSchema = z
+//   .object({
+//     name: z.string().min(2, "Name must be at least 2 characters"),
+//     email: z.string().email("Invalid email address"),
+//     password: z
+//       .string()
+//       .min(6, "Password must be at least 6 characters")
+//       .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
+//       .regex(/[0-9]/, "Password must contain at least one number"),
+//     confirmPassword: z.string(),
+//   })
+//   .refine((data) => data.password === data.confirmPassword, {
+//     message: "Passwords do not match",
+//     path: ["confirmPassword"],
+//   });
+
 const formSchema = z
   .object({
     name: z.string().min(2, "Name must be at least 2 characters"),
+
     email: z.string().email("Invalid email address"),
+
+    phone: z
+      .string()
+      .trim()
+      .regex(
+        /^(\+234|0)[789][01]\d{8}$/,
+        "Enter a valid Nigerian phone number"
+      ),
+
     password: z
       .string()
       .min(6, "Password must be at least 6 characters")
       .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
       .regex(/[0-9]/, "Password must contain at least one number"),
+
     confirmPassword: z.string(),
   })
   .refine((data) => data.password === data.confirmPassword, {
@@ -94,7 +122,7 @@ export default function SignUpPage() {
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: { name: "", email: "", password: "", confirmPassword: "" },
+    defaultValues: { name: "", email: "", phone: "", password: "", confirmPassword: "" },
     mode: "onChange", // Enable real-time validation
   });
 
@@ -112,12 +140,17 @@ export default function SignUpPage() {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
     try {
+      const phone = values.phone.startsWith("0")
+        ? `+234${values.phone.slice(1)}`
+        : values.phone;
+
       const res = await fetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name: values.name,
           email: values.email,
+          phone,
           password: values.password,
         }),
       });
@@ -199,22 +232,20 @@ export default function SignUpPage() {
               ].map(({ icon: Icon, title, desc, color }) => (
                 <div key={title} className="flex items-start gap-4 group">
                   <div
-                    className={`p-3 rounded-xl shrink-0 transition-all duration-300 group-hover:scale-110 ${
-                      color === "red"
-                        ? "bg-red-500/10 border border-red-500/20"
-                        : color === "emerald"
-                          ? "bg-emerald-500/10 border border-emerald-500/20"
-                          : "bg-white/5 border border-white/10"
-                    }`}
+                    className={`p-3 rounded-xl shrink-0 transition-all duration-300 group-hover:scale-110 ${color === "red"
+                      ? "bg-red-500/10 border border-red-500/20"
+                      : color === "emerald"
+                        ? "bg-emerald-500/10 border border-emerald-500/20"
+                        : "bg-white/5 border border-white/10"
+                      }`}
                   >
                     <Icon
-                      className={`h-5 w-5 ${
-                        color === "red"
-                          ? "text-red-400"
-                          : color === "emerald"
-                            ? "text-emerald-400"
-                            : "text-white"
-                      }`}
+                      className={`h-5 w-5 ${color === "red"
+                        ? "text-red-400"
+                        : color === "emerald"
+                          ? "text-emerald-400"
+                          : "text-white"
+                        }`}
                     />
                   </div>
                   <div>
@@ -363,6 +394,32 @@ export default function SignUpPage() {
               />
               <FormField
                 control={form.control}
+                name="phone"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-zinc-300">
+                      Phone Number
+                    </FormLabel>
+
+                    <FormControl>
+                      <div className="relative">
+                        <Phone className="absolute left-4 top-3.5 h-5 w-5 text-zinc-500" />
+
+                        <Input
+                          type="tel"
+                          placeholder="08012345678"
+                          className="pl-12 bg-zinc-900/50 border-zinc-700 text-white placeholder:text-zinc-500 focus:border-red-500/50 transition-colors h-12 rounded-xl"
+                          {...field}
+                        />
+                      </div>
+                    </FormControl>
+
+                    <FormMessage className="text-red-400" />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
                 name="password"
                 render={({ field }) => (
                   <FormItem>
@@ -384,15 +441,14 @@ export default function SignUpPage() {
                           {[1, 2, 3].map((level) => (
                             <div
                               key={level}
-                              className={`h-1.5 flex-1 rounded-full transition-all duration-300 ${
-                                strengthScore >= level
-                                  ? level === 1
-                                    ? "bg-red-500"
-                                    : level === 2
-                                      ? "bg-orange-500"
-                                      : "bg-emerald-500"
-                                  : "bg-zinc-800"
-                              }`}
+                              className={`h-1.5 flex-1 rounded-full transition-all duration-300 ${strengthScore >= level
+                                ? level === 1
+                                  ? "bg-red-500"
+                                  : level === 2
+                                    ? "bg-orange-500"
+                                    : "bg-emerald-500"
+                                : "bg-zinc-800"
+                                }`}
                             />
                           ))}
                         </div>
@@ -400,14 +456,12 @@ export default function SignUpPage() {
                           {strength.map(({ label, met }) => (
                             <span
                               key={label}
-                              className={`text-xs flex items-center gap-1.5 ${
-                                met ? "text-emerald-400" : "text-zinc-500"
-                              }`}
+                              className={`text-xs flex items-center gap-1.5 ${met ? "text-emerald-400" : "text-zinc-500"
+                                }`}
                             >
                               <span
-                                className={`h-1.5 w-1.5 rounded-full ${
-                                  met ? "bg-emerald-400" : "bg-zinc-600"
-                                }`}
+                                className={`h-1.5 w-1.5 rounded-full ${met ? "bg-emerald-400" : "bg-zinc-600"
+                                  }`}
                               />
                               {label}
                             </span>
