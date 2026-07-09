@@ -55,6 +55,7 @@ import { Separator } from "@/components/ui/separator";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { BackButton } from "@/components/BackButton";
+import { StoreListingsControls } from "@/components/StoreListingsControls";
 
 async function getStoreData(sellerId: string) {
   await dbConnect();
@@ -350,21 +351,10 @@ export default async function StorePage({
               </h2>
 
               {listings.length > 0 ? (
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                  {listings.map((listing: any) => (
-                    <ListingCard
-                      key={listing._id}
-                      id={listing._id}
-                      title={listing.listing?.title || listing.model}
-                      price={listing.listing?.price}
-                      image={listing.images?.[0]}
-                      category={listing.listing?.category}
-                      condition={listing.listing?.condition}
-                      location={listing.listing?.location}
-                      createdAt={listing.createdAt}
-                    />
-                  ))}
-                </div>
+                <StoreListingsControls
+                  listings={listings}
+                  storeName={displayName}
+                />
               ) : (
                 <div className="flex flex-col items-center justify-center py-16 border-2 border-dashed rounded-2xl text-center">
                   <ShoppingBag className="h-8 w-8 text-muted-foreground mb-3" />
