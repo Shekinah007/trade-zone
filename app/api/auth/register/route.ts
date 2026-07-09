@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 import dbConnect from "@/lib/db";
 import User from "@/models/User";
 import Business from "@/models/Business";
+import mongoose from "mongoose";
 import * as z from "zod";
 
 const registerSchema = z.object({
@@ -80,6 +81,38 @@ export async function POST(req: Request) {
         name: user.name, // Default to user's name
         email: user.email,
       });
+    }
+
+    // Create notification for all admin users about the new registration
+    // using direct MongoDB insert to avoid Mongoose model schema caching issues
+    console.log("Checking for admin users to notify about:", user.email);
+    try {
+      const adminUsers = await User.find({ role: "admin" }).select("_id").lean();
+      console.log(`Found ${adminUsers.length} admin users`);
+      if (adminUsers.length > 0) {
+        const db = mongoose.connection.db;
+        if (db) {
+          const notificationsCollection = db.collection("notifications");
+          const docs = adminUsers.map((admin) => ({
+            userId: admin._id,
+            title: "New Registration Request",
+            message: `${user.name} (${user.email}) has registered and is awaiting approval.`,
+            type: "new_registration",
+            link: "/admin/registrations",
+            isRead: false,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          }));
+          const result = await notificationsCollection.insertMany(docs);
+          console.log(`Inserted ${result.insertedCount} notifications`);
+        } else {
+          console.error("MongoDB connection not available for direct access");
+        }
+      } else {
+        console.warn("No admin users found to notify");
+      }
+    } catch (notifErr) {
+      console.error("Failed to create admin notifications:", notifErr);
     }
 
     // Remove password from response

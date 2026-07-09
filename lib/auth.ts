@@ -5,6 +5,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import dbConnect from "@/lib/db";
 import User from "@/models/User";
 import Business from "@/models/Business";
+import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 // import { fetchExternalBusiness } from "@/lib/externalSync";
 
@@ -76,6 +77,31 @@ export const authOptions: NextAuthOptions = {
             role: "buyer",
             status: "pending",
           });
+
+          // Create notification for all admin users about the new OAuth registration
+          try {
+            const adminUsers = await User.find({ role: "admin" }).select("_id");
+            if (adminUsers.length > 0) {
+              const db = mongoose.connection.db;
+              if (db) {
+                const notificationsCollection = db.collection("notifications");
+                const docs = adminUsers.map((admin) => ({
+                  userId: admin._id,
+                  title: "New Registration Request",
+                  message: `${dbUser!.name} (${dbUser!.email}) has registered via ${account?.provider} and is awaiting approval.`,
+                  type: "new_registration",
+                  link: "/admin/registrations",
+                  isRead: false,
+                  createdAt: new Date(),
+                  updatedAt: new Date(),
+                }));
+                const result = await notificationsCollection.insertMany(docs);
+                console.log(`Inserted ${result.insertedCount} OAuth registration notifications`);
+              }
+            }
+          } catch (notifErr) {
+            console.error("Failed to create admin notifications:", notifErr);
+          }
         } else {
           // Existing user — block if banned/suspended
           if (dbUser.status === "banned" || dbUser.status === "suspended") {
