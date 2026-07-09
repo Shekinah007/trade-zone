@@ -63,6 +63,7 @@ async function getStoreData(sellerId: string) {
     Business.findOne({ owner: sellerId }).lean(),
     User.findById(sellerId).select("-password").lean(),
     Item.find({ owner: sellerId, isListed: true, "listing.status": "active" })
+      .populate("listing.category", "name")
       .sort({ createdAt: -1 })
       .lean(),
     Review.find({ reviewee: sellerId })

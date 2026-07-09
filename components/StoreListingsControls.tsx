@@ -31,7 +31,7 @@ interface StoreItem {
   listing?: {
     title?: string;
     price?: number;
-    category?: string;
+    category?: string | { _id?: string; name?: string };
     condition?: string;
     location?: { city?: string; country?: string };
   };
@@ -55,14 +55,21 @@ export function StoreListingsControls({ listings, storeName }: StoreListingsCont
   const [showFilters, setShowFilters] = useState(false);
   const [copied, setCopied] = useState(false);
 
+  // Helper to get category name (handles both populated object and raw string)
+  const getCategoryName = (cat: string | { _id?: string; name?: string } | undefined): string | null => {
+    if (!cat) return null;
+    if (typeof cat === "string") return cat;
+    return cat.name || null;
+  };
+
   // Extract unique categories and conditions from listings
   const { categories, conditions } = useMemo(() => {
     const cats = new Set<string>();
     const conds = new Set<string>();
     listings.forEach((item) => {
-      const cat = item.listing?.category;
+      const catName = getCategoryName(item.listing?.category);
       const cond = item.listing?.condition;
-      if (cat) cats.add(cat);
+      if (catName) cats.add(catName);
       if (cond) conds.add(cond);
     });
     return {
@@ -80,7 +87,7 @@ export function StoreListingsControls({ listings, storeName }: StoreListingsCont
       const query = searchQuery.toLowerCase().trim();
       result = result.filter((item) => {
         const title = (item.listing?.title || item.model || "").toLowerCase();
-        const category = (item.listing?.category || "").toLowerCase();
+        const category = (getCategoryName(item.listing?.category) || "").toLowerCase();
         const condition = (item.listing?.condition || "").toLowerCase();
         return (
           title.includes(query) ||
@@ -92,7 +99,10 @@ export function StoreListingsControls({ listings, storeName }: StoreListingsCont
 
     // Category filter
     if (selectedCategory) {
-      result = result.filter((item) => item.listing?.category === selectedCategory);
+      result = result.filter((item) => {
+        const catName = getCategoryName(item.listing?.category);
+        return catName === selectedCategory;
+      });
     }
 
     // Condition filter
@@ -471,7 +481,7 @@ export function StoreListingsControls({ listings, storeName }: StoreListingsCont
               title={listing.listing?.title || listing.model}
               price={listing.listing?.price}
               image={listing.images?.[0]}
-              category={listing.listing?.category}
+              category={getCategoryName(listing.listing?.category) || listing.listing?.category || ""}
               condition={listing.listing?.condition}
               location={listing.listing?.location}
               createdAt={listing.createdAt}
