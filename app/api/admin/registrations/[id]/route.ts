@@ -21,16 +21,23 @@ export async function PATCH(
 
   await dbConnect();
 
-  if (action === "approve") {
+  if (action === "approved") {
     await User.findByIdAndUpdate(id, { status: "active" });
     await sendAccountActivatedEmail(email, userName);
     return NextResponse.json({ message: "User approved" });
   }
 
-  if (action === "reject") {
-    // await User.findByIdAndUpdate(id, { status: "banned" });
+  if (action === "rejected") {
+    await User.findByIdAndUpdate(id, { status: "rejected" });
     await sendAccountRejectedEmail(email, userName);
     return NextResponse.json({ message: "User rejected" });
+  }
+
+  console.log("action", action);
+
+  if (action == "restore") {
+    await User.findByIdAndUpdate(id, { status: "pending" });
+    return NextResponse.json({ message: "User restored" });
   }
 
   return NextResponse.json({ message: "Invalid action" }, { status: 400 });

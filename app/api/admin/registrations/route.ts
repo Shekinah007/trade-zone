@@ -10,9 +10,8 @@ export async function GET() {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
 
   await dbConnect();
-  const pending = await User.find({ status: "pending" })
-    .sort({ createdAt: -1 })
-    .lean();
+  // const pending = await User.find({ status: "pending" })
+  const pending = await User.find({ status: { $in: ["pending", "rejected"] } }).sort({ createdAt: -1 }).lean();
 
   return NextResponse.json(JSON.parse(JSON.stringify(pending)));
 }
