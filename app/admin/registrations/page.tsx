@@ -15,7 +15,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { CheckCircle, XCircle, Loader2, UserCheck, Clock, RotateCcw } from "lucide-react";
+import { CheckCircle, XCircle, Loader2, UserCheck, Clock, RotateCcw, Mail, MessageCircle } from "lucide-react";
 import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns";
 
@@ -147,6 +147,31 @@ export default function RegistrationsPage() {
             </span>
           </div>
 
+          <div className="flex items-center gap-1 pt-1">
+            {/* Contact buttons */}
+            {user.email && (
+              <a
+                href={`mailto:${user.email}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center h-8 w-8 rounded-md border border-input bg-background hover:bg-accent hover:text-accent-foreground transition-colors"
+                title={`Email ${user.name}`}
+              >
+                <Mail className="h-4 w-4" />
+              </a>
+            )}
+            {user.phone && (
+              <a
+                href={`https://wa.me/${user.phone.replace(/[^0-9]/g, "")}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center h-8 w-8 rounded-md border border-input bg-green-50 text-green-600 hover:bg-green-100 transition-colors"
+                title={`WhatsApp ${user.name}`}
+              >
+                <MessageCircle className="h-4 w-4" />
+              </a>
+            )}
+          </div>
           {tab === "pending" ? (
             <div className="flex gap-2">
               <Button
@@ -233,6 +258,29 @@ export default function RegistrationsPage() {
               </td>
               <td className="px-4 py-3">
                 <div className="flex items-center justify-end gap-2">
+                  {/* Contact buttons */}
+                  {user.email && (
+                    <a
+                      href={`mailto:${user.email}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center justify-center h-8 w-8 rounded-md border border-input bg-background hover:bg-accent hover:text-accent-foreground transition-colors"
+                      title={`Email ${user.name}`}
+                    >
+                      <Mail className="h-3.5 w-3.5" />
+                    </a>
+                  )}
+                  {user.phone && (
+                    <a
+                      href={`https://wa.me/${user.phone.replace(/[^0-9]/g, "")}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center justify-center h-8 w-8 rounded-md border border-input bg-green-50 text-green-600 hover:bg-green-100 transition-colors"
+                      title={`WhatsApp ${user.name}`}
+                    >
+                      <MessageCircle className="h-3.5 w-3.5" />
+                    </a>
+                  )}
                   {tab === "pending" ? (
                     <>
                       <Button

@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { MoreHorizontal, Loader2, Eye, ShieldOff, ShieldAlert } from "lucide-react";
+import { MoreHorizontal, Loader2, Eye, ShieldOff, ShieldAlert, Mail, MessageCircle } from "lucide-react";
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem,
   DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger,
@@ -109,34 +109,59 @@ export default function UsersPage() {
                   <p className="text-xs text-muted-foreground">{user.email}</p>
                 </div>
               </div>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="h-8 w-8 p-0 shrink-0">
-                    <MoreHorizontal className="h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                  <DropdownMenuItem onClick={() => router.push(`/admin/users/${user._id}`)}>
-                    <Eye className="mr-2 h-4 w-4" /> View Details
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  {user.status === "active" ? (
-                    <>
-                      <DropdownMenuItem onClick={() => setActionTarget({ user, status: "suspended" })}>
-                        <ShieldOff className="mr-2 h-4 w-4 text-yellow-500" /> Suspend
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => setActionTarget({ user, status: "banned" })} className="text-destructive">
-                        <ShieldAlert className="mr-2 h-4 w-4" /> Ban User
-                      </DropdownMenuItem>
-                    </>
-                  ) : (
-                    <DropdownMenuItem onClick={() => setActionTarget({ user, status: "active" })}>
-                      Reactivate User
+              <div className="flex items-center gap-1 shrink-0">
+                {/* Mobile contact buttons */}
+                {user.email && (
+                  <a
+                    href={`mailto:${user.email}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center justify-center h-8 w-8 rounded-md border border-input bg-background hover:bg-accent hover:text-accent-foreground transition-colors"
+                    title={`Email ${user.name}`}
+                  >
+                    <Mail className="h-4 w-4" />
+                  </a>
+                )}
+                {user.phone && (
+                  <a
+                    href={`https://wa.me/${user.phone.replace(/[^0-9]/g, "")}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center justify-center h-8 w-8 rounded-md border border-input bg-green-50 text-green-600 hover:bg-green-100 transition-colors"
+                    title={`WhatsApp ${user.name}`}
+                  >
+                    <MessageCircle className="h-4 w-4" />
+                  </a>
+                )}
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="h-8 w-8 p-0 shrink-0">
+                      <MoreHorizontal className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                    <DropdownMenuItem onClick={() => router.push(`/admin/users/${user._id}`)}>
+                      <Eye className="mr-2 h-4 w-4" /> View Details
                     </DropdownMenuItem>
-                  )}
-                </DropdownMenuContent>
-              </DropdownMenu>
+                    <DropdownMenuSeparator />
+                    {user.status === "active" ? (
+                      <>
+                        <DropdownMenuItem onClick={() => setActionTarget({ user, status: "suspended" })}>
+                          <ShieldOff className="mr-2 h-4 w-4 text-yellow-500" /> Suspend
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => setActionTarget({ user, status: "banned" })} className="text-destructive">
+                          <ShieldAlert className="mr-2 h-4 w-4" /> Ban User
+                        </DropdownMenuItem>
+                      </>
+                    ) : (
+                      <DropdownMenuItem onClick={() => setActionTarget({ user, status: "active" })}>
+                        Reactivate User
+                      </DropdownMenuItem>
+                    )}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
             </div>
             <div className="mt-3 flex items-center gap-2 flex-wrap">
               <Badge variant={user.role === "admin" ? "default" : "secondary"}>{user.role}</Badge>
@@ -151,16 +176,16 @@ export default function UsersPage() {
       </div>
 
       {/* Desktop: Table layout */}
-      <div className="hidden md:block rounded-xl border bg-card overflow-hidden">
+      <div className="hidden md:block rounded-xl border bg-card pt-0 p-0 overflow-hidden">
         <Table>
           <TableHeader>
             <TableRow className="bg-muted/50">
-              <TableHead>User</TableHead>
-              <TableHead>Role</TableHead>
-              <TableHead>Provider</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Joined</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
+              <TableHead className="w-1/3">User</TableHead>
+              <TableHead className="w-1/6">Role</TableHead>
+              <TableHead className="w-1/6">Provider</TableHead>
+              <TableHead className="w-1/6">Status</TableHead>
+              <TableHead className="w-1/6">Joined</TableHead>
+              <TableHead className="w-1/6 text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -173,16 +198,43 @@ export default function UsersPage() {
             )}
             {users.map((user: any) => (
               <TableRow key={user._id}>
-                <TableCell className="flex items-center gap-3">
-                  <Avatar className="h-8 w-8">
-                    <AvatarImage src={user.image} />
-                    <AvatarFallback className="bg-primary/10 text-primary font-semibold">
-                      {user.name?.charAt(0)}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="flex flex-col">
-                    <span className="font-medium">{user.name}</span>
-                    <span className="text-xs text-muted-foreground">{user.email}</span>
+                <TableCell>
+                  <div className="flex items-center gap-3">
+                    <Avatar className="h-8 w-8 shrink-0">
+                      <AvatarImage src={user.image} />
+                      <AvatarFallback className="bg-primary/10 text-primary font-semibold">
+                        {user.name?.charAt(0)}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex flex-col">
+                      <span className="font-medium">{user.name}</span>
+                      <span className="text-xs text-muted-foreground">{user.email}</span>
+                    </div>
+                    {/* Desktop contact buttons */}
+                    <div className="flex items-center gap-1 ml-2">
+                      {user.email && (
+                        <a
+                          href={`mailto:${user.email}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center justify-center h-7 w-7 rounded-md border border-input bg-background hover:bg-accent hover:text-accent-foreground transition-colors"
+                          title={`Email ${user.name}`}
+                        >
+                          <Mail className="h-3.5 w-3.5" />
+                        </a>
+                      )}
+                      {user.phone && (
+                        <a
+                          href={`https://wa.me/${user.phone.replace(/[^0-9]/g, "")}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center justify-center h-7 w-7 rounded-md border border-input bg-green-50 text-green-600 hover:bg-green-100 transition-colors"
+                          title={`WhatsApp ${user.name}`}
+                        >
+                          <MessageCircle className="h-3.5 w-3.5" />
+                        </a>
+                      )}
+                    </div>
                   </div>
                 </TableCell>
                 <TableCell>
