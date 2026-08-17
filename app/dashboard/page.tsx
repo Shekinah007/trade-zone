@@ -5,7 +5,6 @@ import {
   PlusCircle,
   Settings,
   Package,
-  Edit,
   Shield,
   MessageCircle,
   Store,
@@ -18,14 +17,7 @@ import {
   Database,
   Zap,
   Coins,
-  ArrowUpCircle,
   Star,
-  LinkIcon,
-  Crown,
-  Leaf,
-  Sprout,
-  Loader2,
-  Tag,
   Clock,
   Infinity,
 } from "lucide-react";
@@ -39,15 +31,15 @@ import "@/models/BoostTier";
 import "@/models/Conversation"
 import "@/models/FeaturedWaitlist"
 import "@/models/ListingPack"
-import { ListingCard } from "@/components/ListingCard";
+import { SearchableMarketplace } from "@/components/dashboard/SearchableMarketplace";
+import { SearchableRegistry } from "@/components/dashboard/SearchableRegistry";
 import { TransfersTab } from "@/components/TransfersTab";
 import { HistoryTab } from "@/components/HistoryTab";
 import { TokenPurchaseButton } from "@/components/TokenPurchaseButton";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
 import User from "@/models/User";
 import Conversation from "@/models/Conversation";
 
@@ -640,124 +632,11 @@ export default async function DashboardPage({ searchParams }: any) {
                   </CardContent>
                 </Card>
 
-                {/* Listings Tabs - Compact */}
-                <Tabs defaultValue="active" className="w-full">
-                  <TabsList className="bg-emerald-500/10 h-8">
-                    <TabsTrigger
-                      value="active"
-                      className="data-[state=active]:bg-emerald-600 data-[state=active]:text-white text-xs h-7"
-                    >
-                      Active ({activeListings.length})
-                    </TabsTrigger>
-                    <TabsTrigger
-                      value="sold"
-                      className="data-[state=active]:bg-emerald-600 data-[state=active]:text-white text-xs h-7"
-                    >
-                      Sold ({soldListings.length})
-                    </TabsTrigger>
-                  </TabsList>
-
-                  <TabsContent value="active" className="mt-4">
-                    {activeListings.length > 0 ? (
-                      <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {activeListings.map((listing: any) => (
-                          <div key={listing._id} className="relative group">
-                            <ListingCard
-                              id={listing._id}
-                              title={listing.listing?.title || listing.model}
-                              price={listing.listing?.price}
-                              image={listing.images[0]}
-                              category={listing.listing?.category}
-                              condition={listing.listing?.condition}
-                              location={listing.listing?.location}
-                              createdAt={listing.createdAt}
-                              boostStatus={listing.listing?.boostStatus}
-                            />
-                            {listing.listing?.featuredStatus === "active" && (
-                              <div className="absolute top-2 left-2 z-10">
-                                <Badge className="bg-linear-to-r from-purple-500 to-indigo-500 text-white border-0 shadow-lg px-2 py-0.5 text-[10px] font-bold flex items-center gap-1">
-                                  <Star className="h-3 w-3 fill-current" />{" "}
-                                  Featured
-                                </Badge>
-                              </div>
-                            )}
-                            <div className="absolute top-2 right-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                              <Button
-                                size="icon"
-                                variant="secondary"
-                                className="h-7 w-7 text-amber-600 bg-amber-50 hover:bg-amber-100 border border-amber-200"
-                                title="Boost Listing"
-                                asChild
-                              >
-                                <Link
-                                  href={`/dashboard/boosts?listingId=${listing._id}`}
-                                >
-                                  <ArrowUpCircle className="h-4 w-4" />
-                                </Link>
-                              </Button>
-                              <Button
-                                size="icon"
-                                variant="secondary"
-                                className="h-7 w-7"
-                                asChild
-                              >
-                                <Link href={`/listings/${listing._id}/edit`}>
-                                  <Edit className="h-3 w-3" />
-                                </Link>
-                              </Button>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <Card>
-                        <CardContent className="flex flex-col items-center justify-center py-8 text-center text-muted-foreground">
-                          <Package className="h-8 w-8 mb-2 opacity-50" />
-                          <p className="text-sm">
-                            You don't have any active listings.
-                          </p>
-                          <Button
-                            variant="link"
-                            size="sm"
-                            asChild
-                            className="mt-1 text-xs"
-                          >
-                            <Link href="/listings/create">
-                              Create your first listing →
-                            </Link>
-                          </Button>
-                        </CardContent>
-                      </Card>
-                    )}
-                  </TabsContent>
-
-                  <TabsContent value="sold" className="mt-4">
-                    {soldListings.length > 0 ? (
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {soldListings.map((listing: any) => (
-                          <ListingCard
-                            key={listing._id}
-                            id={listing._id}
-                            title={listing.listing?.title || listing.model}
-                            price={listing.listing?.price}
-                            image={listing.images[0]}
-                            category={listing.listing?.category}
-                            condition={listing.listing?.condition}
-                            location={listing.listing?.location}
-                            createdAt={listing.createdAt}
-                            boostStatus={listing.listing?.boostStatus}
-                          />
-                        ))}
-                      </div>
-                    ) : (
-                      <Card>
-                        <CardContent className="flex flex-col items-center justify-center py-8 text-center text-muted-foreground">
-                          <p className="text-sm">No sold items yet.</p>
-                        </CardContent>
-                      </Card>
-                    )}
-                  </TabsContent>
-                </Tabs>
+                {/* Searchable Listings */}
+                <SearchableMarketplace
+                  activeListings={activeListings}
+                  soldListings={soldListings}
+                />
               </TabsContent>
 
               {/* ==================== PROPERTY REGISTRY TAB ==================== */}
@@ -873,122 +752,9 @@ export default async function DashboardPage({ searchParams }: any) {
                   </Card>
                 )}
 
-                {/* Properties Grid - Compact */}
+                {/* Searchable Properties Grid */}
                 <div className="mt-4">
-                  {properties.length > 0 ? (
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2.5">
-                      {properties.map((p: any) => {
-                        const statusConfig: Record<string, { label: string; className: string; icon: any }> = {
-                          owned: { label: "Owned", className: "bg-green-500/10 text-green-600 border-green-500/20", icon: CheckCircle },
-                          missing: { label: "Missing", className: "bg-red-500/10 text-red-600 border-red-500/20", icon: AlertTriangle },
-                          found: { label: "Found", className: "bg-red-500/10 text-red-600 border-red-500/20", icon: Shield },
-                          transferred: { label: "Transferred", className: "bg-blue-500/10 text-blue-600 border-blue-500/20", icon: ArrowRight },
-                          transfer_pending: { label: "Pending", className: "bg-yellow-500/10 text-yellow-700 border-yellow-500/20", icon: ArrowLeftRight },
-                        };
-                        const cfg = statusConfig[p.ownershipStatus] ?? statusConfig.owned;
-                        const StatusIcon = cfg.icon;
-                        const identifier = p.registry?.imei || p.registry?.serialNumber || p.registry?.chassisNumber;
-
-                        return (
-                          <Link key={p._id} href={`/registry/${p._id}`}>
-                            <div className={`group rounded-xl border bg-card overflow-hidden hover:-translate-y-0.5 hover:border-border/60 transition-all duration-150 cursor-pointer ${p.ownershipStatus === "missing" ? "border-red-200" : "border-border/40"}`}>
-
-                              {/* Image */}
-                              <div className="relative h-[88px] w-full bg-muted/50">
-                                {p.images?.[0] ? (
-                                  <img
-                                    src={p.images[0]}
-                                    alt={`${p.brand} ${p.model}`}
-                                    className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-200"
-                                  />
-                                ) : (
-                                  <div className="flex items-center justify-center h-full">
-                                    <Shield className="h-7 w-7 text-muted-foreground/20" />
-                                  </div>
-                                )}
-                                {/* Status badge */}
-                                <div className="absolute top-1.5 right-1.5">
-                                  <span className={`inline-flex items-center gap-1 text-[10px] font-medium px-1.5 py-0.5 rounded-full border ${cfg.className}`}>
-                                    <StatusIcon className="h-2.5 w-2.5" />
-                                    {cfg.label}
-                                  </span>
-                                </div>
-                              </div>
-
-                              {/* Body */}
-                              <div className="p-2.5 space-y-1.5">
-                                <div>
-                                  <p className="text-xs font-medium leading-tight capitalize">{p.brand} {p.model}</p>
-                                  <p className="text-[10px] text-muted-foreground capitalize">{p.itemType}</p>
-                                </div>
-
-                                {(p.color || p.yearOfPurchase) && (
-                                  <div className="flex flex-wrap gap-1">
-                                    {p.color && (
-                                      <span className="text-[10px] text-muted-foreground bg-muted border border-border/40 px-1.5 py-px rounded-full">
-                                        {p.color}
-                                      </span>
-                                    )}
-                                    {p.yearOfPurchase && (
-                                      <span className="text-[10px] text-muted-foreground bg-muted border border-border/40 px-1.5 py-px rounded-full">
-                                        {p.yearOfPurchase}
-                                      </span>
-                                    )}
-                                  </div>
-                                )}
-
-                                {identifier && (
-                                  <div className="text-[10px] font-mono bg-muted/50 border border-border/30 px-1.5 py-1 rounded truncate text-muted-foreground">
-                                    {identifier}
-                                  </div>
-                                )}
-
-                                {p.ownershipStatus === "missing" && (
-                                  <div className="flex items-center gap-1 text-[10px] font-medium text-red-600 bg-red-500/10 border border-red-500/20 px-1.5 py-1 rounded">
-                                    <AlertTriangle className="h-2.5 w-2.5 shrink-0" />
-                                    Do not purchase
-                                  </div>
-                                )}
-
-                                {p.isListed ? (
-                                  <div className="flex items-center justify-center gap-1 text-[10px] text-blue-600 bg-blue-500/10 border border-blue-500/20 px-1.5 py-1 rounded">
-                                    <Tag className="h-2.5 w-2.5" /> Listed for sale
-                                  </div>
-                                ) : p.ownershipStatus === "owned" ? (
-                                  <div className="flex items-center justify-center gap-1 text-[10px] text-muted-foreground bg-muted/50 border border-border/30 px-1.5 py-1 rounded hover:bg-muted transition-colors">
-                                    <Tag className="h-2.5 w-2.5" /> List for sale
-                                  </div>
-                                ) : null}
-                              </div>
-
-                            </div>
-                          </Link>
-                        );
-                      })}
-                    </div>
-                  ) : (
-                    <Card>
-                      <CardContent className="flex flex-col items-center justify-center py-10 text-center text-muted-foreground gap-2">
-                        <Shield className="h-8 w-8 opacity-30" />
-                        <p className="font-medium text-sm">
-                          No registered properties yet
-                        </p>
-                        <p className="text-xs max-w-xs">
-                          Register your phones, laptops, cars, and more to
-                          protect your ownership.
-                        </p>
-                        <Button
-                          size="sm"
-                          asChild
-                          className="rounded-full mt-1 bg-linear-to-r from-red-600 to-red-700 border-0 text-xs h-8"
-                        >
-                          <Link href="/registry/register">
-                            Register Your First Property
-                          </Link>
-                        </Button>
-                      </CardContent>
-                    </Card>
-                  )}
+                  <SearchableRegistry properties={properties} />
                 </div>
               </TabsContent>
 
