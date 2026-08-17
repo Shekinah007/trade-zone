@@ -181,15 +181,21 @@ export function ListingActions({
 
         {isSeller ? (
           <>
+          <div className="flex flex-row gap-2">
             <Button
-              className="w-full"
+              className="flex-1"
               size="lg"
               variant="outline"
               onClick={() => router.push(`/listings/${listingId}/edit`)}
               disabled={isSold}
-            >
+              >
               Edit Listing
             </Button>
+             <ShareButton
+                title={listingTitle}
+                price={price.toLocaleString()}
+                />
+                </div>
             {!isSold && (
               <Button
                 className="w-full"
