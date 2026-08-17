@@ -1,7 +1,7 @@
 export const revalidate = 0;
 export const dynamic = "force-dynamic";
 
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/providers";
@@ -12,11 +12,33 @@ import { Analytics } from "@vercel/analytics/next";
 import NextTopLoader from "nextjs-toploader";
 
 import GlobalLoading from "@/components/GlobalLoading";
+import PwaRegister from "@/components/PwaRegister";
 
 const inter = Inter({ subsets: ["latin"] });
 
+export const viewport: Viewport = {
+  themeColor: "#8a2be2",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+};
+
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://findmaster.org"),
+  manifest: "/manifest.webmanifest",
+  applicationName: "FindMaster",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "FindMaster",
+  },
+  icons: {
+    icon: "/icons/icon-192x192.png",
+    apple: [{ url: "/icons/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
+  },
+  formatDetection: {
+    telephone: false,
+  },
   title: "FindMaster — Secure Your Property & Trade Safely",
   description:
     "Register, track and verify ownership of devices, vehicles and gadgets. Buy and sell securely on FindMaster — Nigeria's #1 property security marketplace.",
@@ -54,6 +76,7 @@ export default function RootLayout({
         className={`${inter.className} min-h-screen flex flex-col bg-background text-foreground`}
       >
         <NextTopLoader color="#8a2be2" showSpinner={false} />
+        <PwaRegister />
         <Providers>
           <TooltipProvider>
             <Navbar />
