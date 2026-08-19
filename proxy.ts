@@ -3,10 +3,6 @@ import { NextResponse } from "next/server";
 
 export default withAuth(
   async function middleware(req) {
-    // if (process.env.NODE_ENV === "development") {
-    //   await new Promise((resolve) => setTimeout(resolve, 1000));
-    // }
-
     if (
       req.nextUrl.pathname.startsWith("/admin") &&
       req.nextauth.token?.role !== "admin"

@@ -115,53 +115,57 @@ export const authOptions: NextAuthOptions = {
         }
 
         // Sync business from external API if not already done
-        const existingBusiness = await Business.findOne({ owner: dbUser._id });
-        if (!existingBusiness) {
-          const externalData: any = await fetch(
-            `${process.env.ACD_API}/users/${user.email}`,
-          );
-          const { data } = await externalData.json();
-          if (data.business) {
-            await Business.create({
-              owner: dbUser._id,
-              name: data.business.businessName || dbUser.name,
-              description: data.business.description,
-              phone: data.business.phone,
-              email: data.business.email,
-              address: data.business.address,
-              type: data.business.type,
-              image: data.business.logo,
-              categories: data.business.categories || [],
-              socials: data.business.socials || [],
-              bankDetails: data.business.bankDetails || [],
-              certifications: data.business.certifications || [],
-              businessHours: data.business.businessHours,
-              qrCode: data.business.qrCode,
-            });
-          } else {
-            // if no returned from ACD API, create a default business for the user
-            await Business.create({
-              owner: dbUser._id,
-              name: dbUser.name,
-              email: dbUser.email,
-            });
+        try {
+          const existingBusiness = await Business.findOne({ owner: dbUser._id });
+          if (!existingBusiness) {
+            const externalRes = await fetch(
+              `${process.env.ACD_API}/users/${user.email}`,
+              { signal: AbortSignal.timeout(8000) },
+            );
+            if (externalRes.ok) {
+              const { data } = await externalRes.json();
+              if (data?.business) {
+                await Business.create({
+                  owner: dbUser._id,
+                  name: data.business.businessName || dbUser.name,
+                  description: data.business.description,
+                  phone: data.business.phone,
+                  email: data.business.email,
+                  address: data.business.address,
+                  type: data.business.type,
+                  image: data.business.logo,
+                  categories: data.business.categories || [],
+                  socials: data.business.socials || [],
+                  bankDetails: data.business.bankDetails || [],
+                  certifications: data.business.certifications || [],
+                  businessHours: data.business.businessHours,
+                  qrCode: data.business.qrCode,
+                });
+              }
+            }
           }
+        } catch (syncErr) {
+          console.error("Business sync failed (non-blocking):", syncErr);
         }
-
-        // Pass db values back onto the user object so jwt callback can read them
       } catch (err) {
         console.error("OAuth signIn error:", err);
         // Don't block sign-in for non-auth errors
       } finally {
         // pass user id to the token
-        await dbConnect();
-        let foundUser = await User.findOne({ email: user.email });
-        user.id = foundUser?._id.toString();
-        user.role = foundUser?.role;
-        user.status = foundUser?.status;
-        user.userId = foundUser?._id.toString();
-        user.registrationLimit = foundUser?.registrationLimit;
-        user.unlimitedRegistrations = foundUser?.unlimitedRegistrations;
+        try {
+          await dbConnect();
+          const foundUser = await User.findOne({ email: user.email });
+          if (foundUser) {
+            user.id = foundUser._id.toString();
+            user.role = foundUser.role;
+            user.status = foundUser.status;
+            user.userId = foundUser._id.toString();
+            user.registrationLimit = foundUser.registrationLimit;
+            user.unlimitedRegistrations = foundUser.unlimitedRegistrations;
+          }
+        } catch (idErr) {
+          console.error("Failed to attach user id to token:", idErr);
+        }
       }
 
       return true;

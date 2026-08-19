@@ -69,7 +69,12 @@ export default function SignInPage() {
         password: values.password,
       });
 
-      if (res?.error) {
+      if (!res) {
+        toast.error("Unable to connect. Please check your network and try again.");
+        return;
+      }
+
+      if (res.error) {
         toast.error(res.error || "Invalid credentials");
       } else {
         toast.success("Welcome back!");

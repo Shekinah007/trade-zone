@@ -1,5 +1,5 @@
 /* FindMaster PWA Service Worker */
-const CACHE_VERSION = "findmaster-v1";
+const CACHE_VERSION = "findmaster-v2";
 const CACHE_NAME = `${CACHE_VERSION}-core`;
 const OFFLINE_URL = "/offline";
 
@@ -39,7 +39,7 @@ self.addEventListener("activate", (event) => {
   );
 });
 
-/* Fetch: network-first for navigations, cache-first for assets */
+/* Fetch: handle requests */
 self.addEventListener("fetch", (event) => {
   const { request } = event;
 
@@ -51,6 +51,13 @@ self.addEventListener("fetch", (event) => {
   // Skip non-http(s) schemes (e.g. chrome-extension, blob, data)
   const url = new URL(request.url);
   if (!["http:", "https:"].includes(url.protocol)) {
+    return;
+  }
+
+  // CRITICAL: Never intercept API endpoints — caching dynamic responses
+  // (session, conversations, notifications, listings, etc.) serves stale data
+  // and breaks login/logout. All /api/ requests must always hit the network.
+  if (url.pathname.startsWith("/api/")) {
     return;
   }
 
