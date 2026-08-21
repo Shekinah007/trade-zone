@@ -27,6 +27,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import UserStatusManager from "@/components/admin/UserStatusManager";
+import QuotaIncreaseButton from "@/components/admin/QuotaIncreaseButton";
 import { BackButton } from "@/components/BackButton";
 
 async function getUserData(id: string) {
@@ -127,12 +128,15 @@ export default async function UserDetailPage({
               </span>
             </div>
           </div>
-          <UserStatusManager user={user} />
+          <div className="flex items-center gap-2">
+            <QuotaIncreaseButton user={user} />
+            <UserStatusManager user={user} />
+          </div>
         </div>
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <div className="rounded-xl border bg-card p-4 text-center">
           <p className="text-2xl font-bold">{listings.length}</p>
           <p className="text-xs text-muted-foreground mt-1">Total Listings</p>
@@ -148,6 +152,12 @@ export default async function UserDetailPage({
             {soldListings.length}
           </p>
           <p className="text-xs text-muted-foreground mt-1">Sold</p>
+        </div>
+        <div className="rounded-xl border bg-card p-4 text-center">
+          <p className="text-2xl font-bold text-purple-500">
+            {user.listingQuota ?? 0}
+          </p>
+          <p className="text-xs text-muted-foreground mt-1">Listing Quota</p>
         </div>
       </div>
 

@@ -429,3 +429,64 @@ export async function sendItemUnfeaturedEmail(
     console.error("Error sending item unfeatured email: ", error);
   }
 }
+
+export async function sendQuotaIncreaseEmail(
+  email: string,
+  userName: string,
+  amount: number,
+  newQuota: number,
+  reason: string,
+) {
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+  const dashboardLink = `${appUrl}/dashboard`;
+
+  const mailOptions = {
+    from: `"FindMaster" <${process.env.SMTP_USER}>`,
+    to: email,
+    subject: "🎉 Your Listing Quota Has Been Increased!",
+    html: `
+      <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <!-- Header -->
+        <div style="text-align: center; margin-bottom: 30px;">
+          <h1 style="color: #10b981; font-size: 28px; margin-bottom: 10px;">Listing Quota Increased! 🚀</h1>
+          <p style="font-size: 16px; color: #666;">Great news from the FindMaster team</p>
+        </div>
+
+        <!-- Main Content -->
+        <div style="background-color: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 12px; padding: 24px; margin-bottom: 24px;">
+          <h2 style="color: #16a34a; margin-top: 0;">Hi ${userName},</h2>
+          <p style="font-size: 15px;">Your listing quota has been increased by <strong style="font-size: 18px; color: #16a34a;">${amount}</strong> listings.</p>
+          <div style="background-color: #ffffff; border-radius: 8px; padding: 16px; margin-top: 16px; text-align: center;">
+            <p style="margin: 0; color: #6b7280; font-size: 14px;">Your new listing quota is</p>
+            <p style="margin: 4px 0 0; font-size: 32px; font-weight: bold; color: #16a34a;">${newQuota}</p>
+          </div>
+        </div>
+
+        <!-- Reason Section -->
+        <div style="background-color: #f9fafb; border-left: 4px solid #10b981; border-radius: 4px; padding: 16px; margin-bottom: 24px;">
+          <p style="margin: 0; font-size: 14px; color: #4b5563;"><strong>Reason:</strong> ${reason}</p>
+        </div>
+
+        <!-- Action Button -->
+        <div style="text-align: center; margin: 30px 0;">
+          <a href="${dashboardLink}" style="background-color: #10b981; color: white; padding: 14px 32px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; display: inline-block; box-shadow: 0 2px 4px rgba(16, 185, 129, 0.3);">
+            Go to Your Dashboard
+          </a>
+        </div>
+
+        <!-- Footer -->
+        <div style="border-top: 1px solid #e5e7eb; padding-top: 20px; text-align: center; color: #6b7280; font-size: 13px;">
+          <p style="margin: 4px 0;">Need help? Contact our support team</p>
+          <p style="margin: 4px 0;">© ${new Date().getFullYear()} FindMaster. All rights reserved.</p>
+        </div>
+      </div>
+    `,
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log(`Quota increase email sent to ${email}`);
+  } catch (error) {
+    console.error("Error sending quota increase email: ", error);
+  }
+}

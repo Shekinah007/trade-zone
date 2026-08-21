@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { MoreHorizontal, Loader2, Eye, ShieldOff, ShieldAlert, Mail, MessageCircle } from "lucide-react";
+import { MoreHorizontal, Loader2, Eye, ShieldOff, ShieldAlert, Mail, MessageCircle, TrendingUp } from "lucide-react";
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem,
   DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger,
@@ -19,6 +19,7 @@ import {
   AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import IncreaseQuotaDialog from "@/components/admin/IncreaseQuotaDialog";
 import { toast } from "sonner";
 
 type StatusAction = "suspended" | "banned" | "active" | null;
@@ -30,6 +31,7 @@ export default function UsersPage() {
   const [actionTarget, setActionTarget] = useState<{ user: any; status: StatusAction }>({
     user: null, status: null,
   });
+  const [quotaTarget, setQuotaTarget] = useState<any>(null);
 
   useEffect(() => {
     fetch("/api/admin/users")
@@ -145,6 +147,10 @@ export default function UsersPage() {
                       <Eye className="mr-2 h-4 w-4" /> View Details
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={() => setQuotaTarget(user)}>
+                      <TrendingUp className="mr-2 h-4 w-4 text-green-500" /> Increase Quota
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
                     {user.status === "active" ? (
                       <>
                         <DropdownMenuItem onClick={() => setActionTarget({ user, status: "suspended" })}>
@@ -256,6 +262,10 @@ export default function UsersPage() {
                         <Eye className="mr-2 h-4 w-4" /> View Details
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
+                      <DropdownMenuItem onClick={() => setQuotaTarget(user)}>
+                        <TrendingUp className="mr-2 h-4 w-4 text-green-500" /> Increase Quota
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
                       {user.status === "active" ? (
                         <>
                           <DropdownMenuItem onClick={() => setActionTarget({ user, status: "suspended" })}>
@@ -303,6 +313,19 @@ export default function UsersPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Increase Quota dialog */}
+      <IncreaseQuotaDialog
+        user={quotaTarget}
+        open={!!quotaTarget}
+        onOpenChange={(open) => !open && setQuotaTarget(null)}
+        onSuccess={() => {
+          // Refresh users list to show updated quota
+          fetch("/api/admin/users")
+            .then((r) => r.json())
+            .then((data) => setUsers(data));
+        }}
+      />
     </div>
   );
 }
