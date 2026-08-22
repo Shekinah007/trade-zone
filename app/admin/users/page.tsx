@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import {
   Table, TableBody, TableCell, TableHead,
@@ -8,7 +8,11 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { MoreHorizontal, Loader2, Eye, ShieldOff, ShieldAlert, Mail, MessageCircle, TrendingUp } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import {
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+} from "@/components/ui/select";
+import { MoreHorizontal, Loader2, Eye, ShieldOff, ShieldAlert, Mail, MessageCircle, TrendingUp, Search, X } from "lucide-react";
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem,
   DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger,
@@ -32,12 +36,86 @@ export default function UsersPage() {
     user: null, status: null,
   });
   const [quotaTarget, setQuotaTarget] = useState<any>(null);
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [roleFilter, setRoleFilter] = useState("all");
+  const [providerFilter, setProviderFilter] = useState("all");
+  const [sortBy, setSortBy] = useState("newest");
 
   useEffect(() => {
     fetch("/api/admin/users")
       .then((r) => r.json())
       .then((data) => { setUsers(data); setLoading(false); });
   }, []);
+
+  const providers = useMemo(() => {
+    const set = new Set<string>();
+    users.forEach((u) => u.provider && set.add(u.provider));
+    return Array.from(set).sort();
+  }, [users]);
+
+  const filteredUsers = useMemo(() => {
+    let result = [...users];
+
+    // Search filter
+    if (search.trim()) {
+      const q = search.trim().toLowerCase();
+      result = result.filter((u) =>
+        u.name?.toLowerCase().includes(q) ||
+        u.email?.toLowerCase().includes(q) ||
+        u.phone?.toLowerCase().includes(q)
+      );
+    }
+
+    // Status filter
+    if (statusFilter !== "all") {
+      result = result.filter((u) => u.status === statusFilter);
+    }
+
+    // Role filter
+    if (roleFilter !== "all") {
+      result = result.filter((u) => u.role === roleFilter);
+    }
+
+    // Provider filter
+    if (providerFilter !== "all") {
+      result = result.filter((u) => u.provider === providerFilter);
+    }
+
+    // Sort
+    switch (sortBy) {
+      case "newest":
+        result.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+        break;
+      case "oldest":
+        result.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+        break;
+      case "name-asc":
+        result.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
+        break;
+      case "name-desc":
+        result.sort((a, b) => (b.name || "").localeCompare(a.name || ""));
+        break;
+      case "email-asc":
+        result.sort((a, b) => (a.email || "").localeCompare(b.email || ""));
+        break;
+      case "email-desc":
+        result.sort((a, b) => (b.email || "").localeCompare(a.email || ""));
+        break;
+    }
+
+    return result;
+  }, [users, search, statusFilter, roleFilter, providerFilter, sortBy]);
+
+  const hasActiveFilters = search.trim() !== "" || statusFilter !== "all" || roleFilter !== "all" || providerFilter !== "all";
+
+  const clearFilters = () => {
+    setSearch("");
+    setStatusFilter("all");
+    setRoleFilter("all");
+    setProviderFilter("all");
+    setSortBy("newest");
+  };
 
   const handleStatusChange = async () => {
     const { user, status } = actionTarget;
@@ -89,14 +167,103 @@ export default function UsersPage() {
         </p>
       </div>
 
+      {/* Search & Filters */}
+      <div className="space-y-3">
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Search by name, email, or phone..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="pl-9 pr-9"
+          />
+          {search && (
+            <button
+              onClick={() => setSearch("")}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+              aria-label="Clear search"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          )}
+        </div>
+
+        <div className="flex flex-wrap items-center gap-2">
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectTrigger className="w-[130px]">
+              <SelectValue placeholder="Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Status</SelectItem>
+              <SelectItem value="active">Active</SelectItem>
+              <SelectItem value="suspended">Suspended</SelectItem>
+              <SelectItem value="banned">Banned</SelectItem>
+            </SelectContent>
+          </Select>
+
+          <Select value={roleFilter} onValueChange={setRoleFilter}>
+            <SelectTrigger className="w-[120px]">
+              <SelectValue placeholder="Role" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Roles</SelectItem>
+              <SelectItem value="user">User</SelectItem>
+              <SelectItem value="admin">Admin</SelectItem>
+            </SelectContent>
+          </Select>
+
+          <Select value={providerFilter} onValueChange={setProviderFilter}>
+            <SelectTrigger className="w-[140px]">
+              <SelectValue placeholder="Provider" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Providers</SelectItem>
+              {providers.map((p) => (
+                <SelectItem key={p} value={p} className="capitalize">{p}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          <Select value={sortBy} onValueChange={setSortBy}>
+            <SelectTrigger className="w-[150px]">
+              <SelectValue placeholder="Sort by" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="newest">Newest first</SelectItem>
+              <SelectItem value="oldest">Oldest first</SelectItem>
+              <SelectItem value="name-asc">Name (A-Z)</SelectItem>
+              <SelectItem value="name-desc">Name (Z-A)</SelectItem>
+              <SelectItem value="email-asc">Email (A-Z)</SelectItem>
+              <SelectItem value="email-desc">Email (Z-A)</SelectItem>
+            </SelectContent>
+          </Select>
+
+          {hasActiveFilters && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={clearFilters}
+              className="text-muted-foreground hover:text-foreground"
+            >
+              <X className="mr-1 h-3.5 w-3.5" />
+              Clear filters
+            </Button>
+          )}
+        </div>
+
+        <p className="text-xs text-muted-foreground">
+          Showing {filteredUsers.length} of {users.length} users
+        </p>
+      </div>
+
       {/* Mobile: Card layout */}
       <div className="space-y-3 md:hidden">
-        {users.length === 0 && (
+        {filteredUsers.length === 0 && (
           <div className="text-center py-12 border-2 border-dashed rounded-2xl text-muted-foreground">
-            No users found.
+            {hasActiveFilters ? "No users match your filters." : "No users found."}
           </div>
         )}
-        {users.map((user: any) => (
+        {filteredUsers.map((user: any) => (
           <div key={user._id} className="rounded-xl border bg-card p-4">
             <div className="flex items-start justify-between gap-3">
               <div className="flex items-center gap-3">
@@ -182,10 +349,10 @@ export default function UsersPage() {
       </div>
 
       {/* Desktop: Table layout */}
-      <div className="hidden md:block rounded-xl border bg-card pt-0 p-0 overflow-hidden">
+      <div className="hidden md:block rounded-xl border  pt-0 p-0 overflow-hidden">
         <Table>
           <TableHeader>
-            <TableRow className="bg-muted/50">
+            <TableRow className="">
               <TableHead className="w-1/3">User</TableHead>
               <TableHead className="w-1/6">Role</TableHead>
               <TableHead className="w-1/6">Provider</TableHead>
@@ -195,14 +362,14 @@ export default function UsersPage() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {users.length === 0 && (
+            {filteredUsers.length === 0 && (
               <TableRow>
                 <TableCell colSpan={6} className="h-24 text-center text-muted-foreground">
-                  No users found.
+                  {hasActiveFilters ? "No users match your filters." : "No users found."}
                 </TableCell>
               </TableRow>
             )}
-            {users.map((user: any) => (
+            {filteredUsers.map((user: any) => (
               <TableRow key={user._id}>
                 <TableCell>
                   <div className="flex items-center gap-3">
