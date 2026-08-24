@@ -234,39 +234,63 @@ export async function POST(req: NextRequest) {
     // DUPLICATE CHECK
     // =========================
 
-    const orConditions = [];
+    const identifiers = [serialNumber, imei, chassisNumber]
+  .filter((value): value is string => Boolean(value))
+  .map((value) => value.trim().toUpperCase());
 
-    if (serialNumber) {
-      orConditions.push({
-        "registry.serialNumber": serialNumber,
-      });
-    }
+const duplicate = await Item.findOne({
+ 
+  $or: [
+    { "registry.serialNumber": { $in: identifiers } },
+    { "registry.imei": { $in: identifiers } },
+    { "registry.chassisNumber": { $in: identifiers } },
+    { uniqueIdentifier: { $in: identifiers } },
+  ],
+}).select("_id");
 
-    if (imei) {
-      orConditions.push({
-        "registry.imei": imei,
-      });
-    }
+if (duplicate) {
+  return NextResponse.json(
+    {
+      error:
+        "An item with this serial number, IMEI, or chassis number is already registered.",
+    },
+    { status: 409 },
+  );
+}
 
-    if (chassisNumber) {
-      orConditions.push({
-        "registry.chassisNumber": chassisNumber,
-      });
-    }
+    // const orConditions = [];
 
-    const duplicate = await Item.findOne({
-      isRegistered: true,
-      $or: orConditions,
-    });
+    // if (serialNumber) {
+    //   orConditions.push({
+    //     "registry.serialNumber": serialNumber,
+    //   });
+    // }
 
-    if (duplicate) {
-      return NextResponse.json(
-        {
-          error: "A property with this identifier is already registered.",
-        },
-        { status: 409 },
-      );
-    }
+    // if (imei) {
+    //   orConditions.push({
+    //     "registry.imei": imei,
+    //   });
+    // }
+
+    // if (chassisNumber) {
+    //   orConditions.push({
+    //     "registry.chassisNumber": chassisNumber,
+    //   });
+    // }
+
+    // const duplicate = await Item.findOne({
+    //   isRegistered: true,
+    //   $or: orConditions,
+    // });
+
+    // if (duplicate) {
+    //   return NextResponse.json(
+    //     {
+    //       error: "A property with this identifier is already registered.",
+    //     },
+    //     { status: 409 },
+    //   );
+    // }
 
     // =========================
     // IMAGE UPLOADS
