@@ -111,6 +111,7 @@ export default function SignInPage() {
         {/* Features */}
         <div className="relative z-10 space-y-8">
           {[
+          
             {
               icon: Zap,
               title: "List in seconds",

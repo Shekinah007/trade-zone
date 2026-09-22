@@ -28,6 +28,7 @@ import {
 import Link from "next/link";
 import UserStatusManager from "@/components/admin/UserStatusManager";
 import QuotaIncreaseButton from "@/components/admin/QuotaIncreaseButton";
+import DeleteUserButton from "@/components/admin/DeleteUserButton";
 import { BackButton } from "@/components/BackButton";
 
 async function getUserData(id: string) {
@@ -67,7 +68,7 @@ function InfoRow({
       </div>
       <div className="min-w-0">
         <p className="text-xs text-muted-foreground">{label}</p>
-        <p className="text-sm font-medium break-words">{value}</p>
+        <p className="text-sm font-medium wrap-break-word">{value}</p>
       </div>
     </div>
   );
@@ -131,6 +132,7 @@ export default async function UserDetailPage({
           <div className="flex items-center gap-2">
             <QuotaIncreaseButton user={user} />
             <UserStatusManager user={user} />
+            <DeleteUserButton user={user} />
           </div>
         </div>
       </div>
