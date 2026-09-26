@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -113,6 +113,8 @@ function PasswordInput({
 
 export default function SignUpPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get("callbackUrl") || "/";
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -156,8 +158,23 @@ export default function SignUpPage() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Something went wrong");
-      toast.success("Account created! Please sign in.");
-      router.push("/auth/signin");
+      toast.success("Account created! Signing you in...");
+      
+      // Auto sign in after registration and redirect to callbackUrl
+      const signInRes = await signIn("credentials", {
+        redirect: false,
+        email: values.email,
+        password: values.password,
+        callbackUrl,
+      });
+
+      if (signInRes?.error) {
+        // If auto sign-in fails, redirect to signin with callbackUrl
+        router.push(`/auth/signin?callbackUrl=${encodeURIComponent(callbackUrl)}`);
+      } else {
+        router.push(callbackUrl);
+        router.refresh();
+      }
     } catch (error: any) {
       toast.error(error.message);
     } finally {
@@ -167,7 +184,7 @@ export default function SignUpPage() {
 
   const handleOAuth = async (provider: "google" | "facebook") => {
     setOauthLoading(provider);
-    await signIn(provider, { callbackUrl: "/" });
+    await signIn(provider, { callbackUrl });
     setOauthLoading(null);
   };
 

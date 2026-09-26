@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { signIn } from "next-auth/react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -50,6 +50,8 @@ function PasswordInput({ field }: { field: any }) {
 
 export default function SignInPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get("callbackUrl") || "/";
   const [isLoading, setIsLoading] = useState(false);
   const [oauthLoading, setOauthLoading] = useState<
     "google" | "facebook" | null
@@ -67,6 +69,7 @@ export default function SignInPage() {
         redirect: false,
         email: values.email,
         password: values.password,
+        callbackUrl,
       });
 
       if (!res) {
@@ -78,7 +81,7 @@ export default function SignInPage() {
         toast.error(res.error || "Invalid credentials");
       } else {
         toast.success("Welcome back!");
-        router.push("/");
+        router.push(callbackUrl);
         router.refresh();
       }
     } catch {
@@ -90,7 +93,7 @@ export default function SignInPage() {
 
   const handleOAuth = async (provider: "google" | "facebook") => {
     setOauthLoading(provider);
-    await signIn(provider, { callbackUrl: "/" });
+    await signIn(provider, { callbackUrl });
     setOauthLoading(null);
   };
 
